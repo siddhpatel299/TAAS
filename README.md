@@ -190,27 +190,230 @@ pnpm dev
 
 ## 📁 Architecture
 
+### System Overview
+
 <div align="center">
+
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Client Layer"]
+        UI["React Frontend<br/>(Vite + TypeScript)"]
+        Store["Zustand State<br/>Management"]
+    end
+
+    subgraph Server["⚙️ API Layer"]
+        API["Express.js API<br/>(REST Endpoints)"]
+        Auth["Auth Middleware<br/>(JWT Validation)"]
+        Services["Business Logic<br/>Services"]
+    end
+
+    subgraph Telegram["📱 Telegram Layer"]
+        GramJS["GramJS Client"]
+        Channel["Private Telegram<br/>Channel (Storage)"]
+    end
+
+    subgraph Database["🗄️ Data Layer"]
+        Prisma["Prisma ORM"]
+        PostgreSQL["PostgreSQL<br/>(Supabase)"]
+    end
+
+    UI <--> Store
+    Store <-->|HTTP/REST| API
+    API --> Auth
+    Auth --> Services
+    Services <--> GramJS
+    GramJS <-->|MTProto| Channel
+    Services <--> Prisma
+    Prisma <--> PostgreSQL
+```
+
+</div>
+
+### How It Works
+
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant F as 🎨 Frontend
+    participant A as ⚙️ API Server
+    participant T as 📱 Telegram
+    participant D as 🗄️ Database
+
+    Note over U,D: 🔐 Authentication Flow
+    U->>F: Enter phone number
+    F->>A: POST /api/auth/send-code
+    A->>T: Send verification code
+    T-->>U: SMS/Telegram code
+    U->>F: Enter code
+    F->>A: POST /api/auth/verify-code
+    A->>T: Verify & create session
+    A->>D: Store encrypted session
+    A-->>F: JWT token
+
+    Note over U,D: 📤 File Upload Flow
+    U->>F: Select file to upload
+    F->>A: POST /api/files/upload
+    A->>A: Chunk if > 2GB
+    A->>T: Upload to private channel
+    T-->>A: File ID & Message ID
+    A->>D: Store file metadata
+    A-->>F: Upload complete
+
+    Note over U,D: 📥 File Download Flow
+    U->>F: Click download
+    F->>A: GET /api/files/:id/download
+    A->>D: Get file metadata
+    A->>T: Fetch from channel
+    T-->>A: File buffer
+    A->>A: Reassemble chunks if needed
+    A-->>F: Stream file to user
+```
+
+</div>
+
+### Core Components
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Frontend** | React 18, Vite, TypeScript | Luxury UI with glassmorphism design |
+| **State** | Zustand, React Query | Client-side state & cache management |
+| **API** | Express.js, TypeScript | RESTful endpoints with rate limiting |
+| **Auth** | JWT, GramJS Sessions | Telegram-based authentication |
+| **Storage** | GramJS, MTProto | File upload/download via Telegram API |
+| **Database** | Prisma, PostgreSQL | Metadata, users, folders, share links |
+| **Chunking** | Custom Service | Split files > 2GB into 1.9GB chunks |
+
+### Data Flow Architecture
+
+<div align="center">
+
+```mermaid
+flowchart LR
+    subgraph Upload["📤 Upload Pipeline"]
+        direction TB
+        A1[File Input] --> A2[Validation]
+        A2 --> A3{Size > 2GB?}
+        A3 -->|Yes| A4[Chunk Service]
+        A3 -->|No| A5[Direct Upload]
+        A4 --> A6[Upload Chunks]
+        A5 --> A6
+        A6 --> A7[Store Metadata]
+    end
+
+    subgraph Storage["💾 Storage Layer"]
+        direction TB
+        B1[Telegram Channel]
+        B2[PostgreSQL]
+        B3[File Chunks Table]
+    end
+
+    subgraph Download["📥 Download Pipeline"]
+        direction TB
+        C1[Fetch Metadata] --> C2{Is Chunked?}
+        C2 -->|Yes| C3[Download Chunks]
+        C2 -->|No| C4[Direct Download]
+        C3 --> C5[Reassemble]
+        C4 --> C6[Stream to Client]
+        C5 --> C6
+    end
+
+    Upload --> Storage
+    Storage --> Download
+```
+
+</div>
+
+### Project Structure
 
 ```
 👑 TAAS/
 ├── 🎨 apps/web                    → React Frontend (Luxury UI)
 │   ├── src/
-│   │   ├── components/           → Reusable Components
-│   │   ├── pages/                → Route Pages
-│   │   ├── stores/               → State Management
-│   │   └── lib/                  → API & Utilities
+│   │   ├── components/           → Reusable UI Components
+│   │   │   └── ui/               → Radix UI Primitives
+│   │   ├── pages/                → Route Pages (Dashboard, Login, etc.)
+│   │   ├── stores/               → Zustand State Management
+│   │   └── lib/                  → API Client & Utilities
 │   └── ...
 │
 ├── ⚙️ apps/server                 → Node.js Backend (API)
 │   ├── src/
-│   │   ├── routes/               → REST Endpoints
+│   │   ├── routes/               → REST API Endpoints
+│   │   │   ├── auth.routes.ts    → Authentication endpoints
+│   │   │   ├── files.routes.ts   → File CRUD operations
+│   │   │   ├── folders.routes.ts → Folder management
+│   │   │   ├── share.routes.ts   → Share link management
+│   │   │   └── sync.routes.ts    → Device sync
 │   │   ├── services/             → Business Logic
+│   │   │   ├── telegram.service  → Telegram API integration
+│   │   │   ├── storage.service   → File storage operations
+│   │   │   ├── chunk.service     → Large file chunking
+│   │   │   └── version.service   → File versioning
 │   │   ├── middleware/           → Auth & Error Handling
-│   │   └── index.ts              → Server Entry
-│   └── prisma/                   → Database Schema
+│   │   └── index.ts              → Express Server Entry
+│   └── prisma/                   → Database Schema & Migrations
 │
 └── 📦 packages/shared             → Shared TypeScript Types
+```
+
+### Database Schema
+
+<div align="center">
+
+```mermaid
+erDiagram
+    User ||--o{ File : owns
+    User ||--o{ Folder : owns
+    User ||--o{ StorageChannel : has
+    User ||--o{ SharedLink : creates
+    
+    Folder ||--o{ File : contains
+    Folder ||--o{ Folder : "parent-child"
+    
+    File ||--o{ FileChunk : "split into"
+    File ||--o{ FileVersion : "has versions"
+    File ||--o{ SharedLink : "shared via"
+
+    User {
+        string id PK
+        string telegramId UK
+        string username
+        string sessionData "encrypted"
+    }
+    
+    File {
+        string id PK
+        string name
+        bigint size
+        string telegramFileId
+        int telegramMessageId
+        boolean isChunked
+        string checksum
+    }
+    
+    FileChunk {
+        string id PK
+        int chunkIndex
+        string telegramFileId
+        bigint size
+    }
+    
+    Folder {
+        string id PK
+        string name
+        string parentId FK
+        string color
+    }
+    
+    SharedLink {
+        string id PK
+        string token UK
+        datetime expiresAt
+        string password
+        int maxDownloads
+    }
 ```
 
 </div>
