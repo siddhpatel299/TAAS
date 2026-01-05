@@ -211,15 +211,15 @@ export function FileCard({
           />
         ) : (
           <div className={cn(
-            'w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg',
+            'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md',
             colorClass
           )}>
-            <Icon className="w-8 h-8 text-white" />
+            <Icon className="w-6 h-6 text-white" />
           </div>
         )}
 
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4 gap-2">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4 gap-2">
           {canPreview && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -228,7 +228,7 @@ export function FileCard({
             >
               <Button
                 size="sm"
-                className="h-10 px-4 rounded-xl bg-white/90 text-foreground hover:bg-white shadow-lg"
+                className="h-9 px-4 rounded-xl bg-white text-black hover:bg-white/90 shadow-lg font-medium"
                 onClick={(e) => {
                   e.stopPropagation();
                   onPreview?.();
@@ -246,7 +246,7 @@ export function FileCard({
           >
             <Button
               size="sm"
-              className="h-10 w-10 rounded-xl bg-white/90 text-foreground hover:bg-white shadow-lg"
+              className="h-9 w-9 rounded-xl bg-white/20 text-white hover:bg-white/30 shadow-lg backdrop-blur-sm border border-white/20"
               onClick={(e) => {
                 e.stopPropagation();
                 onDownload();

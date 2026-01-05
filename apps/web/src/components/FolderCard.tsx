@@ -24,12 +24,12 @@ interface FolderCardProps {
 const folderGradients: Record<string, string> = {
   blue: 'from-blue-400 to-blue-600',
   green: 'from-emerald-400 to-emerald-600',
-  yellow: 'from-yellow-400 to-yellow-600',
+  yellow: 'from-amber-400 to-amber-600',
   red: 'from-rose-400 to-rose-600',
   purple: 'from-purple-400 to-purple-600',
   pink: 'from-pink-400 to-pink-600',
   orange: 'from-orange-400 to-orange-600',
-  default: 'from-foreground/80 to-foreground',
+  default: 'from-slate-500 to-slate-700',
 };
 
 export function FolderCard({
@@ -93,11 +93,11 @@ export function FolderCard({
           whileHover={{ scale: 1.1, rotate: -5 }}
           transition={{ type: 'spring', stiffness: 300 }}
           className={cn(
-            'w-20 h-20 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-xl',
+            'w-14 h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
             gradientClass
           )}
         >
-          <Folder className="w-10 h-10 text-white" />
+          <Folder className="w-7 h-7 text-white" />
         </motion.div>
 
         {/* Actions */}
