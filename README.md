@@ -418,6 +418,193 @@ erDiagram
 
 </div>
 
+## 🔒 Security Architecture
+
+TAAS implements defense-in-depth security with **zero-knowledge encryption**. Your files are encrypted before they ever leave your browser.
+
+### Security Overview
+
+<div align="center">
+
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Client (Browser)"]
+        direction TB
+        P["User Passphrase"] --> KDF["PBKDF2 Key Derivation<br/>(600,000 iterations)"]
+        KDF --> MK["Master Key<br/>(AES-256)"]
+        MK --> EFK["Encrypt File Keys"]
+        
+        F["File"] --> E["AES-256-GCM<br/>Encryption"]
+        E --> H["SHA-256 Hash<br/>per Chunk"]
+    end
+
+    subgraph Server["⚙️ Server"]
+        direction TB
+        META["Store Metadata Only"]
+        SALT["Salt + Verification Hash"]
+        EK["Encrypted File Keys"]
+    end
+
+    subgraph Telegram["📱 Telegram"]
+        direction TB
+        BLOB["Encrypted Blobs<br/>(Unreadable)"]
+    end
+
+    H -->|"Encrypted Only"| BLOB
+    EFK --> EK
+    KDF --> SALT
+
+    style MK fill:#d4af37
+    style P fill:#22c55e
+```
+
+</div>
+
+### 🔐 Encryption Model
+
+| Layer | Algorithm | Purpose |
+|-------|-----------|---------|
+| **Key Derivation** | PBKDF2-SHA256 (600K iterations) | Derive master key from passphrase |
+| **File Encryption** | AES-256-GCM | Encrypt file content with authentication |
+| **Key Encryption** | AES-256-GCM | Encrypt per-file keys with master key |
+| **Integrity** | SHA-256 | Hash verification for every chunk |
+| **Transport** | HTTPS + MTProto | Secure data transmission |
+
+### 🛡️ Security Guarantees
+
+```
+✅ Zero-Knowledge: Server never sees your passphrase or master key
+✅ Client-Side Encryption: Files encrypted BEFORE upload
+✅ Per-File Keys: Each file has a unique encryption key
+✅ Integrity Verification: SHA-256 hash checked on every chunk
+✅ No Plaintext Storage: Only encrypted blobs stored on Telegram
+✅ Forward Secrecy: Compromising one file key doesn't expose others
+```
+
+### Secure Upload Flow
+
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant B as 🌐 Browser
+    participant S as ⚙️ Server
+    participant T as 📱 Telegram
+
+    Note over U,T: 🔐 Client-Side Encryption (Browser)
+    U->>B: Select file + Enter passphrase
+    B->>B: Derive master key (PBKDF2)
+    B->>B: Generate random file key (AES-256)
+    B->>B: Encrypt file with file key
+    B->>B: Encrypt file key with master key
+    B->>B: Calculate SHA-256 hash per chunk
+
+    Note over U,T: 📤 Throttled Upload (Anti-Detection)
+    B->>S: Send encrypted chunk + hash
+    S->>S: Apply rate limiting + jitter
+    S->>S: Wait 500-2000ms between chunks
+    S->>T: Upload encrypted blob
+    T-->>S: Message ID
+    S->>S: Store metadata + encrypted key
+    S-->>B: Chunk confirmed
+
+    Note over U,T: ✅ Verification
+    B->>B: Verify all chunks uploaded
+    S-->>B: Upload complete
+```
+
+</div>
+
+### Secure Download & Recovery Flow
+
+<div align="center">
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant B as 🌐 Browser
+    participant S as ⚙️ Server
+    participant T as 📱 Telegram
+
+    Note over U,T: 📥 Download Encrypted Chunks
+    U->>B: Request file + Enter passphrase
+    B->>S: GET /files/:id/metadata
+    S-->>B: Encrypted file key + chunk info
+    
+    loop For each chunk
+        B->>S: GET /files/:id/chunk/:index
+        S->>T: Fetch encrypted blob
+        T-->>S: Encrypted data
+        S-->>B: Chunk + expected hash
+        B->>B: Verify SHA-256 hash
+        B->>B: FAIL LOUDLY if mismatch ❌
+    end
+
+    Note over U,T: 🔓 Client-Side Decryption
+    B->>B: Derive master key (PBKDF2)
+    B->>B: Decrypt file key with master key
+    B->>B: Decrypt & reassemble chunks
+    B->>B: Verify final file hash
+    B-->>U: Decrypted file ✅
+```
+
+</div>
+
+### 🕵️ Anti-Detection Measures
+
+TAAS implements human-like behavior to avoid triggering Telegram's abuse detection:
+
+| Measure | Implementation |
+|---------|----------------|
+| **Sequential Uploads** | Chunks uploaded one at a time, never parallel |
+| **Random Delays** | 500-2000ms jitter between chunk uploads |
+| **Rate Limiting** | Max 10 chunks/minute with cooldown periods |
+| **Random Channel Names** | Unique names like `MyFiles_x7k2a3b` per user |
+| **Progress-Based Delay** | Slower uploads as file progresses (mimics fatigue) |
+
+### 🔑 Key Management
+
+```typescript
+// Key derivation from passphrase (client-side only)
+const masterKey = await crypto.subtle.deriveKey(
+  {
+    name: 'PBKDF2',
+    salt: userSalt,
+    iterations: 600000,  // High iteration count
+    hash: 'SHA-256',
+  },
+  passphraseKey,
+  { name: 'AES-GCM', length: 256 },
+  false,  // NOT extractable - never leaves memory
+  ['encrypt', 'decrypt']
+);
+```
+
+### 📦 Recovery Model
+
+Files can be fully recovered using only:
+1. **Encrypted chunks** from Telegram
+2. **Metadata** from the database  
+3. **User passphrase** (memorized)
+
+```typescript
+// Export recovery metadata for backup
+const backup = await recoveryService.exportFullBackup(userId);
+// Contains: encrypted file keys, chunk hashes, channel IDs
+// Does NOT contain: passphrase, master key, plaintext data
+```
+
+### What the Server Knows vs. Doesn't Know
+
+| Server Knows ✓ | Server CANNOT Access ✗ |
+|----------------|------------------------|
+| File names & sizes | File contents |
+| Encrypted file keys | Master key |
+| Salt for key derivation | Passphrase |
+| SHA-256 hashes | Decrypted data |
+| Telegram message IDs | Encryption keys |
+
 ## 🔧 API Reference
 
 <details>

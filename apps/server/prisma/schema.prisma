@@ -16,6 +16,13 @@ model User {
   phoneNumber String?
   avatarUrl   String?
   sessionData String?  @db.Text // Encrypted Telegram session
+  
+  // Client-side encryption - key derivation data
+  // The passphrase itself is NEVER stored - only salted hash for verification
+  encryptionSalt             String?  @db.Text // Base64 encoded salt for PBKDF2
+  encryptionVerificationHash String?  @db.Text // Salted hash for passphrase verification
+  encryptionInitialized      Boolean  @default(false)
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -67,6 +74,7 @@ model FileChunk {
   telegramMessageId Int
   channelId         String
   size              BigInt
+  hash              String?  // SHA-256 hash for integrity verification
   createdAt         DateTime @default(now())
 
   file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
@@ -74,6 +82,20 @@ model FileChunk {
   @@unique([fileId, chunkIndex])
   @@index([fileId])
   @@map("file_chunks")
+}
+
+// Stores encrypted file keys - the key itself is encrypted with user's master key
+// Master key is derived from passphrase and NEVER stored
+model FileEncryption {
+  id               String   @id @default(cuid())
+  fileId           String   @unique
+  encryptedFileKey String   @db.Text // File key encrypted with user's master key (Base64)
+  fileKeyIv        String   @db.Text // IV used to encrypt the file key (Base64)
+  originalHash     String   // SHA-256 hash of original unencrypted file
+  createdAt        DateTime @default(now())
+
+  @@index([fileId])
+  @@map("file_encryptions")
 }
 
 model FileVersion {
