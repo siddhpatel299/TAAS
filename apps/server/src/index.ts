@@ -13,8 +13,12 @@ const app: Application = express();
 
 // Security middleware
 app.use(helmet());
+
+// Normalize frontend URL (remove trailing slash)
+const frontendUrl = config.frontendUrl?.replace(/\/$/, '') || '*';
+
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: frontendUrl === '*' ? '*' : frontendUrl,
   credentials: true,
 }));
 
