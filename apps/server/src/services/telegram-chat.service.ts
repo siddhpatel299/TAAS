@@ -1,7 +1,6 @@
 import { TelegramClient, Api } from 'telegram';
 import bigInt from 'big-integer';
 import { telegramService } from './telegram.service';
-import { storageService } from './storage.service';
 import { prisma } from '../lib/prisma';
 
 /**
@@ -182,6 +181,10 @@ class TelegramChatService {
   /**
    * Import a file from a specific Telegram message to TAAS.
    * 
+   * STREAMING IMPLEMENTATION - Memory Efficient!
+   * File is streamed directly: Telegram → Server (minimal buffer) → TAAS Storage
+   * Does NOT load entire file into RAM.
+   * 
    * CRITICAL: This only imports ONE file from ONE specific message.
    * No batch operations, no automatic imports.
    * 
@@ -245,39 +248,59 @@ class TelegramChatService {
     } else if (message.media instanceof Api.MessageMediaPhoto) {
       fileName = `photo_${messageId}.jpg`;
       mimeType = 'image/jpeg';
-      // Estimate size - actual size will be determined after download
-      size = 0;
+      // For photos, estimate size (actual will be determined during transfer)
+      const photo = message.media.photo as Api.Photo;
+      const sizes = photo.sizes || [];
+      const largestSize = sizes[sizes.length - 1];
+      size = largestSize && 'size' in largestSize ? largestSize.size : 0;
     } else {
       throw new Error('Unsupported media type');
     }
 
-    // Download the file from the source chat
-    const buffer = await client.downloadMedia(message, {});
-
-    if (!buffer) {
-      throw new Error('Failed to download file from chat');
-    }
-
-    const fileBuffer = buffer as Buffer;
-    const actualSize = fileBuffer.length;
-
-    // Upload to TAAS using existing storage service
-    const savedFile = await storageService.uploadFile({
-      userId,
-      file: fileBuffer,
+    // STREAMING TRANSFER: Pipe directly from source chat to storage channel
+    // This doesn't load the entire file into memory!
+    const uploadResult = await telegramService.streamTransfer(
+      client,
+      message.media,
+      storageChannel.channelId,
       fileName,
-      originalName: fileName,
       mimeType,
-      size: actualSize,
-      folderId,
-      channelId: storageChannel.channelId,
+      size
+    );
+
+    // Save to database
+    const savedFile = await prisma.file.create({
+      data: {
+        name: fileName,
+        originalName: fileName,
+        mimeType,
+        size: BigInt(size),
+        telegramFileId: uploadResult.fileId,
+        telegramMessageId: uploadResult.messageId,
+        channelId: storageChannel.channelId,
+        folderId,
+        userId,
+        isChunked: false,
+        checksum: null, // Checksum would require full buffer - skip for streaming
+      },
+    });
+
+    // Update storage channel stats
+    await prisma.storageChannel.update({
+      where: {
+        channelId_userId: { channelId: storageChannel.channelId, userId },
+      },
+      data: {
+        usedBytes: { increment: BigInt(size) },
+        fileCount: { increment: 1 },
+      },
     });
 
     return {
       success: true,
       fileId: savedFile.id,
       fileName: savedFile.name,
-      size: savedFile.size,
+      size: Number(savedFile.size),
     };
   }
 

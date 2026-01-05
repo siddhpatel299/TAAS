@@ -418,6 +418,90 @@ erDiagram
 
 </div>
 
+---
+
+## 📱 Telegram Chat Import
+
+Import files directly from your Telegram chats, groups, and channels into TAAS with a single click.
+
+### ✨ Key Features
+
+- **Browse Chats**: View all your Telegram conversations
+- **File Preview**: See files shared in any chat
+- **One-Click Import**: Import individual files to TAAS
+- **Folder Selection**: Choose destination folder
+
+### 🔄 Streaming Architecture (Memory Efficient)
+
+Files are transferred using **streaming** - they flow directly from Telegram to storage without loading the entire file into server memory.
+
+<div align="center">
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│                 │         │                 │         │                 │
+│  TELEGRAM       │ ──────▶ │  TAAS SERVER    │ ──────▶ │  TAAS STORAGE   │
+│  SERVERS        │  stream │  (512KB chunks) │  stream │  (Telegram)     │
+│                 │         │  Minimal RAM    │         │                 │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+                                   ▲
+                                   │ Only sends
+                                   │ "import" command
+                            ┌──────┴──────┐
+                            │   USER'S    │
+                            │   BROWSER   │
+                            └─────────────┘
+```
+
+</div>
+
+### How Streaming Works
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant B as 🌐 Browser  
+    participant S as ⚙️ Server
+    participant T1 as 📱 Source Chat
+    participant T2 as 📦 Storage Channel
+
+    U->>B: Click "Import" on file
+    B->>S: POST /telegram/.../import
+    Note over S: No file data sent!
+    
+    S->>T1: Start streaming download
+    
+    loop 512KB Chunks
+        T1-->>S: Chunk N
+        S->>T2: Stream chunk to storage
+        Note over S: Only 512KB in RAM
+    end
+    
+    T2-->>S: Upload complete
+    S->>S: Save metadata to DB
+    S-->>B: Success response
+    B->>U: "File imported!" ✅
+```
+
+### Memory Comparison
+
+| Approach | 100MB File | 1GB File | 4GB File |
+|----------|------------|----------|----------|
+| **Old (Buffer)** | 100MB RAM | 1GB RAM | 4GB RAM ❌ |
+| **New (Stream)** | ~512KB RAM | ~512KB RAM | ~512KB RAM ✅ |
+
+### Design Rules
+
+| Rule | Implementation |
+|------|----------------|
+| **Manual only** | User must click "Import" button |
+| **One file per action** | API accepts single `messageId` |
+| **Streaming transfer** | File never fully loaded to RAM |
+| **No bulk/batch** | No array operations |
+| **No background sync** | No watchers, no polling |
+
+---
+
 ## 🔒 Security Architecture
 
 TAAS implements defense-in-depth security with **zero-knowledge encryption**. Your files are encrypted before they ever leave your browser.

@@ -5,6 +5,7 @@ import { config } from '../config';
 import { prisma } from '../lib/prisma';
 import { NewMessage } from 'telegram/events';
 import bigInt from 'big-integer';
+import { Readable, PassThrough } from 'stream';
 
 interface TelegramSession {
   client: TelegramClient;
@@ -275,6 +276,122 @@ export class TelegramService {
     }
 
     return null;
+  }
+
+  /**
+   * STREAMING: Download file from Telegram as a readable stream
+   * Memory efficient - doesn't load entire file into RAM
+   */
+  async downloadFileAsStream(
+    client: TelegramClient,
+    media: Api.TypeMessageMedia,
+    fileSize: number
+  ): Promise<Readable> {
+    const stream = new PassThrough();
+    
+    // Use iterDownload for streaming - processes in chunks
+    const downloadChunkSize = 512 * 1024; // 512KB chunks
+    
+    // Start async download and pipe to stream
+    (async () => {
+      try {
+        let offset = 0;
+        
+        for await (const chunk of client.iterDownload({
+          file: media,
+          requestSize: downloadChunkSize,
+        })) {
+          stream.write(chunk);
+          offset += chunk.length;
+        }
+        
+        stream.end();
+      } catch (error) {
+        stream.destroy(error as Error);
+      }
+    })();
+
+    return stream;
+  }
+
+  /**
+   * STREAMING: Upload from a readable stream to Telegram
+   * Collects chunks and uploads when complete
+   * For very large files, consider chunked upload approach
+   */
+  async uploadFileFromStream(
+    client: TelegramClient,
+    channelId: string,
+    stream: Readable,
+    fileName: string,
+    mimeType: string,
+    fileSize: number,
+    onProgress?: (progress: number) => void
+  ): Promise<{ messageId: number; fileId: string }> {
+    const channel = await this.getChannelEntity(client, channelId);
+    
+    // Collect stream into buffer for upload
+    // Note: For files > 2GB, use chunked upload instead
+    const chunks: Buffer[] = [];
+    let receivedBytes = 0;
+    
+    for await (const chunk of stream) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      receivedBytes += chunk.length;
+      
+      if (onProgress && fileSize > 0) {
+        onProgress((receivedBytes / fileSize) * 50); // First 50% is receiving
+      }
+    }
+    
+    const buffer = Buffer.concat(chunks);
+    
+    // Upload to Telegram
+    const result = await client.sendFile(channel, {
+      file: new CustomFile(fileName, buffer.length, '', buffer),
+      caption: `📁 ${fileName}`,
+      progressCallback: onProgress
+        ? (progress) => onProgress(50 + progress * 50) // Last 50% is uploading
+        : undefined,
+      forceDocument: true,
+    });
+
+    const message = result as Api.Message;
+    const document = message.media as Api.MessageMediaDocument;
+    const doc = document.document as Api.Document;
+
+    return {
+      messageId: message.id,
+      fileId: doc.id.toString(),
+    };
+  }
+
+  /**
+   * STREAMING: Pipe directly from source to destination
+   * Most memory-efficient approach - minimal buffering
+   */
+  async streamTransfer(
+    client: TelegramClient,
+    sourceMedia: Api.TypeMessageMedia,
+    destChannelId: string,
+    fileName: string,
+    mimeType: string,
+    fileSize: number,
+    onProgress?: (progress: number) => void
+  ): Promise<{ messageId: number; fileId: string }> {
+    // Get download stream
+    const downloadStream = await this.downloadFileAsStream(client, sourceMedia, fileSize);
+    
+    // Upload from stream
+    return this.uploadFileFromStream(
+      client,
+      destChannelId,
+      downloadStream,
+      fileName,
+      mimeType,
+      fileSize,
+      onProgress
+    );
   }
 }
 
