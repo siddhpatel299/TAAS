@@ -26,10 +26,10 @@ const folderGradients: Record<string, string> = {
   green: 'from-emerald-400 to-emerald-600',
   yellow: 'from-amber-400 to-amber-600',
   red: 'from-rose-400 to-rose-600',
-  purple: 'from-violet-400 to-violet-600',
+  purple: 'from-amber-400 to-gold',
   pink: 'from-pink-400 to-pink-600',
   orange: 'from-orange-400 to-orange-600',
-  default: 'from-violet-400 to-purple-600',
+  default: 'from-gold-dark to-gold-light',
 };
 
 export function FolderCard({
@@ -48,8 +48,8 @@ export function FolderCard({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ scale: 1.01 }}
-        className="flex items-center gap-4 p-4 glass-subtle rounded-2xl transition-all cursor-pointer group"
+        whileHover={{ scale: 1.005 }}
+        className="flex items-center gap-4 p-4 glass-subtle rounded-xl transition-all cursor-pointer group"
         onClick={onOpen}
       >
         <div className="flex-shrink-0">
@@ -81,10 +81,10 @@ export function FolderCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -4 }}
-      className="group relative flex flex-col glass-subtle rounded-2xl overflow-hidden transition-all cursor-pointer hover:shadow-xl hover:shadow-purple-500/10"
+      whileHover={{ y: -2 }}
+      className="group relative flex flex-col glass-subtle rounded-xl overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:shadow-amber-500/5 hover:border-amber-500/20"
       onClick={onOpen}
     >
       {/* Preview */}
@@ -144,11 +144,11 @@ function FolderActions({
       <DropdownMenuContent 
         align="end" 
         onClick={(e) => e.stopPropagation()}
-        className="w-48 p-2 glass-strong rounded-2xl border-white/20"
+        className="w-48 p-2 glass-strong rounded-xl border-border"
       >
         <DropdownMenuItem 
           onClick={onRename}
-          className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+          className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
         >
           <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
             <Pencil className="w-4 h-4" />
@@ -157,17 +157,17 @@ function FolderActions({
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={onMove}
-          className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+          className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
         >
           <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
             <FolderInput className="w-4 h-4" />
           </div>
           Move
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-white/10 my-1" />
+        <DropdownMenuSeparator className="bg-border my-1" />
         <DropdownMenuItem 
           onClick={onDelete} 
-          className="h-10 rounded-xl cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+          className="h-10 rounded-lg cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
         >
           <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
             <Trash2 className="w-4 h-4" />

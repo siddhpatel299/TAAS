@@ -1,80 +1,128 @@
-# TAAS - Telegram As A Storage
+<div align="center">
 
-<p align="center">
-  <img src="apps/web/public/logo.svg" alt="TAAS Logo" width="120" height="120">
+# 👑 TAAS
+### Telegram As A Storage
+
+<p>
+  <img src="https://img.shields.io/badge/Storage-Unlimited-d4af37?style=for-the-badge&logo=telegram&logoColor=white" alt="Unlimited Storage"/>
+  <img src="https://img.shields.io/badge/Price-FREE-d4af37?style=for-the-badge" alt="Free"/>
+  <img src="https://img.shields.io/badge/Built_with-React_&_Node.js-d4af37?style=for-the-badge" alt="Tech Stack"/>
 </p>
 
-<p align="center">
-  <strong>Unlimited cloud storage powered by Telegram</strong>
+### ✨ *Luxury Cloud Storage, Powered by Telegram* ✨
+
+Transform your Telegram into an **unlimited, secure cloud storage** with an elegant, professional interface. No subscriptions. No limits. Pure sophistication.
+
+<p>
+  <img src="https://img.shields.io/github/stars/yourusername/taas?style=social" alt="Stars"/>
+  <img src="https://img.shields.io/github/forks/yourusername/taas?style=social" alt="Forks"/>
 </p>
 
-<p align="center">
-  Store any file, any size. No limits, no subscriptions.
-</p>
+</div>
 
 ---
 
-## ✨ Features
+## 🌟 Premium Features
 
-- 🗂️ **Unlimited Storage** - Store files of any size using Telegram's infrastructure
-- 📁 **Folder Organization** - Create folders and organize your files
-- ⭐ **Star Important Files** - Quick access to your most-used files
-- 🗑️ **Trash & Recovery** - Recover accidentally deleted files
-- 🔒 **Secure** - Files stored in your private Telegram channel
-- 📱 **Responsive UI** - Works on desktop and mobile
-- 🌙 **Dark Mode** - Easy on the eyes
+<table>
+<tr>
+<td width="50%">
 
-## 🛠️ Tech Stack
+### ♾️ Infinite Storage
+Leverage Telegram's infrastructure for **truly unlimited** file storage. Store files of any size, from documents to 4K videos.
 
-### Frontend
-- React 18 + Vite
-- TypeScript
-- Tailwind CSS
-- Radix UI (Shadcn/ui)
-- Framer Motion
-- Zustand (State Management)
-- React Query
+### 🎨 Luxury Design
+Refined glassmorphism with **gold accents** and smooth animations. A professional interface that feels premium.
 
-### Backend
-- Node.js + Express
-- TypeScript
-- Prisma ORM
-- GramJS (Telegram MTProto)
-- PostgreSQL (Supabase)
+### 🗂️ Smart Organization
+Intuitive folder system with **drag-and-drop**, bulk actions, and intelligent file management.
 
-## 🚀 Getting Started
+</td>
+<td width="50%">
 
-### Prerequisites
+### ⚡ Lightning Fast
+Chunked uploads with **parallel processing**. Resume interrupted uploads seamlessly with version control.
 
-- Node.js 18+
-- pnpm 8+
-- PostgreSQL database (Supabase recommended)
-- Telegram API credentials
+### 🔐 Fort Knox Security
+End-to-end encryption with **password-protected shares**. Your files stored privately in your Telegram channel.
 
-### 1. Get Telegram API Credentials
+### 🌍 Access Anywhere
+**Responsive design** works flawlessly on desktop, tablet, and mobile. Your files, everywhere you go.
 
-1. Go to [my.telegram.org/apps](https://my.telegram.org/apps)
+</td>
+</tr>
+</table>
+
+---
+
+## 💎 Tech Stack
+
+<div align="center">
+
+### Frontend Excellence
+**React 18** • **TypeScript** • **Vite** • **Tailwind CSS** • **Framer Motion** • **Radix UI**
+
+### Backend Power  
+**Node.js** • **Express** • **Prisma ORM** • **GramJS** • **PostgreSQL**
+
+</div>
+
+---
+
+
+
+## 🚀 Quick Start Guide
+
+<details>
+<summary><b>📋 Prerequisites</b></summary>
+<br>
+
+- **Node.js** 18 or higher
+- **pnpm** 8 or higher  
+- **PostgreSQL** database (Supabase recommended)
+- **Telegram API** credentials
+
+</details>
+
+### 1️⃣ Get Telegram API Credentials
+
+<div align="center">
+
+```mermaid
+graph LR
+    A[Visit my.telegram.org] --> B[Login with Phone]
+    B --> C[Create Application]
+    C --> D[Get API ID & Hash]
+```
+
+</div>
+
+1. Visit [my.telegram.org/apps](https://my.telegram.org/apps)
 2. Log in with your phone number
-3. Create a new application
-4. Note down your `api_id` and `api_hash`
+3. Create a new application  
+4. **Save** your `api_id` and `api_hash` securely
 
-### 2. Setup Supabase Database
+### 2️⃣ Setup Supabase Database
 
-1. Create a free account at [supabase.com](https://supabase.com)
+1. Create free account at [supabase.com](https://supabase.com) 🎁
 2. Create a new project
-3. Go to Settings → Database → Connection string
-4. Copy the URI (replace `[YOUR-PASSWORD]` with your password)
+3. Navigate: **Settings → Database → Connection string**
+4. Copy the URI *(replace `[YOUR-PASSWORD]` with your password)*
 
-### 3. Clone & Install
+### 3️⃣ Clone & Install
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/taas.git
 cd taas
 
-# Install dependencies
+# Install all dependencies
 pnpm install
 ```
+
+<div align="center">
+<img src="https://img.shields.io/badge/⚡-Lightning_Fast_Install-d4af37?style=flat-square"/>
+</div>
 
 ### 4. Configure Environment
 
@@ -140,63 +188,102 @@ pnpm dev
 4. Start command: `pnpm start`
 5. Add all environment variables from `.env`
 
-## 📁 Project Structure
+## 📁 Architecture
+
+<div align="center">
 
 ```
-TAAS/
-├── apps/
-│   ├── web/                 # React frontend
-│   │   ├── src/
-│   │   │   ├── components/  # UI components
-│   │   │   ├── pages/       # Page components
-│   │   │   ├── stores/      # Zustand stores
-│   │   │   ├── lib/         # Utilities & API
-│   │   │   └── App.tsx      # Main app
-│   │   └── ...
-│   │
-│   └── server/              # Express backend
-│       ├── src/
-│       │   ├── routes/      # API routes
-│       │   ├── services/    # Business logic
-│       │   ├── middleware/  # Express middleware
-│       │   └── index.ts     # Server entry
-│       └── prisma/          # Database schema
+👑 TAAS/
+├── 🎨 apps/web                    → React Frontend (Luxury UI)
+│   ├── src/
+│   │   ├── components/           → Reusable Components
+│   │   ├── pages/                → Route Pages
+│   │   ├── stores/               → State Management
+│   │   └── lib/                  → API & Utilities
+│   └── ...
 │
-└── packages/
-    └── shared/              # Shared types
+├── ⚙️ apps/server                 → Node.js Backend (API)
+│   ├── src/
+│   │   ├── routes/               → REST Endpoints
+│   │   ├── services/             → Business Logic
+│   │   ├── middleware/           → Auth & Error Handling
+│   │   └── index.ts              → Server Entry
+│   └── prisma/                   → Database Schema
+│
+└── 📦 packages/shared             → Shared TypeScript Types
 ```
 
-## 🔧 API Endpoints
+</div>
 
-### Authentication
-- `POST /api/auth/send-code` - Send verification code
-- `POST /api/auth/verify-code` - Verify code & login
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/logout` - Logout
+## 🔧 API Reference
 
-### Files
-- `GET /api/files` - List files
-- `POST /api/files/upload` - Upload file
-- `GET /api/files/:id/download` - Download file
-- `POST /api/files/:id/star` - Toggle star
-- `DELETE /api/files/:id` - Delete file
+<details>
+<summary><b>🔐 Authentication</b></summary>
 
-### Folders
-- `GET /api/folders` - List folders
-- `POST /api/folders` - Create folder
-- `PATCH /api/folders/:id` - Rename folder
-- `DELETE /api/folders/:id` - Delete folder
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/send-code` | Send verification code |
+| `POST` | `/api/auth/verify-code` | Verify code & login |
+| `GET` | `/api/auth/me` | Get current user |
+| `POST` | `/api/auth/logout` | Logout |
+
+</details>
+
+<details>
+<summary><b>📁 Files</b></summary>
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/files` | List all files |
+| `POST` | `/api/files/upload` | Upload new file |
+| `GET` | `/api/files/:id/download` | Download file |
+| `POST` | `/api/files/:id/star` | Toggle star status |
+| `DELETE` | `/api/files/:id` | Delete file |
+
+</details>
+
+<details>
+<summary><b>🗂️ Folders</b></summary>
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/folders` | List all folders |
+| `POST` | `/api/folders` | Create new folder |
+| `PATCH` | `/api/folders/:id` | Rename folder |
+| `DELETE` | `/api/folders/:id` | Delete folder |
+
+</details>
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our contributing guidelines first.
+<div align="center">
+
+Contributions, issues, and feature requests are **welcome**!
+
+Feel free to check the [issues page](https://github.com/yourusername/taas/issues).
+
+</div>
 
 ## 📄 License
 
-MIT License - feel free to use this project for personal or commercial purposes.
+<div align="center">
+
+**MIT License** — Free for personal and commercial use
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-d4af37.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+</div>
 
 ---
 
-<p align="center">
-  Made with ❤️ using Telegram's awesome infrastructure
-</p>
+<div align="center">
+
+### 👑 Built with Excellence
+
+*Powered by Telegram's Infrastructure*
+
+**[⭐ Star this repo](https://github.com/yourusername/taas)** • **[🐛 Report Bug](https://github.com/yourusername/taas/issues)** • **[✨ Request Feature](https://github.com/yourusername/taas/issues)**
+
+<img src="https://img.shields.io/badge/Made_with-❤️_&_☕-d4af37?style=for-the-badge"/>
+
+</div>

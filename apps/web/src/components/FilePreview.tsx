@@ -113,10 +113,10 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
         <div className="flex items-center justify-center h-full">
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15"
           >
-            <Download className="w-6 h-6 text-white" />
+            <Download className="w-6 h-6 text-[#0a0d14]" />
           </motion.div>
         </div>
       );
@@ -177,7 +177,7 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
           <motion.div 
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="w-32 h-32 rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl shadow-purple-500/30"
+            className="w-32 h-32 rounded-2xl bg-gold-gradient flex items-center justify-center shadow-xl shadow-amber-500/15"
           >
             <div className="text-5xl">🎵</div>
           </motion.div>
@@ -209,8 +209,8 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
     // Unsupported type
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="glass-strong rounded-3xl p-8 flex flex-col items-center">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center mb-4">
+        <div className="glass-strong rounded-2xl p-8 flex flex-col items-center luxury-border">
+          <div className="w-20 h-20 rounded-xl bg-gold/10 flex items-center justify-center mb-4">
             <span className="text-4xl">📄</span>
           </div>
           <p className="text-lg font-semibold mb-1">{file.name}</p>
@@ -375,7 +375,7 @@ function TextPreview({ blobUrl }: { blobUrl: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold" />
       </div>
     );
   }

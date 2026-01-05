@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Star, Sparkles } from 'lucide-react';
+import { Star, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FileCard } from '@/components/FileCard';
 import { Sidebar } from '@/components/Sidebar';
@@ -83,10 +83,9 @@ export function StarredPage() {
 
   return (
     <div className="h-screen flex bg-background relative overflow-hidden">
-      {/* Floating background orbs */}
-      <div className="floating-orb floating-orb-1" />
-      <div className="floating-orb floating-orb-2" />
-      <div className="floating-orb floating-orb-3" />
+      {/* Subtle ambient lighting */}
+      <div className="ambient-glow ambient-glow-1" />
+      <div className="ambient-glow ambient-glow-2" />
       
       <div className={cn(
         'fixed inset-y-0 left-0 z-50 transform transition-transform md:relative md:translate-x-0',
@@ -115,8 +114,8 @@ export function StarredPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 mb-6"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
-              <Star className="w-5 h-5 text-white fill-white" />
+            <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15">
+              <Star className="w-5 h-5 text-[#0a0d14] fill-[#0a0d14]" />
             </div>
             <h1 className="text-2xl font-bold">Starred Files</h1>
           </motion.div>
@@ -125,10 +124,10 @@ export function StarredPage() {
             <div className="flex items-center justify-center py-12">
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-12 h-12 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15"
               >
-                <Sparkles className="w-6 h-6 text-white" />
+                <Crown className="w-6 h-6 text-[#0a0d14]" />
               </motion.div>
             </div>
           )}
@@ -139,8 +138,8 @@ export function StarredPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <div className="glass-strong rounded-3xl p-12 flex flex-col items-center">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400/20 to-yellow-500/20 flex items-center justify-center mb-6">
+              <div className="glass-strong rounded-2xl p-12 flex flex-col items-center luxury-border">
+                <div className="w-20 h-20 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6">
                   <Star className="w-10 h-10 text-amber-500" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No starred files</h3>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Lock, Loader2, ArrowRight, Send, Sparkles, Shield, Cloud, Zap } from 'lucide-react';
+import { Phone, Lock, Loader2, ArrowRight, Send, Crown, Shield, Cloud, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -77,10 +77,9 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
-      {/* Animated background orbs */}
-      <div className="floating-orb floating-orb-1" />
-      <div className="floating-orb floating-orb-2" />
-      <div className="floating-orb floating-orb-3" />
+      {/* Subtle ambient lighting */}
+      <div className="ambient-glow ambient-glow-1" />
+      <div className="ambient-glow ambient-glow-2" />
 
       {/* Left side - Branding with glassmorphism */}
       <div className="hidden lg:flex lg:w-1/2 relative p-12 flex-col justify-between">
@@ -89,7 +88,7 @@ export function LoginPage() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-8 glass-strong rounded-3xl"
+          className="absolute inset-8 glass-strong rounded-2xl luxury-border"
         />
         
         <div className="relative z-10">
@@ -99,10 +98,10 @@ export function LoginPage() {
             transition={{ delay: 0.2 }}
             className="flex items-center gap-3"
           >
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30 animate-pulse-glow">
-              <Send className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/20 animate-pulse-glow">
+              <Send className="w-7 h-7 text-[#0a0d14]" />
             </div>
-            <span className="text-3xl font-bold text-gradient">TAAS</span>
+            <span className="text-3xl font-bold text-gradient tracking-wide">TAAS</span>
           </motion.div>
         </div>
         
@@ -135,12 +134,12 @@ export function LoginPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
-                className="glass-subtle rounded-2xl p-4 hover:scale-105 transition-transform duration-300"
+                className="glass-subtle rounded-xl p-4 hover:scale-[1.02] transition-all duration-300 hover:border-amber-500/20"
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center mb-3">
-                  <feature.icon className="w-5 h-5 text-violet-600" />
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/15 to-amber-600/10 flex items-center justify-center mb-3">
+                  <feature.icon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                <p className="font-semibold text-sm text-foreground/90">{feature.label}</p>
+                <p className="font-semibold text-sm text-foreground/90 text-luxury">{feature.label}</p>
                 <p className="text-xs text-foreground/60 mt-1">{feature.description}</p>
               </motion.div>
             ))}
@@ -166,13 +165,13 @@ export function LoginPage() {
           className="w-full max-w-md"
         >
           {/* Glass card container */}
-          <div className="glass-strong rounded-3xl p-8 space-y-8">
+          <div className="glass-strong rounded-2xl p-8 space-y-8 luxury-border">
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center justify-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <Send className="w-7 h-7 text-white" />
+              <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <Send className="w-7 h-7 text-[#0a0d14]" />
               </div>
-              <span className="text-3xl font-bold text-gradient">TAAS</span>
+              <span className="text-3xl font-bold text-gradient tracking-wide">TAAS</span>
             </div>
 
             <div className="text-center lg:text-left">
@@ -182,9 +181,9 @@ export function LoginPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4">
-                  <Sparkles className="w-4 h-4 text-violet-500" />
-                  <span className="text-sm font-medium text-violet-600">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 mb-4">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
                     {step === 'phone' && 'Welcome'}
                     {step === 'code' && 'Almost there'}
                     {step === '2fa' && 'One more step'}
@@ -228,17 +227,17 @@ export function LoginPage() {
                     className="space-y-6"
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-foreground/70 font-medium">Phone Number</Label>
+                      <Label htmlFor="phone" className="text-foreground/70 font-medium text-luxury">Phone Number</Label>
                       <div className="relative group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition-opacity" />
-                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-violet-500 transition-colors" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/30 to-amber-600/20 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition-opacity" />
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-amber-500 transition-colors" />
                         <Input
                           id="phone"
                           type="tel"
                           placeholder="+1 234 567 8900"
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
-                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-white/30 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all text-lg"
+                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-lg"
                           disabled={isLoading}
                         />
                       </div>
@@ -247,7 +246,7 @@ export function LoginPage() {
                       </p>
                     </div>
                     <Button
-                      className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 hover:scale-[1.02]"
+                      className="w-full h-14 rounded-xl text-lg font-semibold btn-luxury"
                       onClick={handleSendCode}
                       disabled={isLoading}
                     >
@@ -272,14 +271,14 @@ export function LoginPage() {
                     className="space-y-6"
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="code" className="text-foreground/70 font-medium">Verification Code</Label>
+                      <Label htmlFor="code" className="text-foreground/70 font-medium text-luxury">Verification Code</Label>
                       <Input
                         id="code"
                         type="text"
                         placeholder="• • • • • •"
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
-                        className="text-center text-3xl tracking-[0.5em] h-16 rounded-xl bg-white/50 dark:bg-white/5 border-white/30 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 font-mono"
+                        className="text-center text-3xl tracking-[0.5em] h-16 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-mono"
                         maxLength={6}
                         disabled={isLoading}
                       />
@@ -288,7 +287,7 @@ export function LoginPage() {
                       </p>
                     </div>
                     <Button
-                      className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 hover:scale-[1.02]"
+                      className="w-full h-14 rounded-xl text-lg font-semibold btn-luxury"
                       onClick={handleVerifyCode}
                       disabled={isLoading}
                     >
@@ -303,7 +302,7 @@ export function LoginPage() {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="w-full h-12 rounded-xl text-foreground/60 hover:text-foreground hover:bg-white/20"
+                      className="w-full h-12 rounded-xl text-foreground/60 hover:text-foreground hover:bg-foreground/5"
                       onClick={() => setStep('phone')}
                       disabled={isLoading}
                     >
@@ -321,23 +320,23 @@ export function LoginPage() {
                     className="space-y-6"
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-foreground/70 font-medium">2FA Password</Label>
+                      <Label htmlFor="password" className="text-foreground/70 font-medium text-luxury">2FA Password</Label>
                       <div className="relative group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition-opacity" />
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-violet-500 transition-colors" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/30 to-amber-600/20 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition-opacity" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-amber-500 transition-colors" />
                         <Input
                           id="password"
                           type="password"
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-white/30 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all text-lg"
+                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-lg"
                           disabled={isLoading}
                         />
                       </div>
                     </div>
                     <Button
-                      className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 hover:scale-[1.02]"
+                      className="w-full h-14 rounded-xl text-lg font-semibold btn-luxury"
                       onClick={handleVerifyCode}
                       disabled={isLoading}
                     >

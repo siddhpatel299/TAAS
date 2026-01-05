@@ -90,9 +90,9 @@ export function BulkActionsBar({
           exit={{ y: 100, opacity: 0 }}
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
         >
-          <div className="flex items-center gap-2 glass-strong px-5 py-3.5 rounded-2xl shadow-2xl border border-white/20">
+          <div className="flex items-center gap-2 glass-strong px-5 py-3.5 rounded-xl shadow-2xl border border-border">
             <div className="flex items-center gap-2 px-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+              <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center text-[#0a0d14] text-sm font-bold">
                 {selectedIds.length}
               </div>
               <span className="text-sm font-medium">
@@ -100,7 +100,7 @@ export function BulkActionsBar({
               </span>
             </div>
             
-            <div className="w-px h-6 bg-white/10" />
+            <div className="w-px h-6 bg-border" />
 
             {isTrash ? (
               // Trash actions
@@ -108,7 +108,7 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-xl hover:bg-white/10"
+                  className="rounded-lg hover:bg-foreground/5"
                   onClick={handleBulkRestore}
                   disabled={loading !== null}
                 >
@@ -122,7 +122,7 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl"
+                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg"
                   onClick={() => handleBulkDelete(true)}
                   disabled={loading !== null}
                 >
@@ -140,17 +140,17 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-xl hover:bg-white/10"
+                  className="rounded-lg hover:bg-foreground/5"
                   onClick={() => handleBulkStar(true)}
                   disabled={loading !== null}
                 >
-                  <Star className="h-4 w-4 mr-2 text-amber-400" />
+                  <Star className="h-4 w-4 mr-2 text-amber-500" />
                   Star
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-xl hover:bg-white/10"
+                  className="rounded-lg hover:bg-foreground/5"
                   onClick={() => handleBulkStar(false)}
                   disabled={loading !== null}
                 >
@@ -160,7 +160,7 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-xl hover:bg-white/10"
+                  className="rounded-lg hover:bg-foreground/5"
                   onClick={handleBulkDownload}
                   disabled={loading !== null}
                 >
@@ -174,7 +174,7 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl"
+                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg"
                   onClick={() => handleBulkDelete(false)}
                   disabled={loading !== null}
                 >
@@ -188,12 +188,12 @@ export function BulkActionsBar({
               </>
             )}
 
-            <div className="w-px h-6 bg-white/10" />
+            <div className="w-px h-6 bg-border" />
 
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-xl hover:bg-white/10"
+              className="h-8 w-8 rounded-lg hover:bg-foreground/5"
               onClick={onClearSelection}
             >
               <X className="h-4 w-4" />

@@ -59,7 +59,7 @@ const fileTypeIcons = {
 
 const fileTypeColors = {
   image: 'from-pink-500 to-rose-500',
-  video: 'from-violet-500 to-purple-500',
+  video: 'from-amber-500 to-orange-500',
   audio: 'from-green-500 to-emerald-500',
   document: 'from-blue-500 to-cyan-500',
   archive: 'from-amber-500 to-orange-500',
@@ -96,25 +96,25 @@ export function FileCard({
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.01 }}
         className={cn(
-          'flex items-center gap-4 p-4 glass-subtle rounded-2xl transition-all cursor-pointer group',
-          isSelected && 'ring-2 ring-violet-500 bg-violet-500/10'
+          'flex items-center gap-4 p-4 glass-subtle rounded-xl transition-all cursor-pointer group',
+          isSelected && 'ring-2 ring-amber-500 bg-amber-500/10'
         )}
         onClick={selectionMode ? onSelect : onPreview}
         onDoubleClick={onPreview}
       >
         {/* Selection checkbox */}
         <motion.div 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className={cn(
             "flex-shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
             isSelected 
-              ? "bg-gradient-to-r from-violet-500 to-purple-600 border-transparent" 
-              : "border-foreground/20 hover:border-violet-500 bg-white/50"
+              ? "bg-gold-gradient border-transparent" 
+              : "border-foreground/20 hover:border-amber-500 bg-white/50 dark:bg-white/10"
           )}
           onClick={(e) => { e.stopPropagation(); onSelect(); }}
         >
-          {isSelected && <Check className="w-4 h-4 text-white" />}
+          {isSelected && <Check className="w-4 h-4 text-[#0a0d14]" />}
         </motion.div>
 
         <div className="flex-shrink-0">
@@ -178,26 +178,26 @@ export function FileCard({
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -4 }}
       className={cn(
-        'group relative flex flex-col glass-subtle rounded-2xl overflow-hidden transition-all cursor-pointer',
-        'hover:shadow-xl hover:shadow-purple-500/10',
-        isSelected && 'ring-2 ring-violet-500'
+        'group relative flex flex-col glass-subtle rounded-xl overflow-hidden transition-all cursor-pointer',
+        'hover:shadow-lg hover:shadow-amber-500/5 hover:border-amber-500/20',
+        isSelected && 'ring-2 ring-amber-500'
       )}
       onClick={selectionMode ? onSelect : undefined}
       onDoubleClick={onPreview}
     >
       {/* Selection checkbox */}
       <motion.div 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         className={cn(
           "absolute top-3 left-3 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
           isSelected 
-            ? "bg-gradient-to-r from-violet-500 to-purple-600 border-transparent" 
+            ? "bg-gold-gradient border-transparent" 
             : "border-white/50 bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100"
         )}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
       >
-        {isSelected && <Check className="w-4 h-4 text-white" />}
+        {isSelected && <Check className="w-4 h-4 text-[#0a0d14]" />}
       </motion.div>
 
       {/* Preview */}
@@ -334,12 +334,12 @@ function FileActions({
       <DropdownMenuContent 
         align="end" 
         onClick={(e) => e.stopPropagation()}
-        className="w-56 p-2 glass-strong rounded-2xl border-white/20"
+        className="w-56 p-2 glass-strong rounded-xl border-border"
       >
         {canPreview && onPreview && (
           <DropdownMenuItem 
             onClick={onPreview}
-            className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+            className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
           >
             <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
               <Eye className="w-4 h-4 text-blue-500" />
@@ -349,7 +349,7 @@ function FileActions({
         )}
         <DropdownMenuItem 
           onClick={onDownload}
-          className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+          className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
         >
           <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
             <Download className="w-4 h-4 text-green-500" />
@@ -361,17 +361,17 @@ function FileActions({
             {onShare && (
               <DropdownMenuItem 
                 onClick={onShare}
-                className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+                className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
               >
-                <div className="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                  <Link2 className="w-4 h-4 text-violet-500" />
+                <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Link2 className="w-4 h-4 text-amber-500" />
                 </div>
                 Share
               </DropdownMenuItem>
             )}
             <DropdownMenuItem 
               onClick={onStar}
-              className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+              className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
             >
               {file.isStarred ? (
                 <>
@@ -391,7 +391,7 @@ function FileActions({
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={onRename}
-              className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+              className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
             >
               <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
                 <Pencil className="w-4 h-4" />
@@ -400,7 +400,7 @@ function FileActions({
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={onMove}
-              className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+              className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
             >
               <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
                 <FolderInput className="w-4 h-4" />
@@ -410,7 +410,7 @@ function FileActions({
             {onVersions && (
               <DropdownMenuItem 
                 onClick={onVersions}
-                className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+                className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
               >
                 <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
                   <History className="w-4 h-4" />
@@ -420,11 +420,11 @@ function FileActions({
             )}
           </>
         )}
-        <DropdownMenuSeparator className="bg-white/10 my-1" />
+        <DropdownMenuSeparator className="bg-border my-1" />
         {file.isTrashed && onRestore && (
           <DropdownMenuItem 
             onClick={onRestore}
-            className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+            className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
           >
             <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
               <RotateCcw className="w-4 h-4 text-green-500" />
@@ -434,7 +434,7 @@ function FileActions({
         )}
         <DropdownMenuItem 
           onClick={onDelete} 
-          className="h-10 rounded-xl cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+          className="h-10 rounded-lg cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
         >
           <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
             <Trash2 className="w-4 h-4" />

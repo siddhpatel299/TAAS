@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trash2, AlertTriangle, Sparkles } from 'lucide-react';
+import { Trash2, AlertTriangle, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -105,10 +105,9 @@ export function TrashPage() {
 
   return (
     <div className="h-screen flex bg-background relative overflow-hidden">
-      {/* Floating background orbs */}
-      <div className="floating-orb floating-orb-1" />
-      <div className="floating-orb floating-orb-2" />
-      <div className="floating-orb floating-orb-3" />
+      {/* Subtle ambient lighting */}
+      <div className="ambient-glow ambient-glow-1" />
+      <div className="ambient-glow ambient-glow-2" />
       
       <div className={cn(
         'fixed inset-y-0 left-0 z-50 transform transition-transform md:relative md:translate-x-0',
@@ -138,8 +137,8 @@ export function TrashPage() {
             className="flex items-center justify-between mb-6"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shadow-red-500/30">
-                <Trash2 className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-500" />
               </div>
               <h1 className="text-2xl font-bold">Trash</h1>
             </div>
@@ -147,7 +146,6 @@ export function TrashPage() {
               <Button
                 variant="destructive"
                 onClick={() => setShowEmptyConfirm(true)}
-                className="shadow-lg shadow-red-500/30"
               >
                 Empty Trash
               </Button>
@@ -158,9 +156,9 @@ export function TrashPage() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-subtle rounded-2xl p-4 mb-6 flex items-center gap-3 border border-amber-500/30"
+              className="glass-subtle rounded-xl p-4 mb-6 flex items-center gap-3 border border-amber-500/20"
             >
-              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
               </div>
               <p className="text-sm text-foreground/80">
@@ -173,10 +171,10 @@ export function TrashPage() {
             <div className="flex items-center justify-center py-12">
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-12 h-12 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15"
               >
-                <Sparkles className="w-6 h-6 text-white" />
+                <Crown className="w-6 h-6 text-[#0a0d14]" />
               </motion.div>
             </div>
           )}
@@ -187,8 +185,8 @@ export function TrashPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <div className="glass-strong rounded-3xl p-12 flex flex-col items-center">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-400/20 to-rose-500/20 flex items-center justify-center mb-6">
+              <div className="glass-strong rounded-2xl p-12 flex flex-col items-center luxury-border">
+                <div className="w-20 h-20 rounded-xl bg-red-500/10 flex items-center justify-center mb-6">
                   <Trash2 className="w-10 h-10 text-red-400" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Trash is empty</h3>

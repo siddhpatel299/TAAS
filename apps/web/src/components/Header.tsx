@@ -61,12 +61,12 @@ export function Header({ onMenuClick }: HeaderProps) {
     : 'U';
 
   return (
-    <header className="h-20 glass border-b border-white/10 px-6 flex items-center justify-between gap-6">
+    <header className="h-20 glass border-b border-border/50 px-6 flex items-center justify-between gap-6">
       {/* Mobile menu button */}
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20"
+        className="md:hidden h-10 w-10 rounded-xl bg-foreground/5 hover:bg-foreground/10"
         onClick={onMenuClick}
       >
         <Menu className="w-5 h-5" />
@@ -82,14 +82,14 @@ export function Header({ onMenuClick }: HeaderProps) {
         >
           {/* Glow effect on focus */}
           <div className={cn(
-            "absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur-xl opacity-0 transition-opacity duration-300",
-            searchFocused && "opacity-20"
+            "absolute inset-0 bg-gradient-to-r from-amber-500/30 to-amber-600/20 rounded-xl blur-xl opacity-0 transition-opacity duration-300",
+            searchFocused && "opacity-30"
           )} />
           
           <div className="relative">
             <Search className={cn(
               "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300",
-              searchFocused ? "text-violet-500" : "text-foreground/40"
+              searchFocused ? "text-amber-500" : "text-foreground/40"
             )} />
             <Input
               placeholder="Search files and folders..."
@@ -97,7 +97,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="pl-12 h-12 rounded-2xl bg-white/50 dark:bg-white/5 border-white/20 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all text-base placeholder:text-foreground/40"
+              className="pl-12 h-12 rounded-xl bg-foreground/5 dark:bg-white/5 border-border focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-base placeholder:text-foreground/40"
             />
             {searchQuery && (
               <motion.div
@@ -105,7 +105,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
-                <kbd className="px-2 py-1 text-xs rounded-lg bg-violet-500/10 text-violet-600 font-medium">
+                <kbd className="px-2 py-1 text-xs rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
                   ESC
                 </kbd>
               </motion.div>
@@ -117,15 +117,15 @@ export function Header({ onMenuClick }: HeaderProps) {
       {/* Actions */}
       <div className="flex items-center gap-3">
         {/* View toggle */}
-        <div className="hidden sm:flex items-center p-1 rounded-xl bg-white/10 border border-white/10">
+        <div className="hidden sm:flex items-center p-1 rounded-xl bg-foreground/5 border border-border">
           <Button
             variant="ghost"
             size="icon"
             className={cn(
               "h-9 w-9 rounded-lg transition-all",
               viewMode === 'grid' 
-                ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/30' 
-                : 'hover:bg-white/10'
+                ? 'bg-gold-gradient text-[#0a0d14] shadow-md' 
+                : 'hover:bg-foreground/5'
             )}
             onClick={() => setViewMode('grid')}
           >
@@ -137,8 +137,8 @@ export function Header({ onMenuClick }: HeaderProps) {
             className={cn(
               "h-9 w-9 rounded-lg transition-all",
               viewMode === 'list' 
-                ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/30' 
-                : 'hover:bg-white/10'
+                ? 'bg-gold-gradient text-[#0a0d14] shadow-md' 
+                : 'hover:bg-foreground/5'
             )}
             onClick={() => setViewMode('list')}
           >
@@ -147,12 +147,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         {/* Sort order */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="hidden sm:flex h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10"
+            className="hidden sm:flex h-10 w-10 rounded-xl bg-foreground/5 hover:bg-foreground/10 border border-border"
           >
             {sortOrder === 'asc' ? (
               <SortAsc className="w-4 h-4" />
@@ -163,12 +163,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         </motion.div>
 
         {/* Theme toggle */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={toggleTheme}
-            className="h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10"
+            className="h-10 w-10 rounded-xl bg-foreground/5 hover:bg-foreground/10 border border-border"
           >
             <motion.div
               initial={false}
@@ -185,11 +185,11 @@ export function Header({ onMenuClick }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
-              className="relative h-12 gap-3 pl-1 pr-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all"
+              className="relative h-12 gap-3 pl-1 pr-4 rounded-xl bg-foreground/5 hover:bg-foreground/10 border border-border transition-all"
             >
-              <Avatar className="h-10 w-10 ring-2 ring-violet-500/30">
+              <Avatar className="h-10 w-10 ring-2 ring-amber-500/20">
                 <AvatarImage src={user?.avatarUrl} alt={user?.firstName || 'User'} />
-                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-semibold">
+                <AvatarFallback className="bg-gold-gradient text-[#0a0d14] font-semibold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -205,13 +205,13 @@ export function Header({ onMenuClick }: HeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-64 p-2 glass-strong rounded-2xl border-white/20"
+            className="w-64 p-2 glass-strong rounded-xl border-border"
           >
             <DropdownMenuLabel className="font-normal p-3">
               <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 ring-2 ring-violet-500/30">
+                <Avatar className="h-12 w-12 ring-2 ring-amber-500/20">
                   <AvatarImage src={user?.avatarUrl} />
-                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-semibold text-lg">
+                  <AvatarFallback className="bg-gold-gradient text-[#0a0d14] font-semibold text-lg">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
@@ -225,20 +225,20 @@ export function Header({ onMenuClick }: HeaderProps) {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem 
               onClick={() => navigate('/settings')}
-              className="h-11 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+              className="h-11 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
             >
               <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center">
                 <Settings className="w-4 h-4" />
               </div>
               Settings
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem 
               onClick={handleLogout} 
-              className="h-11 rounded-xl cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+              className="h-11 rounded-lg cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
             >
               <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                 <LogOut className="w-4 h-4" />

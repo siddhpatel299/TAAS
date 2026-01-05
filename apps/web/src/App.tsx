@@ -27,25 +27,24 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Animated background orbs */}
-        <div className="floating-orb floating-orb-1" />
-        <div className="floating-orb floating-orb-2" />
-        <div className="floating-orb floating-orb-3" />
+        {/* Subtle ambient lighting */}
+        <div className="ambient-glow ambient-glow-1" />
+        <div className="ambient-glow ambient-glow-2" />
         
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass-strong rounded-3xl p-12 flex flex-col items-center gap-6"
+          className="glass-strong rounded-2xl p-12 flex flex-col items-center gap-6 luxury-border"
         >
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg"
           >
-            <Send className="w-8 h-8 text-white" />
+            <Send className="w-8 h-8 text-[#0a0d14]" />
           </motion.div>
           <div className="text-center">
-            <p className="text-lg font-semibold text-foreground/80">Loading TAAS</p>
+            <p className="text-lg font-semibold text-foreground/90 text-luxury">Loading TAAS</p>
             <p className="text-sm text-foreground/50">Preparing your files...</p>
           </div>
         </motion.div>

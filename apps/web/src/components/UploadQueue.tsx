@@ -11,16 +11,16 @@ export function UploadQueue() {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      className="fixed bottom-4 right-4 w-80 glass-strong rounded-2xl shadow-2xl overflow-hidden z-50 border border-white/20"
+      className="fixed bottom-4 right-4 w-80 glass-strong rounded-xl shadow-2xl overflow-hidden z-50 border border-border"
     >
-      <div className="p-4 border-b border-white/10 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-          <Upload className="w-4 h-4 text-white" />
+      <div className="p-4 border-b border-border flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
+          <Upload className="w-4 h-4 text-[#0a0d14]" />
         </div>
         <h3 className="font-semibold text-sm">Uploads</h3>
-        <span className="ml-auto text-xs text-muted-foreground bg-white/10 px-2 py-1 rounded-full">
+        <span className="ml-auto text-xs text-muted-foreground bg-foreground/5 px-2 py-1 rounded-full">
           {uploads.length}
         </span>
       </div>
@@ -52,8 +52,8 @@ function UploadItem({
       bg: 'bg-muted/50'
     },
     uploading: { 
-      icon: <Loader2 className="w-4 h-4 animate-spin text-violet-500" />,
-      bg: 'bg-violet-500/10'
+      icon: <Loader2 className="w-4 h-4 animate-spin text-amber-500" />,
+      bg: 'bg-amber-500/10'
     },
     completed: { 
       icon: <CheckCircle className="w-4 h-4 text-emerald-500" />,
@@ -72,7 +72,7 @@ function UploadItem({
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="p-3 border-b border-white/5 last:border-b-0"
+      className="p-3 border-b border-border/50 last:border-b-0"
     >
       <div className="flex items-center gap-3 mb-2">
         <div className={`w-7 h-7 rounded-lg ${status.bg} flex items-center justify-center`}>
@@ -82,7 +82,7 @@ function UploadItem({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 rounded-lg hover:bg-white/10"
+          className="h-7 w-7 rounded-lg hover:bg-foreground/5"
           onClick={onRemove}
         >
           <X className="w-3.5 h-3.5" />

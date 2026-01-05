@@ -131,8 +131,8 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-              <Link2 className="h-5 w-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center">
+              <Link2 className="h-5 w-5 text-[#0a0d14]" />
             </div>
             <span>Share "{file?.name}"</span>
           </DialogTitle>
@@ -176,11 +176,11 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="space-y-4 p-4 glass-subtle rounded-2xl border border-white/10">
+                  <div className="space-y-4 p-4 glass-subtle rounded-xl border border-border">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-violet-400" />
+                          <Calendar className="h-4 w-4 text-amber-500" />
                           Expires in (hours)
                         </Label>
                         <Input
@@ -193,7 +193,7 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                       </div>
                       <div className="space-y-2">
                         <Label className="flex items-center gap-2 text-sm">
-                          <Download className="h-4 w-4 text-violet-400" />
+                          <Download className="h-4 w-4 text-amber-500" />
                           Max downloads
                         </Label>
                         <Input
@@ -207,7 +207,7 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                     </div>
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2 text-sm">
-                        <Lock className="h-4 w-4 text-violet-400" />
+                        <Lock className="h-4 w-4 text-amber-500" />
                         Password protection
                       </Label>
                       <Input
@@ -231,7 +231,7 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
             
             {loading ? (
               <div className="flex justify-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-violet-500" />
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold" />
               </div>
             ) : links.length === 0 ? (
               <div className="glass-subtle rounded-2xl p-6 text-center">
@@ -296,7 +296,7 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                     
                     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                       {link.hasPassword && (
-                        <span className="flex items-center gap-1.5 bg-violet-500/10 text-violet-400 px-2 py-1 rounded-lg">
+                        <span className="flex items-center gap-1.5 bg-gold/10 text-gold px-2 py-1 rounded-lg">
                           <Lock className="h-3 w-3" />
                           Password
                         </span>
