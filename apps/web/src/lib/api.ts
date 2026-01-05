@@ -188,3 +188,25 @@ export const syncApi = {
   // Setup real-time listener
   setupListener: () => api.post('/sync/listen'),
 };
+
+// Telegram Chats API
+// For accessing Telegram chats and importing individual files to TAAS
+export const telegramApi = {
+  // Get user's Telegram chats/groups/channels
+  getChats: () => api.get('/telegram/chats'),
+
+  // Get messages from a specific chat (files only by default)
+  getChatMessages: (
+    chatId: string,
+    params?: { limit?: number; offsetId?: number; filesOnly?: boolean }
+  ) => api.get(`/telegram/chats/${chatId}/messages`, { params }),
+
+  // Get a single message by ID
+  getMessage: (chatId: string, messageId: number) =>
+    api.get(`/telegram/chats/${chatId}/messages/${messageId}`),
+
+  // Import a file from a specific message to TAAS
+  // This imports ONE file from ONE specific message
+  importFile: (chatId: string, messageId: number, folderId?: string) =>
+    api.post(`/telegram/chats/${chatId}/messages/${messageId}/import`, { folderId }),
+};

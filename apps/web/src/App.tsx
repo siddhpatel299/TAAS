@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { LoginPage } from '@/pages/LoginPage';
 import { ModernDashboardPage } from '@/pages/ModernDashboardPage';
 import { MyFilesPage } from '@/pages/MyFilesPage';
+import { TelegramChatsPage } from '@/pages/TelegramChatsPage';
 import { StarredPage } from '@/pages/StarredPage';
 import { TrashPage } from '@/pages/TrashPage';
 import { SharePage } from '@/pages/SharePage';
@@ -107,6 +108,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <MyFilesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/telegram"
+                element={
+                  <ProtectedRoute>
+                    <TelegramChatsPage />
                   </ProtectedRoute>
                 }
               />

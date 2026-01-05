@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut,
   Send,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth.store';
@@ -25,6 +26,7 @@ interface ModernSidebarProps {
 const mainNavItems = [
   { path: '/', label: 'Dashboard', icon: LayoutGrid },
   { path: '/files', label: 'My Files', icon: FolderOpen },
+  { path: '/telegram', label: 'Telegram Chats', icon: MessageSquare },
   { path: '/starred', label: 'Favorites', icon: Heart },
   { path: '/trash', label: 'Trash', icon: Trash2 },
 ];
