@@ -172,13 +172,20 @@ router.get('/public/:token', async (req, res: Response, next: NextFunction) => {
       return res.status(403).json({ error: 'Download limit reached' });
     }
 
+    // Convert BigInt to Number for JSON serialization
+    const fileData = {
+      ...link.file,
+      size: Number(link.file.size),
+    };
+
     res.json({
-      file: link.file,
+      file: fileData,
       requiresPassword: !!link.password,
       expiresAt: link.expiresAt,
       downloadsRemaining: link.maxDownloads ? link.maxDownloads - link.downloadCount : null,
     });
   } catch (error) {
+    console.error('Error fetching shared file info:', error);
     next(error);
   }
 });
@@ -192,7 +199,13 @@ router.post('/public/:token/download', async (req, res: Response, next: NextFunc
     const link = await prisma.sharedLink.findUnique({
       where: { token },
       include: {
-        file: true,
+        file: {
+          include: {
+            chunks: {
+              orderBy: { chunkIndex: 'asc' },
+            },
+          },
+        },
         user: true,
       },
     });
@@ -226,20 +239,29 @@ router.post('/public/:token/download', async (req, res: Response, next: NextFunc
 
     // Get or restore Telegram client for file owner
     if (!link.user.sessionData) {
-      return res.status(500).json({ error: 'Unable to access file storage' });
+      return res.status(500).json({ error: 'File owner session not available' });
     }
     
-    const client = await telegramService.restoreClient(link.user.id, link.user.sessionData);
+    let client;
+    try {
+      client = await telegramService.restoreClient(link.user.id, link.user.sessionData);
+    } catch (clientError) {
+      console.error('Failed to restore Telegram client for shared file:', clientError);
+      return res.status(500).json({ error: 'Unable to access file storage - session expired' });
+    }
 
     if (!client) {
-      return res.status(500).json({ error: 'Unable to access file storage' });
+      return res.status(500).json({ error: 'Unable to connect to file storage' });
     }
 
     // Download file (handles chunked files automatically)
-    const buffer = await chunkService.downloadFile(
-      client,
-      link.file.id
-    );
+    let buffer;
+    try {
+      buffer = await chunkService.downloadFile(client, link.file.id);
+    } catch (downloadError) {
+      console.error('Failed to download shared file:', downloadError);
+      return res.status(500).json({ error: 'Failed to download file from storage' });
+    }
 
     // Increment download count
     await prisma.sharedLink.update({
