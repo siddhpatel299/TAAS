@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LoginPage } from '@/pages/LoginPage';
-import { DashboardPage } from '@/pages/DashboardPage';
+import { ModernDashboardPage } from '@/pages/ModernDashboardPage';
 import { StarredPage } from '@/pages/StarredPage';
 import { TrashPage } from '@/pages/TrashPage';
 import { SharePage } from '@/pages/SharePage';
@@ -97,7 +97,7 @@ export default function App() {
                 path="/"
                 element={
                   <ProtectedRoute>
-                    <DashboardPage />
+                    <ModernDashboardPage />
                   </ProtectedRoute>
                 }
               />

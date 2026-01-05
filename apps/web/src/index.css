@@ -460,3 +460,239 @@
   letter-spacing: 0.02em;
   font-weight: 500;
 }
+
+/* Modern Dashboard Styles */
+.modern-card {
+  @apply bg-white rounded-3xl shadow-sm transition-all duration-200;
+}
+
+.modern-card:hover {
+  @apply shadow-lg;
+  transform: translateY(-2px);
+}
+
+.modern-sidebar {
+  @apply bg-white shadow-sm;
+}
+
+.modern-gradient {
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+}
+
+.modern-gradient-text {
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Cyan/Blue accent utilities */
+.accent-gradient {
+  @apply bg-gradient-to-br from-cyan-400 to-blue-500;
+}
+
+.accent-shadow {
+  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.3);
+}
+
+/* Modern input styles */
+.modern-input {
+  @apply bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-cyan-500 transition-all;
+}
+
+/* Modern button styles */
+.btn-modern {
+  @apply bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium px-6 py-3 rounded-2xl transition-all;
+}
+
+.btn-modern:hover {
+  @apply shadow-lg;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.35);
+}
+
+/* File row hover effect */
+.file-row {
+  @apply transition-all duration-200;
+}
+
+.file-row:hover {
+  @apply bg-gray-50;
+}
+
+.file-row.selected {
+  @apply bg-cyan-50;
+}
+
+/* Donut chart animation */
+@keyframes donut-fill {
+  from {
+    stroke-dasharray: 0 251.2;
+  }
+}
+
+.donut-segment {
+  animation: donut-fill 1s ease-out forwards;
+}
+
+
+/* Modern Dashboard Styles */
+.modern-card {
+  @apply bg-white rounded-3xl shadow-sm transition-all duration-300;
+}
+
+.modern-card:hover {
+  @apply shadow-lg shadow-gray-200/50;
+  transform: translateY(-2px);
+}
+
+.modern-sidebar {
+  @apply fixed left-0 top-0 h-full w-20 bg-white shadow-sm flex flex-col items-center py-6 z-50;
+}
+
+.modern-nav-item {
+  @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200;
+}
+
+.modern-nav-item.active {
+  @apply bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg shadow-blue-500/30;
+}
+
+.modern-nav-item:not(.active) {
+  @apply text-gray-400 hover:bg-gray-100 hover:text-gray-600;
+}
+
+/* Modern Input Styles */
+.modern-input {
+  @apply bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-cyan-500 transition-all;
+}
+
+/* Modern Button Styles */
+.modern-btn-primary {
+  @apply bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-2xl font-medium;
+  @apply hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/30;
+}
+
+.modern-btn-secondary {
+  @apply bg-white border border-gray-100 rounded-2xl font-medium text-gray-700;
+  @apply hover:shadow-lg hover:shadow-gray-200/50 transition-all;
+}
+
+/* Category Card Gradient Backgrounds */
+.category-video {
+  @apply bg-gradient-to-br from-cyan-100 to-cyan-200;
+}
+
+.category-document {
+  @apply bg-gradient-to-br from-blue-100 to-blue-200;
+}
+
+.category-photo {
+  @apply bg-gradient-to-br from-cyan-100 to-blue-100;
+}
+
+.category-other {
+  @apply bg-gradient-to-br from-orange-100 to-orange-200;
+}
+
+/* Storage Donut Chart Animation */
+@keyframes donut-fill {
+  from {
+    stroke-dasharray: 0 251.2;
+  }
+}
+
+.donut-segment {
+  animation: donut-fill 1s ease-out forwards;
+}
+
+/* Modern Page Background */
+.modern-bg {
+  background: linear-gradient(135deg, #f0f5fa 0%, #e8f0f8 100%);
+  min-height: 100vh;
+}
+
+/* Modern Table Styles */
+.modern-table-header {
+  @apply bg-gray-50 text-sm font-medium text-gray-500;
+}
+
+.modern-table-row {
+  @apply hover:bg-gray-50 transition-colors;
+}
+
+.modern-table-row.selected {
+  @apply bg-cyan-50;
+}
+
+/* File Type Icon Backgrounds */
+.file-icon-image {
+  @apply bg-blue-100 text-blue-500;
+}
+
+.file-icon-video {
+  @apply bg-cyan-100 text-cyan-500;
+}
+
+.file-icon-document {
+  @apply bg-red-100 text-red-500;
+}
+
+.file-icon-archive {
+  @apply bg-orange-100 text-orange-500;
+}
+
+.file-icon-default {
+  @apply bg-gray-100 text-gray-500;
+}
+
+/* Action Button Hover Effects */
+.action-btn {
+  @apply flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-200;
+  @apply bg-white border border-gray-100 hover:shadow-lg hover:shadow-gray-200/50;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.action-btn-primary {
+  @apply border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50;
+}
+
+/* Drop Zone Overlay */
+.drop-overlay {
+  @apply fixed inset-0 z-50 bg-cyan-500/20 backdrop-blur-sm flex items-center justify-center;
+}
+
+.drop-overlay-card {
+  @apply bg-white rounded-3xl p-12 shadow-2xl text-center;
+}
+
+/* Welcome Header */
+.welcome-header {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+/* Search Bar Modern */
+.modern-search {
+  @apply pl-12 pr-4 py-3 w-80 bg-white border-0 rounded-2xl shadow-sm;
+  @apply focus:ring-2 focus:ring-cyan-500 transition-all;
+}
+
+/* Avatar Container */
+.avatar-container {
+  @apply flex items-center gap-3 bg-white rounded-2xl px-4 py-2 shadow-sm;
+}
+
+/* Notification Button */
+.notification-btn {
+  @apply w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm;
+  @apply hover:shadow-md transition-shadow;
+}
+
+/* Unlimited Storage Banner */
+.unlimited-banner {
+  @apply p-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl text-center text-white;
+}
+
