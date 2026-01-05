@@ -55,24 +55,24 @@ export default {
         },
         // Glass effect colors
         glass: {
-          white: "rgba(255, 255, 255, 0.85)",
-          dark: "rgba(15, 20, 35, 0.85)",
+          white: "rgba(255, 255, 255, 0.9)",
+          dark: "rgba(10, 10, 10, 0.9)",
         },
-        // Luxury gold colors
-        gold: {
-          DEFAULT: "#d4af37",
-          light: "#f4d03f",
-          dark: "#c9a227",
-          50: "#fefce8",
-          100: "#fef9c3",
-          200: "#fef08a",
-          300: "#fde047",
-          400: "#facc15",
-          500: "#d4af37",
-          600: "#c9a227",
-          700: "#a16207",
-          800: "#854d0e",
-          900: "#713f12",
+        // Platinum/Silver luxury colors
+        platinum: {
+          DEFAULT: "#e5e5e5",
+          light: "#f5f5f5",
+          dark: "#a3a3a3",
+          50: "#fafafa",
+          100: "#f5f5f5",
+          200: "#e5e5e5",
+          300: "#d4d4d4",
+          400: "#a3a3a3",
+          500: "#737373",
+          600: "#525252",
+          700: "#404040",
+          800: "#262626",
+          900: "#171717",
         },
       },
       borderRadius: {

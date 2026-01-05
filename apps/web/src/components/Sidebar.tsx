@@ -41,9 +41,9 @@ export function Sidebar({ storageUsed, onNewFolder, onUpload }: SidebarProps) {
           <motion.div 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-12 h-12 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15 group-hover:shadow-amber-500/25 transition-shadow"
+            className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow"
           >
-            <Send className="w-6 h-6 text-[#0a0d14]" />
+            <Send className="w-6 h-6 text-background" />
           </motion.div>
           <div>
             <span className="font-bold text-2xl text-gradient tracking-wide">TAAS</span>
@@ -59,7 +59,7 @@ export function Sidebar({ storageUsed, onNewFolder, onUpload }: SidebarProps) {
             className="w-full justify-start gap-3 h-12 rounded-xl text-base font-semibold btn-luxury" 
             onClick={onUpload}
           >
-            <div className="w-8 h-8 rounded-lg bg-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-white/20 dark:bg-black/20 flex items-center justify-center">
               <Upload className="w-4 h-4" />
             </div>
             Upload Files
@@ -68,11 +68,11 @@ export function Sidebar({ storageUsed, onNewFolder, onUpload }: SidebarProps) {
         <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
           <Button
             variant="outline"
-            className="w-full justify-start gap-3 h-12 rounded-xl text-base font-medium bg-foreground/5 border-border hover:bg-foreground/10 hover:border-amber-500/30 transition-all"
+            className="w-full justify-start gap-3 h-12 rounded-xl text-base font-medium bg-foreground/5 border-border hover:bg-foreground/10 transition-all"
             onClick={onNewFolder}
           >
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-              <FolderPlus className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center">
+              <FolderPlus className="w-4 h-4 text-foreground/70" />
             </div>
             New Folder
           </Button>
@@ -100,26 +100,26 @@ export function Sidebar({ storageUsed, onNewFolder, onUpload }: SidebarProps) {
                     className={cn(
                       'w-full justify-start gap-3 h-12 rounded-xl text-base font-medium transition-all',
                       isActive 
-                        ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20' 
+                        ? 'bg-foreground/10 text-foreground border border-foreground/10' 
                         : 'hover:bg-foreground/5 text-foreground/70 hover:text-foreground'
                     )}
                   >
                     <div className={cn(
                       'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
                       isActive 
-                        ? 'bg-amber-500/15' 
+                        ? 'bg-foreground/10' 
                         : 'bg-foreground/5'
                     )}>
                       <item.icon className={cn(
                         'w-4 h-4',
-                        isActive ? 'text-amber-600 dark:text-amber-400' : 'text-foreground/60'
+                        isActive ? 'text-foreground' : 'text-foreground/60'
                       )} />
                     </div>
                     {item.label}
                     {isActive && (
                       <motion.div
                         layoutId="activeNav"
-                        className="ml-auto w-1 h-6 rounded-full bg-gold-gradient"
+                        className="ml-auto w-1 h-6 rounded-full bg-foreground"
                       />
                     )}
                   </Button>
@@ -131,10 +131,10 @@ export function Sidebar({ storageUsed, onNewFolder, onUpload }: SidebarProps) {
       </ScrollArea>
 
       {/* Storage Usage */}
-      <div className="p-4 m-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+      <div className="p-4 m-3 rounded-xl bg-foreground/5 border border-foreground/5">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <HardDrive className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          <div className="w-10 h-10 rounded-lg bg-foreground/5 flex items-center justify-center">
+            <HardDrive className="w-5 h-5 text-foreground/70" />
           </div>
           <div>
             <span className="text-sm font-semibold text-foreground/90">Storage</span>
@@ -143,13 +143,13 @@ export function Sidebar({ storageUsed, onNewFolder, onUpload }: SidebarProps) {
         </div>
         <div className="relative h-1.5 rounded-full bg-foreground/10 overflow-hidden">
           <motion.div 
-            className="absolute inset-y-0 left-0 rounded-full bg-gold-gradient"
+            className="absolute inset-y-0 left-0 rounded-full bg-foreground"
             initial={{ width: 0 }}
             animate={{ width: `${usagePercent}%` }}
             transition={{ duration: 1, ease: 'easeOut' }}
           />
         </div>
-        <div className="flex items-center gap-2 mt-3 text-amber-600 dark:text-amber-400">
+        <div className="flex items-center gap-2 mt-3 text-foreground/70">
           <Crown className="w-4 h-4" />
           <p className="text-xs font-medium">
             Unlimited with Telegram

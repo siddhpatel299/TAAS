@@ -231,8 +231,12 @@ export class StorageService {
       isTrashed,
     };
 
-    if (folderId !== undefined) {
-      where.folderId = folderId;
+    // Filter by folder: undefined means root level (folderId is null)
+    // If folderId is explicitly passed, filter by that folder
+    if (folderId === undefined) {
+      where.folderId = null; // Only show root level files
+    } else {
+      where.folderId = folderId; // Show files in specific folder
     }
 
     if (isStarred !== undefined) {

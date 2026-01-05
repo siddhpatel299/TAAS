@@ -24,12 +24,12 @@ interface FolderCardProps {
 const folderGradients: Record<string, string> = {
   blue: 'from-blue-400 to-blue-600',
   green: 'from-emerald-400 to-emerald-600',
-  yellow: 'from-amber-400 to-amber-600',
+  yellow: 'from-yellow-400 to-yellow-600',
   red: 'from-rose-400 to-rose-600',
-  purple: 'from-amber-400 to-gold',
+  purple: 'from-purple-400 to-purple-600',
   pink: 'from-pink-400 to-pink-600',
   orange: 'from-orange-400 to-orange-600',
-  default: 'from-gold-dark to-gold-light',
+  default: 'from-foreground/80 to-foreground',
 };
 
 export function FolderCard({
@@ -84,7 +84,7 @@ export function FolderCard({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -2 }}
-      className="group relative flex flex-col glass-subtle rounded-xl overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:shadow-amber-500/5 hover:border-amber-500/20"
+      className="group relative flex flex-col glass-subtle rounded-xl overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:shadow-foreground/5 hover:border-foreground/20"
       onClick={onOpen}
     >
       {/* Preview */}

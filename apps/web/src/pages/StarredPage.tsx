@@ -114,8 +114,8 @@ export function StarredPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 mb-6"
           >
-            <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15">
-              <Star className="w-5 h-5 text-[#0a0d14] fill-[#0a0d14]" />
+            <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center shadow-lg shadow-foreground/15">
+              <Star className="w-5 h-5 text-background fill-background" />
             </div>
             <h1 className="text-2xl font-bold">Starred Files</h1>
           </motion.div>
@@ -125,9 +125,9 @@ export function StarredPage() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15"
+                className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center shadow-lg shadow-foreground/15"
               >
-                <Crown className="w-6 h-6 text-[#0a0d14]" />
+                <Crown className="w-6 h-6 text-background" />
               </motion.div>
             </div>
           )}
@@ -139,8 +139,8 @@ export function StarredPage() {
               className="flex flex-col items-center justify-center py-16 text-center"
             >
               <div className="glass-strong rounded-2xl p-12 flex flex-col items-center luxury-border">
-                <div className="w-20 h-20 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6">
-                  <Star className="w-10 h-10 text-amber-500" />
+                <div className="w-20 h-20 rounded-xl bg-foreground/10 flex items-center justify-center mb-6">
+                  <Star className="w-10 h-10 text-yellow-500" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No starred files</h3>
                 <p className="text-muted-foreground max-w-sm">

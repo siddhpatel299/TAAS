@@ -82,14 +82,14 @@ export function Header({ onMenuClick }: HeaderProps) {
         >
           {/* Glow effect on focus */}
           <div className={cn(
-            "absolute inset-0 bg-gradient-to-r from-amber-500/30 to-amber-600/20 rounded-xl blur-xl opacity-0 transition-opacity duration-300",
+            "absolute inset-0 bg-foreground/10 rounded-xl blur-xl opacity-0 transition-opacity duration-300",
             searchFocused && "opacity-30"
           )} />
           
           <div className="relative">
             <Search className={cn(
               "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300",
-              searchFocused ? "text-amber-500" : "text-foreground/40"
+              searchFocused ? "text-foreground" : "text-foreground/40"
             )} />
             <Input
               placeholder="Search files and folders..."
@@ -97,7 +97,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="pl-12 h-12 rounded-xl bg-foreground/5 dark:bg-white/5 border-border focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-base placeholder:text-foreground/40"
+              className="pl-12 h-12 rounded-xl bg-foreground/5 dark:bg-white/5 border-border focus:border-foreground/30 focus:ring-2 focus:ring-foreground/10 transition-all text-base placeholder:text-foreground/40"
             />
             {searchQuery && (
               <motion.div
@@ -105,7 +105,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
-                <kbd className="px-2 py-1 text-xs rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+                <kbd className="px-2 py-1 text-xs rounded-lg bg-foreground/10 text-foreground/70 font-medium">
                   ESC
                 </kbd>
               </motion.div>
@@ -124,7 +124,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             className={cn(
               "h-9 w-9 rounded-lg transition-all",
               viewMode === 'grid' 
-                ? 'bg-gold-gradient text-[#0a0d14] shadow-md' 
+                ? 'bg-foreground text-background shadow-md' 
                 : 'hover:bg-foreground/5'
             )}
             onClick={() => setViewMode('grid')}
@@ -137,7 +137,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             className={cn(
               "h-9 w-9 rounded-lg transition-all",
               viewMode === 'list' 
-                ? 'bg-gold-gradient text-[#0a0d14] shadow-md' 
+                ? 'bg-foreground text-background shadow-md' 
                 : 'hover:bg-foreground/5'
             )}
             onClick={() => setViewMode('list')}
@@ -175,7 +175,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               animate={{ rotate: isDark ? 180 : 0 }}
               transition={{ duration: 0.3 }}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4" />}
             </motion.div>
           </Button>
         </motion.div>
@@ -187,9 +187,9 @@ export function Header({ onMenuClick }: HeaderProps) {
               variant="ghost" 
               className="relative h-12 gap-3 pl-1 pr-4 rounded-xl bg-foreground/5 hover:bg-foreground/10 border border-border transition-all"
             >
-              <Avatar className="h-10 w-10 ring-2 ring-amber-500/20">
+              <Avatar className="h-10 w-10 ring-2 ring-foreground/20">
                 <AvatarImage src={user?.avatarUrl} alt={user?.firstName || 'User'} />
-                <AvatarFallback className="bg-gold-gradient text-[#0a0d14] font-semibold">
+                <AvatarFallback className="bg-foreground text-background font-semibold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -209,9 +209,9 @@ export function Header({ onMenuClick }: HeaderProps) {
           >
             <DropdownMenuLabel className="font-normal p-3">
               <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 ring-2 ring-amber-500/20">
+                <Avatar className="h-12 w-12 ring-2 ring-foreground/20">
                   <AvatarImage src={user?.avatarUrl} />
-                  <AvatarFallback className="bg-gold-gradient text-[#0a0d14] font-semibold text-lg">
+                  <AvatarFallback className="bg-foreground text-background font-semibold text-lg">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>

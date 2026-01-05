@@ -312,7 +312,7 @@ export function DashboardPage() {
                   onClick={() => navigateToFolder(item.id)}
                   className={cn(
                     'h-9 px-3 rounded-lg hover:bg-foreground/5',
-                    index === breadcrumb.length - 1 && 'font-semibold text-amber-600 dark:text-amber-400'
+                    index === breadcrumb.length - 1 && 'font-semibold text-foreground'
                   )}
                 >
                   {item.name}
@@ -342,8 +342,8 @@ export function DashboardPage() {
               className="flex flex-col items-center justify-center py-20"
             >
               <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-gold-gradient animate-ping opacity-20" />
-                <RefreshCw className="w-8 h-8 absolute inset-0 m-auto text-amber-600 dark:text-amber-400 animate-spin" />
+                <div className="w-16 h-16 rounded-full bg-foreground animate-ping opacity-20" />
+                <RefreshCw className="w-8 h-8 absolute inset-0 m-auto text-foreground/70 animate-spin" />
               </div>
               <p className="text-foreground/50 mt-4 font-medium">Loading your files...</p>
             </motion.div>
@@ -357,8 +357,8 @@ export function DashboardPage() {
               className="flex flex-col items-center justify-center py-20"
             >
               <div className="glass-card p-12 text-center max-w-md luxury-border">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-amber-500/10 flex items-center justify-center">
-                  <FileX className="w-12 h-12 text-amber-600 dark:text-amber-400" />
+                <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-foreground/10 flex items-center justify-center">
+                  <FileX className="w-12 h-12 text-foreground/70" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2 text-foreground/90">No files yet</h3>
                 <p className="text-foreground/60 mb-6">
@@ -459,7 +459,7 @@ export function DashboardPage() {
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
-              className="h-12 rounded-xl bg-foreground/5 border-border focus:border-amber-500"
+              className="h-12 rounded-xl bg-foreground/5 border-border focus:border-foreground/30"
             />
           </div>
           <DialogFooter className="gap-2">
@@ -494,7 +494,7 @@ export function DashboardPage() {
                 setRenameDialog((prev) => prev ? { ...prev, name: e.target.value } : null)
               }
               onKeyDown={(e) => e.key === 'Enter' && handleRename()}
-              className="h-12 rounded-xl bg-foreground/5 border-border focus:border-amber-500"
+              className="h-12 rounded-xl bg-foreground/5 border-border focus:border-foreground/30"
             />
           </div>
           <DialogFooter className="gap-2">
@@ -555,13 +555,13 @@ export function DashboardPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
-            style={{ background: 'rgba(212, 175, 55, 0.05)', backdropFilter: 'blur(8px)' }}
+            style={{ background: 'rgba(0, 0, 0, 0.05)', backdropFilter: 'blur(8px)' }}
           >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="glass-strong rounded-2xl p-12 text-center border-2 border-dashed border-amber-500"
+              className="glass-strong rounded-2xl p-12 text-center border-2 border-dashed border-foreground/30"
             >
               <motion.div
                 animate={{ y: [0, -8, 0] }}

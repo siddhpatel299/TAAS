@@ -4,74 +4,74 @@
 
 @layer base {
   :root {
-    /* Luxury Light Theme - Cream & Gold */
-    --background: 40 20% 98%;
-    --foreground: 20 20% 10%;
-    --card: 40 15% 99%;
-    --card-foreground: 20 20% 10%;
-    --popover: 40 15% 99%;
-    --popover-foreground: 20 20% 10%;
-    --primary: 38 92% 50%;
-    --primary-foreground: 20 20% 10%;
-    --secondary: 40 10% 94%;
-    --secondary-foreground: 20 15% 30%;
-    --muted: 40 10% 94%;
-    --muted-foreground: 20 10% 50%;
-    --accent: 38 92% 50%;
-    --accent-foreground: 20 20% 10%;
+    /* Luxury Light Theme - Sophisticated White & Silver */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 38 92% 50%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 20%;
     --radius: 0.75rem;
     
     /* Luxury glass variables */
-    --glass-bg: 255 253 250;
+    --glass-bg: 255 255 255;
     --glass-opacity: 0.85;
     --glass-blur: 20px;
-    --glass-border: rgba(212, 175, 55, 0.15);
-    --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    --glass-border: rgba(0, 0, 0, 0.06);
+    --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
     
-    /* Gold accent */
-    --gold: 38 92% 50%;
-    --gold-light: 43 96% 56%;
-    --gold-dark: 36 77% 43%;
+    /* Platinum/Silver accent */
+    --platinum: 0 0% 15%;
+    --silver: 0 0% 75%;
+    --silver-light: 0 0% 85%;
   }
 
   .dark {
-    /* Luxury Dark Theme - Deep Navy & Gold */
-    --background: 222 47% 6%;
-    --foreground: 40 15% 92%;
-    --card: 222 40% 8%;
-    --card-foreground: 40 15% 92%;
-    --popover: 222 40% 8%;
-    --popover-foreground: 40 15% 92%;
-    --primary: 43 96% 56%;
-    --primary-foreground: 222 47% 6%;
-    --secondary: 222 35% 12%;
-    --secondary-foreground: 40 15% 75%;
-    --muted: 222 35% 12%;
-    --muted-foreground: 40 10% 55%;
-    --accent: 43 96% 56%;
-    --accent-foreground: 222 47% 6%;
+    /* Luxury Dark Theme - Pure Black & Platinum */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 80%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 95%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 30% 15%;
-    --input: 222 30% 15%;
-    --ring: 43 96% 56%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 80%;
     
     /* Dark luxury glass variables */
-    --glass-bg: 15 20 35;
-    --glass-opacity: 0.6;
+    --glass-bg: 10 10 10;
+    --glass-opacity: 0.7;
     --glass-blur: 24px;
-    --glass-border: rgba(212, 175, 55, 0.1);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     
-    /* Gold accent - brighter in dark mode */
-    --gold: 43 96% 56%;
-    --gold-light: 45 93% 63%;
-    --gold-dark: 38 92% 50%;
+    /* Platinum/Silver accent - brighter in dark mode */
+    --platinum: 0 0% 90%;
+    --silver: 0 0% 65%;
+    --silver-light: 0 0% 75%;
   }
 }
 
@@ -87,21 +87,21 @@
   body {
     @apply text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background: linear-gradient(145deg, #faf9f7 0%, #f5f3ef 50%, #ebe8e2 100%);
+    background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 50%, #efefef 100%);
     min-height: 100vh;
   }
   
   .dark body {
-    background: linear-gradient(145deg, #0a0d14 0%, #0f1420 35%, #141926 70%, #0a0d14 100%);
+    background: linear-gradient(180deg, #0a0a0a 0%, #0d0d0d 35%, #111111 70%, #0a0a0a 100%);
   }
 }
 
-/* Subtle ambient lighting - static, professional */
+/* Subtle ambient lighting - minimal, sophisticated */
 .ambient-glow {
   position: fixed;
   border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.15;
+  filter: blur(150px);
+  opacity: 0.08;
   pointer-events: none;
   z-index: -1;
 }
@@ -109,7 +109,7 @@
 .ambient-glow-1 {
   width: 800px;
   height: 800px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(150, 150, 150, 0.5) 0%, transparent 70%);
   top: -300px;
   right: -200px;
 }
@@ -117,19 +117,22 @@
 .ambient-glow-2 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(100, 100, 100, 0.4) 0%, transparent 70%);
   bottom: -200px;
   left: -150px;
 }
 
 .dark .ambient-glow-1 {
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
-  opacity: 0.25;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  opacity: 0.12;
 }
 
 .dark .ambient-glow-2 {
-  background: radial-gradient(circle, rgba(180, 140, 50, 0.15) 0%, transparent 70%);
-  opacity: 0.2;
+  background: radial-gradient(circle, rgba(200, 200, 200, 0.08) 0%, transparent 70%);
+  opacity: 0.1;
+}
+  bottom: -200px;
+  left: -150px;
 }
 
 /* Legacy support - hide floating orbs */
@@ -161,27 +164,31 @@
     background: rgba(var(--glass-bg), 0.5);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+  
+  .dark .glass-subtle {
+    border: 1px solid rgba(255, 255, 255, 0.04);
   }
   
   .glass-strong {
-    background: rgba(var(--glass-bg), 0.92);
+    background: rgba(var(--glass-bg), 0.95);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: 
-      0 4px 24px rgba(0, 0, 0, 0.08),
-      0 1px 2px rgba(0, 0, 0, 0.04),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      0 4px 24px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
   }
   
   .dark .glass-strong {
-    background: rgba(15, 20, 35, 0.85);
-    border: 1px solid rgba(212, 175, 55, 0.1);
+    background: rgba(15, 15, 15, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      0 2px 8px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
   
   .glass-card {
@@ -190,41 +197,49 @@
   
   .glass-card:hover {
     box-shadow: 
-      0 12px 40px rgba(0, 0, 0, 0.1),
-      0 4px 12px rgba(212, 175, 55, 0.06);
+      0 12px 40px rgba(0, 0, 0, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
     transform: translateY(-1px);
-    border-color: rgba(212, 175, 55, 0.2);
+    border-color: rgba(0, 0, 0, 0.1);
   }
   
   .dark .glass-card:hover {
     box-shadow: 
-      0 16px 48px rgba(0, 0, 0, 0.5),
-      0 4px 12px rgba(212, 175, 55, 0.08);
-    border-color: rgba(212, 175, 55, 0.15);
+      0 16px 48px rgba(0, 0, 0, 0.6),
+      0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
   }
   
   /* Luxury gradient text */
   .text-gradient {
-    background: linear-gradient(135deg, #d4af37, #f4d03f, #c9a227);
+    background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 50%, #1a1a1a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .dark .text-gradient {
-    background: linear-gradient(135deg, #f4d03f, #ffeaa7, #d4af37);
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #ffffff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
-  /* Subtle gold glow effects */
+  /* Subtle glow effects */
   .glow {
-    box-shadow: 0 0 24px rgba(212, 175, 55, 0.15);
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark .glow {
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.06);
   }
   
   .glow-text {
-    text-shadow: 0 0 24px rgba(212, 175, 55, 0.3);
+    text-shadow: 0 0 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .glow-text {
+    text-shadow: 0 0 24px rgba(255, 255, 255, 0.1);
   }
   
   /* Premium shimmer effect - subtle */
@@ -240,8 +255,12 @@
     left: -100%;
     width: 50%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
     animation: shimmer 3s ease-in-out infinite;
+  }
+  
+  .dark .shimmer::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
   }
   
   @keyframes shimmer {
@@ -260,22 +279,37 @@
   
   /* Luxury button styles */
   .btn-luxury {
-    background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
-    color: #0a0d14;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: #ffffff;
     font-weight: 600;
     letter-spacing: 0.02em;
     box-shadow: 
-      0 2px 8px rgba(212, 175, 55, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      0 2px 8px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
   }
   
   .btn-luxury:hover {
-    background: linear-gradient(135deg, #e5c04b 0%, #d4af37 100%);
+    background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
     box-shadow: 
-      0 4px 16px rgba(212, 175, 55, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      0 4px 16px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
     transform: translateY(-1px);
+  }
+  
+  .dark .btn-luxury {
+    background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
+    color: #0a0a0a;
+    box-shadow: 
+      0 2px 8px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  
+  .dark .btn-luxury:hover {
+    background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+    box-shadow: 
+      0 4px 16px rgba(255, 255, 255, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
   
   /* Premium card border */
@@ -289,53 +323,61 @@
     inset: 0;
     padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(212, 175, 55, 0.05), rgba(212, 175, 55, 0.2));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.1));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
   }
+  
+  .dark .luxury-border::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.1));
+  }
 }
 
-/* Premium scrollbar with gold accent */
+/* Premium scrollbar - minimal */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.3);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.5);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.25);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.4);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* File drag overlay - luxury style */
 .drag-overlay {
   @apply fixed inset-0 z-50 flex items-center justify-center;
-  background: rgba(212, 175, 55, 0.05);
+  background: rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(8px);
   pointer-events: none;
+}
+
+.dark .drag-overlay {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 /* Animations */

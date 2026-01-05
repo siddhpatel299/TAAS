@@ -115,9 +115,9 @@ export function SharePage() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15"
+          className="w-16 h-16 rounded-xl bg-foreground flex items-center justify-center shadow-lg shadow-foreground/15"
         >
-          <Crown className="w-8 h-8 text-[#0a0d14]" />
+          <Crown className="w-8 h-8 text-background" />
         </motion.div>
       </div>
     );
@@ -162,8 +162,8 @@ export function SharePage() {
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center gap-3"
           >
-            <div className="w-12 h-12 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15">
-              <Crown className="w-6 h-6 text-[#0a0d14]" />
+            <div className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center shadow-lg shadow-foreground/15">
+              <Crown className="w-6 h-6 text-background" />
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold text-gradient">TAAS</h1>
@@ -177,7 +177,7 @@ export function SharePage() {
           <div className="flex items-start gap-4">
             <motion.div 
               whileHover={{ scale: 1.1, rotate: 5 }}
-              className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center text-3xl"
+              className="w-14 h-14 rounded-xl bg-foreground/10 flex items-center justify-center text-3xl"
             >
               {getFileIcon()}
             </motion.div>
@@ -189,7 +189,7 @@ export function SharePage() {
                 {formatFileSize(file?.size || 0)}
               </p>
               {downloadsRemaining !== null && (
-                <span className="inline-flex items-center gap-1 text-xs text-gold bg-gold/10 px-2 py-1 rounded-lg mt-2">
+                <span className="inline-flex items-center gap-1 text-xs text-foreground/70 bg-foreground/10 px-2 py-1 rounded-lg mt-2">
                   <Crown className="w-3 h-3" />
                   {downloadsRemaining} downloads remaining
                 </span>
@@ -207,7 +207,7 @@ export function SharePage() {
         {requiresPassword && (
           <div className="mb-6">
             <Label className="flex items-center gap-2 mb-2 text-sm">
-              <Lock className="h-4 w-4 text-gold" />
+              <Lock className="h-4 w-4 text-foreground/70" />
               This file is password protected
             </Label>
             <Input
@@ -258,7 +258,7 @@ export function SharePage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
-          <Crown className="w-3 h-3 text-gold" />
+          <Crown className="w-3 h-3 text-foreground/70" />
           Shared securely via TAAS
         </p>
       </motion.div>

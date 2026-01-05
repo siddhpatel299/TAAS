@@ -92,7 +92,7 @@ export function BulkActionsBar({
         >
           <div className="flex items-center gap-2 glass-strong px-5 py-3.5 rounded-xl shadow-2xl border border-border">
             <div className="flex items-center gap-2 px-2">
-              <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center text-[#0a0d14] text-sm font-bold">
+              <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-background text-sm font-bold">
                 {selectedIds.length}
               </div>
               <span className="text-sm font-medium">
@@ -144,7 +144,7 @@ export function BulkActionsBar({
                   onClick={() => handleBulkStar(true)}
                   disabled={loading !== null}
                 >
-                  <Star className="h-4 w-4 mr-2 text-amber-500" />
+                  <Star className="h-4 w-4 mr-2 text-yellow-500" />
                   Star
                 </Button>
                 <Button

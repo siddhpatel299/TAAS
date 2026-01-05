@@ -35,8 +35,8 @@ export function FileUploader({ onUpload, disabled, className }: FileUploaderProp
       className={cn(
         'relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all cursor-pointer overflow-hidden',
         isDragActive
-          ? 'border-amber-500 bg-amber-500/10 shadow-lg shadow-amber-500/10'
-          : 'border-border hover:border-amber-400/50 glass-subtle',
+          ? 'border-foreground/50 bg-foreground/10 shadow-lg shadow-foreground/10'
+          : 'border-border hover:border-foreground/30 glass-subtle',
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
@@ -58,7 +58,7 @@ export function FileUploader({ onUpload, disabled, className }: FileUploaderProp
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-amber-400/10 to-amber-600/15"
+          className="absolute inset-0 bg-gradient-to-br from-foreground/10 via-foreground/5 to-foreground/10"
         />
       )}
       
@@ -69,20 +69,20 @@ export function FileUploader({ onUpload, disabled, className }: FileUploaderProp
           className={cn(
             'rounded-xl p-5 transition-all',
             isDragActive 
-              ? 'bg-gold-gradient shadow-lg shadow-amber-500/20' 
-              : 'bg-amber-500/10'
+              ? 'bg-foreground shadow-lg shadow-foreground/20' 
+              : 'bg-foreground/10'
           )}
         >
           {isDragActive ? (
-            <Cloud className="h-10 w-10 text-[#0a0d14]" />
+            <Cloud className="h-10 w-10 text-background" />
           ) : (
-            <Upload className="h-10 w-10 text-amber-500" />
+            <Upload className="h-10 w-10 text-foreground/70" />
           )}
         </motion.div>
         <div>
           <p className="text-lg font-semibold">
             {isDragActive ? (
-              <span className="text-amber-500">Drop files here</span>
+              <span className="text-foreground">Drop files here</span>
             ) : (
               'Drag & drop files here'
             )}
@@ -92,7 +92,7 @@ export function FileUploader({ onUpload, disabled, className }: FileUploaderProp
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Crown className="w-3 h-3 text-amber-500" />
+          <Crown className="w-3 h-3 text-foreground/70" />
           <span>Supports all file types up to 2GB per file</span>
         </div>
       </div>

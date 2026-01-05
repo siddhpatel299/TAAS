@@ -39,9 +39,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg"
+            className="w-16 h-16 rounded-xl bg-foreground flex items-center justify-center shadow-lg"
           >
-            <Send className="w-8 h-8 text-[#0a0d14]" />
+            <Send className="w-8 h-8 text-background" />
           </motion.div>
           <div className="text-center">
             <p className="text-lg font-semibold text-foreground/90 text-luxury">Loading TAAS</p>

@@ -59,10 +59,10 @@ const fileTypeIcons = {
 
 const fileTypeColors = {
   image: 'from-pink-500 to-rose-500',
-  video: 'from-amber-500 to-orange-500',
+  video: 'from-purple-500 to-violet-500',
   audio: 'from-green-500 to-emerald-500',
   document: 'from-blue-500 to-cyan-500',
-  archive: 'from-amber-500 to-orange-500',
+  archive: 'from-slate-500 to-slate-600',
   other: 'from-gray-400 to-gray-500',
 };
 
@@ -97,7 +97,7 @@ export function FileCard({
         whileHover={{ scale: 1.01 }}
         className={cn(
           'flex items-center gap-4 p-4 glass-subtle rounded-xl transition-all cursor-pointer group',
-          isSelected && 'ring-2 ring-amber-500 bg-amber-500/10'
+          isSelected && 'ring-2 ring-foreground/50 bg-foreground/5'
         )}
         onClick={selectionMode ? onSelect : onPreview}
         onDoubleClick={onPreview}
@@ -109,12 +109,12 @@ export function FileCard({
           className={cn(
             "flex-shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
             isSelected 
-              ? "bg-gold-gradient border-transparent" 
-              : "border-foreground/20 hover:border-amber-500 bg-white/50 dark:bg-white/10"
+              ? "bg-foreground border-transparent" 
+              : "border-foreground/20 hover:border-foreground/40 bg-white/50 dark:bg-white/10"
           )}
           onClick={(e) => { e.stopPropagation(); onSelect(); }}
         >
-          {isSelected && <Check className="w-4 h-4 text-[#0a0d14]" />}
+          {isSelected && <Check className="w-4 h-4 text-background" />}
         </motion.div>
 
         <div className="flex-shrink-0">
@@ -149,9 +149,9 @@ export function FileCard({
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center"
+              className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"
             >
-              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
             </motion.div>
           )}
           <FileActions
@@ -179,8 +179,8 @@ export function FileCard({
       whileHover={{ y: -4 }}
       className={cn(
         'group relative flex flex-col glass-subtle rounded-xl overflow-hidden transition-all cursor-pointer',
-        'hover:shadow-lg hover:shadow-amber-500/5 hover:border-amber-500/20',
-        isSelected && 'ring-2 ring-amber-500'
+        'hover:shadow-lg hover:border-foreground/10',
+        isSelected && 'ring-2 ring-foreground/50'
       )}
       onClick={selectionMode ? onSelect : undefined}
       onDoubleClick={onPreview}
@@ -192,12 +192,12 @@ export function FileCard({
         className={cn(
           "absolute top-3 left-3 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
           isSelected 
-            ? "bg-gold-gradient border-transparent" 
+            ? "bg-foreground border-transparent" 
             : "border-white/50 bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100"
         )}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
       >
-        {isSelected && <Check className="w-4 h-4 text-[#0a0d14]" />}
+        {isSelected && <Check className="w-4 h-4 text-background" />}
       </motion.div>
 
       {/* Preview */}
@@ -260,7 +260,7 @@ export function FileCard({
         {/* Star indicator */}
         {file.isStarred && (
           <div className="absolute top-3 right-12">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+            <div className="w-8 h-8 rounded-lg bg-yellow-500/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
               <Star className="w-4 h-4 text-white fill-white" />
             </div>
           </div>
@@ -363,8 +363,8 @@ function FileActions({
                 onClick={onShare}
                 className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
               >
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Link2 className="w-4 h-4 text-amber-500" />
+                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Link2 className="w-4 h-4 text-blue-500" />
                 </div>
                 Share
               </DropdownMenuItem>
@@ -375,15 +375,15 @@ function FileActions({
             >
               {file.isStarred ? (
                 <>
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <StarOff className="w-4 h-4 text-amber-500" />
+                  <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                    <StarOff className="w-4 h-4 text-yellow-500" />
                   </div>
                   Remove star
                 </>
               ) : (
                 <>
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <Star className="w-4 h-4 text-amber-500" />
+                  <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                    <Star className="w-4 h-4 text-yellow-500" />
                   </div>
                   Add star
                 </>

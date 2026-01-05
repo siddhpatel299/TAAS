@@ -73,8 +73,8 @@ export function VersionHistoryDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center">
-              <History className="h-5 w-5 text-[#0a0d14]" />
+            <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">
+              <History className="h-5 w-5 text-background" />
             </div>
             <span>Version History</span>
           </DialogTitle>
@@ -113,7 +113,7 @@ export function VersionHistoryDialog({
 
             {loading ? (
               <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold" />
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-foreground" />
               </div>
             ) : versions.length === 0 ? (
               <div className="glass-subtle rounded-2xl text-center py-8 text-muted-foreground">

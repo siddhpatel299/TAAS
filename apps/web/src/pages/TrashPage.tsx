@@ -156,10 +156,10 @@ export function TrashPage() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-subtle rounded-xl p-4 mb-6 flex items-center gap-3 border border-amber-500/20"
+              className="glass-subtle rounded-xl p-4 mb-6 flex items-center gap-3 border border-foreground/20"
             >
-              <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <div className="w-8 h-8 rounded-lg bg-foreground/10 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-foreground/70" />
               </div>
               <p className="text-sm text-foreground/80">
                 Items in trash will be permanently deleted after 30 days
@@ -172,9 +172,9 @@ export function TrashPage() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/15"
+                className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center shadow-lg shadow-foreground/15"
               >
-                <Crown className="w-6 h-6 text-[#0a0d14]" />
+                <Crown className="w-6 h-6 text-background" />
               </motion.div>
             </div>
           )}

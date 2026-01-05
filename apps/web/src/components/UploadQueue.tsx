@@ -16,8 +16,8 @@ export function UploadQueue() {
       className="fixed bottom-4 right-4 w-80 glass-strong rounded-xl shadow-2xl overflow-hidden z-50 border border-border"
     >
       <div className="p-4 border-b border-border flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
-          <Upload className="w-4 h-4 text-[#0a0d14]" />
+        <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
+          <Upload className="w-4 h-4 text-background" />
         </div>
         <h3 className="font-semibold text-sm">Uploads</h3>
         <span className="ml-auto text-xs text-muted-foreground bg-foreground/5 px-2 py-1 rounded-full">
@@ -52,8 +52,8 @@ function UploadItem({
       bg: 'bg-muted/50'
     },
     uploading: { 
-      icon: <Loader2 className="w-4 h-4 animate-spin text-amber-500" />,
-      bg: 'bg-amber-500/10'
+      icon: <Loader2 className="w-4 h-4 animate-spin text-foreground" />,
+      bg: 'bg-foreground/10'
     },
     completed: { 
       icon: <CheckCircle className="w-4 h-4 text-emerald-500" />,

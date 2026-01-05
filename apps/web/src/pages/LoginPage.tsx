@@ -98,8 +98,8 @@ export function LoginPage() {
             transition={{ delay: 0.2 }}
             className="flex items-center gap-3"
           >
-            <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/20 animate-pulse-glow">
-              <Send className="w-7 h-7 text-[#0a0d14]" />
+            <div className="w-14 h-14 rounded-xl bg-foreground flex items-center justify-center shadow-lg">
+              <Send className="w-7 h-7 text-background" />
             </div>
             <span className="text-3xl font-bold text-gradient tracking-wide">TAAS</span>
           </motion.div>
@@ -134,10 +134,10 @@ export function LoginPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
-                className="glass-subtle rounded-xl p-4 hover:scale-[1.02] transition-all duration-300 hover:border-amber-500/20"
+                className="glass-subtle rounded-xl p-4 hover:scale-[1.02] transition-all duration-300 hover:border-foreground/10"
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/15 to-amber-600/10 flex items-center justify-center mb-3">
-                  <feature.icon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                <div className="w-10 h-10 rounded-lg bg-foreground/5 dark:bg-white/10 flex items-center justify-center mb-3">
+                  <feature.icon className="w-5 h-5 text-foreground/70" />
                 </div>
                 <p className="font-semibold text-sm text-foreground/90 text-luxury">{feature.label}</p>
                 <p className="text-xs text-foreground/60 mt-1">{feature.description}</p>
@@ -168,8 +168,8 @@ export function LoginPage() {
           <div className="glass-strong rounded-2xl p-8 space-y-8 luxury-border">
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center justify-center gap-3">
-              <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <Send className="w-7 h-7 text-[#0a0d14]" />
+              <div className="w-14 h-14 rounded-xl bg-foreground flex items-center justify-center shadow-lg">
+                <Send className="w-7 h-7 text-background" />
               </div>
               <span className="text-3xl font-bold text-gradient tracking-wide">TAAS</span>
             </div>
@@ -181,9 +181,9 @@ export function LoginPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 mb-4">
-                  <Crown className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-foreground/5 dark:bg-white/10 border border-foreground/10 dark:border-white/10 mb-4">
+                  <Crown className="w-4 h-4 text-foreground/70" />
+                  <span className="text-sm font-medium text-foreground/80">
                     {step === 'phone' && 'Welcome'}
                     {step === 'code' && 'Almost there'}
                     {step === '2fa' && 'One more step'}
@@ -229,15 +229,15 @@ export function LoginPage() {
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="text-foreground/70 font-medium text-luxury">Phone Number</Label>
                       <div className="relative group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/30 to-amber-600/20 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition-opacity" />
-                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-amber-500 transition-colors" />
+                        <div className="absolute inset-0 bg-foreground/5 dark:bg-white/5 rounded-xl blur opacity-0 group-focus-within:opacity-50 transition-opacity" />
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-foreground transition-colors" />
                         <Input
                           id="phone"
                           type="tel"
                           placeholder="+1 234 567 8900"
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
-                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-lg"
+                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/10 transition-all text-lg"
                           disabled={isLoading}
                         />
                       </div>
@@ -278,7 +278,7 @@ export function LoginPage() {
                         placeholder="• • • • • •"
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
-                        className="text-center text-3xl tracking-[0.5em] h-16 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-mono"
+                        className="text-center text-3xl tracking-[0.5em] h-16 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/10 font-mono"
                         maxLength={6}
                         disabled={isLoading}
                       />
@@ -322,15 +322,15 @@ export function LoginPage() {
                     <div className="space-y-2">
                       <Label htmlFor="password" className="text-foreground/70 font-medium text-luxury">2FA Password</Label>
                       <div className="relative group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/30 to-amber-600/20 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition-opacity" />
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-amber-500 transition-colors" />
+                        <div className="absolute inset-0 bg-foreground/5 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition-opacity" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-foreground transition-colors" />
                         <Input
                           id="password"
                           type="password"
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-lg"
+                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/10 transition-all text-lg"
                           disabled={isLoading}
                         />
                       </div>
