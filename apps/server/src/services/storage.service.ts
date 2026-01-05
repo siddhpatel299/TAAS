@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { telegramService } from './telegram.service';
+import { chunkService } from './chunk.service';
 import { Prisma } from '@prisma/client';
 
 interface FileUploadParams {
@@ -27,7 +28,7 @@ interface FileListParams {
 }
 
 export class StorageService {
-  // Upload a file
+  // Upload a file (with automatic chunking for files > 2GB)
   async uploadFile(params: FileUploadParams) {
     const { userId, file, fileName, originalName, mimeType, size, folderId, channelId, onProgress } = params;
 
@@ -36,15 +37,15 @@ export class StorageService {
       throw new Error('Not authenticated with Telegram');
     }
 
-    // Upload to Telegram
-    const { messageId, fileId } = await telegramService.uploadFile(
+    // Upload to Telegram (automatically chunks if > 2GB)
+    const uploadResult = await chunkService.uploadFile({
       client,
       channelId,
-      file,
+      buffer: file,
       fileName,
       mimeType,
-      onProgress
-    );
+      onProgress,
+    });
 
     // Save to database
     const savedFile = await prisma.file.create({
@@ -53,13 +54,29 @@ export class StorageService {
         originalName,
         mimeType,
         size: BigInt(size),
-        telegramFileId: fileId,
-        telegramMessageId: messageId,
+        telegramFileId: uploadResult.telegramFileId,
+        telegramMessageId: uploadResult.telegramMessageId,
         channelId,
         folderId,
         userId,
+        isChunked: uploadResult.isChunked,
+        checksum: uploadResult.checksum,
       },
     });
+
+    // Save chunks if file was chunked
+    if (uploadResult.isChunked && uploadResult.chunks) {
+      await prisma.fileChunk.createMany({
+        data: uploadResult.chunks.map(chunk => ({
+          fileId: savedFile.id,
+          chunkIndex: chunk.chunkIndex,
+          telegramFileId: chunk.telegramFileId,
+          telegramMessageId: chunk.telegramMessageId,
+          channelId,
+          size: BigInt(chunk.size),
+        })),
+      });
+    }
 
     // Update storage channel stats
     await prisma.storageChannel.update({
@@ -78,10 +95,11 @@ export class StorageService {
     };
   }
 
-  // Download a file
+  // Download a file (handles chunked files automatically)
   async downloadFile(userId: string, fileId: string, onProgress?: (progress: number) => void) {
     const file = await prisma.file.findFirst({
       where: { id: fileId, userId },
+      include: { chunks: { orderBy: { chunkIndex: 'asc' } } },
     });
 
     if (!file) {
@@ -93,12 +111,8 @@ export class StorageService {
       throw new Error('Not authenticated with Telegram');
     }
 
-    const buffer = await telegramService.downloadFile(
-      client,
-      file.channelId,
-      file.telegramMessageId,
-      onProgress
-    );
+    // Use chunk service to download (handles both chunked and non-chunked)
+    const buffer = await chunkService.downloadFile(client, fileId, onProgress);
 
     return {
       buffer,
@@ -111,6 +125,7 @@ export class StorageService {
   async deleteFile(userId: string, fileId: string, permanent: boolean = false) {
     const file = await prisma.file.findFirst({
       where: { id: fileId, userId },
+      include: { chunks: true },
     });
 
     if (!file) {
@@ -122,7 +137,8 @@ export class StorageService {
       const client = await telegramService.getClient(userId);
       if (client) {
         try {
-          await telegramService.deleteFile(client, file.channelId, file.telegramMessageId);
+          // Use chunk service to delete (handles chunked files)
+          await chunkService.deleteFile(client, fileId);
         } catch (error) {
           console.error('Failed to delete from Telegram:', error);
         }
@@ -317,6 +333,7 @@ export class StorageService {
   async emptyTrash(userId: string) {
     const trashedFiles = await prisma.file.findMany({
       where: { userId, isTrashed: true },
+      include: { chunks: true },
     });
 
     const client = await telegramService.getClient(userId);
@@ -324,7 +341,8 @@ export class StorageService {
     for (const file of trashedFiles) {
       if (client) {
         try {
-          await telegramService.deleteFile(client, file.channelId, file.telegramMessageId);
+          // Use chunk service to delete (handles chunked files)
+          await chunkService.deleteFile(client, file.id);
         } catch (error) {
           console.error('Failed to delete from Telegram:', error);
         }

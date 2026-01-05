@@ -41,6 +41,8 @@ model File {
   isStarred         Boolean  @default(false)
   isTrashed         Boolean  @default(false)
   trashedAt         DateTime?
+  isChunked         Boolean  @default(false)
+  checksum          String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -48,12 +50,30 @@ model File {
   folder      Folder?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
   versions    FileVersion[]
   sharedLinks SharedLink[]
+  chunks      FileChunk[]
 
   @@index([userId])
   @@index([folderId])
   @@index([isTrashed])
   @@index([isStarred])
   @@map("files")
+}
+
+model FileChunk {
+  id                String   @id @default(cuid())
+  fileId            String
+  chunkIndex        Int
+  telegramFileId    String
+  telegramMessageId Int
+  channelId         String
+  size              BigInt
+  createdAt         DateTime @default(now())
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, chunkIndex])
+  @@index([fileId])
+  @@map("file_chunks")
 }
 
 model FileVersion {

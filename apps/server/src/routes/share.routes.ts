@@ -1,6 +1,7 @@
 import { Router, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { telegramService } from '../services/telegram.service';
+import { chunkService } from '../services/chunk.service';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import crypto from 'crypto';
 
@@ -234,11 +235,10 @@ router.post('/public/:token/download', async (req, res: Response, next: NextFunc
       return res.status(500).json({ error: 'Unable to access file storage' });
     }
 
-    // Download file
-    const buffer = await telegramService.downloadFile(
+    // Download file (handles chunked files automatically)
+    const buffer = await chunkService.downloadFile(
       client,
-      link.file.channelId,
-      link.file.telegramMessageId
+      link.file.id
     );
 
     // Increment download count
