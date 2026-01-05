@@ -2,11 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutGrid,
-  Upload,
   Heart,
   Trash2,
-  Clock,
-  Users,
   Settings,
   LogOut,
   Send,
@@ -26,15 +23,8 @@ interface ModernSidebarProps {
 
 const mainNavItems = [
   { path: '/', label: 'Dashboard', icon: LayoutGrid },
-  { path: '/upload', label: 'Upload', icon: Upload },
   { path: '/starred', label: 'Favorites', icon: Heart },
   { path: '/trash', label: 'Trash', icon: Trash2 },
-  { path: '/recent', label: 'Recent', icon: Clock },
-  { path: '/shared', label: 'Shared', icon: Users },
-];
-
-const bottomNavItems = [
-  { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarProps) {
@@ -86,35 +76,22 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
         })}
       </nav>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - Settings */}
       <div className="flex flex-col items-center gap-2">
-        {bottomNavItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          
-          return (
-            <Tooltip key={item.path} delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Link to={item.path}>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200",
-                      isActive
-                        ? "bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg shadow-blue-500/30"
-                        : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                    )}
-                  >
-                    <item.icon className="w-5 h-5" />
-                  </motion.div>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="bg-gray-900 text-white border-0">
-                {item.label}
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all duration-200"
+            >
+              <Settings className="w-5 h-5" />
+            </motion.button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="bg-gray-900 text-white border-0">
+            Settings (Coming Soon)
+          </TooltipContent>
+        </Tooltip>
 
         {/* Logout */}
         <Tooltip delayDuration={0}>

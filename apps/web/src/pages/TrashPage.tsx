@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trash2, AlertTriangle, Crown } from 'lucide-react';
+import { Trash2, AlertTriangle, Search, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -10,68 +11,55 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { FileCard } from '@/components/FileCard';
-import { Sidebar } from '@/components/Sidebar';
-import { Header } from '@/components/Header';
+import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { UploadQueue } from '@/components/UploadQueue';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { filesApi } from '@/lib/api';
-import { cn } from '@/lib/utils';
+import { formatFileSize, formatDate } from '@/lib/utils';
 
 export function TrashPage() {
   const {
     files,
-    viewMode,
     searchQuery,
     sortBy,
     sortOrder,
-    selectedFiles,
-    isLoading,
     setFiles,
-    toggleFileSelection,
     setLoading,
+    setSearchQuery,
+    isLoading,
   } = useFilesStore();
 
-  const [storageUsed, setStorageUsed] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [localSearch, setLocalSearch] = useState('');
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(localSearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [localSearch, setSearchQuery]);
 
   const loadContent = useCallback(async () => {
     setLoading(true);
     try {
-      const [filesRes, statsRes] = await Promise.all([
-        filesApi.getFiles({ trash: true, sortBy, sortOrder, search: searchQuery || undefined }),
-        filesApi.getStats(),
-      ]);
-
+      const filesRes = await filesApi.getFiles({ 
+        trash: true, 
+        sortBy, 
+        sortOrder, 
+        search: searchQuery || undefined 
+      });
       setFiles(filesRes.data.data);
-      setStorageUsed(statsRes.data.data.totalUsed);
     } catch (error) {
       console.error('Failed to load content:', error);
     } finally {
       setLoading(false);
     }
-  }, [sortBy, sortOrder, searchQuery]);
+  }, [sortBy, sortOrder, searchQuery, setFiles, setLoading]);
 
   useEffect(() => {
     loadContent();
   }, [loadContent]);
-
-  const handleDownload = async (file: StoredFile) => {
-    try {
-      const response = await filesApi.downloadFile(file.id);
-      const url = window.URL.createObjectURL(response.data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.originalName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
-    }
-  };
 
   const handleRestore = async (file: StoredFile) => {
     try {
@@ -103,151 +91,202 @@ export function TrashPage() {
     }
   };
 
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return '🖼️';
+    if (mimeType.startsWith('video/')) return '🎬';
+    if (mimeType.startsWith('audio/')) return '🎵';
+    if (mimeType.includes('pdf')) return '📄';
+    if (mimeType.includes('document') || mimeType.includes('word')) return '📝';
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return '📊';
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return '📦';
+    return '📁';
+  };
+
   return (
-    <div className="h-screen flex bg-background relative overflow-hidden">
-      {/* Subtle ambient lighting */}
-      <div className="ambient-glow ambient-glow-1" />
-      <div className="ambient-glow ambient-glow-2" />
-      
-      <div className={cn(
-        'fixed inset-y-0 left-0 z-50 transform transition-transform md:relative md:translate-x-0',
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      )}>
-        <Sidebar
-          storageUsed={storageUsed}
-          onNewFolder={() => {}}
-          onUpload={() => {}}
-        />
-      </div>
+    <div className="min-h-screen bg-[#f0f5fa] flex">
+      {/* Sidebar */}
+      <ModernSidebar />
 
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <div className="flex-1 flex flex-col min-w-0 relative z-10">
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between mb-6"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-foreground/10 flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-foreground/70" />
-              </div>
-              <h1 className="text-2xl font-bold">Trash</h1>
+      {/* Main Content */}
+      <main className="flex-1 ml-20 p-6 lg:p-8">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/30">
+              <Trash2 className="w-6 h-6 text-white" />
             </div>
+            <div>
+              <motion.h1
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-3xl font-bold text-gray-900"
+              >
+                Trash
+              </motion.h1>
+              <p className="text-gray-500 mt-1">
+                {files.length} items • Items are permanently deleted after 30 days
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search trash..."
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                className="pl-12 pr-4 py-3 w-80 bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-cyan-500"
+              />
+            </div>
+
+            {/* Empty Trash Button */}
             {files.length > 0 && (
               <Button
-                variant="destructive"
                 onClick={() => setShowEmptyConfirm(true)}
+                className="bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-xl hover:from-red-600 hover:to-rose-600"
               >
                 Empty Trash
               </Button>
             )}
+          </div>
+        </header>
+
+        {/* Warning Banner */}
+        {files.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+            </div>
+            <p className="text-sm text-amber-800">
+              Items in trash will be permanently deleted after 30 days. You can restore items before they are deleted.
+            </p>
           </motion.div>
+        )}
 
-          {files.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-subtle rounded-xl p-4 mb-6 flex items-center gap-3 border border-foreground/20"
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg"
             >
-              <div className="w-8 h-8 rounded-lg bg-foreground/10 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-foreground/70" />
+              <Trash2 className="w-6 h-6 text-white" />
+            </motion.div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && files.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-16 text-center"
+          >
+            <div className="bg-white rounded-3xl p-12 shadow-sm flex flex-col items-center">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
+                <Trash2 className="w-10 h-10 text-gray-400" />
               </div>
-              <p className="text-sm text-foreground/80">
-                Items in trash will be permanently deleted after 30 days
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Trash is empty</h3>
+              <p className="text-gray-500 max-w-sm">
+                Files you delete will appear here
               </p>
-            </motion.div>
-          )}
+            </div>
+          </motion.div>
+        )}
 
-          {isLoading && (
-            <div className="flex items-center justify-center py-12">
+        {/* Files List */}
+        {!isLoading && files.length > 0 && (
+          <div className="bg-white rounded-3xl overflow-hidden shadow-sm">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 text-sm font-medium text-gray-500">
+              <div className="col-span-5">Name</div>
+              <div className="col-span-2">Size</div>
+              <div className="col-span-3">Deleted</div>
+              <div className="col-span-2 text-right">Actions</div>
+            </div>
+
+            {/* Table Body */}
+            {files.map((file, index) => (
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center shadow-lg shadow-foreground/15"
+                key={file.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03 }}
+                className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
               >
-                <Crown className="w-6 h-6 text-background" />
-              </motion.div>
-            </div>
-          )}
-
-          {!isLoading && files.length === 0 && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center py-16 text-center"
-            >
-              <div className="glass-strong rounded-2xl p-12 flex flex-col items-center luxury-border">
-                <div className="w-20 h-20 rounded-xl bg-foreground/10 flex items-center justify-center mb-6">
-                  <Trash2 className="w-10 h-10 text-foreground/50" />
+                {/* File Name */}
+                <div className="col-span-5 flex items-center gap-3">
+                  <span className="text-2xl">{getFileIcon(file.mimeType)}</span>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{file.originalName}</p>
+                    <p className="text-xs text-gray-500">{file.mimeType.split('/')[1]?.toUpperCase()}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Trash is empty</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  Files you delete will appear here
-                </p>
-              </div>
-            </motion.div>
-          )}
 
-          {!isLoading && files.length > 0 && (
-            <div
-              className={cn(
-                viewMode === 'grid'
-                  ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4'
-                  : 'space-y-2'
-              )}
-            >
-              {files.map((file, index) => (
-                <motion.div
-                  key={file.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <FileCard
-                    file={file}
-                    viewMode={viewMode}
-                    isSelected={selectedFiles.has(file.id)}
-                    onSelect={() => toggleFileSelection(file.id)}
-                    onDownload={() => handleDownload(file)}
-                    onStar={() => {}}
-                    onDelete={() => handleDelete(file)}
-                    onRename={() => {}}
-                    onMove={() => {}}
-                    onRestore={() => handleRestore(file)}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </main>
-      </div>
+                {/* Size */}
+                <div className="col-span-2 text-sm text-gray-600">
+                  {formatFileSize(file.size)}
+                </div>
+
+                {/* Deleted Date */}
+                <div className="col-span-3 text-sm text-gray-600">
+                  {formatDate(file.updatedAt)}
+                </div>
+
+                {/* Actions */}
+                <div className="col-span-2 flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRestore(file)}
+                    className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-1" />
+                    Restore
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(file)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </main>
 
       <UploadQueue />
 
       {/* Empty trash confirmation */}
       <Dialog open={showEmptyConfirm} onOpenChange={setShowEmptyConfirm}>
-        <DialogContent>
+        <DialogContent className="bg-white rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Empty Trash?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-semibold">Empty Trash?</DialogTitle>
+            <DialogDescription className="text-gray-500">
               This will permanently delete all {files.length} items in trash.
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEmptyConfirm(false)}>
+            <Button variant="outline" onClick={() => setShowEmptyConfirm(false)} className="rounded-xl">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleEmptyTrash}>
+            <Button 
+              onClick={handleEmptyTrash}
+              className="bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-xl"
+            >
               Empty Trash
             </Button>
           </DialogFooter>
