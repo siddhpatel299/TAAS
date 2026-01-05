@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import filesRoutes from './routes/files.routes';
 import foldersRoutes from './routes/folders.routes';
 import shareRoutes from './routes/share.routes';
+import syncRoutes from './routes/sync.routes';
 
 const app: Application = express();
 
@@ -56,6 +57,7 @@ app.use('/api/files', apiLimiter, filesRoutes);
 app.use('/api/folders', apiLimiter, foldersRoutes);
 app.use('/api/share/public', publicLimiter); // Public share routes - less strict
 app.use('/api/share', apiLimiter, shareRoutes);
+app.use('/api/sync', apiLimiter, syncRoutes);
 
 // Error handling
 app.use(notFoundHandler);

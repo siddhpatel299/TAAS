@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { SyncDialog } from '@/components/SyncDialog';
 import { useAuthStore } from '@/stores/auth.store';
 import { useFilesStore } from '@/stores/files.store';
 import { authApi } from '@/lib/api';
@@ -161,6 +162,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             )}
           </Button>
         </motion.div>
+
+        {/* Sync from Telegram */}
+        <SyncDialog />
 
         {/* Theme toggle */}
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>

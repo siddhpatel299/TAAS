@@ -169,3 +169,22 @@ export const getPreviewUrl = (fileId: string) => {
   const token = localStorage.getItem('token');
   return `${API_BASE_URL}/files/${fileId}/preview?token=${token}`;
 };
+
+// Sync API
+export const syncApi = {
+  // Get current sync status
+  getStatus: () => api.get('/sync/status'),
+
+  // Start a sync from Telegram
+  startSync: (channelId?: string) =>
+    api.post('/sync/start', { channelId }),
+
+  // Get sync result
+  getResult: () => api.get('/sync/result'),
+
+  // Get storage channels
+  getChannels: () => api.get('/sync/channels'),
+
+  // Setup real-time listener
+  setupListener: () => api.post('/sync/listen'),
+};
