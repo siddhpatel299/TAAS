@@ -22,13 +22,24 @@ app.use(cors({
   credentials: true,
 }));
 
-// Rate limiting
-const limiter = rateLimit({
+// Rate limiting - different limits for different routes
+const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 10, // Limit auth requests (SMS codes are expensive)
   message: { success: false, error: 'Too many requests, please try again later' },
 });
-app.use('/api/', limiter);
+
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 200, // 200 requests per minute for general API
+  message: { success: false, error: 'Too many requests, please try again later' },
+});
+
+const publicLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute  
+  max: 60, // 60 requests per minute for public share routes
+  message: { success: false, error: 'Too many requests, please try again later' },
+});
 
 // Body parsing
 app.use(express.json());
@@ -39,11 +50,12 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/files', filesRoutes);
-app.use('/api/folders', foldersRoutes);
-app.use('/api/share', shareRoutes);
+// API Routes with appropriate rate limits
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/files', apiLimiter, filesRoutes);
+app.use('/api/folders', apiLimiter, foldersRoutes);
+app.use('/api/share/public', publicLimiter); // Public share routes - less strict
+app.use('/api/share', apiLimiter, shareRoutes);
 
 // Error handling
 app.use(notFoundHandler);
