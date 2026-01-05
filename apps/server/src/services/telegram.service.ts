@@ -1,5 +1,6 @@
 import { TelegramClient, Api } from 'telegram';
 import { StringSession } from 'telegram/sessions';
+import { CustomFile } from 'telegram/client/uploads';
 import { config } from '../config';
 import { prisma } from '../lib/prisma';
 import { NewMessage } from 'telegram/events';
@@ -163,7 +164,7 @@ export class TelegramService {
         return await client.getEntity(channelId);
       } catch (e) {
         // Try with numeric ID and InputPeerChannel
-        const numericId = BigInt(channelId);
+        const numericId = bigInt(channelId);
         return await client.getEntity(new Api.PeerChannel({ channelId: numericId }));
       }
     }
@@ -181,8 +182,7 @@ export class TelegramService {
     const channel = await this.getChannelEntity(client, channelId);
     
     const result = await client.sendFile(channel, {
-      file,
-      fileName,
+      file: new CustomFile(fileName, file.length, '', file),
       caption: `📁 ${fileName}`,
       progressCallback: onProgress
         ? (progress) => onProgress(progress * 100)

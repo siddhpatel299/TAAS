@@ -14,6 +14,10 @@ import {
   Music,
   FileText,
   Archive,
+  Link2,
+  Eye,
+  History,
+  Check,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn, formatFileSize, formatDate, getFileType } from '@/lib/utils';
@@ -31,6 +35,7 @@ interface FileCardProps {
   file: StoredFile;
   viewMode: 'grid' | 'list';
   isSelected: boolean;
+  selectionMode?: boolean;
   onSelect: () => void;
   onDownload: () => void;
   onStar: () => void;
@@ -38,6 +43,9 @@ interface FileCardProps {
   onRename: () => void;
   onMove: () => void;
   onRestore?: () => void;
+  onShare?: () => void;
+  onPreview?: () => void;
+  onVersions?: () => void;
 }
 
 const fileTypeIcons = {
@@ -53,6 +61,7 @@ export function FileCard({
   file,
   viewMode,
   isSelected,
+  selectionMode = false,
   onSelect,
   onDownload,
   onStar,
@@ -60,11 +69,15 @@ export function FileCard({
   onRename,
   onMove,
   onRestore,
+  onShare,
+  onPreview,
+  onVersions,
 }: FileCardProps) {
   const [imageError, setImageError] = useState(false);
   const fileType = getFileType(file.mimeType);
   const Icon = fileTypeIcons[fileType];
   const isImage = fileType === 'image' && !imageError;
+  const canPreview = ['image', 'video', 'audio', 'document'].includes(fileType);
 
   if (viewMode === 'list') {
     return (
@@ -75,8 +88,20 @@ export function FileCard({
           'flex items-center gap-4 p-3 rounded-lg border transition-all hover:bg-muted/50',
           isSelected && 'bg-primary/10 border-primary'
         )}
-        onClick={onSelect}
+        onClick={selectionMode ? onSelect : onPreview}
+        onDoubleClick={onPreview}
       >
+        {/* Selection checkbox */}
+        <div 
+          className={cn(
+            "flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer",
+            isSelected ? "bg-primary border-primary" : "border-gray-300 hover:border-gray-400"
+          )}
+          onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        >
+          {isSelected && <Check className="w-3 h-3 text-white" />}
+        </div>
+
         <div className="flex-shrink-0">
           {isImage ? (
             <div className="w-10 h-10 rounded overflow-hidden bg-muted">
@@ -113,6 +138,10 @@ export function FileCard({
             onRename={onRename}
             onMove={onMove}
             onRestore={onRestore}
+            onShare={onShare}
+            onPreview={onPreview}
+            onVersions={onVersions}
+            canPreview={canPreview}
           />
         </div>
       </motion.div>
@@ -127,8 +156,20 @@ export function FileCard({
         'group relative flex flex-col rounded-xl border overflow-hidden transition-all hover:shadow-lg hover:border-primary/50',
         isSelected && 'ring-2 ring-primary border-primary'
       )}
-      onClick={onSelect}
+      onClick={selectionMode ? onSelect : undefined}
+      onDoubleClick={onPreview}
     >
+      {/* Selection checkbox */}
+      <div 
+        className={cn(
+          "absolute top-2 left-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer",
+          isSelected ? "bg-primary border-primary" : "border-white/70 bg-black/20 opacity-0 group-hover:opacity-100"
+        )}
+        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+      >
+        {isSelected && <Check className="w-3 h-3 text-white" />}
+      </div>
+
       {/* Preview */}
       <div className="relative aspect-square bg-muted flex items-center justify-center">
         {isImage ? (
@@ -144,6 +185,18 @@ export function FileCard({
 
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          {canPreview && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPreview?.();
+              }}
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             size="sm"
             variant="secondary"
@@ -158,7 +211,7 @@ export function FileCard({
 
         {/* Star indicator */}
         {file.isStarred && (
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 right-10">
             <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 drop-shadow" />
           </div>
         )}
@@ -173,6 +226,10 @@ export function FileCard({
             onRename={onRename}
             onMove={onMove}
             onRestore={onRestore}
+            onShare={onShare}
+            onPreview={onPreview}
+            onVersions={onVersions}
+            canPreview={canPreview}
           />
         </div>
       </div>
@@ -196,6 +253,10 @@ function FileActions({
   onRename,
   onMove,
   onRestore,
+  onShare,
+  onPreview,
+  onVersions,
+  canPreview,
 }: {
   file: StoredFile;
   onDownload: () => void;
@@ -204,6 +265,10 @@ function FileActions({
   onRename: () => void;
   onMove: () => void;
   onRestore?: () => void;
+  onShare?: () => void;
+  onPreview?: () => void;
+  onVersions?: () => void;
+  canPreview?: boolean;
 }) {
   return (
     <DropdownMenu>
@@ -213,12 +278,24 @@ function FileActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+        {canPreview && onPreview && (
+          <DropdownMenuItem onClick={onPreview}>
+            <Eye className="w-4 h-4 mr-2" />
+            Preview
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={onDownload}>
           <Download className="w-4 h-4 mr-2" />
           Download
         </DropdownMenuItem>
         {!file.isTrashed && (
           <>
+            {onShare && (
+              <DropdownMenuItem onClick={onShare}>
+                <Link2 className="w-4 h-4 mr-2" />
+                Share
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={onStar}>
               {file.isStarred ? (
                 <>
@@ -240,6 +317,12 @@ function FileActions({
               <FolderInput className="w-4 h-4 mr-2" />
               Move
             </DropdownMenuItem>
+            {onVersions && (
+              <DropdownMenuItem onClick={onVersions}>
+                <History className="w-4 h-4 mr-2" />
+                Version history
+              </DropdownMenuItem>
+            )}
           </>
         )}
         <DropdownMenuSeparator />

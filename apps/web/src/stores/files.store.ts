@@ -70,7 +70,7 @@ interface FilesState {
   setLoading: (loading: boolean) => void;
 }
 
-export const useFilesStore = create<FilesState>((set, get) => ({
+export const useFilesStore = create<FilesState>((set) => ({
   files: [],
   folders: [],
   currentFolderId: null,

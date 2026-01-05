@@ -7,7 +7,7 @@ import { telegramService } from '../services/telegram.service';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 // Store pending auth sessions
 const pendingAuth = new Map<string, {

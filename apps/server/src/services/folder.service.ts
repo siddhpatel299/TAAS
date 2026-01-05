@@ -88,15 +88,15 @@ export class FolderService {
     let currentId: string | null = folderId;
 
     while (currentId) {
-      const folder = await prisma.folder.findFirst({
+      const folderData: { id: string; name: string; parentId: string | null } | null = await prisma.folder.findFirst({
         where: { id: currentId, userId },
         select: { id: true, name: true, parentId: true },
       });
 
-      if (!folder) break;
+      if (!folderData) break;
 
-      breadcrumb.unshift({ id: folder.id, name: folder.name });
-      currentId = folder.parentId;
+      breadcrumb.unshift({ id: folderData.id, name: folderData.name });
+      currentId = folderData.parentId;
     }
 
     return breadcrumb;
@@ -167,13 +167,13 @@ export class FolderService {
         return true;
       }
 
-      const folder = await prisma.folder.findFirst({
+      const parentFolder: { parentId: string | null } | null = await prisma.folder.findFirst({
         where: { id: currentId, userId },
         select: { parentId: true },
       });
 
-      if (!folder) break;
-      currentId = folder.parentId;
+      if (!parentFolder) break;
+      currentId = parentFolder.parentId;
     }
 
     return false;

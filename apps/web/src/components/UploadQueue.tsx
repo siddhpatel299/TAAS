@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useFilesStore, UploadProgress } from '@/stores/files.store';
-import { cn } from '@/lib/utils';
 
 export function UploadQueue() {
   const { uploads, removeUpload } = useFilesStore();

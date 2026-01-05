@@ -17,15 +17,23 @@ export const authMiddleware = async (
 ) => {
   try {
     const authHeader = req.headers.authorization;
+    const queryToken = req.query.token as string | undefined;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token: string | undefined;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else if (queryToken) {
+      // Allow token via query parameter (for previews/downloads in img/iframe)
+      token = queryToken;
+    }
+    
+    if (!token) {
       return res.status(401).json({
         success: false,
         error: 'No token provided',
       });
     }
-
-    const token = authHeader.split(' ')[1];
     
     const decoded = jwt.verify(token, config.jwtSecret) as {
       userId: string;

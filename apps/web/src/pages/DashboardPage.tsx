@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -23,6 +23,10 @@ import { FolderCard } from '@/components/FolderCard';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { UploadQueue } from '@/components/UploadQueue';
+import { FilePreview } from '@/components/FilePreview';
+import { ShareDialog } from '@/components/ShareDialog';
+import { VersionHistoryDialog } from '@/components/VersionHistoryDialog';
+import { BulkActionsBar } from '@/components/BulkActionsBar';
 import { useFilesStore, StoredFile, Folder } from '@/stores/files.store';
 import { filesApi, foldersApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -57,7 +61,10 @@ export function DashboardPage() {
   const [renameDialog, setRenameDialog] = useState<{ type: 'file' | 'folder'; id: string; name: string } | null>(null);
   const [showUploader, setShowUploader] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewFile, setPreviewFile] = useState<StoredFile | null>(null);
+  const [shareFile, setShareFile] = useState<StoredFile | null>(null);
+  const [versionFile, setVersionFile] = useState<StoredFile | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Load files and folders
   const loadContent = useCallback(async () => {
@@ -207,8 +214,48 @@ export function DashboardPage() {
 
   const isEmpty = files.length === 0 && folders.length === 0;
 
+  // Global drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true);
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if we're leaving the window
+    if (e.relatedTarget === null) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      handleUpload(droppedFiles);
+    }
+  }, [handleUpload]);
+
   return (
-    <div className="h-screen flex bg-background">
+    <div 
+      className="h-screen flex bg-background"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       {/* Sidebar */}
       <div className={cn(
         'fixed inset-y-0 left-0 z-50 transform transition-transform md:relative md:translate-x-0',
@@ -331,12 +378,16 @@ export function DashboardPage() {
                   file={file}
                   viewMode={viewMode}
                   isSelected={selectedFiles.has(file.id)}
+                  selectionMode={selectedFiles.size > 0}
                   onSelect={() => toggleFileSelection(file.id)}
                   onDownload={() => handleDownload(file)}
                   onStar={() => handleStar(file)}
                   onDelete={() => handleDelete(file)}
                   onRename={() => setRenameDialog({ type: 'file', id: file.id, name: file.name })}
                   onMove={() => {}}
+                  onShare={() => setShareFile(file)}
+                  onPreview={() => setPreviewFile(file)}
+                  onVersions={() => setVersionFile(file)}
                 />
               ))}
             </div>
@@ -394,6 +445,55 @@ export function DashboardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* File preview modal */}
+      {previewFile && (
+        <FilePreview
+          file={previewFile}
+          files={files}
+          onClose={() => setPreviewFile(null)}
+          onNavigate={(file) => setPreviewFile(file)}
+        />
+      )}
+
+      {/* Share dialog */}
+      <ShareDialog
+        open={!!shareFile}
+        onClose={() => setShareFile(null)}
+        file={shareFile}
+      />
+
+      {/* Version history dialog */}
+      <VersionHistoryDialog
+        open={!!versionFile}
+        onClose={() => setVersionFile(null)}
+        file={versionFile}
+        onRestore={loadContent}
+      />
+
+      {/* Bulk actions bar */}
+      <BulkActionsBar
+        selectedIds={Array.from(selectedFiles)}
+        onClearSelection={clearSelection}
+        onSuccess={loadContent}
+      />
+
+      {/* Global drag overlay */}
+      <AnimatePresence>
+        {isDragging && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-blue-500/10 border-4 border-dashed border-blue-500 z-50 flex items-center justify-center pointer-events-none"
+          >
+            <div className="bg-white rounded-xl shadow-xl p-8 text-center">
+              <div className="text-4xl mb-2">📁</div>
+              <p className="text-lg font-medium">Drop files to upload</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

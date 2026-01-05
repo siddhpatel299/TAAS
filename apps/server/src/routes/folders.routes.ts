@@ -3,7 +3,7 @@ import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { folderService } from '../services/folder.service';
 
-const router = Router();
+const router: Router = Router();
 
 // Get folders (root or by parent)
 router.get('/', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {

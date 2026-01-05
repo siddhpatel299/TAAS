@@ -6,6 +6,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { StarredPage } from '@/pages/StarredPage';
 import { TrashPage } from '@/pages/TrashPage';
+import { SharePage } from '@/pages/SharePage';
 import { useAuthStore } from '@/stores/auth.store';
 import { authApi } from '@/lib/api';
 
@@ -94,6 +95,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/share/:token" element={<SharePage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AuthCheck>

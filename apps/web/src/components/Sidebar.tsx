@@ -1,23 +1,16 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Home,
   Star,
   Trash2,
-  Settings,
   FolderPlus,
   Upload,
   HardDrive,
-  ChevronRight,
 } from 'lucide-react';
 import { cn, formatFileSize } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface SidebarProps {
   storageUsed: number;

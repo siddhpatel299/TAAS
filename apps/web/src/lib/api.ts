@@ -121,3 +121,51 @@ export const foldersApi = {
 
   deleteFolder: (id: string) => api.delete(`/folders/${id}`),
 };
+
+// Share API
+export const shareApi = {
+  createLink: (
+    fileId: string,
+    options?: { expiresIn?: number; password?: string; maxDownloads?: number }
+  ) => api.post('/share', { fileId, ...options }),
+
+  getLinks: (fileId: string) => api.get(`/share/file/${fileId}`),
+
+  deleteLink: (linkId: string) => api.delete(`/share/${linkId}`),
+
+  toggleLink: (linkId: string) => api.patch(`/share/${linkId}/toggle`),
+
+  getPublicFile: (token: string) => api.get(`/share/public/${token}`),
+
+  downloadPublic: (token: string, password?: string) =>
+    api.post(`/share/public/${token}/download`, { password }, { responseType: 'blob' }),
+};
+
+// Bulk operations API
+export const bulkApi = {
+  deleteFiles: (fileIds: string[], permanent?: boolean) =>
+    api.post('/files/bulk/delete', { fileIds, permanent }),
+
+  moveFiles: (fileIds: string[], folderId: string | null) =>
+    api.post('/files/bulk/move', { fileIds, folderId }),
+
+  starFiles: (fileIds: string[], starred: boolean) =>
+    api.post('/files/bulk/star', { fileIds, starred }),
+
+  restoreFiles: (fileIds: string[]) =>
+    api.post('/files/bulk/restore', { fileIds }),
+};
+
+// File versions API
+export const versionsApi = {
+  getVersions: (fileId: string) => api.get(`/files/${fileId}/versions`),
+
+  restoreVersion: (fileId: string, version: number) =>
+    api.post(`/files/${fileId}/versions/${version}/restore`),
+};
+
+// File preview URL helper
+export const getPreviewUrl = (fileId: string) => {
+  const token = localStorage.getItem('token');
+  return `${API_BASE_URL}/files/${fileId}/preview?token=${token}`;
+};

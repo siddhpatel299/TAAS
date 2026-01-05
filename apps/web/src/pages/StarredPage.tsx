@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { Star, RefreshCw, FileX } from 'lucide-react';
+import { Star, RefreshCw } from 'lucide-react';
 import { FileCard } from '@/components/FileCard';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';

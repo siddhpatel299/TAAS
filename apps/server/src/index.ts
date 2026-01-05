@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -7,8 +7,9 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import authRoutes from './routes/auth.routes';
 import filesRoutes from './routes/files.routes';
 import foldersRoutes from './routes/folders.routes';
+import shareRoutes from './routes/share.routes';
 
-const app = express();
+const app: Application = express();
 
 // Security middleware
 app.use(helmet());
@@ -38,6 +39,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/folders', foldersRoutes);
+app.use('/api/share', shareRoutes);
 
 // Error handling
 app.use(notFoundHandler);
