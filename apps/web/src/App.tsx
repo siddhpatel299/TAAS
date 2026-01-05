@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LoginPage } from '@/pages/LoginPage';
 import { ModernDashboardPage } from '@/pages/ModernDashboardPage';
+import { MyFilesPage } from '@/pages/MyFilesPage';
 import { StarredPage } from '@/pages/StarredPage';
 import { TrashPage } from '@/pages/TrashPage';
 import { SharePage } from '@/pages/SharePage';
@@ -98,6 +99,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <ModernDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/files"
+                element={
+                  <ProtectedRoute>
+                    <MyFilesPage />
                   </ProtectedRoute>
                 }
               />

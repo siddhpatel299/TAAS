@@ -48,7 +48,7 @@ export function FolderCategories({ categories, onCategoryClick }: FolderCategori
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Folders</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Categories</h2>
         <button className="text-sm text-gray-500 hover:text-cyan-600 transition-colors">
           See all
         </button>

@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutGrid,
+  FolderOpen,
   Heart,
   Trash2,
   Settings,
@@ -23,6 +24,7 @@ interface ModernSidebarProps {
 
 const mainNavItems = [
   { path: '/', label: 'Dashboard', icon: LayoutGrid },
+  { path: '/files', label: 'My Files', icon: FolderOpen },
   { path: '/starred', label: 'Favorites', icon: Heart },
   { path: '/trash', label: 'Trash', icon: Trash2 },
 ];
