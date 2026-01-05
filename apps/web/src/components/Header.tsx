@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Search,
   Grid,
@@ -11,6 +12,8 @@ import {
   Moon,
   Sun,
   Menu,
+  Settings,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/stores/auth.store';
 import { useFilesStore } from '@/stores/files.store';
 import { authApi } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -37,6 +41,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { viewMode, setViewMode, sortOrder, setSortOrder, searchQuery, setSearchQuery } =
     useFilesStore();
   const [isDark, setIsDark] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -58,46 +63,85 @@ export function Header({ onMenuClick }: HeaderProps) {
     : 'U';
 
   return (
-    <header className="h-16 border-b bg-card px-4 flex items-center justify-between gap-4">
+    <header className="h-20 glass border-b border-white/10 px-6 flex items-center justify-between gap-6">
       {/* Mobile menu button */}
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
+        className="md:hidden h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20"
         onClick={onMenuClick}
       >
         <Menu className="w-5 h-5" />
       </Button>
 
       {/* Search */}
-      <div className="flex-1 max-w-xl">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search files..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+      <div className="flex-1 max-w-2xl">
+        <motion.div 
+          className={cn(
+            "relative transition-all duration-300",
+            searchFocused && "scale-[1.02]"
+          )}
+        >
+          {/* Glow effect on focus */}
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl blur-xl opacity-0 transition-opacity duration-300",
+            searchFocused && "opacity-20"
+          )} />
+          
+          <div className="relative">
+            <Search className={cn(
+              "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300",
+              searchFocused ? "text-violet-500" : "text-foreground/40"
+            )} />
+            <Input
+              placeholder="Search files and folders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              className="pl-12 h-12 rounded-2xl bg-white/50 dark:bg-white/5 border-white/20 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all text-base placeholder:text-foreground/40"
+            />
+            {searchQuery && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <kbd className="px-2 py-1 text-xs rounded-lg bg-violet-500/10 text-violet-600 font-medium">
+                  ESC
+                </kbd>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {/* View toggle */}
-        <div className="hidden sm:flex items-center border rounded-lg p-1">
+        <div className="hidden sm:flex items-center p-1 rounded-xl bg-white/10 border border-white/10">
           <Button
-            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+            variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className={cn(
+              "h-9 w-9 rounded-lg transition-all",
+              viewMode === 'grid' 
+                ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/30' 
+                : 'hover:bg-white/10'
+            )}
             onClick={() => setViewMode('grid')}
           >
             <Grid className="w-4 h-4" />
           </Button>
           <Button
-            variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+            variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className={cn(
+              "h-9 w-9 rounded-lg transition-all",
+              viewMode === 'list' 
+                ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/30' 
+                : 'hover:bg-white/10'
+            )}
             onClick={() => setViewMode('list')}
           >
             <List className="w-4 h-4" />
@@ -105,53 +149,102 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         {/* Sort order */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-          className="hidden sm:flex"
-        >
-          {sortOrder === 'asc' ? (
-            <SortAsc className="w-4 h-4" />
-          ) : (
-            <SortDesc className="w-4 h-4" />
-          )}
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            className="hidden sm:flex h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10"
+          >
+            {sortOrder === 'asc' ? (
+              <SortAsc className="w-4 h-4" />
+            ) : (
+              <SortDesc className="w-4 h-4" />
+            )}
+          </Button>
+        </motion.div>
 
         {/* Theme toggle */}
-        <Button variant="ghost" size="icon" onClick={toggleTheme}>
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="h-10 w-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10"
+          >
+            <motion.div
+              initial={false}
+              animate={{ rotate: isDark ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            </motion.div>
+          </Button>
+        </motion.div>
 
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
+            <Button 
+              variant="ghost" 
+              className="relative h-12 gap-3 pl-1 pr-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all"
+            >
+              <Avatar className="h-10 w-10 ring-2 ring-violet-500/30">
                 <AvatarImage src={user?.avatarUrl} alt={user?.firstName || 'User'} />
-                <AvatarFallback>{userInitials}</AvatarFallback>
+                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-semibold">
+                  {userInitials}
+                </AvatarFallback>
               </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">
-                  {user?.firstName} {user?.lastName}
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-medium text-foreground/90">
+                  {user?.firstName || 'User'}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  @{user?.username || user?.telegramId}
+                <p className="text-xs text-foreground/50">
+                  @{user?.username || 'telegram'}
                 </p>
               </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="end" 
+            className="w-64 p-2 glass-strong rounded-2xl border-white/20"
+          >
+            <DropdownMenuLabel className="font-normal p-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12 ring-2 ring-violet-500/30">
+                  <AvatarImage src={user?.avatarUrl} />
+                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-semibold text-lg">
+                    {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold truncate">
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                  <p className="text-sm text-foreground/50 truncate">
+                    @{user?.username || user?.telegramId}
+                  </p>
+                </div>
+              </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate('/settings')}>
-              <User className="w-4 h-4 mr-2" />
+            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuItem 
+              onClick={() => navigate('/settings')}
+              className="h-11 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+            >
+              <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center">
+                <Settings className="w-4 h-4" />
+              </div>
               Settings
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-              <LogOut className="w-4 h-4 mr-2" />
+            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              className="h-11 rounded-xl cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+            >
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                <LogOut className="w-4 h-4" />
+              </div>
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

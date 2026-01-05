@@ -111,19 +111,30 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
     if (loading) {
       return (
         <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white" />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+          >
+            <Download className="w-6 h-6 text-white" />
+          </motion.div>
         </div>
       );
     }
 
     if (error || !blobUrl) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-gray-400">
-          <p>Unable to preview this file</p>
-          <Button variant="outline" onClick={handleDownload} className="mt-4">
-            <Download className="mr-2 h-4 w-4" />
-            Download Instead
-          </Button>
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="glass-strong rounded-3xl p-8 flex flex-col items-center">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center mb-4">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <p className="text-foreground/70 mb-4">Unable to preview this file</p>
+            <Button onClick={handleDownload}>
+              <Download className="mr-2 h-4 w-4" />
+              Download Instead
+            </Button>
+          </div>
         </div>
       );
     }
@@ -163,9 +174,13 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
     if (isAudio) {
       return (
         <div className="flex flex-col items-center justify-center h-full gap-8">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <div className="text-4xl">🎵</div>
-          </div>
+          <motion.div 
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-32 h-32 rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl shadow-purple-500/30"
+          >
+            <div className="text-5xl">🎵</div>
+          </motion.div>
           <audio
             src={blobUrl}
             controls
@@ -193,14 +208,18 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
 
     // Unsupported type
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-400">
-        <div className="text-6xl mb-4">📄</div>
-        <p className="text-lg mb-2">{file.name}</p>
-        <p className="text-sm mb-4">Preview not available for this file type</p>
-        <Button onClick={handleDownload}>
-          <Download className="mr-2 h-4 w-4" />
-          Download File
-        </Button>
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="glass-strong rounded-3xl p-8 flex flex-col items-center">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center mb-4">
+            <span className="text-4xl">📄</span>
+          </div>
+          <p className="text-lg font-semibold mb-1">{file.name}</p>
+          <p className="text-sm text-muted-foreground mb-4">Preview not available for this file type</p>
+          <Button onClick={handleDownload}>
+            <Download className="mr-2 h-4 w-4" />
+            Download File
+          </Button>
+        </div>
       </div>
     );
   };
@@ -211,17 +230,19 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black/90 flex flex-col"
+        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col"
         onClick={onClose}
       >
         {/* Header */}
-        <div 
-          className="flex items-center justify-between p-4 border-b border-gray-800"
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="glass-subtle border-b border-white/10 flex items-center justify-between p-4"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-4">
-            <h2 className="text-white font-medium truncate max-w-[300px]">{file.name}</h2>
-            <span className="text-gray-500 text-sm">
+            <h2 className="text-foreground font-semibold truncate max-w-[300px]">{file.name}</h2>
+            <span className="text-muted-foreground text-sm bg-white/10 px-3 py-1 rounded-full">
               {(file.size / (1024 * 1024)).toFixed(2)} MB
             </span>
           </div>
@@ -232,18 +253,18 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-white"
+                  className="h-9 w-9 rounded-xl hover:bg-white/10"
                   onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
                 >
                   <ZoomOut className="h-5 w-5" />
                 </Button>
-                <span className="text-gray-400 text-sm w-12 text-center">
+                <span className="text-muted-foreground text-sm w-14 text-center bg-white/10 px-2 py-1 rounded-lg">
                   {Math.round(zoom * 100)}%
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-white"
+                  className="h-9 w-9 rounded-xl hover:bg-white/10"
                   onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
                 >
                   <ZoomIn className="h-5 w-5" />
@@ -251,19 +272,19 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-white"
+                  className="h-9 w-9 rounded-xl hover:bg-white/10"
                   onClick={() => setRotation((r) => r + 90)}
                 >
                   <RotateCw className="h-5 w-5" />
                 </Button>
-                <div className="w-px h-6 bg-gray-700 mx-2" />
+                <div className="w-px h-6 bg-white/10 mx-2" />
               </>
             )}
             
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white"
+              className="h-9 w-9 rounded-xl hover:bg-white/10"
               onClick={handleDownload}
             >
               <Download className="h-5 w-5" />
@@ -272,13 +293,13 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white"
+              className="h-9 w-9 rounded-xl hover:bg-white/10"
               onClick={onClose}
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Content */}
         <div 
@@ -291,20 +312,24 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
           {files.length > 1 && (
             <>
               {hasPrev && (
-                <button
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-2xl glass-strong text-foreground hover:bg-white/20 transition-colors"
                   onClick={() => onNavigate?.(files[currentIndex - 1])}
                 >
-                  <ChevronLeft className="h-8 w-8" />
-                </button>
+                  <ChevronLeft className="h-6 w-6" />
+                </motion.button>
               )}
               {hasNext && (
-                <button
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-2xl glass-strong text-foreground hover:bg-white/20 transition-colors"
                   onClick={() => onNavigate?.(files[currentIndex + 1])}
                 >
-                  <ChevronRight className="h-8 w-8" />
-                </button>
+                  <ChevronRight className="h-6 w-6" />
+                </motion.button>
               )}
             </>
           )}
@@ -312,9 +337,15 @@ export function FilePreview({ file, files = [], onClose, onNavigate }: FilePrevi
 
         {/* Footer with file count */}
         {files.length > 1 && (
-          <div className="p-2 text-center text-gray-500 text-sm">
-            {currentIndex + 1} / {files.length}
-          </div>
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="p-3 text-center"
+          >
+            <span className="glass-subtle px-4 py-2 rounded-full text-sm text-muted-foreground">
+              {currentIndex + 1} / {files.length}
+            </span>
+          </motion.div>
         )}
       </motion.div>
     </AnimatePresence>
@@ -344,14 +375,14 @@ function TextPreview({ blobUrl }: { blobUrl: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500" />
       </div>
     );
   }
 
   return (
     <div className="h-full overflow-auto">
-      <pre className="text-gray-300 text-sm p-4 font-mono whitespace-pre-wrap">
+      <pre className="glass-subtle rounded-2xl text-foreground/80 text-sm p-6 font-mono whitespace-pre-wrap">
         {content}
       </pre>
     </div>

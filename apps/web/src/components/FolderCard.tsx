@@ -21,15 +21,15 @@ interface FolderCardProps {
   onDelete: () => void;
 }
 
-const folderColors: Record<string, string> = {
-  blue: 'text-blue-500',
-  green: 'text-green-500',
-  yellow: 'text-yellow-500',
-  red: 'text-red-500',
-  purple: 'text-purple-500',
-  pink: 'text-pink-500',
-  orange: 'text-orange-500',
-  default: 'text-muted-foreground',
+const folderGradients: Record<string, string> = {
+  blue: 'from-blue-400 to-blue-600',
+  green: 'from-emerald-400 to-emerald-600',
+  yellow: 'from-amber-400 to-amber-600',
+  red: 'from-rose-400 to-rose-600',
+  purple: 'from-violet-400 to-violet-600',
+  pink: 'from-pink-400 to-pink-600',
+  orange: 'from-orange-400 to-orange-600',
+  default: 'from-violet-400 to-purple-600',
 };
 
 export function FolderCard({
@@ -40,7 +40,7 @@ export function FolderCard({
   onMove,
   onDelete,
 }: FolderCardProps) {
-  const colorClass = folderColors[folder.color || 'default'] || folderColors.default;
+  const gradientClass = folderGradients[folder.color || 'default'] || folderGradients.default;
   const itemCount = (folder._count?.files || 0) + (folder._count?.children || 0);
 
   if (viewMode === 'list') {
@@ -48,23 +48,27 @@ export function FolderCard({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4 p-3 rounded-lg border transition-all hover:bg-muted/50 cursor-pointer"
+        whileHover={{ scale: 1.01 }}
+        className="flex items-center gap-4 p-4 glass-subtle rounded-2xl transition-all cursor-pointer group"
         onClick={onOpen}
       >
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded bg-muted flex items-center justify-center">
-            <Folder className={cn('w-5 h-5', colorClass)} />
+          <div className={cn(
+            'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
+            gradientClass
+          )}>
+            <Folder className="w-6 h-6 text-white" />
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-medium truncate">{folder.name}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="font-semibold truncate text-foreground/90">{folder.name}</p>
+          <p className="text-sm text-foreground/50">
             {itemCount} {itemCount === 1 ? 'item' : 'items'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <FolderActions
             onRename={onRename}
             onMove={onMove}
@@ -79,15 +83,25 @@ export function FolderCard({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="group relative flex flex-col rounded-xl border overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 cursor-pointer"
+      whileHover={{ y: -4 }}
+      className="group relative flex flex-col glass-subtle rounded-2xl overflow-hidden transition-all cursor-pointer hover:shadow-xl hover:shadow-purple-500/10"
       onClick={onOpen}
     >
       {/* Preview */}
-      <div className="relative aspect-square bg-muted flex items-center justify-center">
-        <Folder className={cn('w-16 h-16', colorClass)} />
+      <div className="relative aspect-square bg-gradient-to-br from-foreground/5 to-foreground/10 flex items-center justify-center">
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: -5 }}
+          transition={{ type: 'spring', stiffness: 300 }}
+          className={cn(
+            'w-20 h-20 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-xl',
+            gradientClass
+          )}
+        >
+          <Folder className="w-10 h-10 text-white" />
+        </motion.div>
 
         {/* Actions */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <FolderActions
             onRename={onRename}
             onMove={onMove}
@@ -97,9 +111,9 @@ export function FolderCard({
       </div>
 
       {/* Info */}
-      <div className="p-3">
-        <p className="font-medium truncate text-sm">{folder.name}</p>
-        <p className="text-xs text-muted-foreground mt-1">
+      <div className="p-4">
+        <p className="font-semibold truncate text-sm text-foreground/90">{folder.name}</p>
+        <p className="text-xs text-foreground/50 mt-1">
           {itemCount} {itemCount === 1 ? 'item' : 'items'}
         </p>
       </div>
@@ -119,22 +133,45 @@ function FolderActions({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm hover:bg-white dark:hover:bg-white/20 shadow-sm"
+        >
           <MoreVertical className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        <DropdownMenuItem onClick={onRename}>
-          <Pencil className="w-4 h-4 mr-2" />
+      <DropdownMenuContent 
+        align="end" 
+        onClick={(e) => e.stopPropagation()}
+        className="w-48 p-2 glass-strong rounded-2xl border-white/20"
+      >
+        <DropdownMenuItem 
+          onClick={onRename}
+          className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+        >
+          <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+            <Pencil className="w-4 h-4" />
+          </div>
           Rename
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onMove}>
-          <FolderInput className="w-4 h-4 mr-2" />
+        <DropdownMenuItem 
+          onClick={onMove}
+          className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+        >
+          <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+            <FolderInput className="w-4 h-4" />
+          </div>
           Move
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onDelete} className="text-destructive">
-          <Trash2 className="w-4 h-4 mr-2" />
+        <DropdownMenuSeparator className="bg-white/10 my-1" />
+        <DropdownMenuItem 
+          onClick={onDelete} 
+          className="h-10 rounded-xl cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+        >
+          <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
+            <Trash2 className="w-4 h-4" />
+          </div>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download, Lock, AlertCircle, Check } from 'lucide-react';
+import { Download, Lock, AlertCircle, Check, Send, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -107,63 +107,98 @@ export function SharePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
+        {/* Floating background orbs */}
+        <div className="floating-orb floating-orb-1" />
+        <div className="floating-orb floating-orb-2" />
+        <div className="floating-orb floating-orb-3" />
+        
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+        >
+          <Send className="w-8 h-8 text-white" />
+        </motion.div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Floating background orbs */}
+        <div className="floating-orb floating-orb-1" />
+        <div className="floating-orb floating-orb-2" />
+        <div className="floating-orb floating-orb-3" />
+        
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center"
+          className="glass-strong rounded-3xl shadow-2xl p-8 max-w-md w-full text-center relative z-10"
         >
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="h-8 w-8 text-red-500" />
+          <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="h-8 w-8 text-red-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Link Unavailable</h1>
-          <p className="text-gray-500">{error}</p>
+          <h1 className="text-2xl font-bold mb-2">Link Unavailable</h1>
+          <p className="text-muted-foreground">{error}</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Floating background orbs */}
+      <div className="floating-orb floating-orb-1" />
+      <div className="floating-orb floating-orb-2" />
+      <div className="floating-orb floating-orb-3" />
+      
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full"
+        className="glass-strong rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10"
       >
         {/* Logo */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            TAAS
-          </h1>
-          <p className="text-sm text-gray-500">Telegram as a Storage</p>
+        <div className="text-center mb-8">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="inline-flex items-center gap-3"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+              <Send className="w-6 h-6 text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-2xl font-bold text-gradient">TAAS</h1>
+              <p className="text-xs text-muted-foreground">Telegram as a Storage</p>
+            </div>
+          </motion.div>
         </div>
 
         {/* File info */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-6">
+        <div className="glass-subtle rounded-2xl p-6 mb-6 border border-white/10">
           <div className="flex items-start gap-4">
-            <div className="text-4xl">{getFileIcon()}</div>
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center text-3xl"
+            >
+              {getFileIcon()}
+            </motion.div>
             <div className="flex-1 min-w-0">
-              <h2 className="font-semibold text-gray-900 truncate">
+              <h2 className="font-semibold text-foreground truncate">
                 {file?.originalName || file?.name}
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {formatFileSize(file?.size || 0)}
               </p>
               {downloadsRemaining !== null && (
-                <p className="text-xs text-amber-600 mt-1">
+                <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-lg mt-2">
+                  <Sparkles className="w-3 h-3" />
                   {downloadsRemaining} downloads remaining
-                </p>
+                </span>
               )}
               {expiresAt && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Expires {new Date(expiresAt).toLocaleDateString()}
                 </p>
               )}
@@ -174,8 +209,8 @@ export function SharePage() {
         {/* Password input */}
         {requiresPassword && (
           <div className="mb-6">
-            <Label className="flex items-center gap-2 mb-2">
-              <Lock className="h-4 w-4" />
+            <Label className="flex items-center gap-2 mb-2 text-sm">
+              <Lock className="h-4 w-4 text-violet-400" />
               This file is password protected
             </Label>
             <Input
@@ -186,10 +221,10 @@ export function SharePage() {
                 setPassword(e.target.value);
                 setPasswordError(null);
               }}
-              className={passwordError ? 'border-red-500' : ''}
+              className={passwordError ? 'border-red-500/50 focus:ring-red-500' : ''}
             />
             {passwordError && (
-              <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+              <p className="text-sm text-red-400 mt-2">{passwordError}</p>
             )}
           </div>
         )}
@@ -199,7 +234,7 @@ export function SharePage() {
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
-            className="flex items-center justify-center gap-2 py-3 px-4 bg-green-100 text-green-700 rounded-lg"
+            className="flex items-center justify-center gap-2 py-4 px-4 bg-emerald-500/20 text-emerald-400 rounded-2xl border border-emerald-500/30"
           >
             <Check className="h-5 w-5" />
             Download started!
@@ -208,7 +243,7 @@ export function SharePage() {
           <Button
             onClick={handleDownload}
             disabled={downloading || (downloadsRemaining !== null && downloadsRemaining <= 0)}
-            className="w-full py-6 text-lg"
+            className="w-full py-6 text-lg rounded-2xl"
           >
             {downloading ? (
               <span className="flex items-center gap-2">
@@ -225,7 +260,8 @@ export function SharePage() {
         )}
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
+          <Sparkles className="w-3 h-3 text-violet-400" />
           Shared securely via TAAS
         </p>
       </motion.div>

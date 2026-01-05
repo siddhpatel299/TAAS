@@ -72,20 +72,22 @@ export function VersionHistoryDialog({
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            Version History
+          <DialogTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+              <History className="h-5 w-5 text-white" />
+            </div>
+            <span>Version History</span>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Current version */}
           {file && (
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <div className="p-4 glass-subtle rounded-2xl border border-emerald-500/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-blue-900">Current Version</p>
-                  <p className="text-sm text-blue-700 flex items-center gap-4 mt-1">
+                  <p className="font-semibold text-foreground">Current Version</p>
+                  <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
                     <span className="flex items-center gap-1">
                       <HardDrive className="h-3 w-3" />
                       {formatFileSize(file.size)}
@@ -96,7 +98,7 @@ export function VersionHistoryDialog({
                     </span>
                   </p>
                 </div>
-                <span className="px-2 py-1 bg-blue-200 text-blue-800 rounded text-xs font-medium">
+                <span className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium">
                   Active
                 </span>
               </div>
@@ -104,35 +106,37 @@ export function VersionHistoryDialog({
           )}
 
           {/* Previous versions */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-500">
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Previous Versions ({versions.length})
             </h3>
 
             {loading ? (
               <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-violet-500" />
               </div>
             ) : versions.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
-                <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No previous versions available</p>
-                <p className="text-sm">Versions are created when you upload a new file with the same name</p>
+              <div className="glass-subtle rounded-2xl text-center py-8 text-muted-foreground">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3">
+                  <History className="h-8 w-8 opacity-50" />
+                </div>
+                <p className="font-medium">No previous versions available</p>
+                <p className="text-sm mt-1">Versions are created when you upload a new file with the same name</p>
               </div>
             ) : (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
                 {versions.map((version, index) => (
                   <motion.div
                     key={version.id}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                    className="p-4 glass-subtle rounded-2xl border border-white/10 hover:bg-white/10 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium">Version {version.version}</p>
-                        <p className="text-sm text-gray-500 flex items-center gap-4 mt-1">
+                        <p className="font-semibold">Version {version.version}</p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
                           <span className="flex items-center gap-1">
                             <HardDrive className="h-3 w-3" />
                             {formatFileSize(version.size)}
@@ -146,11 +150,12 @@ export function VersionHistoryDialog({
                       <Button
                         variant="outline"
                         size="sm"
+                        className="rounded-xl"
                         onClick={() => handleRestore(version.version)}
                         disabled={restoring !== null}
                       >
                         {restoring === version.version ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" />
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                         ) : (
                           <>
                             <RotateCcw className="h-4 w-4 mr-2" />

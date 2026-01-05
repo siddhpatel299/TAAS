@@ -90,12 +90,17 @@ export function BulkActionsBar({
           exit={{ y: 100, opacity: 0 }}
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
         >
-          <div className="flex items-center gap-2 bg-gray-900 text-white px-4 py-3 rounded-full shadow-2xl border border-gray-700">
-            <span className="text-sm font-medium px-2">
-              {selectedIds.length} selected
-            </span>
+          <div className="flex items-center gap-2 glass-strong px-5 py-3.5 rounded-2xl shadow-2xl border border-white/20">
+            <div className="flex items-center gap-2 px-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                {selectedIds.length}
+              </div>
+              <span className="text-sm font-medium">
+                selected
+              </span>
+            </div>
             
-            <div className="w-px h-6 bg-gray-700" />
+            <div className="w-px h-6 bg-white/10" />
 
             {isTrash ? (
               // Trash actions
@@ -103,12 +108,12 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-gray-800"
+                  className="rounded-xl hover:bg-white/10"
                   onClick={handleBulkRestore}
                   disabled={loading !== null}
                 >
                   {loading === 'restore' ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                   ) : (
                     <RotateCcw className="h-4 w-4 mr-2" />
                   )}
@@ -117,7 +122,7 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-400 hover:bg-gray-800 hover:text-red-300"
+                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl"
                   onClick={() => handleBulkDelete(true)}
                   disabled={loading !== null}
                 >
@@ -135,17 +140,17 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-gray-800"
+                  className="rounded-xl hover:bg-white/10"
                   onClick={() => handleBulkStar(true)}
                   disabled={loading !== null}
                 >
-                  <Star className="h-4 w-4 mr-2" />
+                  <Star className="h-4 w-4 mr-2 text-amber-400" />
                   Star
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-gray-800"
+                  className="rounded-xl hover:bg-white/10"
                   onClick={() => handleBulkStar(false)}
                   disabled={loading !== null}
                 >
@@ -155,21 +160,21 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-gray-800"
+                  className="rounded-xl hover:bg-white/10"
                   onClick={handleBulkDownload}
                   disabled={loading !== null}
                 >
                   {loading === 'download' ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                   ) : (
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4 mr-2 text-blue-400" />
                   )}
                   Download
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-400 hover:bg-gray-800 hover:text-red-300"
+                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl"
                   onClick={() => handleBulkDelete(false)}
                   disabled={loading !== null}
                 >
@@ -183,12 +188,12 @@ export function BulkActionsBar({
               </>
             )}
 
-            <div className="w-px h-6 bg-gray-700" />
+            <div className="w-px h-6 bg-white/10" />
 
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="h-8 w-8 rounded-xl hover:bg-white/10"
               onClick={onClearSelection}
             >
               <X className="h-4 w-4" />

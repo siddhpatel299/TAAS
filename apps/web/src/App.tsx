@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
@@ -9,6 +10,7 @@ import { TrashPage } from '@/pages/TrashPage';
 import { SharePage } from '@/pages/SharePage';
 import { useAuthStore } from '@/stores/auth.store';
 import { authApi } from '@/lib/api';
+import { Send } from 'lucide-react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,8 +26,29 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Animated background orbs */}
+        <div className="floating-orb floating-orb-1" />
+        <div className="floating-orb floating-orb-2" />
+        <div className="floating-orb floating-orb-3" />
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-strong rounded-3xl p-12 flex flex-col items-center gap-6"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+          >
+            <Send className="w-8 h-8 text-white" />
+          </motion.div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-foreground/80">Loading TAAS</p>
+            <p className="text-sm text-foreground/50">Preparing your files...</p>
+          </div>
+        </motion.div>
       </div>
     );
   }

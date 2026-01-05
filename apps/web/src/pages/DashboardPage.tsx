@@ -250,15 +250,20 @@ export function DashboardPage() {
 
   return (
     <div 
-      className="h-screen flex bg-background"
+      className="h-screen flex relative overflow-hidden"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
+      {/* Animated background orbs */}
+      <div className="floating-orb floating-orb-1" />
+      <div className="floating-orb floating-orb-2" />
+      <div className="floating-orb floating-orb-3" />
+
       {/* Sidebar */}
       <div className={cn(
-        'fixed inset-y-0 left-0 z-50 transform transition-transform md:relative md:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <Sidebar
@@ -270,8 +275,11 @@ export function DashboardPage() {
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -280,42 +288,47 @@ export function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        <main className="flex-1 overflow-auto p-6 md:p-8">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 mb-6 text-sm overflow-x-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 mb-8 overflow-x-auto glass-subtle rounded-2xl p-3"
+          >
             <Button
               variant="ghost"
               size="sm"
-              className="shrink-0"
+              className="shrink-0 h-9 px-3 rounded-xl hover:bg-white/20"
               onClick={() => navigateToFolder()}
             >
-              <Home className="w-4 h-4" />
+              <Home className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Home</span>
             </Button>
             {breadcrumb.map((item, index) => (
               <div key={item.id} className="flex items-center gap-2 shrink-0">
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                <ChevronRight className="w-4 h-4 text-foreground/30" />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => navigateToFolder(item.id)}
                   className={cn(
-                    index === breadcrumb.length - 1 && 'font-medium'
+                    'h-9 px-3 rounded-xl hover:bg-white/20',
+                    index === breadcrumb.length - 1 && 'font-semibold text-violet-600'
                   )}
                 >
                   {item.name}
                 </Button>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Upload area (when showing) */}
           <AnimatePresence>
             {showUploader && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-6"
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
               >
                 <FileUploader onUpload={handleUpload} className="min-h-[200px]" />
               </motion.div>
@@ -324,73 +337,110 @@ export function DashboardPage() {
 
           {/* Loading state */}
           {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-20"
+            >
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 animate-ping opacity-20" />
+                <RefreshCw className="w-8 h-8 absolute inset-0 m-auto text-violet-600 animate-spin" />
+              </div>
+              <p className="text-foreground/50 mt-4 font-medium">Loading your files...</p>
+            </motion.div>
           )}
 
           {/* Empty state */}
           {!isLoading && isEmpty && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <FileX className="w-16 h-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No files yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Upload files or create a folder to get started
-              </p>
-              <div className="flex gap-2">
-                <Button onClick={() => setShowUploader(true)}>
-                  Upload Files
-                </Button>
-                <Button variant="outline" onClick={() => setShowNewFolder(true)}>
-                  <FolderPlus className="w-4 h-4 mr-2" />
-                  New Folder
-                </Button>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center py-20"
+            >
+              <div className="glass-card p-12 text-center max-w-md">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center">
+                  <FileX className="w-12 h-12 text-violet-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2 text-foreground/90">No files yet</h3>
+                <p className="text-foreground/60 mb-6">
+                  Upload files or create a folder to get started with your unlimited cloud storage
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button 
+                    onClick={() => setShowUploader(true)}
+                    className="h-12 px-6 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-purple-500/30"
+                  >
+                    Upload Files
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowNewFolder(true)}
+                    className="h-12 px-6 rounded-xl bg-white/10 border-white/20 hover:bg-white/20"
+                  >
+                    <FolderPlus className="w-4 h-4 mr-2" />
+                    New Folder
+                  </Button>
+                </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Files and folders grid/list */}
           {!isLoading && !isEmpty && (
-            <div
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               className={cn(
                 viewMode === 'grid'
                   ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4'
-                  : 'space-y-2'
+                  : 'space-y-3'
               )}
             >
               {/* Folders first */}
-              {folders.map((folder) => (
-                <FolderCard
+              {folders.map((folder, index) => (
+                <motion.div
                   key={folder.id}
-                  folder={folder}
-                  viewMode={viewMode}
-                  onOpen={() => navigateToFolder(folder.id)}
-                  onRename={() => setRenameDialog({ type: 'folder', id: folder.id, name: folder.name })}
-                  onMove={() => {}}
-                  onDelete={() => handleDeleteFolder(folder)}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                >
+                  <FolderCard
+                    folder={folder}
+                    viewMode={viewMode}
+                    onOpen={() => navigateToFolder(folder.id)}
+                    onRename={() => setRenameDialog({ type: 'folder', id: folder.id, name: folder.name })}
+                    onMove={() => {}}
+                    onDelete={() => handleDeleteFolder(folder)}
+                  />
+                </motion.div>
               ))}
 
               {/* Files */}
-              {files.map((file) => (
-                <FileCard
+              {files.map((file, index) => (
+                <motion.div
                   key={file.id}
-                  file={file}
-                  viewMode={viewMode}
-                  isSelected={selectedFiles.has(file.id)}
-                  selectionMode={selectedFiles.size > 0}
-                  onSelect={() => toggleFileSelection(file.id)}
-                  onDownload={() => handleDownload(file)}
-                  onStar={() => handleStar(file)}
-                  onDelete={() => handleDelete(file)}
-                  onRename={() => setRenameDialog({ type: 'file', id: file.id, name: file.name })}
-                  onMove={() => {}}
-                  onShare={() => setShareFile(file)}
-                  onPreview={() => setPreviewFile(file)}
-                  onVersions={() => setVersionFile(file)}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (folders.length + index) * 0.03 }}
+                >
+                  <FileCard
+                    file={file}
+                    viewMode={viewMode}
+                    isSelected={selectedFiles.has(file.id)}
+                    selectionMode={selectedFiles.size > 0}
+                    onSelect={() => toggleFileSelection(file.id)}
+                    onDownload={() => handleDownload(file)}
+                    onStar={() => handleStar(file)}
+                    onDelete={() => handleDelete(file)}
+                    onRename={() => setRenameDialog({ type: 'file', id: file.id, name: file.name })}
+                    onMove={() => {}}
+                    onShare={() => setShareFile(file)}
+                    onPreview={() => setPreviewFile(file)}
+                    onVersions={() => setVersionFile(file)}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </main>
       </div>
@@ -400,9 +450,9 @@ export function DashboardPage() {
 
       {/* New folder dialog */}
       <Dialog open={showNewFolder} onOpenChange={setShowNewFolder}>
-        <DialogContent>
+        <DialogContent className="glass-strong border-white/20 rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Create New Folder</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Create New Folder</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Input
@@ -410,22 +460,32 @@ export function DashboardPage() {
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
+              className="h-12 rounded-xl bg-white/50 dark:bg-white/5 border-white/20 focus:border-violet-500"
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewFolder(false)}>
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowNewFolder(false)}
+              className="h-11 rounded-xl bg-white/10 border-white/20 hover:bg-white/20"
+            >
               Cancel
             </Button>
-            <Button onClick={handleCreateFolder}>Create</Button>
+            <Button 
+              onClick={handleCreateFolder}
+              className="h-11 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+            >
+              Create
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Rename dialog */}
       <Dialog open={!!renameDialog} onOpenChange={() => setRenameDialog(null)}>
-        <DialogContent>
+        <DialogContent className="glass-strong border-white/20 rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Rename {renameDialog?.type}</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Rename {renameDialog?.type}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Input
@@ -435,13 +495,23 @@ export function DashboardPage() {
                 setRenameDialog((prev) => prev ? { ...prev, name: e.target.value } : null)
               }
               onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+              className="h-12 rounded-xl bg-white/50 dark:bg-white/5 border-white/20 focus:border-violet-500"
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRenameDialog(null)}>
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setRenameDialog(null)}
+              className="h-11 rounded-xl bg-white/10 border-white/20 hover:bg-white/20"
+            >
               Cancel
             </Button>
-            <Button onClick={handleRename}>Rename</Button>
+            <Button 
+              onClick={handleRename}
+              className="h-11 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+            >
+              Rename
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -485,12 +555,25 @@ export function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-blue-500/10 border-4 border-dashed border-blue-500 z-50 flex items-center justify-center pointer-events-none"
+            className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+            style={{ background: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(8px)' }}
           >
-            <div className="bg-white rounded-xl shadow-xl p-8 text-center">
-              <div className="text-4xl mb-2">📁</div>
-              <p className="text-lg font-medium">Drop files to upload</p>
-            </div>
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-strong rounded-3xl p-12 text-center border-2 border-dashed border-violet-500"
+            >
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className="text-6xl mb-4"
+              >
+                📁
+              </motion.div>
+              <p className="text-xl font-semibold text-foreground/90">Drop files to upload</p>
+              <p className="text-foreground/60 mt-2">Release to start uploading</p>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

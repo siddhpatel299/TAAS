@@ -57,6 +57,15 @@ const fileTypeIcons = {
   other: FileIcon,
 };
 
+const fileTypeColors = {
+  image: 'from-pink-500 to-rose-500',
+  video: 'from-violet-500 to-purple-500',
+  audio: 'from-green-500 to-emerald-500',
+  document: 'from-blue-500 to-cyan-500',
+  archive: 'from-amber-500 to-orange-500',
+  other: 'from-gray-400 to-gray-500',
+};
+
 export function FileCard({
   file,
   viewMode,
@@ -76,6 +85,7 @@ export function FileCard({
   const [imageError, setImageError] = useState(false);
   const fileType = getFileType(file.mimeType);
   const Icon = fileTypeIcons[fileType];
+  const colorClass = fileTypeColors[fileType];
   const isImage = fileType === 'image' && !imageError;
   const canPreview = ['image', 'video', 'audio', 'document'].includes(fileType);
 
@@ -84,27 +94,32 @@ export function FileCard({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.01 }}
         className={cn(
-          'flex items-center gap-4 p-3 rounded-lg border transition-all hover:bg-muted/50',
-          isSelected && 'bg-primary/10 border-primary'
+          'flex items-center gap-4 p-4 glass-subtle rounded-2xl transition-all cursor-pointer group',
+          isSelected && 'ring-2 ring-violet-500 bg-violet-500/10'
         )}
         onClick={selectionMode ? onSelect : onPreview}
         onDoubleClick={onPreview}
       >
         {/* Selection checkbox */}
-        <div 
+        <motion.div 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           className={cn(
-            "flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer",
-            isSelected ? "bg-primary border-primary" : "border-gray-300 hover:border-gray-400"
+            "flex-shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
+            isSelected 
+              ? "bg-gradient-to-r from-violet-500 to-purple-600 border-transparent" 
+              : "border-foreground/20 hover:border-violet-500 bg-white/50"
           )}
           onClick={(e) => { e.stopPropagation(); onSelect(); }}
         >
-          {isSelected && <Check className="w-3 h-3 text-white" />}
-        </div>
+          {isSelected && <Check className="w-4 h-4 text-white" />}
+        </motion.div>
 
         <div className="flex-shrink-0">
           {isImage ? (
-            <div className="w-10 h-10 rounded overflow-hidden bg-muted">
+            <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-white/20">
               <img
                 src={`/api/files/${file.id}/thumbnail`}
                 alt={file.name}
@@ -113,22 +128,31 @@ export function FileCard({
               />
             </div>
           ) : (
-            <div className="w-10 h-10 rounded bg-muted flex items-center justify-center">
-              <Icon className="w-5 h-5 text-muted-foreground" />
+            <div className={cn(
+              'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center',
+              colorClass
+            )}>
+              <Icon className="w-6 h-6 text-white" />
             </div>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-medium truncate">{file.name}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="font-semibold truncate text-foreground/90">{file.name}</p>
+          <p className="text-sm text-foreground/50">
             {formatFileSize(file.size)} • {formatDate(file.createdAt)}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {file.isStarred && (
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center"
+            >
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+            </motion.div>
           )}
           <FileActions
             file={file}
@@ -152,72 +176,98 @@ export function FileCard({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -4 }}
       className={cn(
-        'group relative flex flex-col rounded-xl border overflow-hidden transition-all hover:shadow-lg hover:border-primary/50',
-        isSelected && 'ring-2 ring-primary border-primary'
+        'group relative flex flex-col glass-subtle rounded-2xl overflow-hidden transition-all cursor-pointer',
+        'hover:shadow-xl hover:shadow-purple-500/10',
+        isSelected && 'ring-2 ring-violet-500'
       )}
       onClick={selectionMode ? onSelect : undefined}
       onDoubleClick={onPreview}
     >
       {/* Selection checkbox */}
-      <div 
+      <motion.div 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         className={cn(
-          "absolute top-2 left-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer",
-          isSelected ? "bg-primary border-primary" : "border-white/70 bg-black/20 opacity-0 group-hover:opacity-100"
+          "absolute top-3 left-3 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer",
+          isSelected 
+            ? "bg-gradient-to-r from-violet-500 to-purple-600 border-transparent" 
+            : "border-white/50 bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100"
         )}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
       >
-        {isSelected && <Check className="w-3 h-3 text-white" />}
-      </div>
+        {isSelected && <Check className="w-4 h-4 text-white" />}
+      </motion.div>
 
       {/* Preview */}
-      <div className="relative aspect-square bg-muted flex items-center justify-center">
+      <div className="relative aspect-square bg-gradient-to-br from-foreground/5 to-foreground/10 flex items-center justify-center overflow-hidden">
         {isImage ? (
           <img
             src={`/api/files/${file.id}/thumbnail`}
             alt={file.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             onError={() => setImageError(true)}
           />
         ) : (
-          <Icon className="w-12 h-12 text-muted-foreground" />
+          <div className={cn(
+            'w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg',
+            colorClass
+          )}>
+            <Icon className="w-8 h-8 text-white" />
+          </div>
         )}
 
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4 gap-2">
           {canPreview && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.05 }}
+            >
+              <Button
+                size="sm"
+                className="h-10 px-4 rounded-xl bg-white/90 text-foreground hover:bg-white shadow-lg"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPreview?.();
+                }}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Button>
+            </motion.div>
+          )}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
             <Button
               size="sm"
-              variant="secondary"
+              className="h-10 w-10 rounded-xl bg-white/90 text-foreground hover:bg-white shadow-lg"
               onClick={(e) => {
                 e.stopPropagation();
-                onPreview?.();
+                onDownload();
               }}
             >
-              <Eye className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             </Button>
-          )}
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDownload();
-            }}
-          >
-            <Download className="w-4 h-4" />
-          </Button>
+          </motion.div>
         </div>
 
         {/* Star indicator */}
         {file.isStarred && (
-          <div className="absolute top-2 right-10">
-            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 drop-shadow" />
+          <div className="absolute top-3 right-12">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+              <Star className="w-4 h-4 text-white fill-white" />
+            </div>
           </div>
         )}
 
         {/* Actions */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <FileActions
             file={file}
             onDownload={onDownload}
@@ -235,9 +285,9 @@ export function FileCard({
       </div>
 
       {/* Info */}
-      <div className="p-3">
-        <p className="font-medium truncate text-sm">{file.name}</p>
-        <p className="text-xs text-muted-foreground mt-1">
+      <div className="p-4">
+        <p className="font-semibold truncate text-sm text-foreground/90">{file.name}</p>
+        <p className="text-xs text-foreground/50 mt-1">
           {formatFileSize(file.size)}
         </p>
       </div>
@@ -273,67 +323,122 @@ function FileActions({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm hover:bg-white dark:hover:bg-white/20 shadow-sm"
+        >
           <MoreVertical className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+      <DropdownMenuContent 
+        align="end" 
+        onClick={(e) => e.stopPropagation()}
+        className="w-56 p-2 glass-strong rounded-2xl border-white/20"
+      >
         {canPreview && onPreview && (
-          <DropdownMenuItem onClick={onPreview}>
-            <Eye className="w-4 h-4 mr-2" />
+          <DropdownMenuItem 
+            onClick={onPreview}
+            className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+          >
+            <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <Eye className="w-4 h-4 text-blue-500" />
+            </div>
             Preview
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={onDownload}>
-          <Download className="w-4 h-4 mr-2" />
+        <DropdownMenuItem 
+          onClick={onDownload}
+          className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+        >
+          <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
+            <Download className="w-4 h-4 text-green-500" />
+          </div>
           Download
         </DropdownMenuItem>
         {!file.isTrashed && (
           <>
             {onShare && (
-              <DropdownMenuItem onClick={onShare}>
-                <Link2 className="w-4 h-4 mr-2" />
+              <DropdownMenuItem 
+                onClick={onShare}
+                className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+              >
+                <div className="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                  <Link2 className="w-4 h-4 text-violet-500" />
+                </div>
                 Share
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={onStar}>
+            <DropdownMenuItem 
+              onClick={onStar}
+              className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+            >
               {file.isStarred ? (
                 <>
-                  <StarOff className="w-4 h-4 mr-2" />
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <StarOff className="w-4 h-4 text-amber-500" />
+                  </div>
                   Remove star
                 </>
               ) : (
                 <>
-                  <Star className="w-4 h-4 mr-2" />
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <Star className="w-4 h-4 text-amber-500" />
+                  </div>
                   Add star
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onRename}>
-              <Pencil className="w-4 h-4 mr-2" />
+            <DropdownMenuItem 
+              onClick={onRename}
+              className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+            >
+              <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+                <Pencil className="w-4 h-4" />
+              </div>
               Rename
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onMove}>
-              <FolderInput className="w-4 h-4 mr-2" />
+            <DropdownMenuItem 
+              onClick={onMove}
+              className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+            >
+              <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+                <FolderInput className="w-4 h-4" />
+              </div>
               Move
             </DropdownMenuItem>
             {onVersions && (
-              <DropdownMenuItem onClick={onVersions}>
-                <History className="w-4 h-4 mr-2" />
+              <DropdownMenuItem 
+                onClick={onVersions}
+                className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+              >
+                <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+                  <History className="w-4 h-4" />
+                </div>
                 Version history
               </DropdownMenuItem>
             )}
           </>
         )}
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10 my-1" />
         {file.isTrashed && onRestore && (
-          <DropdownMenuItem onClick={onRestore}>
-            <RotateCcw className="w-4 h-4 mr-2" />
+          <DropdownMenuItem 
+            onClick={onRestore}
+            className="h-10 rounded-xl cursor-pointer hover:bg-white/10 gap-3"
+          >
+            <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <RotateCcw className="w-4 h-4 text-green-500" />
+            </div>
             Restore
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={onDelete} className="text-destructive">
-          <Trash2 className="w-4 h-4 mr-2" />
+        <DropdownMenuItem 
+          onClick={onDelete} 
+          className="h-10 rounded-xl cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+        >
+          <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
+            <Trash2 className="w-4 h-4" />
+          </div>
           {file.isTrashed ? 'Delete permanently' : 'Move to trash'}
         </DropdownMenuItem>
       </DropdownMenuContent>

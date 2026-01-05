@@ -130,9 +130,11 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Link2 className="h-5 w-5" />
-            Share "{file?.name}"
+          <DialogTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+              <Link2 className="h-5 w-5 text-white" />
+            </div>
+            <span>Share "{file?.name}"</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -174,11 +176,11 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+                  <div className="space-y-4 p-4 glass-subtle rounded-2xl border border-white/10">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
+                        <Label className="flex items-center gap-2 text-sm">
+                          <Calendar className="h-4 w-4 text-violet-400" />
                           Expires in (hours)
                         </Label>
                         <Input
@@ -190,8 +192,8 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                          <Download className="h-4 w-4" />
+                        <Label className="flex items-center gap-2 text-sm">
+                          <Download className="h-4 w-4 text-violet-400" />
                           Max downloads
                         </Label>
                         <Input
@@ -204,8 +206,8 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2">
-                        <Lock className="h-4 w-4" />
+                      <Label className="flex items-center gap-2 text-sm">
+                        <Lock className="h-4 w-4 text-violet-400" />
                         Password protection
                       </Label>
                       <Input
@@ -222,43 +224,47 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
           </div>
 
           {/* Existing links */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-500">
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Active Links ({links.length})
             </h3>
             
             {loading ? (
               <div className="flex justify-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-violet-500" />
               </div>
             ) : links.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">
-                No shared links yet
-              </p>
+              <div className="glass-subtle rounded-2xl p-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No shared links yet
+                </p>
+              </div>
             ) : (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
                 {links.map((link) => (
                   <motion.div
                     key={link.id}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`p-3 border rounded-lg ${
-                      link.isActive ? 'bg-white' : 'bg-gray-100 opacity-60'
+                    className={`p-4 glass-subtle rounded-2xl border transition-all ${
+                      link.isActive 
+                        ? 'border-white/20' 
+                        : 'border-white/5 opacity-50'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <code className="text-xs bg-gray-100 px-2 py-1 rounded truncate max-w-[200px]">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <code className="text-xs bg-white/10 px-3 py-1.5 rounded-lg truncate max-w-[200px] font-mono">
                           {link.url}
                         </code>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7"
+                          className="h-8 w-8 rounded-lg hover:bg-white/10"
                           onClick={() => copyToClipboard(link.url, link.id)}
                         >
                           {copiedId === link.id ? (
-                            <Check className="h-4 w-4 text-green-500" />
+                            <Check className="h-4 w-4 text-emerald-500" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
@@ -268,19 +274,19 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7"
+                          className="h-8 w-8 rounded-lg hover:bg-white/10"
                           onClick={() => toggleLink(link.id)}
                         >
                           {link.isActive ? (
-                            <ToggleRight className="h-4 w-4 text-green-500" />
+                            <ToggleRight className="h-5 w-5 text-emerald-500" />
                           ) : (
-                            <ToggleLeft className="h-4 w-4 text-gray-400" />
+                            <ToggleLeft className="h-5 w-5 text-muted-foreground" />
                           )}
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-red-500 hover:text-red-600"
+                          className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-red-400 hover:text-red-500"
                           onClick={() => deleteLink(link.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -288,26 +294,26 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                       {link.hasPassword && (
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5 bg-violet-500/10 text-violet-400 px-2 py-1 rounded-lg">
                           <Lock className="h-3 w-3" />
                           Password
                         </span>
                       )}
                       {link.expiresAt && (
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5 bg-amber-500/10 text-amber-400 px-2 py-1 rounded-lg">
                           <Calendar className="h-3 w-3" />
                           Expires {formatDate(link.expiresAt)}
                         </span>
                       )}
                       {link.maxDownloads && (
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5 bg-blue-500/10 text-blue-400 px-2 py-1 rounded-lg">
                           <Download className="h-3 w-3" />
                           {link.downloadCount}/{link.maxDownloads}
                         </span>
                       )}
-                      <span>Created {formatDate(link.createdAt)}</span>
+                      <span className="ml-auto">Created {formatDate(link.createdAt)}</span>
                     </div>
                   </motion.div>
                 ))}
