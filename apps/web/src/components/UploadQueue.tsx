@@ -48,20 +48,20 @@ function UploadItem({
 }) {
   const statusConfig = {
     pending: { 
-      icon: <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />,
-      bg: 'bg-muted/50'
+      icon: <Loader2 className="w-4 h-4 animate-spin text-foreground/50" />,
+      bg: 'bg-foreground/5'
     },
     uploading: { 
       icon: <Loader2 className="w-4 h-4 animate-spin text-foreground" />,
       bg: 'bg-foreground/10'
     },
     completed: { 
-      icon: <CheckCircle className="w-4 h-4 text-emerald-500" />,
-      bg: 'bg-emerald-500/10'
+      icon: <CheckCircle className="w-4 h-4 text-foreground" />,
+      bg: 'bg-foreground/10'
     },
     error: { 
-      icon: <AlertCircle className="w-4 h-4 text-red-500" />,
-      bg: 'bg-red-500/10'
+      icon: <AlertCircle className="w-4 h-4 text-foreground/70" />,
+      bg: 'bg-foreground/5'
     },
   };
 
@@ -94,7 +94,7 @@ function UploadItem({
         </div>
       )}
       {upload.status === 'error' && (
-        <p className="ml-10 text-xs text-red-400">{upload.error}</p>
+        <p className="ml-10 text-xs text-foreground/60">{upload.error}</p>
       )}
     </motion.div>
   );

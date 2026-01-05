@@ -137,8 +137,8 @@ export function TrashPage() {
             className="flex items-center justify-between mb-6"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-red-500" />
+              <div className="w-10 h-10 rounded-xl bg-foreground/10 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-foreground/70" />
               </div>
               <h1 className="text-2xl font-bold">Trash</h1>
             </div>
@@ -186,8 +186,8 @@ export function TrashPage() {
               className="flex flex-col items-center justify-center py-16 text-center"
             >
               <div className="glass-strong rounded-2xl p-12 flex flex-col items-center luxury-border">
-                <div className="w-20 h-20 rounded-xl bg-red-500/10 flex items-center justify-center mb-6">
-                  <Trash2 className="w-10 h-10 text-red-400" />
+                <div className="w-20 h-20 rounded-xl bg-foreground/10 flex items-center justify-center mb-6">
+                  <Trash2 className="w-10 h-10 text-foreground/50" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Trash is empty</h3>
                 <p className="text-muted-foreground max-w-sm">

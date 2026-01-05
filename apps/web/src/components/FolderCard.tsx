@@ -21,16 +21,8 @@ interface FolderCardProps {
   onDelete: () => void;
 }
 
-const folderGradients: Record<string, string> = {
-  blue: 'from-blue-400 to-blue-600',
-  green: 'from-emerald-400 to-emerald-600',
-  yellow: 'from-amber-400 to-amber-600',
-  red: 'from-rose-400 to-rose-600',
-  purple: 'from-purple-400 to-purple-600',
-  pink: 'from-pink-400 to-pink-600',
-  orange: 'from-orange-400 to-orange-600',
-  default: 'from-slate-500 to-slate-700',
-};
+// Monochrome folder styling
+const getFolderStyle = () => 'bg-foreground/10 dark:bg-foreground/15 border border-foreground/10';
 
 export function FolderCard({
   folder,
@@ -40,7 +32,7 @@ export function FolderCard({
   onMove,
   onDelete,
 }: FolderCardProps) {
-  const gradientClass = folderGradients[folder.color || 'default'] || folderGradients.default;
+  const folderStyle = getFolderStyle();
   const itemCount = (folder._count?.files || 0) + (folder._count?.children || 0);
 
   if (viewMode === 'list') {
@@ -54,10 +46,10 @@ export function FolderCard({
       >
         <div className="flex-shrink-0">
           <div className={cn(
-            'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
-            gradientClass
+            'w-12 h-12 rounded-xl flex items-center justify-center',
+            folderStyle
           )}>
-            <Folder className="w-6 h-6 text-white" />
+            <Folder className="w-6 h-6 text-foreground/70" />
           </div>
         </div>
 
@@ -90,14 +82,14 @@ export function FolderCard({
       {/* Preview */}
       <div className="relative aspect-square bg-gradient-to-br from-foreground/5 to-foreground/10 flex items-center justify-center">
         <motion.div
-          whileHover={{ scale: 1.1, rotate: -5 }}
+          whileHover={{ scale: 1.05, rotate: -2 }}
           transition={{ type: 'spring', stiffness: 300 }}
           className={cn(
-            'w-14 h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
-            gradientClass
+            'w-14 h-14 rounded-xl flex items-center justify-center',
+            folderStyle
           )}
         >
-          <Folder className="w-7 h-7 text-white" />
+          <Folder className="w-7 h-7 text-foreground/60" />
         </motion.div>
 
         {/* Actions */}
@@ -167,9 +159,9 @@ function FolderActions({
         <DropdownMenuSeparator className="bg-border my-1" />
         <DropdownMenuItem 
           onClick={onDelete} 
-          className="h-10 rounded-lg cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+          className="h-10 rounded-lg cursor-pointer text-foreground/70 hover:bg-foreground/5 hover:text-foreground gap-3"
         >
-          <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
             <Trash2 className="w-4 h-4" />
           </div>
           Delete

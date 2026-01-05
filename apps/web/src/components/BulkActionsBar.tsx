@@ -122,12 +122,12 @@ export function BulkActionsBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg"
+                  className="text-foreground/70 hover:bg-foreground/5 hover:text-foreground rounded-lg"
                   onClick={() => handleBulkDelete(true)}
                   disabled={loading !== null}
                 >
                   {loading === 'delete' ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-400" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground" />
                   ) : (
                     <Trash2 className="h-4 w-4 mr-2" />
                   )}
@@ -144,7 +144,7 @@ export function BulkActionsBar({
                   onClick={() => handleBulkStar(true)}
                   disabled={loading !== null}
                 >
-                  <Star className="h-4 w-4 mr-2 text-yellow-500" />
+                  <Star className="h-4 w-4 mr-2" />
                   Star
                 </Button>
                 <Button
@@ -167,19 +167,19 @@ export function BulkActionsBar({
                   {loading === 'download' ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                   ) : (
-                    <Download className="h-4 w-4 mr-2 text-blue-400" />
+                    <Download className="h-4 w-4 mr-2" />
                   )}
                   Download
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg"
+                  className="text-foreground/70 hover:bg-foreground/5 hover:text-foreground rounded-lg"
                   onClick={() => handleBulkDelete(false)}
                   disabled={loading !== null}
                 >
                   {loading === 'delete' ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-400" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground" />
                   ) : (
                     <Trash2 className="h-4 w-4 mr-2" />
                   )}

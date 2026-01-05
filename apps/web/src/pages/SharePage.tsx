@@ -135,8 +135,8 @@ export function SharePage() {
           animate={{ scale: 1, opacity: 1 }}
           className="glass-strong rounded-2xl shadow-2xl p-8 max-w-md w-full text-center relative z-10 luxury-border"
         >
-          <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="h-8 w-8 text-red-400" />
+          <div className="w-16 h-16 rounded-2xl bg-foreground/10 flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="h-8 w-8 text-foreground/60" />
           </div>
           <h1 className="text-2xl font-bold mb-2">Link Unavailable</h1>
           <p className="text-muted-foreground">{error}</p>
@@ -218,10 +218,10 @@ export function SharePage() {
                 setPassword(e.target.value);
                 setPasswordError(null);
               }}
-              className={passwordError ? 'border-red-500/50 focus:ring-red-500' : ''}
+              className={passwordError ? 'border-foreground/50 focus:ring-foreground' : ''}
             />
             {passwordError && (
-              <p className="text-sm text-red-400 mt-2">{passwordError}</p>
+              <p className="text-sm text-foreground/60 mt-2">{passwordError}</p>
             )}
           </div>
         )}
@@ -231,7 +231,7 @@ export function SharePage() {
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
-            className="flex items-center justify-center gap-2 py-4 px-4 bg-emerald-500/20 text-emerald-400 rounded-2xl border border-emerald-500/30"
+            className="flex items-center justify-center gap-2 py-4 px-4 bg-foreground/10 text-foreground rounded-2xl border border-foreground/20"
           >
             <Check className="h-5 w-5" />
             Download started!

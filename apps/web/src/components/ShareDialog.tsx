@@ -260,11 +260,11 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg hover:bg-white/10"
+                          className="h-8 w-8 rounded-lg hover:bg-foreground/10"
                           onClick={() => copyToClipboard(link.url, link.id)}
                         >
                           {copiedId === link.id ? (
-                            <Check className="h-4 w-4 text-emerald-500" />
+                            <Check className="h-4 w-4 text-foreground" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
@@ -274,11 +274,11 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg hover:bg-white/10"
+                          className="h-8 w-8 rounded-lg hover:bg-foreground/10"
                           onClick={() => toggleLink(link.id)}
                         >
                           {link.isActive ? (
-                            <ToggleRight className="h-5 w-5 text-emerald-500" />
+                            <ToggleRight className="h-5 w-5 text-foreground" />
                           ) : (
                             <ToggleLeft className="h-5 w-5 text-muted-foreground" />
                           )}
@@ -286,7 +286,7 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-red-400 hover:text-red-500"
+                          className="h-8 w-8 rounded-lg hover:bg-foreground/10 text-foreground/60 hover:text-foreground"
                           onClick={() => deleteLink(link.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -308,7 +308,7 @@ export function ShareDialog({ open, onClose, file }: ShareDialogProps) {
                         </span>
                       )}
                       {link.maxDownloads && (
-                        <span className="flex items-center gap-1.5 bg-blue-500/10 text-blue-400 px-2 py-1 rounded-lg">
+                        <span className="flex items-center gap-1.5 bg-foreground/10 text-foreground/70 px-2 py-1 rounded-lg">
                           <Download className="h-3 w-3" />
                           {link.downloadCount}/{link.maxDownloads}
                         </span>

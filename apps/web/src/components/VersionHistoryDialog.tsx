@@ -83,7 +83,7 @@ export function VersionHistoryDialog({
         <div className="space-y-4">
           {/* Current version */}
           {file && (
-            <div className="p-4 glass-subtle rounded-2xl border border-emerald-500/30">
+            <div className="p-4 glass-subtle rounded-2xl border border-foreground/20">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-foreground">Current Version</p>
@@ -98,7 +98,7 @@ export function VersionHistoryDialog({
                     </span>
                   </p>
                 </div>
-                <span className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium">
+                <span className="px-3 py-1.5 bg-foreground/10 text-foreground rounded-lg text-xs font-medium">
                   Active
                 </span>
               </div>

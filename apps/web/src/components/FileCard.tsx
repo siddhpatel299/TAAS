@@ -57,13 +57,14 @@ const fileTypeIcons = {
   other: FileIcon,
 };
 
-const fileTypeColors = {
-  image: 'from-pink-500 to-rose-500',
-  video: 'from-purple-500 to-violet-500',
-  audio: 'from-green-500 to-emerald-500',
-  document: 'from-blue-500 to-cyan-500',
-  archive: 'from-slate-500 to-slate-600',
-  other: 'from-gray-400 to-gray-500',
+// Monochrome design - subtle differentiation through opacity and style
+const fileTypeStyles = {
+  image: 'bg-foreground/10 dark:bg-foreground/15',
+  video: 'bg-foreground/12 dark:bg-foreground/18',
+  audio: 'bg-foreground/8 dark:bg-foreground/12',
+  document: 'bg-foreground/10 dark:bg-foreground/15',
+  archive: 'bg-foreground/6 dark:bg-foreground/10',
+  other: 'bg-foreground/5 dark:bg-foreground/8',
 };
 
 export function FileCard({
@@ -85,7 +86,7 @@ export function FileCard({
   const [imageError, setImageError] = useState(false);
   const fileType = getFileType(file.mimeType);
   const Icon = fileTypeIcons[fileType];
-  const colorClass = fileTypeColors[fileType];
+  const iconStyle = fileTypeStyles[fileType];
   const isImage = fileType === 'image' && !imageError;
   const canPreview = ['image', 'video', 'audio', 'document'].includes(fileType);
 
@@ -129,10 +130,10 @@ export function FileCard({
             </div>
           ) : (
             <div className={cn(
-              'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center',
-              colorClass
+              'w-12 h-12 rounded-xl flex items-center justify-center border border-foreground/10',
+              iconStyle
             )}>
-              <Icon className="w-6 h-6 text-white" />
+              <Icon className="w-6 h-6 text-foreground/70" />
             </div>
           )}
         </div>
@@ -149,9 +150,9 @@ export function FileCard({
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"
+              className="w-8 h-8 rounded-lg bg-foreground/10 flex items-center justify-center"
             >
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+              <Star className="w-4 h-4 text-foreground fill-foreground" />
             </motion.div>
           )}
           <FileActions
@@ -211,10 +212,10 @@ export function FileCard({
           />
         ) : (
           <div className={cn(
-            'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md',
-            colorClass
+            'w-14 h-14 rounded-xl flex items-center justify-center border border-foreground/10',
+            iconStyle
           )}>
-            <Icon className="w-6 h-6 text-white" />
+            <Icon className="w-7 h-7 text-foreground/60" />
           </div>
         )}
 
@@ -260,8 +261,8 @@ export function FileCard({
         {/* Star indicator */}
         {file.isStarred && (
           <div className="absolute top-3 right-12">
-            <div className="w-8 h-8 rounded-lg bg-yellow-500/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
-              <Star className="w-4 h-4 text-white fill-white" />
+            <div className="w-8 h-8 rounded-lg bg-foreground/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+              <Star className="w-4 h-4 text-background fill-background" />
             </div>
           </div>
         )}
@@ -341,8 +342,8 @@ function FileActions({
             onClick={onPreview}
             className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
           >
-            <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Eye className="w-4 h-4 text-blue-500" />
+            <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+              <Eye className="w-4 h-4 text-foreground/70" />
             </div>
             Preview
           </DropdownMenuItem>
@@ -351,8 +352,8 @@ function FileActions({
           onClick={onDownload}
           className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
         >
-          <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <Download className="w-4 h-4 text-green-500" />
+          <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+            <Download className="w-4 h-4 text-foreground/70" />
           </div>
           Download
         </DropdownMenuItem>
@@ -363,8 +364,8 @@ function FileActions({
                 onClick={onShare}
                 className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
               >
-                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Link2 className="w-4 h-4 text-blue-500" />
+                <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+                  <Link2 className="w-4 h-4 text-foreground/70" />
                 </div>
                 Share
               </DropdownMenuItem>
@@ -375,15 +376,15 @@ function FileActions({
             >
               {file.isStarred ? (
                 <>
-                  <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                    <StarOff className="w-4 h-4 text-yellow-500" />
+                  <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+                    <StarOff className="w-4 h-4 text-foreground/70" />
                   </div>
                   Remove star
                 </>
               ) : (
                 <>
-                  <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                    <Star className="w-4 h-4 text-yellow-500" />
+                  <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+                    <Star className="w-4 h-4 text-foreground/70" />
                   </div>
                   Add star
                 </>
@@ -426,17 +427,17 @@ function FileActions({
             onClick={onRestore}
             className="h-10 rounded-lg cursor-pointer hover:bg-foreground/5 gap-3"
           >
-            <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <RotateCcw className="w-4 h-4 text-green-500" />
+            <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
+              <RotateCcw className="w-4 h-4 text-foreground/70" />
             </div>
             Restore
           </DropdownMenuItem>
         )}
         <DropdownMenuItem 
           onClick={onDelete} 
-          className="h-10 rounded-lg cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+          className="h-10 rounded-lg cursor-pointer text-foreground/70 hover:bg-foreground/5 hover:text-foreground gap-3"
         >
-          <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-foreground/5 flex items-center justify-center">
             <Trash2 className="w-4 h-4" />
           </div>
           {file.isTrashed ? 'Delete permanently' : 'Move to trash'}

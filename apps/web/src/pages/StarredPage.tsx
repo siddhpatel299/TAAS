@@ -140,7 +140,7 @@ export function StarredPage() {
             >
               <div className="glass-strong rounded-2xl p-12 flex flex-col items-center luxury-border">
                 <div className="w-20 h-20 rounded-xl bg-foreground/10 flex items-center justify-center mb-6">
-                  <Star className="w-10 h-10 text-yellow-500" />
+                  <Star className="w-10 h-10 text-foreground/50" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No starred files</h3>
                 <p className="text-muted-foreground max-w-sm">

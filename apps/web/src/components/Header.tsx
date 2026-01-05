@@ -175,7 +175,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               animate={{ rotate: isDark ? 180 : 0 }}
               transition={{ duration: 0.3 }}
             >
-              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </motion.div>
           </Button>
         </motion.div>
@@ -238,9 +238,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem 
               onClick={handleLogout} 
-              className="h-11 rounded-lg cursor-pointer text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-3"
+              className="h-11 rounded-lg cursor-pointer text-foreground/70 hover:bg-foreground/5 hover:text-foreground gap-3"
             >
-              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center">
                 <LogOut className="w-4 h-4" />
               </div>
               Log out
