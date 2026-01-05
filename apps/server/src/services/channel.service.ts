@@ -88,7 +88,7 @@ export class ChannelService {
     const channelConfig: ChannelConfig = {
       channelId: channel.id.toString(),
       channelName: channelName,
-      accessHash: channel.accessHash!,
+      accessHash: BigInt(channel.accessHash!.toString()),
       createdAt: new Date(),
     };
 

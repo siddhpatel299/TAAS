@@ -91,7 +91,7 @@ export class RecoveryService {
             telegramMessageId: c.telegramMessageId,
             channelId: c.channelId,
             size: c.size,
-            hash: c.hash,
+            hash: c.hash || '', // Default to empty string if null
           }))
         : [{
             chunkIndex: 0,

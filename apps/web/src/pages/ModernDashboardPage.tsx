@@ -22,29 +22,27 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useFilesStore, StoredFile, Folder } from '@/stores/files.store';
+import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { filesApi, foldersApi } from '@/lib/api';
 
 export function ModernDashboardPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const folderId = searchParams.get('folder') || undefined;
   const { user } = useAuthStore();
 
   const {
     files,
-    folders,
     searchQuery,
     sortBy,
     sortOrder,
-    isLoading,
     setFiles,
     setFolders,
     setCurrentFolder,
     addUpload,
     updateUpload,
     setLoading,
-    setSearch,
+    setSearchQuery,
   } = useFilesStore();
 
   const [storageUsed, setStorageUsed] = useState(0);
@@ -248,7 +246,7 @@ export function ModernDashboardPage() {
                 type="text"
                 placeholder="Search files..."
                 value={searchQuery}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 pr-4 py-3 w-80 bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-cyan-500"
               />
             </div>
@@ -356,7 +354,7 @@ export function ModernDashboardPage() {
 
       {/* Share Dialog */}
       {shareFile && (
-        <ShareDialog file={shareFile} onClose={() => setShareFile(null)} />
+        <ShareDialog open={!!shareFile} file={shareFile} onClose={() => setShareFile(null)} />
       )}
 
       {/* Upload Queue */}

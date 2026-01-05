@@ -19,7 +19,7 @@ interface StorageWidgetProps {
   };
 }
 
-export function StorageWidget({ totalUsed, byType, fileStats }: StorageWidgetProps) {
+export function StorageWidget({ totalUsed, byType, fileStats: _fileStats }: StorageWidgetProps) {
   // Calculate sizes from byType or estimate from total
   const video = byType?.video || totalUsed * 0.25;
   const document = byType?.document || totalUsed * 0.10;

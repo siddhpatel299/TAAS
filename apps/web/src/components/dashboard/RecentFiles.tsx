@@ -53,7 +53,7 @@ export function RecentFiles({
   onSelectionChange,
 }: RecentFilesProps) {
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
-  const [sortField, setSortField] = useState<'name' | 'size' | 'date'>('date');
+  const [sortField] = useState<'name' | 'size' | 'date'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const toggleSelection = (fileId: string) => {

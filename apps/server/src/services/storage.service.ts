@@ -44,6 +44,7 @@ export class StorageService {
       buffer: file,
       fileName,
       mimeType,
+      userId,
       onProgress,
     });
 

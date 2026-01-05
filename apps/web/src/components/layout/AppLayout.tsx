@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { ModernSidebar } from './ModernSidebar';
 import { cn } from '@/lib/utils';
 
@@ -57,14 +56,7 @@ interface StorageWidgetProps {
   };
 }
 
-function StorageWidget({ used, byType }: StorageWidgetProps) {
-  // Calculate percentages for the donut chart
-  const total = used;
-  const video = byType?.video || total * 0.25;
-  const document = byType?.document || total * 0.15;
-  const photo = byType?.photo || total * 0.35;
-  const other = byType?.other || total * 0.25;
-
+function StorageWidget(_props: StorageWidgetProps) {
   // Display storage as "unlimited" for Telegram
   const displayStorage = "∞";
   const availableText = "Unlimited";

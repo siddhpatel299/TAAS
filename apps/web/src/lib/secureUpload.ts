@@ -9,7 +9,6 @@ import {
   encryptFile,
   arrayBufferToBase64,
   uint8ArrayToBase64,
-  EncryptedChunk,
 } from './crypto';
 import { keyManager } from './keyManager';
 

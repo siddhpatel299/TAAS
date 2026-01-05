@@ -48,7 +48,7 @@ export async function secureDownload(
   apiBaseUrl: string,
   authToken: string
 ): Promise<Blob> {
-  const { fileId, fileName, onProgress } = options;
+  const { fileId, onProgress } = options;
   
   // Ensure encryption is unlocked
   const masterKey = keyManager.getMasterKey();

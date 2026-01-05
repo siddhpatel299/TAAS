@@ -37,7 +37,7 @@ const bottomNavItems = [
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export function ModernSidebar({ collapsed = false }: ModernSidebarProps) {
+export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarProps) {
   const location = useLocation();
   const { logout } = useAuthStore();
 

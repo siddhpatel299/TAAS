@@ -54,7 +54,7 @@ export async function deriveMasterKey(
   const masterKey = await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: keySalt,
+      salt: new Uint8Array(keySalt),
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256',
     },
@@ -93,7 +93,7 @@ export async function generateVerificationHash(
   const verificationBits = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt: new Uint8Array(salt),
       iterations: VERIFICATION_HASH_ITERATIONS,
       hash: 'SHA-256',
     },
@@ -181,13 +181,13 @@ export async function changePassphrase(
     const ivBuffer = base64ToUint8Array(iv);
     
     const rawKey = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: ivBuffer, tagLength: 128 },
+      { name: 'AES-GCM', iv: new Uint8Array(ivBuffer), tagLength: 128 },
       oldMasterKey,
       encryptedKeyBuffer
     );
     
     // Re-encrypt with new master key
-    const newIv = crypto.getRandomValues(new Uint8Array(12));
+    const newIv = new Uint8Array(crypto.getRandomValues(new Uint8Array(12)));
     const newEncryptedKey = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv: newIv, tagLength: 128 },
       newMasterKey,

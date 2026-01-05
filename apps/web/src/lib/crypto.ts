@@ -91,7 +91,7 @@ export async function encryptFileKey(
   const rawKey = await exportKey(fileKey);
   
   const encrypted = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv, tagLength: TAG_LENGTH },
+    { name: 'AES-GCM', iv: new Uint8Array(iv), tagLength: TAG_LENGTH },
     masterKey,
     rawKey
   );
@@ -108,7 +108,7 @@ export async function decryptFileKey(
   masterKey: CryptoKey
 ): Promise<CryptoKey> {
   const rawKey = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv, tagLength: TAG_LENGTH },
+    { name: 'AES-GCM', iv: new Uint8Array(iv), tagLength: TAG_LENGTH },
     masterKey,
     encryptedKey
   );
@@ -136,7 +136,7 @@ export async function encryptChunk(
   const iv = generateIV();
   
   const ciphertext = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv, tagLength: TAG_LENGTH },
+    { name: 'AES-GCM', iv: new Uint8Array(iv), tagLength: TAG_LENGTH },
     fileKey,
     chunk
   );
@@ -168,7 +168,7 @@ export async function decryptChunk(
   }
   
   const plaintext = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: encryptedChunk.iv, tagLength: TAG_LENGTH },
+    { name: 'AES-GCM', iv: new Uint8Array(encryptedChunk.iv), tagLength: TAG_LENGTH },
     fileKey,
     encryptedChunk.ciphertext
   );
@@ -262,7 +262,7 @@ export async function decryptFile(
   }
   
   // Verify final hash
-  const computedHash = await calculateHash(reassembled.buffer);
+  const computedHash = await calculateHash(reassembled.buffer.slice(0) as ArrayBuffer);
   if (computedHash !== expectedHash) {
     throw new Error(`File integrity check failed! Expected ${expectedHash}, got ${computedHash}`);
   }
@@ -298,7 +298,7 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
  * Convert Uint8Array to Base64
  */
 export function uint8ArrayToBase64(arr: Uint8Array): string {
-  return arrayBufferToBase64(arr.buffer);
+  return arrayBufferToBase64(arr.buffer.slice(0) as ArrayBuffer);
 }
 
 /**
