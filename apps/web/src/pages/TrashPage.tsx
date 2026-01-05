@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trash2, RefreshCw, AlertTriangle, Sparkles } from 'lucide-react';
+import { Trash2, AlertTriangle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {

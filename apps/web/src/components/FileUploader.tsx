@@ -26,9 +26,10 @@ export function FileUploader({ onUpload, disabled, className }: FileUploaderProp
     multiple: true,
   });
 
+  const rootProps = getRootProps();
+
   return (
     <motion.div
-      {...getRootProps()}
       whileHover={{ scale: disabled ? 1 : 1.01 }}
       whileTap={{ scale: disabled ? 1 : 0.99 }}
       className={cn(
@@ -39,6 +40,16 @@ export function FileUploader({ onUpload, disabled, className }: FileUploaderProp
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
+      onClick={rootProps.onClick}
+      onKeyDown={rootProps.onKeyDown}
+      onFocus={rootProps.onFocus}
+      onBlur={rootProps.onBlur}
+      onDragEnter={rootProps.onDragEnter}
+      onDragOver={rootProps.onDragOver}
+      onDragLeave={rootProps.onDragLeave}
+      onDrop={rootProps.onDrop}
+      tabIndex={rootProps.tabIndex}
+      role={rootProps.role}
     >
       <input {...getInputProps()} />
       

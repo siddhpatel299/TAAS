@@ -8,12 +8,10 @@ import {
   SortAsc,
   SortDesc,
   LogOut,
-  User,
   Moon,
   Sun,
   Menu,
   Settings,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

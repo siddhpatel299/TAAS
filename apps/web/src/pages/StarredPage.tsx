@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Star, RefreshCw, Sparkles } from 'lucide-react';
+import { Star, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FileCard } from '@/components/FileCard';
 import { Sidebar } from '@/components/Sidebar';
