@@ -12,7 +12,7 @@ import {
   SyncSettings,
   TelegramAuthState,
   DEFAULT_SYNC_SETTINGS,
-} from '../../../shared/types';
+} from '../types';
 
 interface SyncStore {
   // State

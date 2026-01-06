@@ -9,7 +9,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { useSyncStore } from '../stores/sync-store';
-import { SyncFolder } from '../../../../shared/types';
+import { SyncFolder } from '../types';
 
 export function FolderList() {
   const { syncState, selectFolder, addFolder, removeFolder, enableFolder, disableFolder } = useSyncStore();

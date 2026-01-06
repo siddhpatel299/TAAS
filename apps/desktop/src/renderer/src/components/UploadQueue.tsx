@@ -8,7 +8,7 @@ import {
   X
 } from 'lucide-react';
 import { useSyncStore } from '../stores/sync-store';
-import { QueuedUpload } from '../../../../shared/types';
+import { QueuedUpload } from '../types';
 
 export function UploadQueue() {
   const { syncState, clearQueue, removeQueueItem } = useSyncStore();

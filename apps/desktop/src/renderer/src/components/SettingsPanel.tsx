@@ -8,7 +8,7 @@ import {
   Info
 } from 'lucide-react';
 import { useSyncStore } from '../stores/sync-store';
-import { DEFAULT_SYNC_SETTINGS } from '../../../../shared/types';
+import { DEFAULT_SYNC_SETTINGS } from '../types';
 
 export function SettingsPanel() {
   const { settings, updateSettings } = useSyncStore();
