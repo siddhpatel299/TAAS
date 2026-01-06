@@ -264,19 +264,46 @@ export function TelegramChatsPage() {
         selectedFolderId
       );
 
-      updateImportStatus('success', undefined, response.data.data.fileId);
+      // Check if this is an async import (large file)
+      if (response.data.async && response.data.jobId) {
+        // Poll for job completion
+        const jobId = response.data.jobId;
+        const pollInterval = setInterval(async () => {
+          try {
+            const jobResponse = await telegramApi.getJobStatus(jobId);
+            const job = jobResponse.data.data;
 
-      // Clear import status after 3 seconds
-      setTimeout(() => {
-        setImportingFile(null);
-      }, 3000);
+            if (job.status === 'completed') {
+              clearInterval(pollInterval);
+              updateImportStatus('success', undefined, job.result?.fileId);
+              setTimeout(() => setImportingFile(null), 3000);
+            } else if (job.status === 'failed') {
+              clearInterval(pollInterval);
+              updateImportStatus('error', job.error || 'Import failed');
+              setTimeout(() => setImportingFile(null), 5000);
+            }
+            // Otherwise keep polling (pending, downloading, uploading)
+          } catch (pollError) {
+            console.error('Error polling job status:', pollError);
+          }
+        }, 3000); // Poll every 3 seconds
+
+        // Set a timeout to stop polling after 10 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval);
+          if (importingFile?.status === 'importing') {
+            updateImportStatus('error', 'Import timed out. Check your files to see if it completed.');
+            setTimeout(() => setImportingFile(null), 5000);
+          }
+        }, 10 * 60 * 1000);
+      } else {
+        // Synchronous import completed
+        updateImportStatus('success', undefined, response.data.data?.fileId);
+        setTimeout(() => setImportingFile(null), 3000);
+      }
     } catch (error: any) {
       updateImportStatus('error', error.response?.data?.error || 'Failed to import file');
-      
-      // Clear error after 5 seconds
-      setTimeout(() => {
-        setImportingFile(null);
-      }, 5000);
+      setTimeout(() => setImportingFile(null), 5000);
     }
 
     setSelectedMessage(null);

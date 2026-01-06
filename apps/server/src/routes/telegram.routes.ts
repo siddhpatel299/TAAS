@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { telegramChatService } from '../services/telegram-chat.service';
+import { importJobService } from '../services/import-job.service';
 
 const router: Router = Router();
 
@@ -76,7 +77,7 @@ router.get('/chats/:chatId/messages/:messageId', authMiddleware, asyncHandler(as
 }));
 
 // Import a file from a specific message to TAAS
-// This is the key action - manual, one file at a time
+// Uses background job for large files to avoid timeout
 router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { chatId, messageId } = req.params;
   const { folderId } = req.body;
@@ -87,6 +88,58 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
     throw new ApiError('Invalid message ID', 400);
   }
 
+  // Check if there's already an active job for this message
+  if (importJobService.hasActiveJobForMessage(req.user!.id, chatId, msgId)) {
+    throw new ApiError('Import already in progress for this file', 409);
+  }
+
+  // Get file info first to determine size
+  const message = await telegramChatService.getMessage(req.user!.id, chatId, msgId);
+  if (!message) {
+    throw new ApiError('Message not found', 404);
+  }
+
+  // Determine file size
+  let fileSize = 0;
+  let fileName = 'unknown';
+  if (message.hasDocument && message.document) {
+    fileSize = message.document.size;
+    fileName = message.document.fileName;
+  } else if (message.hasVideo && message.video) {
+    fileSize = message.video.size;
+    fileName = message.video.fileName;
+  } else if (message.hasPhoto && message.photo) {
+    fileSize = message.photo.size;
+    fileName = `photo_${msgId}.jpg`;
+  } else if (message.hasAudio && message.audio) {
+    fileSize = message.audio.size;
+    fileName = message.audio.fileName;
+  }
+
+  // For files > 10MB, use background job to avoid timeout
+  const TEN_MB = 10 * 1024 * 1024;
+  
+  if (fileSize > TEN_MB) {
+    // Create background job
+    const job = await importJobService.createJob(
+      req.user!.id,
+      chatId,
+      msgId,
+      fileName,
+      fileSize,
+      folderId
+    );
+
+    res.json({
+      success: true,
+      async: true,
+      jobId: job.id,
+      message: `Import started for "${fileName}" (${(fileSize / (1024 * 1024)).toFixed(2)} MB). This may take a few minutes.`,
+    });
+    return;
+  }
+
+  // For smaller files, import synchronously
   const result = await telegramChatService.importFileFromMessage(
     req.user!.id,
     chatId,
@@ -100,12 +153,38 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
 
   res.json({
     success: true,
+    async: false,
     data: {
       fileId: result.fileId,
       fileName: result.fileName,
       size: result.size,
     },
     message: `Successfully imported "${result.fileName}" to TAAS`,
+  });
+}));
+
+// Get import job status
+router.get('/jobs/:jobId', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { jobId } = req.params;
+
+  const job = importJobService.getJob(jobId, req.user!.id);
+  if (!job) {
+    throw new ApiError('Job not found', 404);
+  }
+
+  res.json({
+    success: true,
+    data: job,
+  });
+}));
+
+// Get all user's import jobs
+router.get('/jobs', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const jobs = importJobService.getUserJobs(req.user!.id);
+
+  res.json({
+    success: true,
+    data: jobs,
   });
 }));
 
