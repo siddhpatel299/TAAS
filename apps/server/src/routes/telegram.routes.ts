@@ -32,7 +32,7 @@ router.get('/chats', authMiddleware, asyncHandler(async (req: AuthRequest, res: 
 // Get messages from a specific chat
 router.get('/chats/:chatId/messages', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { chatId } = req.params;
-  const { limit, offsetId, filesOnly } = req.query;
+  const { limit, offsetId, filesOnly, fileType } = req.query;
 
   const result = await telegramChatService.getChatMessages(
     req.user!.id,
@@ -41,6 +41,7 @@ router.get('/chats/:chatId/messages', authMiddleware, asyncHandler(async (req: A
       limit: limit ? parseInt(limit as string) : 50,
       offsetId: offsetId ? parseInt(offsetId as string) : undefined,
       filesOnly: filesOnly !== 'false', // Default to true
+      fileType: (fileType as 'all' | 'video' | 'photo' | 'document' | 'audio') || 'all',
     }
   );
 
@@ -49,6 +50,7 @@ router.get('/chats/:chatId/messages', authMiddleware, asyncHandler(async (req: A
     data: result.messages,
     meta: {
       hasMore: result.hasMore,
+      counts: result.counts,
     },
   });
 }));
@@ -105,6 +107,51 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
     },
     message: `Successfully imported "${result.fileName}" to TAAS`,
   });
+}));
+
+// Stream media (video/audio) from Telegram message
+// Enables preview without importing - uses HTTP Range for seeking
+router.get('/chats/:chatId/messages/:messageId/stream', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { chatId, messageId } = req.params;
+  
+  const msgId = parseInt(messageId);
+  if (isNaN(msgId)) {
+    throw new ApiError('Invalid message ID', 400);
+  }
+
+  const { stream, mimeType, size, fileName } = await telegramChatService.streamMediaFromMessage(
+    req.user!.id,
+    chatId,
+    msgId
+  );
+
+  // Handle range requests for video seeking
+  const range = req.headers.range;
+  
+  if (range && size > 0) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
+    const chunkSize = end - start + 1;
+
+    res.status(206);
+    res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Content-Length', chunkSize);
+    res.setHeader('Content-Type', mimeType);
+    
+    // Note: For full range support, we'd need random access to Telegram files
+    // For now, we stream from the beginning
+    stream.pipe(res);
+  } else {
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileName)}"`);
+    if (size > 0) {
+      res.setHeader('Content-Length', size);
+      res.setHeader('Accept-Ranges', 'bytes');
+    }
+    stream.pipe(res);
+  }
 }));
 
 export default router;

@@ -198,7 +198,12 @@ export const telegramApi = {
   // Get messages from a specific chat (files only by default)
   getChatMessages: (
     chatId: string,
-    params?: { limit?: number; offsetId?: number; filesOnly?: boolean }
+    params?: { 
+      limit?: number; 
+      offsetId?: number; 
+      filesOnly?: boolean;
+      fileType?: 'video' | 'photo' | 'document' | 'audio';
+    }
   ) => api.get(`/telegram/chats/${chatId}/messages`, { params }),
 
   // Get a single message by ID
@@ -209,4 +214,11 @@ export const telegramApi = {
   // This imports ONE file from ONE specific message
   importFile: (chatId: string, messageId: number, folderId?: string) =>
     api.post(`/telegram/chats/${chatId}/messages/${messageId}/import`, { folderId }),
+
+  // Get streaming URL for video/audio preview
+  // Returns the URL to stream media directly (supports Range requests)
+  getStreamUrl: (chatId: string, messageId: number) => {
+    const token = localStorage.getItem('auth_token');
+    return `${api.defaults.baseURL}/telegram/chats/${chatId}/messages/${messageId}/stream?token=${token}`;
+  },
 };

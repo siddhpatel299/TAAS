@@ -52,6 +52,16 @@ export interface TelegramMessage {
     size: number;
     duration: number;
   };
+  hasAudio: boolean;
+  audio?: {
+    id: string;
+    fileName: string;
+    mimeType: string;
+    size: number;
+    duration: number;
+    title?: string;
+    performer?: string;
+  };
 }
 
 export interface ImportResult {
@@ -105,19 +115,25 @@ class TelegramChatService {
   /**
    * Get messages from a specific chat with pagination.
    * Only fetches messages that contain files (documents, photos, videos).
+   * Supports filtering by file type.
    * This is a manual operation triggered by user action.
    */
   async getChatMessages(
     userId: string,
     chatId: string,
-    options: { limit?: number; offsetId?: number; filesOnly?: boolean } = {}
-  ): Promise<{ messages: TelegramMessage[]; hasMore: boolean }> {
+    options: { 
+      limit?: number; 
+      offsetId?: number; 
+      filesOnly?: boolean;
+      fileType?: 'all' | 'video' | 'photo' | 'document' | 'audio';
+    } = {}
+  ): Promise<{ messages: TelegramMessage[]; hasMore: boolean; counts: { video: number; photo: number; document: number; audio: number; total: number } }> {
     const client = await telegramService.getClient(userId);
     if (!client) {
       throw new Error('Not authenticated with Telegram');
     }
 
-    const { limit = 50, offsetId, filesOnly = true } = options;
+    const { limit = 50, offsetId, filesOnly = true, fileType = 'all' } = options;
 
     // Get the chat entity
     const entity = await this.getChatEntity(client, chatId);
@@ -131,15 +147,34 @@ class TelegramChatService {
     const messagesToProcess = hasMore ? messages.slice(0, limit) : messages;
 
     const result: TelegramMessage[] = [];
+    const counts = { video: 0, photo: 0, document: 0, audio: 0, total: 0 };
 
     for (const msg of messagesToProcess) {
       const message = this.parseMessage(msg, chatId);
       
+      // Count by type
+      if (message.hasVideo) counts.video++;
+      if (message.hasPhoto) counts.photo++;
+      if (message.hasDocument) counts.document++;
+      if (message.hasAudio) counts.audio++;
+      if (message.hasDocument || message.hasPhoto || message.hasVideo || message.hasAudio) {
+        counts.total++;
+      }
+      
       // If filesOnly is true, only include messages with media
       if (filesOnly) {
-        if (message.hasDocument || message.hasPhoto || message.hasVideo) {
-          result.push(message);
+        const hasMedia = message.hasDocument || message.hasPhoto || message.hasVideo || message.hasAudio;
+        if (!hasMedia) continue;
+        
+        // Apply file type filter
+        if (fileType !== 'all') {
+          if (fileType === 'video' && !message.hasVideo) continue;
+          if (fileType === 'photo' && !message.hasPhoto) continue;
+          if (fileType === 'document' && !message.hasDocument) continue;
+          if (fileType === 'audio' && !message.hasAudio) continue;
         }
+        
+        result.push(message);
       } else {
         result.push(message);
       }
@@ -148,6 +183,7 @@ class TelegramChatService {
     return {
       messages: result,
       hasMore,
+      counts,
     };
   }
 
@@ -305,6 +341,84 @@ class TelegramChatService {
   }
 
   /**
+   * Stream media directly from Telegram for preview.
+   * 
+   * STREAMING: Memory efficient - doesn't load entire file.
+   * Enables video/audio preview without importing to TAAS.
+   * 
+   * @param userId - The TAAS user ID
+   * @param chatId - The Telegram chat ID
+   * @param messageId - The specific message ID containing media
+   */
+  async streamMediaFromMessage(
+    userId: string,
+    chatId: string,
+    messageId: number
+  ): Promise<{ stream: import('stream').Readable; mimeType: string; size: number; fileName: string }> {
+    const client = await telegramService.getClient(userId);
+    if (!client) {
+      throw new Error('Not authenticated with Telegram');
+    }
+
+    // Get the chat entity
+    const entity = await this.getChatEntity(client, chatId);
+
+    // Get the specific message
+    const messages = await client.getMessages(entity, {
+      ids: [messageId],
+    });
+
+    if (!messages.length || !messages[0]) {
+      throw new Error('Message not found');
+    }
+
+    const message = messages[0];
+    
+    if (!message.media) {
+      throw new Error('Message has no media attached');
+    }
+
+    // Determine file info
+    let fileName: string;
+    let mimeType: string;
+    let size: number;
+
+    if (message.media instanceof Api.MessageMediaDocument) {
+      const doc = message.media.document as Api.Document;
+      const fileNameAttr = doc.attributes?.find(
+        (attr): attr is Api.DocumentAttributeFilename => 
+          attr instanceof Api.DocumentAttributeFilename
+      );
+      fileName = fileNameAttr?.fileName || `media_${messageId}`;
+      mimeType = doc.mimeType || 'application/octet-stream';
+      size = Number(doc.size);
+    } else if (message.media instanceof Api.MessageMediaPhoto) {
+      fileName = `photo_${messageId}.jpg`;
+      mimeType = 'image/jpeg';
+      const photo = message.media.photo as Api.Photo;
+      const sizes = photo.sizes || [];
+      const largestSize = sizes[sizes.length - 1];
+      size = largestSize && 'size' in largestSize ? largestSize.size : 0;
+    } else {
+      throw new Error('Unsupported media type for streaming');
+    }
+
+    // Get streaming download
+    const stream = await telegramService.downloadFileAsStream(
+      client,
+      message.media,
+      size
+    );
+
+    return {
+      stream,
+      mimeType,
+      size,
+      fileName,
+    };
+  }
+
+  /**
    * Helper to get chat entity with proper error handling
    */
   private async getChatEntity(client: TelegramClient, chatId: string) {
@@ -344,6 +458,7 @@ class TelegramChatService {
       hasDocument: false,
       hasPhoto: false,
       hasVideo: false,
+      hasAudio: false,
     };
 
     // Get sender name
@@ -362,12 +477,19 @@ class TelegramChatService {
             attr instanceof Api.DocumentAttributeVideo
         );
         
+        // Check if it's audio
+        const audioAttr = doc.attributes?.find(
+          (attr): attr is Api.DocumentAttributeAudio => 
+            attr instanceof Api.DocumentAttributeAudio
+        );
+        
+        const fileNameAttr = doc.attributes?.find(
+          (attr): attr is Api.DocumentAttributeFilename => 
+            attr instanceof Api.DocumentAttributeFilename
+        );
+        
         if (videoAttr) {
           message.hasVideo = true;
-          const fileNameAttr = doc.attributes?.find(
-            (attr): attr is Api.DocumentAttributeFilename => 
-              attr instanceof Api.DocumentAttributeFilename
-          );
           message.video = {
             id: doc.id.toString(),
             fileName: fileNameAttr?.fileName || `video_${msg.id}.mp4`,
@@ -375,13 +497,20 @@ class TelegramChatService {
             size: Number(doc.size),
             duration: videoAttr.duration,
           };
+        } else if (audioAttr) {
+          message.hasAudio = true;
+          message.audio = {
+            id: doc.id.toString(),
+            fileName: fileNameAttr?.fileName || `audio_${msg.id}.mp3`,
+            mimeType: doc.mimeType || 'audio/mpeg',
+            size: Number(doc.size),
+            duration: audioAttr.duration,
+            title: audioAttr.title,
+            performer: audioAttr.performer,
+          };
         } else {
           // Regular document
           message.hasDocument = true;
-          const fileNameAttr = doc.attributes?.find(
-            (attr): attr is Api.DocumentAttributeFilename => 
-              attr instanceof Api.DocumentAttributeFilename
-          );
           message.document = {
             id: doc.id.toString(),
             fileName: fileNameAttr?.fileName || `file_${msg.id}`,

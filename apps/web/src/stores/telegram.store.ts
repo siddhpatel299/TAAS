@@ -30,6 +30,26 @@ export interface TelegramMessageVideo {
   duration: number;
 }
 
+export interface TelegramMessageAudio {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  duration: number;
+  title?: string;
+  performer?: string;
+}
+
+export type FileTypeFilter = 'all' | 'video' | 'photo' | 'document' | 'audio';
+
+export interface FileCounts {
+  video: number;
+  photo: number;
+  document: number;
+  audio: number;
+  total: number;
+}
+
 export interface TelegramMessage {
   id: number;
   chatId: string;
@@ -42,6 +62,8 @@ export interface TelegramMessage {
   photo?: TelegramMessagePhoto;
   hasVideo: boolean;
   video?: TelegramMessageVideo;
+  hasAudio: boolean;
+  audio?: TelegramMessageAudio;
 }
 
 export interface ImportingFile {
@@ -68,6 +90,9 @@ interface TelegramState {
   messagesError: string | null;
   hasMoreMessages: boolean;
   
+  // File type filter
+  fileTypeFilter: FileTypeFilter;
+  fileCounts: FileCounts;
   // Import status (one at a time, per rules)
   importingFile: ImportingFile | null;
   
@@ -88,6 +113,9 @@ interface TelegramState {
   setImportingFile: (file: ImportingFile | null) => void;
   updateImportStatus: (status: ImportingFile['status'], error?: string, resultFileId?: string) => void;
   
+  setFileTypeFilter: (filter: FileTypeFilter) => void;
+  setFileCounts: (counts: FileCounts) => void;
+  
   reset: () => void;
 }
 
@@ -100,6 +128,8 @@ const initialState = {
   messagesLoading: false,
   messagesError: null,
   hasMoreMessages: false,
+  fileTypeFilter: 'all' as FileTypeFilter,
+  fileCounts: { video: 0, photo: 0, document: 0, audio: 0, total: 0 },
   importingFile: null,
 };
 
@@ -115,6 +145,8 @@ export const useTelegramStore = create<TelegramState>((set) => ({
     messages: [],
     messagesError: null,
     hasMoreMessages: false,
+    fileTypeFilter: 'all',
+    fileCounts: { video: 0, photo: 0, document: 0, audio: 0, total: 0 },
   }),
 
   setMessages: (messages) => set({ messages }),
@@ -132,6 +164,9 @@ export const useTelegramStore = create<TelegramState>((set) => ({
       ? { ...state.importingFile, status, error, resultFileId }
       : null,
   })),
+
+  setFileTypeFilter: (filter) => set({ fileTypeFilter: filter }),
+  setFileCounts: (counts) => set({ fileCounts: counts }),
 
   reset: () => set(initialState),
 }));

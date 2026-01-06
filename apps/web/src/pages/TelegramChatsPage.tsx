@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare,
@@ -17,6 +17,8 @@ import {
   ChevronRight,
   FolderOpen,
   AlertCircle,
+  Music,
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,7 +29,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
-import { useTelegramStore, TelegramChat, TelegramMessage } from '@/stores/telegram.store';
+import { useTelegramStore, TelegramChat, TelegramMessage, FileTypeFilter } from '@/stores/telegram.store';
 import { telegramApi, foldersApi } from '@/lib/api';
 import { cn, formatFileSize, formatDate } from '@/lib/utils';
 
@@ -54,6 +56,7 @@ const chatTypeIcons = {
 function getMediaIcon(message: TelegramMessage) {
   if (message.hasVideo) return Video;
   if (message.hasPhoto) return Image;
+  if (message.hasAudio) return Music;
   return FileIcon;
 }
 
@@ -80,8 +83,24 @@ function getFileInfo(message: TelegramMessage): { name: string; size: number; mi
       mimeType: 'image/jpeg',
     };
   }
+  if (message.hasAudio && message.audio) {
+    return {
+      name: message.audio.fileName || message.audio.title || `audio_${message.id}.mp3`,
+      size: message.audio.size,
+      mimeType: message.audio.mimeType,
+    };
+  }
   return null;
 }
+
+// File type filter tabs
+const FILE_TYPE_TABS: { value: FileTypeFilter; label: string; icon: typeof FileIcon }[] = [
+  { value: 'all', label: 'All', icon: FileIcon },
+  { value: 'video', label: 'Videos', icon: Video },
+  { value: 'photo', label: 'Photos', icon: Image },
+  { value: 'document', label: 'Documents', icon: FileIcon },
+  { value: 'audio', label: 'Audio', icon: Music },
+];
 
 export function TelegramChatsPage() {
   const {
@@ -94,6 +113,8 @@ export function TelegramChatsPage() {
     messagesError,
     hasMoreMessages,
     importingFile,
+    fileTypeFilter,
+    fileCounts,
     setChats,
     setChatsLoading,
     setChatsError,
@@ -105,12 +126,16 @@ export function TelegramChatsPage() {
     setHasMoreMessages,
     setImportingFile,
     updateImportStatus,
+    setFileTypeFilter,
+    setFileCounts,
   } = useTelegramStore();
 
   const [showFolderDialog, setShowFolderDialog] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<TelegramMessage | null>(null);
   const [folders, setFolders] = useState<{ id: string; name: string }[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined);
+  const [previewMessage, setPreviewMessage] = useState<TelegramMessage | null>(null);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   // Load chats on mount
   const loadChats = useCallback(async () => {
@@ -131,15 +156,22 @@ export function TelegramChatsPage() {
   }, [loadChats]);
 
   // Load messages when a chat is selected
-  const loadMessages = useCallback(async (chatId: string, offsetId?: number) => {
+  const loadMessages = useCallback(async (chatId: string, offsetId?: number, typeFilter?: FileTypeFilter) => {
     setMessagesLoading(true);
     setMessagesError(null);
     try {
-      const response = await telegramApi.getChatMessages(chatId, {
+      const params: { limit: number; offsetId?: number; filesOnly: boolean; fileType?: 'video' | 'photo' | 'document' | 'audio' } = {
         limit: 50,
         offsetId,
         filesOnly: true,
-      });
+      };
+      
+      // Apply file type filter (don't send 'all')
+      if (typeFilter && typeFilter !== 'all') {
+        params.fileType = typeFilter;
+      }
+
+      const response = await telegramApi.getChatMessages(chatId, params);
       
       if (offsetId) {
         appendMessages(response.data.data);
@@ -147,12 +179,17 @@ export function TelegramChatsPage() {
         setMessages(response.data.data);
       }
       setHasMoreMessages(response.data.meta.hasMore);
+      
+      // Update file counts if provided
+      if (response.data.meta.counts) {
+        setFileCounts(response.data.meta.counts);
+      }
     } catch (error: any) {
       setMessagesError(error.response?.data?.error || 'Failed to load messages');
     } finally {
       setMessagesLoading(false);
     }
-  }, [setMessages, appendMessages, setMessagesLoading, setMessagesError, setHasMoreMessages]);
+  }, [setMessages, appendMessages, setMessagesLoading, setMessagesError, setHasMoreMessages, setFileCounts]);
 
   // Load folders for import dialog
   const loadFolders = useCallback(async () => {
@@ -167,7 +204,7 @@ export function TelegramChatsPage() {
   // Handle chat selection
   const handleSelectChat = (chatId: string) => {
     selectChat(chatId);
-    loadMessages(chatId);
+    loadMessages(chatId, undefined, 'all');
   };
 
   // Handle back to chats
@@ -179,8 +216,22 @@ export function TelegramChatsPage() {
   const handleLoadMore = () => {
     if (selectedChatId && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      loadMessages(selectedChatId, lastMessage.id);
+      loadMessages(selectedChatId, lastMessage.id, fileTypeFilter);
     }
+  };
+
+  // Handle file type filter change
+  const handleFilterChange = (filter: FileTypeFilter) => {
+    setFileTypeFilter(filter);
+    if (selectedChatId) {
+      loadMessages(selectedChatId, undefined, filter);
+    }
+  };
+
+  // Handle preview click for video/audio
+  const handlePreviewClick = (message: TelegramMessage) => {
+    setPreviewMessage(message);
+    setShowPreviewDialog(true);
   };
 
   // Handle import click - opens folder selection dialog
@@ -327,16 +378,54 @@ export function TelegramChatsPage() {
               onSelectChat={handleSelectChat}
             />
           ) : (
-            // Messages List
-            <MessagesList
-              messages={messages}
-              loading={messagesLoading}
-              error={messagesError}
-              hasMore={hasMoreMessages}
-              importingFile={importingFile}
-              onLoadMore={handleLoadMore}
-              onImport={handleImportClick}
-            />
+            // Messages List with Filter Tabs
+            <div className="space-y-4">
+              {/* File Type Filter Tabs */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                {FILE_TYPE_TABS.map((tab) => {
+                  const count = tab.value === 'all' ? fileCounts.total : fileCounts[tab.value];
+                  const Icon = tab.icon;
+                  
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => handleFilterChange(tab.value)}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap',
+                        fileTypeFilter === tab.value
+                          ? 'bg-blue-500 text-white shadow-md'
+                          : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {tab.label}
+                      {count > 0 && (
+                        <span className={cn(
+                          'px-2 py-0.5 rounded-full text-xs',
+                          fileTypeFilter === tab.value
+                            ? 'bg-blue-400 text-white'
+                            : 'bg-gray-100 text-gray-500'
+                        )}>
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Messages */}
+              <MessagesList
+                messages={messages}
+                loading={messagesLoading}
+                error={messagesError}
+                hasMore={hasMoreMessages}
+                importingFile={importingFile}
+                onLoadMore={handleLoadMore}
+                onImport={handleImportClick}
+                onPreview={handlePreviewClick}
+              />
+            </div>
           )}
         </div>
       </main>
@@ -396,6 +485,46 @@ export function TelegramChatsPage() {
               <Download className="w-4 h-4 mr-2" />
               Import to TAAS
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Video/Audio Preview Dialog */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {previewMessage?.hasVideo ? (
+                <Video className="w-5 h-5 text-blue-500" />
+              ) : (
+                <Music className="w-5 h-5 text-purple-500" />
+              )}
+              {previewMessage && getFileInfo(previewMessage)?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {previewMessage && selectedChatId && (
+              <MediaPreview
+                chatId={selectedChatId}
+                messageId={previewMessage.id}
+                isVideo={previewMessage.hasVideo}
+                isAudio={previewMessage.hasAudio}
+              />
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
+              Close
+            </Button>
+            {previewMessage && (
+              <Button onClick={() => {
+                setShowPreviewDialog(false);
+                handleImportClick(previewMessage);
+              }}>
+                <Download className="w-4 h-4 mr-2" />
+                Import to TAAS
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -489,6 +618,7 @@ function MessagesList({
   importingFile,
   onLoadMore,
   onImport,
+  onPreview,
 }: {
   messages: TelegramMessage[];
   loading: boolean;
@@ -497,6 +627,7 @@ function MessagesList({
   importingFile: { chatId: string; messageId: number; status: string } | null;
   onLoadMore: () => void;
   onImport: (message: TelegramMessage) => void;
+  onPreview: (message: TelegramMessage) => void;
 }) {
   if (loading && messages.length === 0) {
     return (
@@ -551,26 +682,52 @@ function MessagesList({
                 <span>{formatFileSize(fileInfo?.size || 0)}</span>
                 <span>•</span>
                 <span>{formatDate(message.date)}</span>
+                {message.hasVideo && (
+                  <>
+                    <span>•</span>
+                    <span className="text-blue-500">Video</span>
+                  </>
+                )}
+                {message.hasAudio && (
+                  <>
+                    <span>•</span>
+                    <span className="text-purple-500">Audio</span>
+                  </>
+                )}
               </div>
               {message.text && (
                 <p className="text-sm text-gray-400 truncate mt-1">{message.text}</p>
               )}
             </div>
 
-            <Button
-              onClick={() => onImport(message)}
-              disabled={isImporting}
-              className="rounded-xl"
-            >
-              {isImporting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <Download className="w-4 h-4 mr-2" />
-                  Import
-                </>
+            <div className="flex items-center gap-2">
+              {/* Preview button for video/audio */}
+              {(message.hasVideo || message.hasAudio) && (
+                <Button
+                  variant="outline"
+                  onClick={() => onPreview(message)}
+                  className="rounded-xl"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
               )}
-            </Button>
+
+              <Button
+                onClick={() => onImport(message)}
+                disabled={isImporting}
+                className="rounded-xl"
+              >
+                {isImporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Import
+                  </>
+                )}
+              </Button>
+            </div>
           </motion.div>
         );
       })}
@@ -593,6 +750,102 @@ function MessagesList({
       )}
     </div>
   );
+}
+
+// Media Preview Component for streaming video/audio
+function MediaPreview({
+  chatId,
+  messageId,
+  isVideo,
+  isAudio,
+}: {
+  chatId: string;
+  messageId: number;
+  isVideo: boolean;
+  isAudio: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const streamUrl = telegramApi.getStreamUrl(chatId, messageId);
+
+  const handleLoadStart = () => {
+    setIsLoading(true);
+    setError(null);
+  };
+
+  const handleCanPlay = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setError('Failed to load media. The file may be too large or unavailable.');
+  };
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
+        <p className="text-red-600">{error}</p>
+        <p className="text-gray-500 text-sm mt-2">Try importing the file instead</p>
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div className="relative rounded-xl overflow-hidden bg-black">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          </div>
+        )}
+        <video
+          ref={videoRef}
+          src={streamUrl}
+          className="w-full max-h-[60vh] object-contain"
+          controls
+          preload="metadata"
+          onLoadStart={handleLoadStart}
+          onCanPlay={handleCanPlay}
+          onError={handleError}
+        />
+      </div>
+    );
+  }
+
+  if (isAudio) {
+    return (
+      <div className="flex flex-col items-center py-8">
+        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mb-6">
+          <Music className="w-16 h-16 text-white" />
+        </div>
+        
+        {isLoading && (
+          <div className="flex items-center gap-2 text-gray-500 mb-4">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Loading audio...</span>
+          </div>
+        )}
+        
+        <audio
+          ref={audioRef}
+          src={streamUrl}
+          className="w-full max-w-md"
+          controls
+          preload="metadata"
+          onLoadStart={handleLoadStart}
+          onCanPlay={handleCanPlay}
+          onError={handleError}
+        />
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export default TelegramChatsPage;
