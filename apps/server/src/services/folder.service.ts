@@ -37,13 +37,23 @@ export class FolderService {
     return folder;
   }
 
-  // Get folders
-  async getFolders(userId: string, parentId?: string) {
+  // Get folders - with optional search
+  async getFolders(userId: string, parentId?: string, search?: string) {
+    // When searching, search across ALL folders (not just current parent)
+    const where: any = {
+      userId,
+    };
+    
+    if (search) {
+      // Search all folders by name
+      where.name = { contains: search, mode: 'insensitive' };
+    } else {
+      // Not searching - filter by parent
+      where.parentId = parentId ?? null;
+    }
+    
     const folders = await prisma.folder.findMany({
-      where: {
-        userId,
-        parentId: parentId ?? null,
-      },
+      where,
       orderBy: { name: 'asc' },
       include: {
         _count: {
@@ -51,6 +61,9 @@ export class FolderService {
             files: true,
             children: true,
           },
+        },
+        parent: {
+          select: { id: true, name: true },
         },
       },
     });

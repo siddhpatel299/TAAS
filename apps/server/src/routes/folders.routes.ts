@@ -5,13 +5,14 @@ import { folderService } from '../services/folder.service';
 
 const router: Router = Router();
 
-// Get folders (root or by parent)
+// Get folders (root or by parent) - with optional search
 router.get('/', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { parentId } = req.query;
+  const { parentId, search } = req.query;
 
   const folders = await folderService.getFolders(
     req.user!.id,
-    parentId as string | undefined
+    parentId as string | undefined,
+    search as string | undefined
   );
 
   res.json({

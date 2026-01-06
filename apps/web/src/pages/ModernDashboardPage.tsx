@@ -14,6 +14,10 @@ import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { FolderCategories, defaultCategories } from '@/components/dashboard/FolderCategories';
 import { RecentFiles } from '@/components/dashboard/RecentFiles';
 import { StorageWidget } from '@/components/dashboard/StorageWidget';
+import { QuickStatsWidget } from '@/components/dashboard/QuickStatsWidget';
+import { ActivityWidget, ActivityItem } from '@/components/dashboard/ActivityWidget';
+import { StarredFilesWidget } from '@/components/dashboard/StarredFilesWidget';
+import { QuickActionsWidget } from '@/components/dashboard/QuickActionsWidget';
 import { FileUploader } from '@/components/FileUploader';
 import { FilePreview } from '@/components/FilePreview';
 import { ShareDialog } from '@/components/ShareDialog';
@@ -26,7 +30,7 @@ import {
 } from '@/components/ui/dialog';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { useAuthStore } from '@/stores/auth.store';
-import { filesApi } from '@/lib/api';
+import { filesApi, foldersApi } from '@/lib/api';
 
 export function ModernDashboardPage() {
   const navigate = useNavigate();
@@ -47,23 +51,40 @@ export function ModernDashboardPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [categories, setCategories] = useState(defaultCategories);
   const [localSearch, setLocalSearch] = useState('');
+  const [starredFiles, setStarredFiles] = useState<StoredFile[]>([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [quickStats, setQuickStats] = useState({
+    totalFiles: 0,
+    totalFolders: 0,
+    starredFiles: 0,
+    recentUploads: 0,
+    images: 0,
+    videos: 0,
+    documents: 0,
+    audio: 0,
+  });
 
   // Load recent files and stats
   const loadContent = useCallback(async () => {
     setLoading(true);
     try {
-      const [filesRes, statsRes] = await Promise.all([
+      const [filesRes, statsRes, starredRes, foldersRes] = await Promise.all([
         filesApi.getFiles({ sortBy: 'createdAt', sortOrder: 'desc', limit: 10 }),
         filesApi.getStats(),
+        filesApi.getFiles({ starred: true, limit: 10 }),
+        foldersApi.getFolders(),
       ]);
 
-      setFiles(filesRes.data.data);
+      const allFiles = filesRes.data.data as StoredFile[];
+      const folderCount = foldersRes.data.data.length;
+      setFiles(allFiles);
       setStorageUsed(statsRes.data.data.totalUsed);
+      setStarredFiles(starredRes.data.data as StoredFile[]);
 
       // Calculate categories from all files stats
-      const allFiles = filesRes.data.data as StoredFile[];
       const videoFiles = allFiles.filter(f => f.mimeType.startsWith('video/'));
       const photoFiles = allFiles.filter(f => f.mimeType.startsWith('image/'));
+      const audioFiles = allFiles.filter(f => f.mimeType.startsWith('audio/'));
       const docFiles = allFiles.filter(f => 
         f.mimeType.includes('pdf') || 
         f.mimeType.includes('document') || 
@@ -72,6 +93,7 @@ export function ModernDashboardPage() {
       const otherFiles = allFiles.filter(f => 
         !f.mimeType.startsWith('video/') && 
         !f.mimeType.startsWith('image/') &&
+        !f.mimeType.startsWith('audio/') &&
         !f.mimeType.includes('pdf') &&
         !f.mimeType.includes('document')
       );
@@ -82,6 +104,34 @@ export function ModernDashboardPage() {
         { type: 'photo', itemCount: photoFiles.length, size: photoFiles.reduce((sum, f) => sum + f.size, 0) },
         { type: 'other', itemCount: otherFiles.length, size: otherFiles.reduce((sum, f) => sum + f.size, 0) },
       ]);
+
+      // Set quick stats
+      const starredCount = (starredRes.data.data as StoredFile[]).length;
+      const recentCount = allFiles.filter(f => {
+        const uploadedAt = new Date(f.createdAt);
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        return uploadedAt > dayAgo;
+      }).length;
+
+      setQuickStats({
+        totalFiles: statsRes.data.data.fileCount || allFiles.length,
+        totalFolders: folderCount,
+        starredFiles: starredCount,
+        recentUploads: recentCount,
+        images: photoFiles.length,
+        videos: videoFiles.length,
+        documents: docFiles.length,
+        audio: audioFiles.length,
+      });
+
+      // Generate activities from recent files
+      const recentActivities: ActivityItem[] = allFiles.slice(0, 5).map(file => ({
+        id: file.id,
+        type: 'upload' as const,
+        fileName: file.originalName,
+        timestamp: new Date(file.createdAt),
+      }));
+      setActivities(recentActivities);
     } catch (error) {
       console.error('Failed to load content:', error);
     } finally {
@@ -297,10 +347,19 @@ export function ModernDashboardPage() {
           onDelete={handleDelete}
           onPreview={(file) => setPreviewFile(file)}
         />
+
+        {/* Dashboard Widgets Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+          {/* Quick Stats Widget */}
+          <QuickStatsWidget stats={quickStats} />
+          
+          {/* Quick Actions Widget */}
+          <QuickActionsWidget onUpload={() => setShowUploader(true)} />
+        </div>
       </main>
 
-      {/* Right Sidebar - Storage Widget */}
-      <aside className="hidden xl:block w-80 p-6">
+      {/* Right Sidebar - Widgets */}
+      <aside className="hidden xl:flex xl:flex-col xl:gap-6 w-80 p-6 overflow-y-auto max-h-screen">
         <StorageWidget
           totalUsed={storageUsed}
           byType={{
@@ -309,6 +368,25 @@ export function ModernDashboardPage() {
             photo: categories[2]?.size || 0,
             other: categories[3]?.size || 0,
           }}
+        />
+        
+        <ActivityWidget 
+          activities={activities}
+          onViewAll={() => navigate('/files')}
+        />
+        
+        <StarredFilesWidget 
+          files={starredFiles.map(f => ({
+            id: f.id,
+            name: f.originalName,
+            mimeType: f.mimeType,
+            size: f.size,
+          }))}
+          onFileClick={(fileId) => {
+            const file = starredFiles.find(f => f.id === fileId);
+            if (file) setPreviewFile(file);
+          }}
+          onViewAll={() => navigate('/starred')}
         />
       </aside>
 

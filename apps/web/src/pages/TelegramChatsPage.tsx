@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare,
@@ -19,8 +19,10 @@ import {
   AlertCircle,
   Music,
   Play,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -136,6 +138,29 @@ export function TelegramChatsPage() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined);
   const [previewMessage, setPreviewMessage] = useState<TelegramMessage | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
+  const [fileSearchQuery, setFileSearchQuery] = useState('');
+
+  // Filter chats by search query
+  const filteredChats = useMemo(() => {
+    if (!chatSearchQuery.trim()) return chats;
+    const query = chatSearchQuery.toLowerCase();
+    return chats.filter(chat => 
+      chat.title.toLowerCase().includes(query) ||
+      chat.lastMessage?.toLowerCase().includes(query)
+    );
+  }, [chats, chatSearchQuery]);
+
+  // Filter messages by search query
+  const filteredMessages = useMemo(() => {
+    if (!fileSearchQuery.trim()) return messages;
+    const query = fileSearchQuery.toLowerCase();
+    return messages.filter(message => {
+      const fileInfo = getFileInfo(message);
+      if (!fileInfo) return false;
+      return fileInfo.name.toLowerCase().includes(query);
+    });
+  }, [messages, fileSearchQuery]);
 
   // Load chats on mount
   const loadChats = useCallback(async () => {
@@ -354,17 +379,31 @@ export function TelegramChatsPage() {
               </div>
             </div>
             
-            {!selectedChatId && (
-              <Button
-                variant="outline"
-                onClick={loadChats}
-                disabled={chatsLoading}
-                className="rounded-xl"
-              >
-                <RefreshCw className={cn('w-4 h-4 mr-2', chatsLoading && 'animate-spin')} />
-                Refresh
-              </Button>
-            )}
+            <div className="flex items-center gap-3">
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder={selectedChatId ? "Search files..." : "Search chats..."}
+                  value={selectedChatId ? fileSearchQuery : chatSearchQuery}
+                  onChange={(e) => selectedChatId ? setFileSearchQuery(e.target.value) : setChatSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-64 bg-white border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              
+              {!selectedChatId && (
+                <Button
+                  variant="outline"
+                  onClick={loadChats}
+                  disabled={chatsLoading}
+                  className="rounded-xl"
+                >
+                  <RefreshCw className={cn('w-4 h-4 mr-2', chatsLoading && 'animate-spin')} />
+                  Refresh
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Import Status Toast */}
@@ -410,10 +449,11 @@ export function TelegramChatsPage() {
           {!selectedChatId ? (
             // Chats List
             <ChatsList
-              chats={chats}
+              chats={filteredChats}
               loading={chatsLoading}
               error={chatsError}
               onSelectChat={handleSelectChat}
+              searchQuery={chatSearchQuery}
             />
           ) : (
             // Messages List with Filter Tabs
@@ -454,7 +494,7 @@ export function TelegramChatsPage() {
 
               {/* Messages */}
               <MessagesList
-                messages={messages}
+                messages={filteredMessages}
                 loading={messagesLoading}
                 error={messagesError}
                 hasMore={hasMoreMessages}
@@ -462,6 +502,7 @@ export function TelegramChatsPage() {
                 onLoadMore={handleLoadMore}
                 onImport={handleImportClick}
                 onPreview={handlePreviewClick}
+                searchQuery={fileSearchQuery}
               />
             </div>
           )}
@@ -576,11 +617,13 @@ function ChatsList({
   loading,
   error,
   onSelectChat,
+  searchQuery,
 }: {
   chats: TelegramChat[];
   loading: boolean;
   error: string | null;
   onSelectChat: (chatId: string) => void;
+  searchQuery?: string;
 }) {
   if (loading && chats.length === 0) {
     return (
@@ -604,7 +647,9 @@ function ChatsList({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <MessageSquare className="w-12 h-12 text-gray-300 mb-4" />
-        <p className="text-gray-500">No chats found</p>
+        <p className="text-gray-500">
+          {searchQuery ? `No chats found for "${searchQuery}"` : 'No chats found'}
+        </p>
       </div>
     );
   }
@@ -657,6 +702,7 @@ function MessagesList({
   onLoadMore,
   onImport,
   onPreview,
+  searchQuery,
 }: {
   messages: TelegramMessage[];
   loading: boolean;
@@ -666,6 +712,7 @@ function MessagesList({
   onLoadMore: () => void;
   onImport: (message: TelegramMessage) => void;
   onPreview: (message: TelegramMessage) => void;
+  searchQuery?: string;
 }) {
   if (loading && messages.length === 0) {
     return (
@@ -688,8 +735,10 @@ function MessagesList({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <FileIcon className="w-12 h-12 text-gray-300 mb-4" />
-        <p className="text-gray-500">No files found in this chat</p>
-        <p className="text-gray-400 text-sm mt-1">Only messages with files are shown</p>
+        <p className="text-gray-500">
+          {searchQuery ? `No files found for "${searchQuery}"` : 'No files found in this chat'}
+        </p>
+        {!searchQuery && <p className="text-gray-400 text-sm mt-1">Only messages with files are shown</p>}
       </div>
     );
   }

@@ -24,6 +24,9 @@ import {
   FileImage,
   FileText,
   FileArchive,
+  X,
+  Check,
+  FolderInput,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -48,14 +51,17 @@ import { ShareDialog } from '@/components/ShareDialog';
 import { UploadQueue } from '@/components/UploadQueue';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { useAuthStore } from '@/stores/auth.store';
-import { filesApi, foldersApi } from '@/lib/api';
+import { filesApi, foldersApi, bulkApi } from '@/lib/api';
 
 interface FolderType {
   id: string;
   name: string;
   parentId: string | null;
   color: string;
-  fileCount?: number;
+  _count?: {
+    files: number;
+    children: number;
+  };
   createdAt: string;
 }
 
@@ -119,6 +125,95 @@ export function MyFilesPage() {
   const [previewFile, setPreviewFile] = useState<StoredFile | null>(null);
   const [shareFile, setShareFile] = useState<StoredFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Bulk selection state
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [showMoveDialog, setShowMoveDialog] = useState(false);
+  const [folderTree, setFolderTree] = useState<FolderType[]>([]);
+
+  // Toggle file selection
+  const toggleFileSelection = (fileId: string) => {
+    setSelectedFiles(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId);
+      } else {
+        newSet.add(fileId);
+      }
+      return newSet;
+    });
+  };
+
+  // Select all files
+  const selectAllFiles = () => {
+    if (selectedFiles.size === files.length) {
+      setSelectedFiles(new Set());
+    } else {
+      setSelectedFiles(new Set(files.map(f => f.id)));
+    }
+  };
+
+  // Clear selection
+  const clearSelection = () => setSelectedFiles(new Set());
+
+  // Bulk actions
+  const handleBulkDelete = async () => {
+    if (selectedFiles.size === 0) return;
+    try {
+      await bulkApi.deleteFiles(Array.from(selectedFiles));
+      clearSelection();
+      loadContent();
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+    }
+  };
+
+  const handleBulkStar = async (starred: boolean) => {
+    if (selectedFiles.size === 0) return;
+    try {
+      await bulkApi.starFiles(Array.from(selectedFiles), starred);
+      clearSelection();
+      loadContent();
+    } catch (error) {
+      console.error('Bulk star failed:', error);
+    }
+  };
+
+  const handleBulkMove = async (targetFolderId: string | null) => {
+    if (selectedFiles.size === 0) return;
+    try {
+      await bulkApi.moveFiles(Array.from(selectedFiles), targetFolderId);
+      clearSelection();
+      setShowMoveDialog(false);
+      loadContent();
+    } catch (error) {
+      console.error('Bulk move failed:', error);
+    }
+  };
+
+  const handleBulkDownload = async () => {
+    // Download files one by one
+    for (const fileId of selectedFiles) {
+      const file = files.find(f => f.id === fileId);
+      if (file) {
+        await handleDownload(file);
+      }
+    }
+  };
+
+  // Load folder tree for move dialog
+  const loadFolderTree = async () => {
+    try {
+      const res = await foldersApi.getFolderTree();
+      setFolderTree(res.data.data);
+    } catch (error) {
+      console.error('Failed to load folder tree:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadFolderTree();
+  }, []);
 
   // Debounce search
   useEffect(() => {
@@ -132,10 +227,15 @@ export function MyFilesPage() {
   const loadContent = useCallback(async () => {
     setLoading(true);
     try {
+      // When searching, search both folders and files globally
+      // When not searching, load folders and files for current directory
       const [foldersRes, filesRes] = await Promise.all([
-        foldersApi.getFolders(currentFolderId || undefined),
+        foldersApi.getFolders(
+          debouncedSearch ? undefined : (currentFolderId || undefined),
+          debouncedSearch || undefined  // Pass search query to folders API
+        ),
         filesApi.getFiles({
-          folderId: currentFolderId || undefined,
+          folderId: debouncedSearch ? undefined : (currentFolderId || undefined),
           search: debouncedSearch || undefined,
           sortBy: 'createdAt',
           sortOrder: 'desc',
@@ -454,6 +554,76 @@ export function MyFilesPage() {
           </div>
         </div>
 
+        {/* Bulk Actions Bar */}
+        <AnimatePresence>
+          {selectedFiles.size > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl p-4 flex items-center justify-between text-white shadow-lg"
+            >
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={clearSelection}
+                  className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <span className="font-medium">{selectedFiles.size} selected</span>
+                <button
+                  onClick={selectAllFiles}
+                  className="text-sm underline hover:no-underline"
+                >
+                  {selectedFiles.size === files.length ? 'Deselect all' : 'Select all'}
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBulkDownload}
+                  className="text-white hover:bg-white/20"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleBulkStar(true)}
+                  className="text-white hover:bg-white/20"
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  Star
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    loadFolderTree();
+                    setShowMoveDialog(true);
+                  }}
+                  className="text-white hover:bg-white/20"
+                >
+                  <FolderInput className="w-4 h-4 mr-2" />
+                  Move
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  className="text-white hover:bg-red-500/50"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Folders Section */}
         {folders.length > 0 && !filterType && !debouncedSearch && (
           <div className="mb-6">
@@ -511,7 +681,7 @@ export function MyFilesPage() {
                   </div>
                   <h3 className="font-medium text-gray-900 truncate">{folder.name}</h3>
                   <p className="text-sm text-gray-500">
-                    {folder.fileCount || 0} files
+                    {(folder._count?.files || 0) + (folder._count?.children || 0)} items
                   </p>
                 </motion.div>
               ))}
@@ -552,14 +722,31 @@ export function MyFilesPage() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ y: -2 }}
-                  className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all group"
+                  onClick={() => toggleFileSelection(file.id)}
+                  className={`bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all group cursor-pointer relative ${
+                    selectedFiles.has(file.id) ? 'ring-2 ring-cyan-500 bg-cyan-50' : ''
+                  }`}
                 >
+                  {/* Selection checkbox */}
+                  <div
+                    className={`absolute top-2 left-2 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                      selectedFiles.has(file.id)
+                        ? 'bg-cyan-500 border-cyan-500'
+                        : 'border-gray-300 opacity-0 group-hover:opacity-100'
+                    }`}
+                  >
+                    {selectedFiles.has(file.id) && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
                       {getFileIcon(file.mimeType)}
                     </div>
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded-lg">
+                      <DropdownMenuTrigger 
+                        onClick={(e) => e.stopPropagation()}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded-lg"
+                      >
                         <MoreHorizontal className="w-4 h-4 text-gray-400" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -604,6 +791,20 @@ export function MyFilesPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
+                    <th className="w-12 py-4 px-4">
+                      <button
+                        onClick={selectAllFiles}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                          selectedFiles.size === files.length && files.length > 0
+                            ? 'bg-cyan-500 border-cyan-500'
+                            : 'border-gray-300'
+                        }`}
+                      >
+                        {selectedFiles.size === files.length && files.length > 0 && (
+                          <Check className="w-3 h-3 text-white" />
+                        )}
+                      </button>
+                    </th>
                     <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Name</th>
                     <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Size</th>
                     <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Date</th>
@@ -614,8 +815,22 @@ export function MyFilesPage() {
                   {files.map((file) => (
                     <tr
                       key={file.id}
-                      className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                      onClick={() => toggleFileSelection(file.id)}
+                      className={`border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer ${
+                        selectedFiles.has(file.id) ? 'bg-cyan-50' : ''
+                      }`}
                     >
+                      <td className="py-4 px-4">
+                        <div
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                            selectedFiles.has(file.id)
+                              ? 'bg-cyan-500 border-cyan-500'
+                              : 'border-gray-300'
+                          }`}
+                        >
+                          {selectedFiles.has(file.id) && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                      </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           {getFileIcon(file.mimeType)}
@@ -633,7 +848,7 @@ export function MyFilesPage() {
                       <td className="py-4 px-6 text-sm text-gray-500">
                         {formatDate(file.createdAt)}
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => setPreviewFile(file)}
@@ -741,6 +956,39 @@ export function MyFilesPage() {
             <DialogTitle className="text-xl font-semibold">Upload Files</DialogTitle>
           </DialogHeader>
           <FileUploader onUpload={handleUpload} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Move Files Dialog */}
+      <Dialog open={showMoveDialog} onOpenChange={setShowMoveDialog}>
+        <DialogContent className="sm:max-w-md bg-white rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>Move {selectedFiles.size} file(s) to...</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 max-h-64 overflow-y-auto">
+            <button
+              onClick={() => handleBulkMove(null)}
+              className="w-full text-left px-4 py-3 hover:bg-gray-100 rounded-xl flex items-center gap-3 transition-colors"
+            >
+              <Home className="w-5 h-5 text-gray-500" />
+              <span className="font-medium">My Files (Root)</span>
+            </button>
+            {folderTree.map((folder: FolderType) => (
+              <button
+                key={folder.id}
+                onClick={() => handleBulkMove(folder.id)}
+                className="w-full text-left px-4 py-3 hover:bg-gray-100 rounded-xl flex items-center gap-3 transition-colors"
+              >
+                <Folder className="w-5 h-5" style={{ color: folder.color || '#6b7280' }} />
+                <span>{folder.name}</span>
+              </button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMoveDialog(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

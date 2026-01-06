@@ -239,15 +239,23 @@ router.post('/public/:token/download', async (req, res: Response, next: NextFunc
 
     // Get or restore Telegram client for file owner
     if (!link.user.sessionData) {
+      console.error('Share download failed: No session data for user', link.user.id);
       return res.status(500).json({ error: 'File owner session not available' });
     }
     
     let client;
     try {
       client = await telegramService.restoreClient(link.user.id, link.user.sessionData);
-    } catch (clientError) {
-      console.error('Failed to restore Telegram client for shared file:', clientError);
-      return res.status(500).json({ error: 'Unable to access file storage - session expired' });
+      
+      // Verify client is connected
+      if (!client.connected) {
+        await client.connect();
+      }
+    } catch (clientError: any) {
+      console.error('Failed to restore Telegram client for shared file:', clientError?.message || clientError);
+      return res.status(500).json({ 
+        error: 'Unable to access file storage - please ask the file owner to log in again' 
+      });
     }
 
     if (!client) {
@@ -258,8 +266,17 @@ router.post('/public/:token/download', async (req, res: Response, next: NextFunc
     let buffer;
     try {
       buffer = await chunkService.downloadFile(client, link.file.id);
-    } catch (downloadError) {
-      console.error('Failed to download shared file:', downloadError);
+    } catch (downloadError: any) {
+      console.error('Failed to download shared file:', downloadError?.message || downloadError);
+      
+      // Provide more specific error messages
+      if (downloadError?.message?.includes('integrity')) {
+        return res.status(500).json({ error: 'File integrity check failed - file may be corrupted' });
+      }
+      if (downloadError?.message?.includes('not found')) {
+        return res.status(404).json({ error: 'File no longer exists in storage' });
+      }
+      
       return res.status(500).json({ error: 'Failed to download file from storage' });
     }
 

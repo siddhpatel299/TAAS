@@ -232,23 +232,27 @@ export class StorageService {
       isTrashed,
     };
 
-    // Filter by folder: undefined means root level (folderId is null)
-    // If folderId is explicitly passed, filter by that folder
-    if (folderId === undefined) {
-      where.folderId = null; // Only show root level files
-    } else {
-      where.folderId = folderId; // Show files in specific folder
-    }
-
-    if (isStarred !== undefined) {
-      where.isStarred = isStarred;
-    }
-
+    // When searching, search across ALL files (not just current folder)
+    // When not searching, respect the folder filter
     if (search) {
+      // Search across all files regardless of folder
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { originalName: { contains: search, mode: 'insensitive' } },
       ];
+      // Don't filter by folder when searching - search globally
+    } else {
+      // Not searching - filter by folder: undefined means root level (folderId is null)
+      // If folderId is explicitly passed, filter by that folder
+      if (folderId === undefined) {
+        where.folderId = null; // Only show root level files
+      } else {
+        where.folderId = folderId; // Show files in specific folder
+      }
+    }
+
+    if (isStarred !== undefined) {
+      where.isStarred = isStarred;
     }
 
     const [files, total] = await Promise.all([
@@ -257,6 +261,11 @@ export class StorageService {
         orderBy: { [sortBy]: sortOrder },
         skip: (page - 1) * limit,
         take: limit,
+        include: {
+          folder: {
+            select: { id: true, name: true },
+          },
+        },
       }),
       prisma.file.count({ where }),
     ]);

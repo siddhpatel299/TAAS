@@ -100,8 +100,8 @@ export const filesApi = {
 
 // Folders API
 export const foldersApi = {
-  getFolders: (parentId?: string) =>
-    api.get('/folders', { params: { parentId } }),
+  getFolders: (parentId?: string, search?: string) =>
+    api.get('/folders', { params: { parentId, search } }),
 
   getFolder: (id: string) => api.get(`/folders/${id}`),
 
