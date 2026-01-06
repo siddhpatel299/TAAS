@@ -232,9 +232,12 @@ export class StorageService {
       isTrashed,
     };
 
-    // When searching, search across ALL files (not just current folder)
-    // When not searching, respect the folder filter
-    if (search) {
+    // When filtering by starred or searching, don't apply folder filter
+    // This allows starred files from any folder to appear
+    if (isStarred !== undefined) {
+      where.isStarred = isStarred;
+      // Don't filter by folder when getting starred files - show from all folders
+    } else if (search) {
       // Search across all files regardless of folder
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -242,17 +245,14 @@ export class StorageService {
       ];
       // Don't filter by folder when searching - search globally
     } else {
-      // Not searching - filter by folder: undefined means root level (folderId is null)
+      // Not searching or filtering by starred - filter by folder
+      // undefined means root level (folderId is null)
       // If folderId is explicitly passed, filter by that folder
       if (folderId === undefined) {
         where.folderId = null; // Only show root level files
       } else {
         where.folderId = folderId; // Show files in specific folder
       }
-    }
-
-    if (isStarred !== undefined) {
-      where.isStarred = isStarred;
     }
 
     const [files, total] = await Promise.all([
