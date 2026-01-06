@@ -211,17 +211,17 @@ export const telegramApi = {
     api.get(`/telegram/chats/${chatId}/messages/${messageId}`),
 
   // Import a file from a specific message to TAAS
-  // Returns either immediate result or job ID for async import
+  // Returns either immediate result or importId for deferred import
   importFile: (chatId: string, messageId: number, folderId?: string) =>
     api.post(`/telegram/chats/${chatId}/messages/${messageId}/import`, { folderId }),
 
-  // Get import job status (for async imports)
-  getJobStatus: (jobId: string) =>
-    api.get(`/telegram/jobs/${jobId}`),
+  // Get deferred import status
+  getImportStatus: (importId: string) =>
+    api.get(`/telegram/imports/${importId}`),
 
-  // Get all user's import jobs
-  getJobs: () =>
-    api.get('/telegram/jobs'),
+  // Get user's recent imports (for status display)
+  getImports: () =>
+    api.get('/telegram/imports'),
 
   // Get streaming URL for video/audio preview
   // Returns the URL to stream media directly (supports Range requests)

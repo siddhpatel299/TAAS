@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { telegramChatService } from '../services/telegram-chat.service';
-import { importJobService } from '../services/import-job.service';
+import { deferredImportService } from '../services/deferred-import.service';
 
 const router: Router = Router();
 
@@ -13,11 +13,12 @@ const router: Router = Router();
  * Users can browse their chats, view messages with files, and import
  * individual files to TAAS.
  * 
- * Rules:
- * - All operations are manual (triggered by user action)
- * - One file per import action (no bulk/batch operations)
+ * CRITICAL RULES:
+ * - All operations are manual (triggered by user click)
+ * - One file per import action (no bulk/batch)
  * - No chat scanning, indexing, or polling
  * - No background sync or scheduled jobs
+ * - Imports are deferred (async) but NOT autonomous
  */
 
 // Get user's Telegram chats/groups/channels
@@ -77,20 +78,15 @@ router.get('/chats/:chatId/messages/:messageId', authMiddleware, asyncHandler(as
 }));
 
 // Import a file from a specific message to TAAS
-// Uses background job for large files to avoid timeout
+// User-initiated, one file at a time, deferred for large files
 router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { chatId, messageId } = req.params;
   const { folderId } = req.body;
 
-  // Validate messageId is provided and is a number
+  // Validate messageId
   const msgId = parseInt(messageId);
   if (isNaN(msgId)) {
     throw new ApiError('Invalid message ID', 400);
-  }
-
-  // Check if there's already an active job for this message
-  if (importJobService.hasActiveJobForMessage(req.user!.id, chatId, msgId)) {
-    throw new ApiError('Import already in progress for this file', 409);
   }
 
   // Get file info first to determine size
@@ -99,7 +95,7 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
     throw new ApiError('Message not found', 404);
   }
 
-  // Determine file size
+  // Determine file size and name
   let fileSize = 0;
   let fileName = 'unknown';
   if (message.hasDocument && message.document) {
@@ -116,26 +112,31 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
     fileName = message.audio.fileName;
   }
 
-  // For files > 10MB, use background job to avoid timeout
+  // For files > 10MB, use deferred import to avoid timeout
+  // This is still user-initiated, just async to handle slow transfers
   const TEN_MB = 10 * 1024 * 1024;
   
   if (fileSize > TEN_MB) {
-    // Create background job
-    const job = await importJobService.createJob(
-      req.user!.id,
-      chatId,
-      msgId,
-      fileName,
-      fileSize,
-      folderId
-    );
+    try {
+      // Start deferred import (validates session, checks limits)
+      const imp = await deferredImportService.startImport(
+        req.user!.id,
+        chatId,
+        msgId,
+        fileName,
+        fileSize,
+        folderId
+      );
 
-    res.json({
-      success: true,
-      async: true,
-      jobId: job.id,
-      message: `Import started for "${fileName}" (${(fileSize / (1024 * 1024)).toFixed(2)} MB). This may take a few minutes.`,
-    });
+      res.json({
+        success: true,
+        deferred: true,
+        importId: imp.id,
+        message: `Import started for "${fileName}" (${(fileSize / (1024 * 1024)).toFixed(2)} MB). This may take a few minutes.`,
+      });
+    } catch (error: any) {
+      throw new ApiError(error.message || 'Failed to start import', 400);
+    }
     return;
   }
 
@@ -153,7 +154,7 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
 
   res.json({
     success: true,
-    async: false,
+    deferred: false,
     data: {
       fileId: result.fileId,
       fileName: result.fileName,
@@ -163,28 +164,28 @@ router.post('/chats/:chatId/messages/:messageId/import', authMiddleware, asyncHa
   });
 }));
 
-// Get import job status
-router.get('/jobs/:jobId', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { jobId } = req.params;
+// Get deferred import status
+router.get('/imports/:importId', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { importId } = req.params;
 
-  const job = importJobService.getJob(jobId, req.user!.id);
-  if (!job) {
-    throw new ApiError('Job not found', 404);
+  const imp = deferredImportService.getImport(importId, req.user!.id);
+  if (!imp) {
+    throw new ApiError('Import not found', 404);
   }
 
   res.json({
     success: true,
-    data: job,
+    data: imp,
   });
 }));
 
-// Get all user's import jobs
-router.get('/jobs', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
-  const jobs = importJobService.getUserJobs(req.user!.id);
+// Get user's recent imports (for status display, limited to 10)
+router.get('/imports', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const imports = deferredImportService.getUserImports(req.user!.id);
 
   res.json({
     success: true,
-    data: jobs,
+    data: imports,
   });
 }));
 
