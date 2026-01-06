@@ -1,6 +1,5 @@
 import { TelegramClient, Api } from 'telegram';
 import { StringSession } from 'telegram/sessions';
-import { CustomFile } from 'telegram/client/uploads';
 import { config } from '../config';
 import { prisma } from '../lib/prisma';
 import { NewMessage } from 'telegram/events';
@@ -183,12 +182,15 @@ export class TelegramService {
     const channel = await this.getChannelEntity(client, channelId);
     
     const result = await client.sendFile(channel, {
-      file: new CustomFile(fileName, file.length, '', file),
+      file: file,
       caption: `📁 ${fileName}`,
       progressCallback: onProgress
         ? (progress) => onProgress(progress * 100)
         : undefined,
       forceDocument: true,
+      attributes: [
+        new Api.DocumentAttributeFilename({ fileName }),
+      ],
     });
 
     const message = result as Api.Message;
@@ -346,14 +348,18 @@ export class TelegramService {
     
     const buffer = Buffer.concat(chunks);
     
-    // Upload to Telegram
+    // Upload to Telegram using buffer directly
+    // The sendFile method accepts a Buffer when using the 'file' property
     const result = await client.sendFile(channel, {
-      file: new CustomFile(fileName, buffer.length, '', buffer),
+      file: buffer,
       caption: `📁 ${fileName}`,
       progressCallback: onProgress
         ? (progress) => onProgress(50 + progress * 50) // Last 50% is uploading
         : undefined,
       forceDocument: true,
+      attributes: [
+        new Api.DocumentAttributeFilename({ fileName }),
+      ],
     });
 
     const message = result as Api.Message;
