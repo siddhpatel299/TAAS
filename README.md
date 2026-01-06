@@ -53,6 +53,23 @@ End-to-end encryption with **password-protected shares**. Your files stored priv
 </tr>
 </table>
 
+<table>
+<tr>
+<td width="50%">
+
+### 🖥️ Desktop Sync Client
+**Native macOS & Windows app** for automatic folder synchronization. Sync local folders to your Telegram storage with Telegram-safe upload patterns.
+
+</td>
+<td width="50%">
+
+### 🛡️ Telegram-Safe Uploads
+**Smart rate limiting** with configurable delays (30-120s), sequential uploads, and jitter to respect Telegram's usage patterns. No account bans.
+
+</td>
+</tr>
+</table>
+
 ---
 
 ## 💎 Tech Stack
@@ -64,6 +81,9 @@ End-to-end encryption with **password-protected shares**. Your files stored priv
 
 ### Backend Power  
 **Node.js** • **Express** • **Prisma ORM** • **GramJS** • **PostgreSQL**
+
+### Desktop Native
+**Electron 28** • **electron-vite** • **GramJS/MTProto** • **chokidar** • **AES-256-GCM**
 
 </div>
 
@@ -170,6 +190,71 @@ pnpm dev
 
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3001
+
+---
+
+## 🖥️ Desktop App (Folder Sync)
+
+The TAAS Desktop app provides **native folder synchronization** for macOS and Windows with Telegram-safe upload patterns.
+
+### ✨ Desktop Features
+
+| Feature | Description |
+|---------|-------------|
+| 📁 **Folder Sync** | Select local folders to sync to your Telegram storage |
+| ⏱️ **Configurable Delays** | 30-120 second delays between uploads (Telegram-safe) |
+| 📤 **Sequential Uploads** | One file at a time to respect rate limits |
+| 🔐 **AES-256-GCM Encryption** | Files encrypted before upload |
+| ⏸️ **Pause on Errors** | Stops queue on failures for manual review |
+| 🎯 **User-Controlled** | No background sync - you decide when to upload |
+
+### 🚀 Desktop Quick Start
+
+```bash
+# Navigate to desktop app
+cd apps/desktop
+
+# Create environment file
+cat > .env << EOF
+MAIN_VITE_TELEGRAM_API_ID=your_api_id
+MAIN_VITE_TELEGRAM_API_HASH=your_api_hash
+EOF
+
+# Install dependencies
+pnpm install
+
+# Run in development mode
+pnpm dev
+```
+
+### 📦 Build Desktop App
+
+```bash
+# Build for macOS
+pnpm dist:mac
+
+# Build for Windows
+pnpm dist:win
+
+# Build for Linux
+pnpm dist:linux
+```
+
+### ⚙️ Desktop Architecture
+
+```
+Desktop App (Electron)
+├── Main Process
+│   ├── SyncManager       → Orchestrates upload queue
+│   ├── FolderWatcher     → Watches folders via chokidar
+│   ├── TelegramService   → GramJS/MTProto direct connection
+│   ├── EncryptionService → AES-256-GCM file encryption
+│   └── StoreService      → Encrypted local config storage
+└── Renderer Process
+    └── React UI          → Folder management, queue display
+```
+
+---
 
 ## 📦 Deployment
 
@@ -284,6 +369,8 @@ sequenceDiagram
 | **Storage** | GramJS, MTProto | File upload/download via Telegram API |
 | **Database** | Prisma, PostgreSQL | Metadata, users, folders, share links |
 | **Chunking** | Custom Service | Split files > 2GB into 1.9GB chunks |
+| **Desktop** | Electron, electron-vite | Native folder sync with Telegram-safe patterns |
+| **Encryption** | AES-256-GCM | Client-side file encryption before upload |
 
 ### Data Flow Architecture
 
@@ -354,6 +441,19 @@ flowchart LR
 │   │   ├── middleware/           → Auth & Error Handling
 │   │   └── index.ts              → Express Server Entry
 │   └── prisma/                   → Database Schema & Migrations
+│
+├── 🖥️ apps/desktop                → Electron Desktop App
+│   ├── src/
+│   │   ├── main/                 → Electron Main Process
+│   │   │   ├── services/         → Core Services
+│   │   │   │   ├── sync-manager  → Upload queue orchestration
+│   │   │   │   ├── folder-watcher → File system watching
+│   │   │   │   ├── telegram-service → Direct MTProto connection
+│   │   │   │   └── encryption-service → AES-256-GCM
+│   │   │   └── index.ts          → App entry point
+│   │   ├── preload/              → Secure IPC bridge
+│   │   └── renderer/             → React UI
+│   └── .env                      → Desktop-specific credentials
 │
 └── 📦 packages/shared             → Shared TypeScript Types
 ```
