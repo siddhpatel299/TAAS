@@ -13,6 +13,10 @@ import telegramRoutes from './routes/telegram.routes';
 
 const app: Application = express();
 
+// Trust proxy for Render, Railway, Vercel, etc (behind reverse proxy)
+// This is required for express-rate-limit to work correctly
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 

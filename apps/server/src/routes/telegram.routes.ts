@@ -119,38 +119,56 @@ router.get('/chats/:chatId/messages/:messageId/stream', authMiddleware, asyncHan
     throw new ApiError('Invalid message ID', 400);
   }
 
-  const { stream, mimeType, size, fileName } = await telegramChatService.streamMediaFromMessage(
-    req.user!.id,
-    chatId,
-    msgId
-  );
+  try {
+    const { stream, mimeType, size, fileName } = await telegramChatService.streamMediaFromMessage(
+      req.user!.id,
+      chatId,
+      msgId
+    );
 
-  // Handle range requests for video seeking
-  const range = req.headers.range;
-  
-  if (range && size > 0) {
-    const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
-    const chunkSize = end - start + 1;
+    // Handle stream errors
+    stream.on('error', (err) => {
+      console.error('Stream error:', err);
+      if (!res.headersSent) {
+        res.status(500).json({ success: false, error: 'Stream failed' });
+      }
+    });
 
-    res.status(206);
-    res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
-    res.setHeader('Accept-Ranges', 'bytes');
-    res.setHeader('Content-Length', chunkSize);
-    res.setHeader('Content-Type', mimeType);
+    // Handle client disconnect
+    res.on('close', () => {
+      stream.destroy();
+    });
+
+    // Handle range requests for video seeking
+    const range = req.headers.range;
     
-    // Note: For full range support, we'd need random access to Telegram files
-    // For now, we stream from the beginning
-    stream.pipe(res);
-  } else {
-    res.setHeader('Content-Type', mimeType);
-    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileName)}"`);
-    if (size > 0) {
-      res.setHeader('Content-Length', size);
+    if (range && size > 0) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
+      const chunkSize = end - start + 1;
+
+      res.status(206);
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
       res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Content-Length', chunkSize);
+      res.setHeader('Content-Type', mimeType);
+      
+      // Note: For full range support, we'd need random access to Telegram files
+      // For now, we stream from the beginning
+      stream.pipe(res);
+    } else {
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileName)}"`);
+      if (size > 0) {
+        res.setHeader('Content-Length', size);
+        res.setHeader('Accept-Ranges', 'bytes');
+      }
+      stream.pipe(res);
     }
-    stream.pipe(res);
+  } catch (error: any) {
+    console.error('Stream media error:', error.message);
+    throw new ApiError(error.message || 'Failed to stream media', 500);
   }
 }));
 
