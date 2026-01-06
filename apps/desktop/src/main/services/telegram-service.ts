@@ -12,9 +12,9 @@ import bigInt from 'big-integer';
 import { StoreService } from './store-service';
 import { TelegramAuthState } from '../../shared/types';
 
-// You must provide your own API credentials from https://my.telegram.org
-const API_ID = parseInt(process.env.TELEGRAM_API_ID || '0');
-const API_HASH = process.env.TELEGRAM_API_HASH || '';
+// API credentials from .env file (electron-vite uses MAIN_VITE_ prefix for main process)
+const API_ID = parseInt(import.meta.env.MAIN_VITE_TELEGRAM_API_ID || process.env.TELEGRAM_API_ID || '0');
+const API_HASH = import.meta.env.MAIN_VITE_TELEGRAM_API_HASH || process.env.TELEGRAM_API_HASH || '';
 
 interface Channel {
   id: string;
