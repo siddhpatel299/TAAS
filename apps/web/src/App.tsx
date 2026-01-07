@@ -10,7 +10,12 @@ import { TelegramChatsPage } from '@/pages/TelegramChatsPage';
 import { StarredPage } from '@/pages/StarredPage';
 import { TrashPage } from '@/pages/TrashPage';
 import { SharePage } from '@/pages/SharePage';
+import { PluginsPage } from '@/pages/PluginsPage';
+import { JobTrackerDashboardPage } from '@/pages/JobTrackerDashboardPage';
+import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
+import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
 import { useAuthStore } from '@/stores/auth.store';
+import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
 import { Send } from 'lucide-react';
 
@@ -63,6 +68,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AuthCheck({ children }: { children: React.ReactNode }) {
   const { token, setUser, setLoading, logout } = useAuthStore();
+  const { fetchEnabledPlugins } = usePluginsStore();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -74,6 +80,8 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
       try {
         const response = await authApi.getMe();
         setUser(response.data.data);
+        // Fetch enabled plugins after authentication
+        fetchEnabledPlugins();
       } catch (error) {
         logout();
       } finally {
@@ -132,6 +140,39 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <TrashPage />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Plugin Routes */}
+              <Route
+                path="/plugins"
+                element={
+                  <ProtectedRoute>
+                    <PluginsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/job-tracker"
+                element={
+                  <ProtectedRoute>
+                    <JobTrackerDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/job-tracker/applications"
+                element={
+                  <ProtectedRoute>
+                    <JobApplicationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/job-tracker/applications/:id"
+                element={
+                  <ProtectedRoute>
+                    <JobApplicationFormPage />
                   </ProtectedRoute>
                 }
               />

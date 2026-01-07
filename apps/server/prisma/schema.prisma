@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "auth"]
 }
 
 model User {
@@ -32,6 +34,7 @@ model User {
   sharedLinks     SharedLink[]
 
   @@map("users")
+  @@schema("public")
 }
 
 model File {
@@ -64,6 +67,7 @@ model File {
   @@index([isTrashed])
   @@index([isStarred])
   @@map("files")
+  @@schema("public")
 }
 
 model FileChunk {
@@ -82,6 +86,7 @@ model FileChunk {
   @@unique([fileId, chunkIndex])
   @@index([fileId])
   @@map("file_chunks")
+  @@schema("public")
 }
 
 // Stores encrypted file keys - the key itself is encrypted with user's master key
@@ -96,6 +101,7 @@ model FileEncryption {
 
   @@index([fileId])
   @@map("file_encryptions")
+  @@schema("public")
 }
 
 model FileVersion {
@@ -112,6 +118,7 @@ model FileVersion {
 
   @@index([fileId])
   @@map("file_versions")
+  @@schema("public")
 }
 
 model SharedLink {
@@ -132,6 +139,7 @@ model SharedLink {
   @@index([token])
   @@index([fileId])
   @@map("shared_links")
+  @@schema("public")
 }
 
 model Folder {
@@ -152,6 +160,7 @@ model Folder {
   @@index([userId])
   @@index([parentId])
   @@map("folders")
+  @@schema("public")
 }
 
 model StorageChannel {
@@ -169,4 +178,143 @@ model StorageChannel {
   @@unique([channelId, userId])
   @@index([userId])
   @@map("storage_channels")
+  @@schema("public")
 }
+
+// =====================================
+// PLUGIN SYSTEM
+// =====================================
+
+model EnabledPlugin {
+  id        String   @id @default(cuid())
+  userId    String
+  pluginId  String   // e.g., "job-tracker", "expense-tracker"
+  enabled   Boolean  @default(true)
+  settings  Json?    // Plugin-specific settings
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, pluginId])
+  @@index([userId])
+  @@map("enabled_plugins")
+  @@schema("public")
+}
+
+// =====================================
+// JOB TRACKER PLUGIN
+// =====================================
+
+model JobApplication {
+  id             String    @id @default(cuid())
+  userId         String
+  company        String
+  jobTitle       String
+  location       String?
+  employmentType String?   // full-time, part-time, contract, internship, remote
+  salaryMin      Int?
+  salaryMax      Int?
+  salaryCurrency String?   @default("USD")
+  jobUrl         String?
+  jobDescription String?   @db.Text
+  status         String    @default("wishlist") // wishlist, applied, interview, offer, rejected, accepted, withdrawn
+  priority       String    @default("medium") // low, medium, high
+  rating         Int?      // 1-5 stars
+  appliedDate    DateTime?
+  notes          String?   @db.Text
+  source         String?   // linkedin, indeed, company website, referral, etc.
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  documents JobDocument[]
+  tasks     JobTask[]
+  referrals JobReferral[]
+  activities JobActivity[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([company])
+  @@index([createdAt])
+  @@map("jt_applications")
+  @@schema("public")
+}
+
+model JobDocument {
+  id               String   @id @default(cuid())
+  jobApplicationId String
+  fileId           String   // Reference to TAAS File.id
+  documentType     String   // resume, cover_letter, job_description, offer_letter, contract, other
+  label            String?  // Custom label
+  createdAt        DateTime @default(now())
+
+  jobApplication JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([jobApplicationId])
+  @@index([fileId])
+  @@map("jt_documents")
+  @@schema("public")
+}
+
+model JobTask {
+  id               String    @id @default(cuid())
+  jobApplicationId String
+  title            String
+  description      String?   @db.Text
+  dueDate          DateTime?
+  priority         String    @default("medium") // low, medium, high
+  status           String    @default("pending") // pending, completed
+  completedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  jobApplication JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([jobApplicationId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("jt_tasks")
+  @@schema("public")
+}
+
+model JobReferral {
+  id               String    @id @default(cuid())
+  jobApplicationId String?   // Optional - can be general referral
+  userId           String
+  name             String
+  role             String?
+  company          String?
+  email            String?
+  phone            String?
+  linkedinUrl      String?
+  messageSent      String?   @db.Text // Message content sent
+  messageSentDate  DateTime?
+  followUpDate     DateTime?
+  status           String    @default("pending") // pending, contacted, responded, archived
+  notes            String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  jobApplication JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([jobApplicationId])
+  @@index([status])
+  @@map("jt_referrals")
+  @@schema("public")
+}
+
+model JobActivity {
+  id               String   @id @default(cuid())
+  jobApplicationId String
+  action           String   // created, status_changed, document_added, task_completed, etc.
+  description      String
+  metadata         Json?    // Additional data like old/new status
+  createdAt        DateTime @default(now())
+
+  jobApplication JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([jobApplicationId])
+  @@index([createdAt])
+  @@map("jt_activities")
+  @@schema("public")
+}
+

@@ -10,6 +10,8 @@ import foldersRoutes from './routes/folders.routes';
 import shareRoutes from './routes/share.routes';
 import syncRoutes from './routes/sync.routes';
 import telegramRoutes from './routes/telegram.routes';
+import pluginsRoutes from './routes/plugins.routes';
+import jobTrackerRoutes from './routes/job-tracker.routes';
 
 const app: Application = express();
 
@@ -64,6 +66,8 @@ app.use('/api/share/public', publicLimiter); // Public share routes - less stric
 app.use('/api/share', apiLimiter, shareRoutes);
 app.use('/api/sync', apiLimiter, syncRoutes);
 app.use('/api/telegram', apiLimiter, telegramRoutes);
+app.use('/api/plugins', apiLimiter, pluginsRoutes);
+app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
 
 // Error handling
 app.use(notFoundHandler);
