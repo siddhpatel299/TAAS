@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Briefcase,
@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
-import { JOB_STATUSES } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -64,7 +63,6 @@ function ApplicationFunnel({ statusCounts }: { statusCounts: Record<string, numb
 }
 
 export function JobTrackerDashboardPage() {
-  const navigate = useNavigate();
   const {
     dashboardStats,
     upcomingTasks,
