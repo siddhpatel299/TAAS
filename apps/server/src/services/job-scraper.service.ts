@@ -208,16 +208,38 @@ export const jobScraperService = {
         }
       }
       
-      // Description
+      // Description - improved patterns for LinkedIn
       const descPatterns = [
-        /<div[^>]*class="[^"]*description__text[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+        /<div[^>]*class="[^"]*description__text[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/section>/i,
         /<div[^>]*class="[^"]*show-more-less-html__markup[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+        /<section[^>]*class="[^"]*description[^"]*"[^>]*>([\s\S]*?)<\/section>/i,
+        /<div[^>]*class="[^"]*jobs-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+        /<article[^>]*class="[^"]*jobs-description[^"]*"[^>]*>([\s\S]*?)<\/article>/i,
       ];
       for (const pattern of descPatterns) {
         const match = html.match(pattern);
         if (match) {
-          description = cleanText(match[1]);
-          if (description) break;
+          // Clean the HTML but preserve some structure
+          let rawDesc = match[1];
+          // Replace <br> and </p> with newlines
+          rawDesc = rawDesc.replace(/<br\s*\/?>/gi, '\n');
+          rawDesc = rawDesc.replace(/<\/p>/gi, '\n\n');
+          rawDesc = rawDesc.replace(/<\/li>/gi, '\n');
+          rawDesc = rawDesc.replace(/<li[^>]*>/gi, '• ');
+          description = cleanText(rawDesc);
+          if (description && description.length > 50) break;
+        }
+      }
+      
+      // If still no description, try to find any large text block
+      if (!description || description.length < 50) {
+        const genericDescMatch = html.match(/<div[^>]*>([\s\S]{200,}?)<\/div>/i);
+        if (genericDescMatch) {
+          const cleaned = cleanText(genericDescMatch[1]);
+          // Only use if it looks like a job description (has common keywords)
+          if (cleaned.length > 200 && /responsibilities|qualifications|requirements|experience|skills/i.test(cleaned)) {
+            description = cleaned;
+          }
         }
       }
       

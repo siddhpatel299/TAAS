@@ -16,6 +16,7 @@ import {
   DollarSign,
   Download,
   X,
+  ArrowLeft,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { AddJobDialog } from '@/components/AddJobDialog';
@@ -432,8 +433,9 @@ export function JobApplicationsPage() {
   };
 
   const handleAddJob = async (data: any) => {
-    const newJob = await createApplication(data);
-    navigate(`/plugins/job-tracker/applications/${newJob.id}`);
+    await createApplication(data);
+    // Refresh the applications list
+    fetchApplications();
   };
 
   return (
@@ -444,6 +446,13 @@ export function JobApplicationsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
+            <Link
+              to="/plugins/job-tracker"
+              className="p-2 hover:bg-white rounded-xl transition-colors"
+              title="Back to Dashboard"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-500" />
+            </Link>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>

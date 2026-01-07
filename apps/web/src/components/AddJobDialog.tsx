@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Globe, Loader2, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Globe, Loader2, CheckCircle, AlertCircle, Edit3, ArrowLeft } from 'lucide-react';
 import { jobTrackerApi, ScrapedJobData, EMPLOYMENT_TYPES, JOB_STATUSES, JOB_PRIORITIES } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
 
@@ -11,31 +11,73 @@ interface AddJobDialogProps {
 }
 
 type TabType = 'manual' | 'scraper';
+type ScraperStep = 'input' | 'edit';
+
+interface EditableJobData {
+  company: string;
+  jobTitle: string;
+  location: string;
+  employmentType: string;
+  status: string;
+  priority: string;
+  jobUrl: string;
+  jobDescription: string;
+  salaryMin: string;
+  salaryMax: string;
+  salaryCurrency: string;
+  source: string;
+}
 
 export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
   const [activeTab, setActiveTab] = useState<TabType>('scraper');
+  const [scraperStep, setScraperStep] = useState<ScraperStep>('input');
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [scrapedData, setScrapedData] = useState<ScrapedJobData | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Manual entry form
-  const [manualData, setManualData] = useState({
+  // Editable form data (used for both manual and scraped jobs)
+  const [formData, setFormData] = useState<EditableJobData>({
     company: '',
     jobTitle: '',
     location: '',
     employmentType: 'full_time',
-    status: 'wishlist',
+    status: 'applied',
     priority: 'medium',
     jobUrl: '',
     jobDescription: '',
     salaryMin: '',
     salaryMax: '',
     salaryCurrency: 'USD',
+    source: '',
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
+
+  const resetForm = () => {
+    setUrl('');
+    setError(null);
+    setScraperStep('input');
+    setFormData({
+      company: '',
+      jobTitle: '',
+      location: '',
+      employmentType: 'full_time',
+      status: 'applied',
+      priority: 'medium',
+      jobUrl: '',
+      jobDescription: '',
+      salaryMin: '',
+      salaryMax: '',
+      salaryCurrency: 'USD',
+      source: '',
+    });
+  };
 
   const handleScrape = async () => {
     if (!url.trim()) {
@@ -45,12 +87,27 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
 
     setIsLoading(true);
     setError(null);
-    setScrapedData(null);
 
     try {
       const response = await jobTrackerApi.scrapeJob(url);
       if (response.data.success && response.data.data) {
-        setScrapedData(response.data.data);
+        const data = response.data.data;
+        // Populate form with scraped data
+        setFormData({
+          company: data.company || '',
+          jobTitle: data.jobTitle || '',
+          location: data.location || '',
+          employmentType: data.employmentType || 'full_time',
+          status: 'applied', // Default to applied
+          priority: 'medium',
+          jobUrl: data.jobUrl || url,
+          jobDescription: data.jobDescription || '',
+          salaryMin: data.salaryMin?.toString() || '',
+          salaryMax: data.salaryMax?.toString() || '',
+          salaryCurrency: data.salaryCurrency || 'USD',
+          source: data.source || 'LinkedIn',
+        });
+        setScraperStep('edit');
       } else {
         setError('Failed to scrape job details');
       }
@@ -61,71 +118,40 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
     }
   };
 
-  const handleSubmitScraped = async () => {
-    if (!scrapedData) return;
-
-    setIsSubmitting(true);
-    try {
-      await onSubmit({
-        ...scrapedData,
-        status: 'wishlist',
-        priority: 'medium',
-      });
-      handleClose();
-    } catch (err) {
-      console.error('Failed to create application:', err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmitManual = async () => {
-    if (!manualData.company.trim() || !manualData.jobTitle.trim()) {
+  const handleSubmit = async () => {
+    if (!formData.company.trim() || !formData.jobTitle.trim()) {
       setError('Company and Job Title are required');
       return;
     }
 
     setIsSubmitting(true);
+    setError(null);
+    
     try {
       await onSubmit({
-        company: manualData.company,
-        jobTitle: manualData.jobTitle,
-        location: manualData.location || undefined,
-        employmentType: manualData.employmentType,
-        jobUrl: manualData.jobUrl || undefined,
-        jobDescription: manualData.jobDescription || undefined,
-        salaryMin: manualData.salaryMin ? parseInt(manualData.salaryMin) : undefined,
-        salaryMax: manualData.salaryMax ? parseInt(manualData.salaryMax) : undefined,
-        salaryCurrency: manualData.salaryCurrency,
-        status: manualData.status,
-        priority: manualData.priority,
-        source: 'Manual',
+        company: formData.company,
+        jobTitle: formData.jobTitle,
+        location: formData.location || undefined,
+        employmentType: formData.employmentType,
+        jobUrl: formData.jobUrl || undefined,
+        jobDescription: formData.jobDescription || undefined,
+        salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : undefined,
+        salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : undefined,
+        salaryCurrency: formData.salaryCurrency,
+        status: formData.status,
+        priority: formData.priority,
+        source: formData.source || (activeTab === 'scraper' ? 'LinkedIn' : 'Manual'),
       });
-      handleClose();
-    } catch (err) {
-      console.error('Failed to create application:', err);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Failed to save job application');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    setUrl('');
-    setError(null);
-    setScrapedData(null);
-    setManualData({
-      company: '',
-      jobTitle: '',
-      location: '',
-      employmentType: 'full_time',
-      status: 'wishlist',
-      priority: 'medium',
-      jobUrl: '',
-      jobDescription: '',
-      salaryMin: '',
-      salaryMax: '',
-      salaryCurrency: 'USD',
-    });
+    resetForm();
     onClose();
   };
 
@@ -149,7 +175,21 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-900">Add New Job Application</h2>
+            <div className="flex items-center gap-3">
+              {scraperStep === 'edit' && activeTab === 'scraper' && (
+                <button
+                  onClick={() => setScraperStep('input')}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+              )}
+              <h2 className="text-xl font-semibold text-gray-900">
+                {scraperStep === 'edit' && activeTab === 'scraper' 
+                  ? 'Review & Edit Job Details' 
+                  : 'Add New Job Application'}
+              </h2>
+            </div>
             <button
               onClick={handleClose}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -158,35 +198,55 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
             </button>
           </div>
 
-          {/* Tab Switcher */}
-          <div className="flex p-2 mx-6 mt-4 bg-gray-100 rounded-xl">
-            <button
-              onClick={() => setActiveTab('manual')}
-              className={cn(
-                'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all',
-                activeTab === 'manual'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              )}
-            >
-              Manual Entry
-            </button>
-            <button
-              onClick={() => setActiveTab('scraper')}
-              className={cn(
-                'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all',
-                activeTab === 'scraper'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              )}
-            >
-              URL Scraper
-            </button>
-          </div>
+          {/* Tab Switcher - only show on input step */}
+          {(scraperStep === 'input' || activeTab === 'manual') && (
+            <div className="flex p-2 mx-6 mt-4 bg-gray-100 rounded-xl">
+              <button
+                onClick={() => { setActiveTab('manual'); resetForm(); }}
+                className={cn(
+                  'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all',
+                  activeTab === 'manual'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                )}
+              >
+                Manual Entry
+              </button>
+              <button
+                onClick={() => { setActiveTab('scraper'); resetForm(); }}
+                className={cn(
+                  'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all',
+                  activeTab === 'scraper'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                )}
+              >
+                URL Scraper
+              </button>
+            </div>
+          )}
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
-            {activeTab === 'scraper' ? (
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700"
+              >
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm">{error}</p>
+                </div>
+                <button onClick={() => setError(null)} className="ml-auto">
+                  <X className="w-4 h-4" />
+                </button>
+              </motion.div>
+            )}
+
+            {/* URL Scraper - Input Step */}
+            {activeTab === 'scraper' && scraperStep === 'input' && (
               <div className="space-y-6">
                 {/* Scraper Header */}
                 <div className="flex items-start gap-3">
@@ -196,7 +256,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                   <div>
                     <h3 className="font-semibold text-gray-900">Enhanced Job Scraper</h3>
                     <p className="text-sm text-gray-500">
-                      Scrape jobs from LinkedIn, Indeed, Glassdoor, Dice, and more with advanced filtering
+                      Paste a LinkedIn, Indeed, or Glassdoor job URL to auto-fill details
                     </p>
                   </div>
                 </div>
@@ -215,29 +275,6 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                     onKeyDown={(e) => e.key === 'Enter' && handleScrape()}
                   />
                 </div>
-
-                {/* Filters Toggle */}
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
-                >
-                  {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  <span className="text-sm font-medium">Show Filters</span>
-                </button>
-
-                {/* Filters (placeholder) */}
-                <AnimatePresence>
-                  {showFilters && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="p-4 bg-gray-50 rounded-xl text-sm text-gray-500"
-                    >
-                      Filters coming soon: filter by experience level, job type, salary range, etc.
-                    </motion.div>
-                  )}
-                </AnimatePresence>
 
                 {/* Scrape Button */}
                 <button
@@ -258,295 +295,201 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                   )}
                 </button>
 
-                {/* Error */}
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700"
-                  >
-                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium">Failed to scrape</p>
-                      <p className="text-sm">{error}</p>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Scraped Results */}
-                {scrapedData && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
-                  >
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="font-medium">Job details scraped successfully!</span>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center">
-                          <span className="text-xl font-bold text-purple-600">
-                            {scrapedData.company?.charAt(0) || '?'}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 text-lg">{scrapedData.jobTitle}</h4>
-                          <p className="text-gray-600">{scrapedData.company}</p>
-                          {scrapedData.location && (
-                            <p className="text-sm text-gray-500 mt-1">{scrapedData.location}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                        {scrapedData.employmentType && (
-                          <div>
-                            <span className="text-gray-500">Type:</span>{' '}
-                            <span className="text-gray-900">
-                              {EMPLOYMENT_TYPES.find(t => t.value === scrapedData.employmentType)?.label || scrapedData.employmentType}
-                            </span>
-                          </div>
-                        )}
-                        {scrapedData.salaryMin && (
-                          <div>
-                            <span className="text-gray-500">Salary:</span>{' '}
-                            <span className="text-gray-900">
-                              {scrapedData.salaryCurrency || '$'}{scrapedData.salaryMin?.toLocaleString()}
-                              {scrapedData.salaryMax && ` - ${scrapedData.salaryMax.toLocaleString()}`}
-                            </span>
-                          </div>
-                        )}
-                        <div>
-                          <span className="text-gray-500">Source:</span>{' '}
-                          <span className="text-gray-900">{scrapedData.source}</span>
-                        </div>
-                      </div>
-
-                      {scrapedData.jobDescription && (
-                        <div className="mt-4 pt-4 border-t border-purple-100">
-                          <p className="text-sm text-gray-600 line-clamp-3">
-                            {scrapedData.jobDescription.slice(0, 300)}
-                            {scrapedData.jobDescription.length > 300 && '...'}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={handleSubmitScraped}
-                      disabled={isSubmitting}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Adding...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          Add to Job Tracker
-                        </>
-                      )}
-                    </button>
-                  </motion.div>
-                )}
-              </div>
-            ) : (
-              /* Manual Entry Form */
-              <div className="space-y-6">
-                {/* Company & Title */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company *
-                    </label>
-                    <input
-                      type="text"
-                      value={manualData.company}
-                      onChange={(e) => setManualData({ ...manualData, company: e.target.value })}
-                      placeholder="e.g. Google"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Job Title *
-                    </label>
-                    <input
-                      type="text"
-                      value={manualData.jobTitle}
-                      onChange={(e) => setManualData({ ...manualData, jobTitle: e.target.value })}
-                      placeholder="e.g. Software Engineer"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
+                <div className="text-center text-sm text-gray-400">
+                  or <button onClick={() => setActiveTab('manual')} className="text-purple-600 hover:underline">enter details manually</button>
                 </div>
+              </div>
+            )}
 
-                {/* Location & Employment Type */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      value={manualData.location}
-                      onChange={(e) => setManualData({ ...manualData, location: e.target.value })}
-                      placeholder="e.g. San Francisco, CA"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
+            {/* Edit Form - shown for both manual entry and after scraping */}
+            {(activeTab === 'manual' || (activeTab === 'scraper' && scraperStep === 'edit')) && (
+              <div className="space-y-6">
+                {/* Success indicator for scraped jobs */}
+                {activeTab === 'scraper' && scraperStep === 'edit' && (
+                  <div className="flex items-center gap-2 text-green-600 mb-2">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-medium">Job details scraped! Review and edit below.</span>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Employment Type
-                    </label>
-                    <select
-                      value={manualData.employmentType}
-                      onChange={(e) => setManualData({ ...manualData, employmentType: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      {EMPLOYMENT_TYPES.map(type => (
-                        <option key={type.value} value={type.value}>{type.label}</option>
-                      ))}
-                    </select>
+                )}
+
+                {/* Basic Info */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <Edit3 className="w-4 h-4" />
+                    Basic Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Job Title *</label>
+                      <input
+                        type="text"
+                        value={formData.jobTitle}
+                        onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
+                        placeholder="e.g. Software Engineer"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Company *</label>
+                      <input
+                        type="text"
+                        value={formData.company}
+                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                        placeholder="e.g. Google"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Location</label>
+                      <input
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        placeholder="e.g. New York, NY"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Employment Type</label>
+                      <select
+                        value={formData.employmentType}
+                        onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      >
+                        {EMPLOYMENT_TYPES.map(type => (
+                          <option key={type.value} value={type.value}>{type.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
                 {/* Status & Priority */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Status
-                    </label>
-                    <select
-                      value={manualData.status}
-                      onChange={(e) => setManualData({ ...manualData, status: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      {JOB_STATUSES.map(s => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Priority
-                    </label>
-                    <select
-                      value={manualData.priority}
-                      onChange={(e) => setManualData({ ...manualData, priority: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      {JOB_PRIORITIES.map(p => (
-                        <option key={p.value} value={p.value}>{p.label}</option>
-                      ))}
-                    </select>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Status & Priority</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Status</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      >
+                        {JOB_STATUSES.map(s => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Priority</label>
+                      <select
+                        value={formData.priority}
+                        onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      >
+                        {JOB_PRIORITIES.map(p => (
+                          <option key={p.value} value={p.value}>{p.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
                 {/* Salary */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Currency
-                    </label>
-                    <select
-                      value={manualData.salaryCurrency}
-                      onChange={(e) => setManualData({ ...manualData, salaryCurrency: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      <option value="USD">USD ($)</option>
-                      <option value="EUR">EUR (€)</option>
-                      <option value="GBP">GBP (£)</option>
-                      <option value="INR">INR (₹)</option>
-                      <option value="CAD">CAD ($)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Min Salary
-                    </label>
-                    <input
-                      type="number"
-                      value={manualData.salaryMin}
-                      onChange={(e) => setManualData({ ...manualData, salaryMin: e.target.value })}
-                      placeholder="80000"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Max Salary
-                    </label>
-                    <input
-                      type="number"
-                      value={manualData.salaryMax}
-                      onChange={(e) => setManualData({ ...manualData, salaryMax: e.target.value })}
-                      placeholder="120000"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Salary (Optional)</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Currency</label>
+                      <select
+                        value={formData.salaryCurrency}
+                        onChange={(e) => setFormData({ ...formData, salaryCurrency: e.target.value })}
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      >
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="INR">INR (₹)</option>
+                        <option value="CAD">CAD ($)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Min</label>
+                      <input
+                        type="number"
+                        value={formData.salaryMin}
+                        onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
+                        placeholder="80000"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Max</label>
+                      <input
+                        type="number"
+                        value={formData.salaryMax}
+                        onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
+                        placeholder="120000"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Job URL */}
+                {/* Source & URL */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Job Posting URL
-                  </label>
-                  <input
-                    type="url"
-                    value={manualData.jobUrl}
-                    onChange={(e) => setManualData({ ...manualData, jobUrl: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Source</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Source</label>
+                      <input
+                        type="text"
+                        value={formData.source}
+                        onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                        placeholder="e.g. LinkedIn, Indeed"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Job URL</label>
+                      <input
+                        type="url"
+                        value={formData.jobUrl}
+                        onChange={(e) => setFormData({ ...formData, jobUrl: e.target.value })}
+                        placeholder="https://..."
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Description */}
+                {/* Job Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Job Description
-                  </label>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Job Description</h3>
                   <textarea
-                    value={manualData.jobDescription}
-                    onChange={(e) => setManualData({ ...manualData, jobDescription: e.target.value })}
+                    value={formData.jobDescription}
+                    onChange={(e) => setFormData({ ...formData, jobDescription: e.target.value })}
                     placeholder="Paste the job description here..."
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
                   />
                 </div>
-
-                {/* Error */}
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm"
-                  >
-                    <AlertCircle className="w-4 h-4" />
-                    {error}
-                  </motion.div>
-                )}
 
                 {/* Submit Button */}
                 <button
-                  onClick={handleSubmitManual}
-                  disabled={isSubmitting || !manualData.company.trim() || !manualData.jobTitle.trim()}
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !formData.company.trim() || !formData.jobTitle.trim()}
                   className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Adding...
+                      Saving...
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-5 h-5" />
-                      Add Application
+                      Save Job Application
                     </>
                   )}
                 </button>
