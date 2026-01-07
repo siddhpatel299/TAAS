@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
+import { FilePickerDialog } from '@/components/FilePickerDialog';
 import { 
   JOB_STATUSES, 
   JOB_PRIORITIES, 
@@ -49,14 +50,14 @@ function Tabs({
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
             activeTab === tab.id
-              ? "bg-white text-purple-600 shadow-sm"
+              ? "bg-white text-sky-600 shadow-sm"
               : "text-gray-500 hover:text-gray-700"
           )}
         >
           {tab.icon}
           {tab.label}
           {tab.count !== undefined && tab.count > 0 && (
-            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 text-xs rounded-full">
+            <span className="px-1.5 py-0.5 bg-sky-100 text-sky-600 text-xs rounded-full">
               {tab.count}
             </span>
           )}
@@ -82,7 +83,7 @@ function DocumentsTab({
         <h3 className="font-medium text-gray-900">Documents</h3>
         <button
           onClick={onAddDocument}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add from TAAS
@@ -157,7 +158,7 @@ function TasksTab({
         <h3 className="font-medium text-gray-900">Tasks</h3>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Task
@@ -170,7 +171,7 @@ function TasksTab({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="p-4 bg-purple-50 rounded-xl"
+            className="p-4 bg-sky-50 rounded-xl"
           >
             <div className="space-y-3">
               <input
@@ -178,19 +179,19 @@ function TasksTab({
                 placeholder="Task title..."
                 value={newTask.title}
                 onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
               <div className="flex gap-3">
                 <input
                   type="date"
                   value={newTask.dueDate}
                   onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                  className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
                 <select
                   value={newTask.priority}
                   onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -206,7 +207,7 @@ function TasksTab({
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  className="px-3 py-1.5 bg-sky-600 text-white rounded-lg hover:bg-sky-700"
                 >
                   Add
                 </button>
@@ -239,8 +240,8 @@ function TasksTab({
                 className={cn(
                   "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
                   task.status === 'completed'
-                    ? "bg-purple-500 border-purple-500 text-white"
-                    : "border-gray-300 hover:border-purple-500"
+                    ? "bg-sky-500 border-sky-500 text-white"
+                    : "border-gray-300 hover:border-sky-500"
                 )}
               >
                 {task.status === 'completed' && <CheckSquare className="w-3 h-3" />}
@@ -313,7 +314,7 @@ function ReferralsTab({
         <h3 className="font-medium text-gray-900">Referrals & Contacts</h3>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Contact
@@ -326,7 +327,7 @@ function ReferralsTab({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="p-4 bg-purple-50 rounded-xl"
+            className="p-4 bg-sky-50 rounded-xl"
           >
             <div className="space-y-3">
               <input
@@ -334,7 +335,7 @@ function ReferralsTab({
                 placeholder="Name *"
                 value={newReferral.name}
                 onChange={(e) => setNewReferral({ ...newReferral, name: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -342,14 +343,14 @@ function ReferralsTab({
                   placeholder="Email"
                   value={newReferral.email}
                   onChange={(e) => setNewReferral({ ...newReferral, email: e.target.value })}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
                 <input
                   type="tel"
                   placeholder="Phone"
                   value={newReferral.phone}
                   onChange={(e) => setNewReferral({ ...newReferral, phone: e.target.value })}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -358,14 +359,14 @@ function ReferralsTab({
                   placeholder="Company"
                   value={newReferral.company}
                   onChange={(e) => setNewReferral({ ...newReferral, company: e.target.value })}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
                 <input
                   type="text"
                   placeholder="Position"
                   value={newReferral.position}
                   onChange={(e) => setNewReferral({ ...newReferral, position: e.target.value })}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
               </div>
               <div className="flex justify-end gap-2">
@@ -377,7 +378,7 @@ function ReferralsTab({
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  className="px-3 py-1.5 bg-sky-600 text-white rounded-lg hover:bg-sky-700"
                 >
                   Add
                 </button>
@@ -401,8 +402,8 @@ function ReferralsTab({
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
-                  <span className="text-sm font-medium text-purple-700">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center">
+                  <span className="text-sm font-medium text-sky-700">
                     {referral.name.charAt(0)}
                   </span>
                 </div>
@@ -439,6 +440,7 @@ export function JobApplicationFormPage() {
     createApplication,
     updateApplication,
     deleteApplication,
+    addDocument,
     removeDocument,
     createTask,
     updateTask,
@@ -457,6 +459,7 @@ export function JobApplicationFormPage() {
     status: 'wishlist',
     priority: 'medium',
     notes: '',
+    jobDescription: '',
     source: '',
     sourceUrl: '',
   });
@@ -484,6 +487,7 @@ export function JobApplicationFormPage() {
         appliedDate: selectedApplication.appliedDate,
         rating: selectedApplication.rating || undefined,
         notes: selectedApplication.notes || '',
+        jobDescription: selectedApplication.jobDescription || '',
         source: selectedApplication.source || '',
         sourceUrl: selectedApplication.sourceUrl || '',
       });
@@ -521,9 +525,21 @@ export function JobApplicationFormPage() {
     }
   };
 
+  const [showFilePicker, setShowFilePicker] = useState(false);
+  const [documentType] = useState('resume'); // Default to resume type
+
   const handleAddDocument = () => {
-    // TODO: Integrate with TAAS file picker
-    alert('File picker integration coming soon! This will allow you to select files from your TAAS storage.');
+    setShowFilePicker(true);
+  };
+
+  const handleFileSelected = async (file: { id: string; originalName: string }) => {
+    if (!id) return;
+    try {
+      await addDocument(id, file.id, documentType, file.originalName);
+      setShowFilePicker(false);
+    } catch (error) {
+      console.error('Failed to add document:', error);
+    }
   };
 
   const tabs = [
@@ -584,7 +600,7 @@ export function JobApplicationFormPage() {
             <button
               onClick={handleSubmit}
               disabled={isSaving || !formData.company || !formData.jobTitle}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-medium hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg shadow-sky-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save'}
@@ -592,7 +608,7 @@ export function JobApplicationFormPage() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - always show for existing applications */}
         {!isNew && (
           <div className="mb-6">
             <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
@@ -630,7 +646,7 @@ export function JobApplicationFormPage() {
                       value={formData.jobTitle || ''}
                       onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
                       placeholder="e.g. Software Engineer"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -643,7 +659,7 @@ export function JobApplicationFormPage() {
                       value={formData.company || ''}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                       placeholder="e.g. Google"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -658,7 +674,7 @@ export function JobApplicationFormPage() {
                         value={formData.location || ''}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         placeholder="e.g. San Francisco, CA"
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -669,7 +685,7 @@ export function JobApplicationFormPage() {
                     <select
                       value={formData.employmentType || 'full_time'}
                       onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     >
                       {EMPLOYMENT_TYPES.map(type => (
                         <option key={type.value} value={type.value}>{type.label}</option>
@@ -690,7 +706,7 @@ export function JobApplicationFormPage() {
                     <select
                       value={formData.status || 'wishlist'}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     >
                       {JOB_STATUSES.map(status => (
                         <option key={status.value} value={status.value}>{status.label}</option>
@@ -704,7 +720,7 @@ export function JobApplicationFormPage() {
                     <select
                       value={formData.priority || 'medium'}
                       onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     >
                       {JOB_PRIORITIES.map(p => (
                         <option key={p.value} value={p.value}>{p.label}</option>
@@ -722,7 +738,7 @@ export function JobApplicationFormPage() {
                         ...formData, 
                         appliedDate: e.target.value ? new Date(e.target.value) : undefined 
                       })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -739,7 +755,7 @@ export function JobApplicationFormPage() {
                     <select
                       value={formData.salaryCurrency || 'USD'}
                       onChange={(e) => setFormData({ ...formData, salaryCurrency: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     >
                       <option value="USD">USD ($)</option>
                       <option value="EUR">EUR (€)</option>
@@ -757,7 +773,7 @@ export function JobApplicationFormPage() {
                       value={formData.salaryMin || ''}
                       onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value ? Number(e.target.value) : undefined })}
                       placeholder="e.g. 80000"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -769,7 +785,7 @@ export function JobApplicationFormPage() {
                       value={formData.salaryMax || ''}
                       onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value ? Number(e.target.value) : undefined })}
                       placeholder="e.g. 120000"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -779,7 +795,7 @@ export function JobApplicationFormPage() {
                     <select
                       value={formData.salaryPeriod || 'year'}
                       onChange={(e) => setFormData({ ...formData, salaryPeriod: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     >
                       <option value="hour">Per Hour</option>
                       <option value="month">Per Month</option>
@@ -835,7 +851,7 @@ export function JobApplicationFormPage() {
                       value={formData.source || ''}
                       onChange={(e) => setFormData({ ...formData, source: e.target.value })}
                       placeholder="e.g. LinkedIn, Indeed, Referral"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -849,11 +865,23 @@ export function JobApplicationFormPage() {
                         value={formData.sourceUrl || ''}
                         onChange={(e) => setFormData({ ...formData, sourceUrl: e.target.value })}
                         placeholder="https://..."
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       />
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Job Description */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Job Description</h3>
+                <textarea
+                  value={formData.jobDescription || ''}
+                  onChange={(e) => setFormData({ ...formData, jobDescription: e.target.value })}
+                  placeholder="Paste or enter the job description here..."
+                  rows={8}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none font-mono text-sm"
+                />
               </div>
 
               {/* Notes */}
@@ -862,9 +890,9 @@ export function JobApplicationFormPage() {
                 <textarea
                   value={formData.notes || ''}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Add any notes about this application..."
+                  placeholder="Add any personal notes about this application..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none"
                 />
               </div>
             </form>
@@ -895,6 +923,14 @@ export function JobApplicationFormPage() {
             />
           )}
         </div>
+
+        {/* File Picker Dialog */}
+        <FilePickerDialog
+          isOpen={showFilePicker}
+          onClose={() => setShowFilePicker(false)}
+          onSelect={handleFileSelected}
+          title="Select Document from TAAS"
+        />
       </main>
     </div>
   );

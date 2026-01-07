@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Globe, Loader2, CheckCircle, AlertCircle, Edit3, ArrowLeft } from 'lucide-react';
-import { jobTrackerApi, ScrapedJobData, EMPLOYMENT_TYPES, JOB_STATUSES, JOB_PRIORITIES } from '@/lib/plugins-api';
+import { jobTrackerApi, EMPLOYMENT_TYPES, JOB_STATUSES, JOB_PRIORITIES } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
+import { useJobTrackerStore } from '@/stores/job-tracker.store';
 
 interface AddJobDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Partial<ScrapedJobData> & { status?: string; priority?: string }) => Promise<void>;
+  onSuccess?: () => void;
 }
 
 type TabType = 'manual' | 'scraper';
@@ -28,7 +29,8 @@ interface EditableJobData {
   source: string;
 }
 
-export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
+export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) {
+  const { createApplication } = useJobTrackerStore();
   const [activeTab, setActiveTab] = useState<TabType>('scraper');
   const [scraperStep, setScraperStep] = useState<ScraperStep>('input');
   const [url, setUrl] = useState('');
@@ -128,7 +130,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
     setError(null);
     
     try {
-      await onSubmit({
+      await createApplication({
         company: formData.company,
         jobTitle: formData.jobTitle,
         location: formData.location || undefined,
@@ -141,7 +143,10 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
         status: formData.status,
         priority: formData.priority,
         source: formData.source || (activeTab === 'scraper' ? 'LinkedIn' : 'Manual'),
+        sourceUrl: formData.jobUrl || undefined,
+        appliedDate: new Date(), // Auto-fill apply date
       });
+      onSuccess?.();
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to save job application');
@@ -250,8 +255,8 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
               <div className="space-y-6">
                 {/* Scraper Header */}
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <Globe className="w-5 h-5 text-purple-600" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <Globe className="w-5 h-5 text-sky-600" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Enhanced Job Scraper</h3>
@@ -271,7 +276,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://www.linkedin.com/jobs/view/..."
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     onKeyDown={(e) => e.key === 'Enter' && handleScrape()}
                   />
                 </div>
@@ -280,7 +285,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                 <button
                   onClick={handleScrape}
                   disabled={isLoading || !url.trim()}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-purple-400 to-purple-500 text-white rounded-xl font-medium hover:from-purple-500 hover:to-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-sky-400 to-sky-500 text-white rounded-xl font-medium hover:from-sky-500 hover:to-sky-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>
@@ -296,7 +301,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                 </button>
 
                 <div className="text-center text-sm text-gray-400">
-                  or <button onClick={() => setActiveTab('manual')} className="text-purple-600 hover:underline">enter details manually</button>
+                  or <button onClick={() => setActiveTab('manual')} className="text-sky-600 hover:underline">enter details manually</button>
                 </div>
               </div>
             )}
@@ -326,7 +331,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.jobTitle}
                         onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
                         placeholder="e.g. Software Engineer"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
@@ -336,7 +341,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                         placeholder="e.g. Google"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
@@ -346,7 +351,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         placeholder="e.g. New York, NY"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
@@ -354,7 +359,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                       <select
                         value={formData.employmentType}
                         onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       >
                         {EMPLOYMENT_TYPES.map(type => (
                           <option key={type.value} value={type.value}>{type.label}</option>
@@ -373,7 +378,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                       <select
                         value={formData.status}
                         onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       >
                         {JOB_STATUSES.map(s => (
                           <option key={s.value} value={s.value}>{s.label}</option>
@@ -385,7 +390,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                       <select
                         value={formData.priority}
                         onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       >
                         {JOB_PRIORITIES.map(p => (
                           <option key={p.value} value={p.value}>{p.label}</option>
@@ -404,7 +409,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                       <select
                         value={formData.salaryCurrency}
                         onChange={(e) => setFormData({ ...formData, salaryCurrency: e.target.value })}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       >
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
@@ -420,7 +425,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.salaryMin}
                         onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
                         placeholder="80000"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
@@ -430,7 +435,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.salaryMax}
                         onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
                         placeholder="120000"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                   </div>
@@ -447,7 +452,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.source}
                         onChange={(e) => setFormData({ ...formData, source: e.target.value })}
                         placeholder="e.g. LinkedIn, Indeed"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
@@ -457,7 +462,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                         value={formData.jobUrl}
                         onChange={(e) => setFormData({ ...formData, jobUrl: e.target.value })}
                         placeholder="https://..."
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                       />
                     </div>
                   </div>
@@ -471,7 +476,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                     onChange={(e) => setFormData({ ...formData, jobDescription: e.target.value })}
                     placeholder="Paste the job description here..."
                     rows={4}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm resize-none"
                   />
                 </div>
 
@@ -479,7 +484,7 @@ export function AddJobDialog({ isOpen, onClose, onSubmit }: AddJobDialogProps) {
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting || !formData.company.trim() || !formData.jobTitle.trim()}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-medium hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg shadow-sky-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

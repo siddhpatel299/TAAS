@@ -214,6 +214,7 @@ model JobApplication {
   salaryMin      Int?
   salaryMax      Int?
   salaryCurrency String?   @default("USD")
+  salaryPeriod   String?   @default("year") // hour, month, year
   jobUrl         String?
   jobDescription String?   @db.Text
   status         String    @default("wishlist") // wishlist, applied, interview, offer, rejected, accepted, withdrawn
@@ -222,6 +223,7 @@ model JobApplication {
   appliedDate    DateTime?
   notes          String?   @db.Text
   source         String?   // linkedin, indeed, company website, referral, etc.
+  sourceUrl      String?   // Job posting URL
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 

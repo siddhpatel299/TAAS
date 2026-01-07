@@ -100,15 +100,15 @@ function TableView({
                 <td className="px-6 py-4">
                   <Link
                     to={`/plugins/job-tracker/applications/${job.id}`}
-                    className="font-medium text-gray-900 hover:text-purple-600 transition-colors"
+                    className="font-medium text-gray-900 hover:text-sky-600 transition-colors"
                   >
                     {job.jobTitle}
                   </Link>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
-                      <span className="text-sm font-medium text-purple-700">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center">
+                      <span className="text-sm font-medium text-sky-700">
                         {job.company.charAt(0)}
                       </span>
                     </div>
@@ -138,7 +138,7 @@ function TableView({
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => onEdit(job.id)}
-                      className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
@@ -180,8 +180,8 @@ function CardView({
           className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-purple-200 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
-              <span className="text-lg font-bold text-purple-700">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center">
+              <span className="text-lg font-bold text-sky-700">
                 {job.company.charAt(0)}
               </span>
             </div>
@@ -192,7 +192,7 @@ function CardView({
             to={`/plugins/job-tracker/applications/${job.id}`}
             className="block"
           >
-            <h3 className="font-semibold text-gray-900 mb-1 hover:text-purple-600 transition-colors">
+            <h3 className="font-semibold text-gray-900 mb-1 hover:text-sky-600 transition-colors">
               {job.jobTitle}
             </h3>
             <p className="text-gray-600 mb-4">{job.company}</p>
@@ -250,7 +250,7 @@ function CardView({
             <div className="flex items-center gap-1">
               <button
                 onClick={() => onEdit(job.id)}
-                className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                className="p-2 text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
               >
                 <Edit className="w-4 h-4" />
               </button>
@@ -324,8 +324,8 @@ function KanbanView({
                     onClick={() => onEdit(job.id)}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-bold text-purple-700">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-sky-700">
                           {job.company.charAt(0)}
                         </span>
                       </div>
@@ -358,7 +358,7 @@ function KanbanView({
 
               <Link
                 to="/plugins/job-tracker/applications/new"
-                className="flex items-center justify-center gap-2 p-4 border-t border-gray-100 text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                className="flex items-center justify-center gap-2 p-4 border-t border-gray-100 text-gray-500 hover:text-sky-600 hover:bg-sky-50 transition-colors"
                 onClick={(e) => {
                   e.preventDefault();
                   onAddJob();
@@ -385,7 +385,6 @@ export function JobApplicationsPage() {
     filters,
     viewMode,
     fetchApplications,
-    createApplication,
     deleteApplication,
     setFilters,
     setViewMode,
@@ -432,12 +431,6 @@ export function JobApplicationsPage() {
     }
   };
 
-  const handleAddJob = async (data: any) => {
-    await createApplication(data);
-    // Refresh the applications list
-    fetchApplications();
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <ModernSidebar />
@@ -453,7 +446,7 @@ export function JobApplicationsPage() {
             >
               <ArrowLeft className="w-5 h-5 text-gray-500" />
             </Link>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -464,7 +457,7 @@ export function JobApplicationsPage() {
 
           <button
             onClick={() => setShowAddDialog(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-medium hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg shadow-sky-500/25"
           >
             <Plus className="w-4 h-4" />
             New Job
@@ -489,7 +482,7 @@ export function JobApplicationsPage() {
               placeholder="Search jobs by title, company, or location..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -499,7 +492,7 @@ export function JobApplicationsPage() {
             <select
               value={filters.status || ''}
               onChange={(e) => setFilters({ status: e.target.value || undefined })}
-              className="px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             >
               <option value="">All Statuses</option>
               {JOB_STATUSES.map(status => (
@@ -511,7 +504,7 @@ export function JobApplicationsPage() {
             <select
               value={filters.priority || ''}
               onChange={(e) => setFilters({ priority: e.target.value || undefined })}
-              className="px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             >
               <option value="">All Priorities</option>
               {JOB_PRIORITIES.map(p => (
@@ -535,7 +528,7 @@ export function JobApplicationsPage() {
                 className={cn(
                   "p-2 rounded-lg transition-all",
                   viewMode === 'table' 
-                    ? "bg-purple-100 text-purple-600" 
+                    ? "bg-sky-100 text-sky-600" 
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
@@ -546,7 +539,7 @@ export function JobApplicationsPage() {
                 className={cn(
                   "p-2 rounded-lg transition-all",
                   viewMode === 'cards' 
-                    ? "bg-purple-100 text-purple-600" 
+                    ? "bg-sky-100 text-sky-600" 
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
@@ -557,7 +550,7 @@ export function JobApplicationsPage() {
                 className={cn(
                   "p-2 rounded-lg transition-all",
                   viewMode === 'kanban' 
-                    ? "bg-purple-100 text-purple-600" 
+                    ? "bg-sky-100 text-sky-600" 
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
@@ -584,7 +577,7 @@ export function JobApplicationsPage() {
         {/* Loading */}
         {isLoading && applications.length === 0 ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+            <div className="animate-spin w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full" />
           </div>
         ) : applications.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
@@ -593,7 +586,7 @@ export function JobApplicationsPage() {
             <p className="text-gray-500 mb-6">Start tracking your job search by adding your first application</p>
             <button
               onClick={() => setShowAddDialog(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-medium hover:from-sky-600 hover:to-blue-700 transition-all"
             >
               <Plus className="w-5 h-5" />
               Add Your First Job
@@ -669,7 +662,7 @@ export function JobApplicationsPage() {
         <AddJobDialog
           isOpen={showAddDialog}
           onClose={() => setShowAddDialog(false)}
-          onSubmit={handleAddJob}
+          onSuccess={() => fetchApplications()}
         />
       </main>
     </div>

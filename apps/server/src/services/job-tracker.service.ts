@@ -11,6 +11,7 @@ interface CreateJobApplicationInput {
   salaryMin?: number;
   salaryMax?: number;
   salaryCurrency?: string;
+  salaryPeriod?: string;
   jobUrl?: string;
   jobDescription?: string;
   status?: string;
@@ -19,6 +20,7 @@ interface CreateJobApplicationInput {
   appliedDate?: Date;
   notes?: string;
   source?: string;
+  sourceUrl?: string;
 }
 
 interface UpdateJobApplicationInput {
@@ -29,6 +31,7 @@ interface UpdateJobApplicationInput {
   salaryMin?: number;
   salaryMax?: number;
   salaryCurrency?: string;
+  salaryPeriod?: string;
   jobUrl?: string;
   jobDescription?: string;
   status?: string;
@@ -37,6 +40,7 @@ interface UpdateJobApplicationInput {
   appliedDate?: Date;
   notes?: string;
   source?: string;
+  sourceUrl?: string;
 }
 
 interface GetJobApplicationsParams {
@@ -68,6 +72,7 @@ export const jobTrackerService = {
         salaryMin: input.salaryMin,
         salaryMax: input.salaryMax,
         salaryCurrency: input.salaryCurrency || 'USD',
+        salaryPeriod: input.salaryPeriod || 'year',
         jobUrl: input.jobUrl,
         jobDescription: input.jobDescription,
         status: input.status || 'wishlist',
@@ -76,6 +81,7 @@ export const jobTrackerService = {
         appliedDate: input.appliedDate,
         notes: input.notes,
         source: input.source,
+        sourceUrl: input.sourceUrl,
       },
       include: {
         documents: true,
