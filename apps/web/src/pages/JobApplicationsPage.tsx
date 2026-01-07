@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
+import { AddJobDialog } from '@/components/AddJobDialog';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { JOB_STATUSES, JOB_PRIORITIES, JobApplication } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
@@ -270,9 +271,11 @@ function CardView({
 function KanbanView({ 
   applications, 
   onEdit,
+  onAddJob,
 }: { 
   applications: JobApplication[]; 
   onEdit: (id: string) => void;
+  onAddJob: () => void;
 }) {
   const columns = JOB_STATUSES.filter(s => 
     ['wishlist', 'applied', 'interview', 'offer', 'rejected'].includes(s.value)
@@ -355,6 +358,10 @@ function KanbanView({
               <Link
                 to="/plugins/job-tracker/applications/new"
                 className="flex items-center justify-center gap-2 p-4 border-t border-gray-100 text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onAddJob();
+                }}
               >
                 <Plus className="w-4 h-4" />
                 <span className="text-sm">Add Job</span>
@@ -377,6 +384,7 @@ export function JobApplicationsPage() {
     filters,
     viewMode,
     fetchApplications,
+    createApplication,
     deleteApplication,
     setFilters,
     setViewMode,
@@ -386,6 +394,7 @@ export function JobApplicationsPage() {
 
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -422,6 +431,11 @@ export function JobApplicationsPage() {
     }
   };
 
+  const handleAddJob = async (data: any) => {
+    const newJob = await createApplication(data);
+    navigate(`/plugins/job-tracker/applications/${newJob.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <ModernSidebar />
@@ -439,13 +453,13 @@ export function JobApplicationsPage() {
             </div>
           </div>
 
-          <Link
-            to="/plugins/job-tracker/applications/new"
+          <button
+            onClick={() => setShowAddDialog(true)}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25"
           >
             <Plus className="w-4 h-4" />
             New Job
-          </Link>
+          </button>
         </div>
 
         {/* Pipeline Stats */}
@@ -568,13 +582,13 @@ export function JobApplicationsPage() {
             <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No applications yet</h3>
             <p className="text-gray-500 mb-6">Start tracking your job search by adding your first application</p>
-            <Link
-              to="/plugins/job-tracker/applications/new"
+            <button
+              onClick={() => setShowAddDialog(true)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-indigo-700 transition-all"
             >
               <Plus className="w-5 h-5" />
               Add Your First Job
-            </Link>
+            </button>
           </div>
         ) : (
           <>
@@ -596,6 +610,7 @@ export function JobApplicationsPage() {
               <KanbanView 
                 applications={applications} 
                 onEdit={handleEdit}
+                onAddJob={() => setShowAddDialog(true)}
               />
             )}
           </>
@@ -640,6 +655,13 @@ export function JobApplicationsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Add Job Dialog */}
+        <AddJobDialog
+          isOpen={showAddDialog}
+          onClose={() => setShowAddDialog(false)}
+          onSubmit={handleAddJob}
+        />
       </main>
     </div>
   );

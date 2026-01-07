@@ -116,6 +116,21 @@ export interface DashboardStats {
   upcomingTasks: JobTask[];
 }
 
+export interface ScrapedJobData {
+  company: string;
+  jobTitle: string;
+  location?: string;
+  employmentType?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  jobDescription?: string;
+  jobUrl: string;
+  source: string;
+  postedDate?: string;
+  applicants?: string;
+}
+
 export interface Plugin {
   id: string;
   name: string;
@@ -150,6 +165,10 @@ export const jobTrackerApi = {
   // Dashboard
   getDashboard: () => 
     api.get<{ success: boolean; data: DashboardStats }>('/job-tracker/dashboard'),
+
+  // Scrape job from URL
+  scrapeJob: (url: string) => 
+    api.post<{ success: boolean; data: ScrapedJobData }>('/job-tracker/scrape', { url }),
 
   // Applications
   getApplications: (params?: {

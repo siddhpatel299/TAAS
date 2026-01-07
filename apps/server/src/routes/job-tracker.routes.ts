@@ -3,6 +3,7 @@ import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { jobTrackerService } from '../services/job-tracker.service';
 import { pluginsService } from '../services/plugins.service';
+import { jobScraperService } from '../services/job-scraper.service';
 
 const router: Router = Router();
 
@@ -276,6 +277,23 @@ router.get('/activity', asyncHandler(async (req: AuthRequest, res: Response) => 
   res.json({
     success: true,
     data: activity,
+  });
+}));
+
+// ==================== Job URL Scraper ====================
+
+router.post('/scrape', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { url } = req.body;
+
+  if (!url || typeof url !== 'string') {
+    throw new ApiError('Job posting URL is required', 400);
+  }
+
+  const scrapedData = await jobScraperService.scrapeJob(url);
+
+  res.json({
+    success: true,
+    data: scrapedData,
   });
 }));
 
