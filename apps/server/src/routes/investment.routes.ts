@@ -93,4 +93,38 @@ router.delete('/dividends/:id', authMiddleware, asyncHandler(async (req: AuthReq
   res.json({ success: true, data: { deleted: true } });
 }));
 
+// ==================== MUTUAL FUND API (MFAPI.in) ====================
+
+// Search mutual funds by name
+router.get('/mf/search', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { q } = req.query;
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({ success: false, error: 'Search query is required' });
+  }
+  const results = await investmentService.searchMutualFunds(q);
+  res.json({ success: true, data: results });
+}));
+
+// Get NAV for a specific mutual fund scheme
+router.get('/mf/nav/:schemeCode', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const navData = await investmentService.fetchMutualFundNAV(req.params.schemeCode);
+  if (!navData) {
+    return res.status(404).json({ success: false, error: 'Mutual fund not found' });
+  }
+  res.json({ success: true, data: navData });
+}));
+
+// Get historical NAV data for a mutual fund
+router.get('/mf/history/:schemeCode', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const days = parseInt(req.query.days as string) || 30;
+  const history = await investmentService.getMutualFundHistory(req.params.schemeCode, days);
+  res.json({ success: true, data: history });
+}));
+
+// Refresh all mutual fund prices for the user
+router.post('/mf/refresh', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const result = await investmentService.refreshMutualFundPrices(req.user!.id);
+  res.json({ success: true, data: result });
+}));
+
 export default router;

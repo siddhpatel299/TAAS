@@ -354,4 +354,123 @@ export const investmentService = {
 
     return { types, sectors };
   },
+
+  // Fetch real-time NAV for Indian mutual funds from MFAPI.in
+  async fetchMutualFundNAV(schemeCode: string): Promise<{
+    nav: number;
+    date: string;
+    schemeName: string;
+    schemeCategory: string;
+  } | null> {
+    try {
+      const response = await fetch(`https://api.mfapi.in/mf/${schemeCode}`);
+      if (!response.ok) return null;
+      
+      const data: any = await response.json();
+      if (!data || !data.data || data.data.length === 0) return null;
+      
+      const latestNAV = data.data[0];
+      return {
+        nav: parseFloat(latestNAV.nav),
+        date: latestNAV.date,
+        schemeName: data.meta?.scheme_name || '',
+        schemeCategory: data.meta?.scheme_category || '',
+      };
+    } catch (error) {
+      console.error(`Failed to fetch NAV for scheme ${schemeCode}:`, error);
+      return null;
+    }
+  },
+
+  // Search mutual funds by name
+  async searchMutualFunds(query: string): Promise<Array<{
+    schemeCode: string;
+    schemeName: string;
+  }>> {
+    try {
+      const response = await fetch('https://api.mfapi.in/mf/search?q=' + encodeURIComponent(query));
+      if (!response.ok) return [];
+      
+      const data = await response.json() as any[];
+      return data.slice(0, 20).map((item: any) => ({
+        schemeCode: String(item.schemeCode),
+        schemeName: item.schemeName,
+      }));
+    } catch (error) {
+      console.error('Failed to search mutual funds:', error);
+      return [];
+    }
+  },
+
+  // Update prices for all mutual funds of a user
+  async refreshMutualFundPrices(userId: string): Promise<{
+    updated: number;
+    failed: number;
+    results: Array<{ symbol: string; name: string; oldPrice: number; newPrice: number; change: number }>;
+  }> {
+    const mutualFunds = await prisma.investment.findMany({
+      where: { 
+        userId, 
+        type: 'mutual_fund',
+        symbol: { not: '' },
+      },
+    });
+
+    let updated = 0;
+    let failed = 0;
+    const results: Array<{ symbol: string; name: string; oldPrice: number; newPrice: number; change: number }> = [];
+
+    for (const mf of mutualFunds) {
+      // Symbol should contain the AMFI scheme code for Indian MFs
+      const navData = await this.fetchMutualFundNAV(mf.symbol);
+      
+      if (navData) {
+        const oldPrice = Number(mf.currentPrice) || 0;
+        const newPrice = navData.nav;
+        const change = oldPrice > 0 ? ((newPrice - oldPrice) / oldPrice) * 100 : 0;
+
+        await prisma.investment.update({
+          where: { id: mf.id },
+          data: { 
+            currentPrice: newPrice,
+          },
+        });
+
+        results.push({
+          symbol: mf.symbol,
+          name: mf.name,
+          oldPrice,
+          newPrice,
+          change: Math.round(change * 100) / 100,
+        });
+        updated++;
+      } else {
+        failed++;
+      }
+    }
+
+    return { updated, failed, results };
+  },
+
+  // Get historical NAV data for a mutual fund
+  async getMutualFundHistory(schemeCode: string, days: number = 30): Promise<Array<{
+    date: string;
+    nav: number;
+  }>> {
+    try {
+      const response = await fetch(`https://api.mfapi.in/mf/${schemeCode}`);
+      if (!response.ok) return [];
+      
+      const data: any = await response.json();
+      if (!data || !data.data) return [];
+      
+      return data.data.slice(0, days).map((item: any) => ({
+        date: item.date,
+        nav: parseFloat(item.nav),
+      }));
+    } catch (error) {
+      console.error(`Failed to fetch history for scheme ${schemeCode}:`, error);
+      return [];
+    }
+  },
 };

@@ -466,6 +466,19 @@ export const investmentApi = {
 
   deleteDividend: (dividendId: string) =>
     api.delete<{ success: boolean; data: { deleted: boolean } }>(`/investments/dividends/${dividendId}`),
+
+  // Mutual Fund API (Indian MFs via MFAPI.in)
+  searchMutualFunds: (query: string) =>
+    api.get<{ success: boolean; data: Array<{ schemeCode: string; schemeName: string }> }>('/investments/mf/search', { params: { q: query } }),
+
+  getMutualFundNAV: (schemeCode: string) =>
+    api.get<{ success: boolean; data: { nav: number; date: string; schemeName: string; schemeCategory: string } }>(`/investments/mf/nav/${schemeCode}`),
+
+  getMutualFundHistory: (schemeCode: string, days?: number) =>
+    api.get<{ success: boolean; data: Array<{ date: string; nav: number }> }>(`/investments/mf/history/${schemeCode}`, { params: { days } }),
+
+  refreshMutualFundPrices: () =>
+    api.post<{ success: boolean; data: { updated: number; failed: number; results: Array<{ symbol: string; name: string; oldPrice: number; newPrice: number; change: number }> } }>('/investments/mf/refresh'),
 };
 
 // ==================== BILL API ====================

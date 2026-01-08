@@ -20,6 +20,7 @@ import {
   Landmark,
   Home,
   Package,
+  RefreshCw,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
@@ -51,6 +52,13 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   other: <Package className="w-4 h-4" />,
 };
 
+// Type for refresh result
+interface RefreshResult {
+  updated: number;
+  failed: number;
+  results: Array<{ symbol: string; name: string; oldPrice: number; newPrice: number; change: number }>;
+}
+
 export function InvestmentDashboardPage() {
   const [dashboard, setDashboard] = useState<InvestmentDashboard | null>(null);
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -61,6 +69,8 @@ export function InvestmentDashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [selectedInvestment, setSelectedInvestment] = useState<Investment | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshResult, setRefreshResult] = useState<RefreshResult | null>(null);
 
   // Calculate type allocation for chart
   const typeAllocation = useMemo(() => {
@@ -124,6 +134,20 @@ export function InvestmentDashboardPage() {
       console.error('Failed to load investment data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRefreshPrices = async () => {
+    setIsRefreshing(true);
+    setRefreshResult(null);
+    try {
+      const response = await investmentApi.refreshMutualFundPrices();
+      setRefreshResult(response.data.data);
+      loadData(); // Reload to get updated prices
+    } catch (error) {
+      console.error('Failed to refresh prices:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -244,14 +268,65 @@ export function InvestmentDashboardPage() {
             </div>
             <p className="text-gray-500">Track your stocks, crypto, and investments</p>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Investment
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleRefreshPrices}
+              disabled={isRefreshing}
+              className={cn(
+                "px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2",
+                isRefreshing && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh Prices'}
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Investment
+            </button>
+          </div>
         </div>
+
+        {/* Refresh Results Toast */}
+        {refreshResult && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-green-600" />
+                <span className="font-medium text-green-800">
+                  Prices updated: {refreshResult.updated} funds refreshed
+                  {refreshResult.failed > 0 && `, ${refreshResult.failed} failed`}
+                </span>
+              </div>
+              <button onClick={() => setRefreshResult(null)} className="text-green-600 hover:text-green-800">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {refreshResult.results.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {refreshResult.results.slice(0, 3).map((r: { name: string; oldPrice: number; newPrice: number; change: number }, i: number) => (
+                  <div key={i} className="text-sm text-green-700">
+                    {r.name}: ₹{r.oldPrice.toFixed(2)} → ₹{r.newPrice.toFixed(2)} 
+                    <span className={r.change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                      {' '}({r.change >= 0 ? '+' : ''}{r.change.toFixed(2)}%)
+                    </span>
+                  </div>
+                ))}
+                {refreshResult.results.length > 3 && (
+                  <div className="text-sm text-green-600">+{refreshResult.results.length - 3} more</div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
