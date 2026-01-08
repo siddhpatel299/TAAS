@@ -204,63 +204,6 @@ model EnabledPlugin {
 // TODO LISTS PLUGIN
 // =====================================
 
-// =====================================
-// EXPENSE TRACKER PLUGIN
-// =====================================
-
-model ExpenseCategory {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  color     String?
-  icon      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  expenses Expense[]
-
-  @@index([userId])
-  @@map("expense_categories")
-  @@schema("public")
-}
-
-model Expense {
-  id          String   @id @default(cuid())
-  userId      String
-  categoryId  String?
-  amount      Float
-  currency    String  @default("USD")
-  date        DateTime @default(now())
-  description String?
-  tags        String[]
-  receiptId   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category ExpenseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  receipt  ExpenseReceipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([categoryId])
-  @@index([date])
-  @@map("expenses")
-  @@schema("public")
-}
-
-model ExpenseReceipt {
-  id        String   @id @default(cuid())
-  userId    String
-  fileId    String? // Reference to File.id
-  imageUrl  String?
-  createdAt DateTime @default(now())
-
-  expense Expense[]
-
-  @@index([userId])
-  @@map("expense_receipts")
-  @@schema("public")
-}
-
 model TodoList {
   id        String    @id @default(cuid())
   userId    String

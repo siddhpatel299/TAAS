@@ -16,7 +16,6 @@ import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
-import { ExpensePage } from '@/pages/ExpensePage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
@@ -160,14 +159,6 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <TodoPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/expense-tracker"
-                element={
-                  <ProtectedRoute>
-                    <ExpensePage />
                   </ProtectedRoute>
                 }
               />
