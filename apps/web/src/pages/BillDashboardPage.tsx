@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Bell,
@@ -12,6 +12,17 @@ import {
   Edit,
   X,
   ExternalLink,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  Home,
+  Wifi,
+  CreditCard,
+  Car,
+  Heart,
+  GraduationCap,
+  Package,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
@@ -24,6 +35,35 @@ import {
   PAYMENT_METHODS,
 } from '@/lib/finance-api';
 
+// Category icons
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  utilities: <Zap className="w-3 h-3" />,
+  rent: <Home className="w-3 h-3" />,
+  internet: <Wifi className="w-3 h-3" />,
+  phone: <Wifi className="w-3 h-3" />,
+  insurance: <Heart className="w-3 h-3" />,
+  subscription: <CreditCard className="w-3 h-3" />,
+  loan: <CreditCard className="w-3 h-3" />,
+  credit_card: <CreditCard className="w-3 h-3" />,
+  car: <Car className="w-3 h-3" />,
+  education: <GraduationCap className="w-3 h-3" />,
+  other: <Package className="w-3 h-3" />,
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  utilities: '#F59E0B',
+  rent: '#8B5CF6',
+  internet: '#3B82F6',
+  phone: '#06B6D4',
+  insurance: '#EF4444',
+  subscription: '#EC4899',
+  loan: '#6366F1',
+  credit_card: '#10B981',
+  car: '#14B8A6',
+  education: '#F97316',
+  other: '#6B7280',
+};
+
 export function BillDashboardPage() {
   const [dashboard, setDashboard] = useState<BillDashboard | null>(null);
   const [bills, setBills] = useState<Bill[]>([]);
@@ -34,6 +74,39 @@ export function BillDashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+
+  // Generate calendar days for the current month
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay();
+    
+    const days: { date: Date | null; bills: Bill[] }[] = [];
+    
+    // Add empty cells for days before the first of the month
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push({ date: null, bills: [] });
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dayBills = bills.filter(bill => {
+        const billDate = new Date(bill.dueDate);
+        return billDate.getDate() === day && 
+               billDate.getMonth() === month && 
+               billDate.getFullYear() === year;
+      });
+      days.push({ date, bills: dayBills });
+    }
+    
+    return days;
+  }, [calendarMonth, bills]);
   const [newBill, setNewBill] = useState({
     name: '',
     amount: '',
@@ -324,8 +397,34 @@ export function BillDashboardPage() {
           </motion.div>
         )}
 
-        {/* Filters */}
+        {/* View Toggle and Filters */}
         <div className="flex gap-4 mb-6">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium rounded-xl transition-all flex items-center gap-2",
+                viewMode === 'list'
+                  ? "bg-orange-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-200"
+              )}
+            >
+              <Bell className="w-4 h-4" />
+              List
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium rounded-xl transition-all flex items-center gap-2",
+                viewMode === 'calendar'
+                  ? "bg-orange-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-200"
+              )}
+            >
+              <Calendar className="w-4 h-4" />
+              Calendar
+            </button>
+          </div>
           <div className="flex-1 relative">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -357,6 +456,114 @@ export function BillDashboardPage() {
             ))}
           </select>
         </div>
+
+        {/* Calendar View */}
+        {viewMode === 'calendar' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-gray-100 p-6 mb-8"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </h3>
+              <button
+                onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                  {day}
+                </div>
+              ))}
+              {calendarDays.map((day, index) => {
+                const isToday = day.date && 
+                  day.date.toDateString() === new Date().toDateString();
+                const hasOverdue = day.bills.some(b => b.status === 'overdue');
+                const hasPending = day.bills.some(b => b.status === 'pending');
+                
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      "min-h-[80px] p-1 border border-gray-100 rounded-lg",
+                      isToday && "bg-orange-50 border-orange-200",
+                      !day.date && "bg-gray-50"
+                    )}
+                  >
+                    {day.date && (
+                      <>
+                        <div className={cn(
+                          "text-sm font-medium mb-1",
+                          isToday ? "text-orange-600" : "text-gray-700"
+                        )}>
+                          {day.date.getDate()}
+                        </div>
+                        <div className="space-y-1">
+                          {day.bills.slice(0, 2).map((bill) => (
+                            <div
+                              key={bill.id}
+                              onClick={() => {
+                                setSelectedBill(bill);
+                                setPaymentData({ amount: String(bill.amount), paymentMethod: '', reference: '' });
+                                setShowPayModal(true);
+                              }}
+                              className={cn(
+                                "text-xs px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80",
+                                bill.status === 'paid' && "bg-green-100 text-green-700",
+                                bill.status === 'pending' && "bg-yellow-100 text-yellow-700",
+                                bill.status === 'overdue' && "bg-red-100 text-red-700"
+                              )}
+                              style={{ 
+                                borderLeft: `3px solid ${CATEGORY_COLORS[bill.category || 'other'] || '#6B7280'}` 
+                              }}
+                            >
+                              {CATEGORY_ICONS[bill.category || 'other']} {bill.name}
+                            </div>
+                          ))}
+                          {day.bills.length > 2 && (
+                            <div className="text-xs text-gray-500 px-1">
+                              +{day.bills.length - 2} more
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Legend */}
+            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-green-100 border border-green-300" />
+                <span className="text-xs text-gray-600">Paid</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-yellow-100 border border-yellow-300" />
+                <span className="text-xs text-gray-600">Pending</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-red-100 border border-red-300" />
+                <span className="text-xs text-gray-600">Overdue</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Bills List */}
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
