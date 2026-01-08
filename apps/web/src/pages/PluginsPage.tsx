@@ -106,9 +106,8 @@ export function PluginsPage() {
   };
 
   const handleOpenPlugin = (pluginId: string) => {
-    if (pluginId === 'job-tracker') {
-      navigate('/plugins/job-tracker');
-    }
+    // Navigate to the plugin's dedicated page
+    navigate(`/plugins/${pluginId}`);
   };
 
   return (

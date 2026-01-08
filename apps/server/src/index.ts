@@ -12,6 +12,7 @@ import syncRoutes from './routes/sync.routes';
 import telegramRoutes from './routes/telegram.routes';
 import pluginsRoutes from './routes/plugins.routes';
 import jobTrackerRoutes from './routes/job-tracker.routes';
+import todoRoutes from './routes/todo.routes';
 
 const app: Application = express();
 
@@ -68,6 +69,7 @@ app.use('/api/sync', apiLimiter, syncRoutes);
 app.use('/api/telegram', apiLimiter, telegramRoutes);
 app.use('/api/plugins', apiLimiter, pluginsRoutes);
 app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
+app.use('/api/todo', apiLimiter, todoRoutes);
 
 // Error handling
 app.use(notFoundHandler);

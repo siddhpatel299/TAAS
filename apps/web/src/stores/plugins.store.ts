@@ -28,7 +28,8 @@ export const usePluginsStore = create<PluginsState>((set, get) => ({
       const response = await pluginsApi.getAvailable();
       set({ availablePlugins: response.data.data, isLoading: false });
     } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      const message = error.response?.data?.error || error.message;
+      set({ error: message, isLoading: false });
     }
   },
 
@@ -48,8 +49,10 @@ export const usePluginsStore = create<PluginsState>((set, get) => ({
       // Refresh both lists
       await get().fetchAvailablePlugins();
       await get().fetchEnabledPlugins();
+      set({ isLoading: false });
     } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      const message = error.response?.data?.error || error.message;
+      set({ error: message, isLoading: false });
       throw error;
     }
   },
@@ -61,8 +64,10 @@ export const usePluginsStore = create<PluginsState>((set, get) => ({
       // Refresh both lists
       await get().fetchAvailablePlugins();
       await get().fetchEnabledPlugins();
+      set({ isLoading: false });
     } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      const message = error.response?.data?.error || error.message;
+      set({ error: message, isLoading: false });
       throw error;
     }
   },

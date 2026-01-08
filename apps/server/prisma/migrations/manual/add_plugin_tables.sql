@@ -143,3 +143,46 @@ ALTER TABLE "public"."jt_activities"
 ADD CONSTRAINT "jt_activities_jobApplicationId_fkey" 
 FOREIGN KEY ("jobApplicationId") REFERENCES "public"."jt_applications"("id") 
 ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Todo Lists
+CREATE TABLE IF NOT EXISTS "public"."todo_lists" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "color" TEXT,
+    "icon" TEXT,
+    "position" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "todo_lists_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "public"."todo_tasks" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "listId" TEXT,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'todo',
+    "priority" TEXT NOT NULL DEFAULT 'medium',
+    "dueDate" TIMESTAMP(3),
+    "labels" TEXT[],
+    "isPinned" BOOLEAN NOT NULL DEFAULT false,
+    "position" INTEGER NOT NULL DEFAULT 0,
+    "completedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "todo_tasks_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "todo_lists_userId_idx" ON "public"."todo_lists"("userId");
+CREATE INDEX IF NOT EXISTS "todo_tasks_userId_idx" ON "public"."todo_tasks"("userId");
+CREATE INDEX IF NOT EXISTS "todo_tasks_listId_idx" ON "public"."todo_tasks"("listId");
+CREATE INDEX IF NOT EXISTS "todo_tasks_status_idx" ON "public"."todo_tasks"("status");
+CREATE INDEX IF NOT EXISTS "todo_tasks_priority_idx" ON "public"."todo_tasks"("priority");
+CREATE INDEX IF NOT EXISTS "todo_tasks_dueDate_idx" ON "public"."todo_tasks"("dueDate");
+
+ALTER TABLE "public"."todo_tasks"
+ADD CONSTRAINT "todo_tasks_listId_fkey"
+FOREIGN KEY ("listId") REFERENCES "public"."todo_lists"("id")
+ON DELETE SET NULL ON UPDATE CASCADE;

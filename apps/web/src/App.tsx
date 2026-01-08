@@ -14,6 +14,8 @@ import { PluginsPage } from '@/pages/PluginsPage';
 import { JobTrackerDashboardPage } from '@/pages/JobTrackerDashboardPage';
 import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
+import { TodoPage } from '@/pages/TodoPage';
+import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
@@ -153,6 +155,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/plugins/todo-lists"
+                element={
+                  <ProtectedRoute>
+                    <TodoPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/plugins/job-tracker"
                 element={
                   <ProtectedRoute>
@@ -173,6 +183,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <JobApplicationFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/:pluginId"
+                element={
+                  <ProtectedRoute>
+                    <PluginComingSoonPage />
                   </ProtectedRoute>
                 }
               />

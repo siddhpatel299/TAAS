@@ -201,6 +201,54 @@ model EnabledPlugin {
 }
 
 // =====================================
+// TODO LISTS PLUGIN
+// =====================================
+
+model TodoList {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  color     String?
+  icon      String?
+  position  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tasks TodoTask[]
+
+  @@index([userId])
+  @@map("todo_lists")
+  @@schema("public")
+}
+
+model TodoTask {
+  id           String    @id @default(cuid())
+  userId       String
+  listId       String?
+  title        String
+  description  String?   @db.Text
+  status       String    @default("todo") // todo, in_progress, done
+  priority     String    @default("medium") // low, medium, high, critical
+  dueDate      DateTime?
+  labels       String[]
+  isPinned     Boolean   @default(false)
+  position     Int       @default(0)
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  list TodoList? @relation(fields: [listId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([listId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@map("todo_tasks")
+  @@schema("public")
+}
+
+// =====================================
 // JOB TRACKER PLUGIN
 // =====================================
 

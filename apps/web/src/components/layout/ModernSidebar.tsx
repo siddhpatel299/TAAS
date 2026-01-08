@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Puzzle,
   Briefcase,
+  CheckSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth.store';
@@ -37,6 +38,7 @@ const mainNavItems = [
 // Plugin icons mapping
 const pluginIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   'job-tracker': Briefcase,
+  'todo-lists': CheckSquare,
 };
 
 export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarProps) {
