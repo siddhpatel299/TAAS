@@ -492,8 +492,6 @@ export function BillDashboardPage() {
               {calendarDays.map((day, index) => {
                 const isToday = day.date && 
                   day.date.toDateString() === new Date().toDateString();
-                const hasOverdue = day.bills.some(b => b.status === 'overdue');
-                const hasPending = day.bills.some(b => b.status === 'pending');
                 
                 return (
                   <div
