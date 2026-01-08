@@ -170,13 +170,22 @@ export function InvoiceDashboardPage() {
       return;
     }
     try {
+      // Ensure items have proper number types
+      const formattedItems = newInvoice.items
+        .filter(item => item.description)
+        .map(item => ({
+          description: item.description,
+          quantity: Number(item.quantity) || 1,
+          unitPrice: Number(item.unitPrice) || 0,
+        }));
+      
       await invoiceApi.createInvoice({
         clientId: newInvoice.clientId || undefined,
         dueDate: newInvoice.dueDate || undefined,
         notes: newInvoice.notes || undefined,
         terms: newInvoice.terms || undefined,
-        taxRate: newInvoice.taxRate || undefined,
-        items: newInvoice.items.filter(item => item.description),
+        taxRate: Number(newInvoice.taxRate) || undefined,
+        items: formattedItems,
       });
       setShowNewInvoiceModal(false);
       setNewInvoice({

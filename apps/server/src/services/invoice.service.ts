@@ -229,7 +229,7 @@ export const invoiceService = {
     discount?: number;
     isRecurring?: boolean;
     recurringPeriod?: string;
-    items: Array<{
+    items?: Array<{
       description: string;
       quantity: number;
       unitPrice: number;
@@ -237,12 +237,17 @@ export const invoiceService = {
   }) {
     const invoiceNumber = data.invoiceNumber || await this.getNextInvoiceNumber(userId);
     
+    // Ensure items is an array
+    const itemsArray = data.items || [];
+    
     // Calculate totals
     let subtotal = 0;
-    const items = data.items.map(item => {
-      const amount = item.quantity * item.unitPrice;
+    const items = itemsArray.map(item => {
+      const quantity = Number(item.quantity) || 0;
+      const unitPrice = Number(item.unitPrice) || 0;
+      const amount = quantity * unitPrice;
       subtotal += amount;
-      return { ...item, amount };
+      return { description: item.description, quantity, unitPrice, amount };
     });
 
     const taxAmount = data.taxRate ? subtotal * (data.taxRate / 100) : 0;
