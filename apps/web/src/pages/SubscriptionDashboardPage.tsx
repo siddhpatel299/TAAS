@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Repeat,
@@ -10,10 +10,20 @@ import {
   Play,
   X,
   Search,
-  MoreVertical,
   Trash2,
   ExternalLink,
   TrendingUp,
+  MoreVertical,
+  Tv,
+  Briefcase,
+  Zap,
+  Heart,
+  BookOpen,
+  Newspaper,
+  Cloud,
+  Gamepad2,
+  Music,
+  Package,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
@@ -25,6 +35,34 @@ import {
   SUBSCRIPTION_CATEGORIES,
   BILLING_CYCLES,
 } from '@/lib/finance-api';
+
+// Category icon mapping
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  entertainment: <Tv className="w-4 h-4" />,
+  productivity: <Briefcase className="w-4 h-4" />,
+  utilities: <Zap className="w-4 h-4" />,
+  health: <Heart className="w-4 h-4" />,
+  education: <BookOpen className="w-4 h-4" />,
+  news: <Newspaper className="w-4 h-4" />,
+  storage: <Cloud className="w-4 h-4" />,
+  gaming: <Gamepad2 className="w-4 h-4" />,
+  music: <Music className="w-4 h-4" />,
+  other: <Package className="w-4 h-4" />,
+};
+
+// Category colors for chart
+const CATEGORY_COLORS: Record<string, string> = {
+  entertainment: '#8B5CF6',
+  productivity: '#3B82F6',
+  utilities: '#F59E0B',
+  health: '#EF4444',
+  education: '#10B981',
+  news: '#6366F1',
+  storage: '#06B6D4',
+  gaming: '#EC4899',
+  music: '#14B8A6',
+  other: '#6B7280',
+};
 
 export function SubscriptionDashboardPage() {
   const [dashboard, setDashboard] = useState<SubscriptionDashboard | null>(null);
@@ -41,7 +79,43 @@ export function SubscriptionDashboardPage() {
     category: '',
     startDate: new Date().toISOString().split('T')[0],
     website: '',
+    color: '#8B5CF6',
+    notes: '',
   });
+
+  // Calculate category breakdown for chart
+  const categoryBreakdown = useMemo(() => {
+    const breakdown: { category: string; amount: number; count: number; color: string }[] = [];
+    const categoryMap = new Map<string, { amount: number; count: number }>();
+    
+    subscriptions
+      .filter(s => s.status === 'active')
+      .forEach(sub => {
+        const cat = sub.category || 'other';
+        const existing = categoryMap.get(cat) || { amount: 0, count: 0 };
+        // Normalize to monthly
+        let monthlyAmount = sub.amount;
+        if (sub.billingCycle === 'yearly') monthlyAmount /= 12;
+        else if (sub.billingCycle === 'quarterly') monthlyAmount /= 3;
+        else if (sub.billingCycle === 'weekly') monthlyAmount *= 4.33;
+        
+        categoryMap.set(cat, {
+          amount: existing.amount + monthlyAmount,
+          count: existing.count + 1,
+        });
+      });
+    
+    categoryMap.forEach((value, key) => {
+      breakdown.push({
+        category: key,
+        amount: Math.round(value.amount * 100) / 100,
+        count: value.count,
+        color: CATEGORY_COLORS[key] || '#6B7280',
+      });
+    });
+    
+    return breakdown.sort((a, b) => b.amount - a.amount);
+  }, [subscriptions]);
 
   useEffect(() => {
     loadData();
@@ -82,6 +156,8 @@ export function SubscriptionDashboardPage() {
         category: '',
         startDate: new Date().toISOString().split('T')[0],
         website: '',
+        color: '#8B5CF6',
+        notes: '',
       });
       loadData();
     } catch (error) {
@@ -262,6 +338,55 @@ export function SubscriptionDashboardPage() {
             </p>
           </motion.div>
         </div>
+
+        {/* Category Breakdown */}
+        {categoryBreakdown.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-gray-100 p-6 mb-8"
+          >
+            <h3 className="font-semibold text-gray-900 mb-4">Spending by Category</h3>
+            <div className="space-y-3">
+              {categoryBreakdown.map((cat) => {
+                const totalMonthly = categoryBreakdown.reduce((sum, c) => sum + c.amount, 0);
+                const percentage = totalMonthly > 0 ? (cat.amount / totalMonthly) * 100 : 0;
+                return (
+                  <div key={cat.category} className="flex items-center gap-4">
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                      style={{ backgroundColor: cat.color }}
+                    >
+                      {CATEGORY_ICONS[cat.category] || <Package className="w-4 h-4" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700 capitalize">{cat.category}</span>
+                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(cat.amount)}/mo</span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: cat.color }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500 w-12 text-right">{cat.count} subs</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between">
+              <span className="text-sm text-gray-500">Total Monthly</span>
+              <span className="font-bold text-purple-600">
+                {formatCurrency(categoryBreakdown.reduce((sum, c) => sum + c.amount, 0))}
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Upcoming Renewals */}
         {dashboard?.upcomingRenewals && dashboard.upcomingRenewals.length > 0 && (
