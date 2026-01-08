@@ -30,7 +30,7 @@ import { usePasswordVaultStore } from '@/stores/password-vault.store';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { PasswordEntry } from '@/lib/plugins-api';
-import { AddPasswordDialog } from '@/components/AddPasswordDialog';
+import { AddPasswordDialogSimple } from '@/components/AddPasswordDialogSimple';
 import { MasterKeyDialog } from '@/components/MasterKeyDialog';
 
 // Category Icons
@@ -593,7 +593,7 @@ export function PasswordVaultDashboardPage() {
         )}
         
         {/* Add Password Dialog */}
-        <AddPasswordDialog
+        <AddPasswordDialogSimple
           isOpen={showAddDialog}
           onClose={() => setShowAddDialog(false)}
         />
