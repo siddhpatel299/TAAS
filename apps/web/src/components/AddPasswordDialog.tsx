@@ -75,11 +75,20 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
   // Check password strength when password changes
   useEffect(() => {
     if (formData.password) {
-      checkPasswordStrength(formData.password).then(setPasswordStrength).catch(console.error);
+      const timer = setTimeout(() => {
+        checkPasswordStrength(formData.password)
+          .then(setPasswordStrength)
+          .catch(error => {
+            console.error('Password strength check failed:', error);
+            setPasswordStrength(null);
+          });
+      }, 500); // Debounce for 500ms
+      
+      return () => clearTimeout(timer);
     } else {
       setPasswordStrength(null);
     }
-  }, [formData.password, checkPasswordStrength]);
+  }, [formData.password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +144,11 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
 
   const copyPassword = async () => {
     if (formData.password) {
-      await navigator.clipboard.writeText(formData.password);
+      try {
+        await navigator.clipboard.writeText(formData.password);
+      } catch (error) {
+        console.error('Failed to copy password:', error);
+      }
     }
   };
 
@@ -252,7 +265,7 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
               </div>
               
               {/* Password Strength Indicator */}
-              {passwordStrength && (
+              {passwordStrength && passwordStrength.strength && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -264,7 +277,7 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
                           passwordStrength.strength === 'good' ? 'bg-blue-500' :
                           'bg-green-500'
                         )}
-                        style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                        style={{ width: `${(passwordStrength.score || 0) / 4 * 100}%` }}
                       />
                     </div>
                     <span className={cn(
@@ -277,7 +290,7 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
                       {passwordStrength.strength}
                     </span>
                   </div>
-                  {passwordStrength.suggestions.length > 0 && (
+                  {passwordStrength.suggestions && passwordStrength.suggestions.length > 0 && (
                     <div className="text-xs text-gray-500">
                       <p>Suggestions:</p>
                       <ul className="list-disc list-inside mt-1">
