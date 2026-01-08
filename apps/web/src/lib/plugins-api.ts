@@ -245,6 +245,140 @@ export const jobTrackerApi = {
     }),
 };
 
+// Password Vault Types
+export interface PasswordEntry {
+  id: string;
+  userId: string;
+  name: string;
+  username?: string;
+  password?: string; // Only returned when explicitly requested
+  url?: string;
+  notes?: string; // Only returned when explicitly requested
+  category?: string;
+  tags: string[];
+  isFavorite: boolean;
+  lastUsedAt?: string;
+  passwordStrength?: 'weak' | 'fair' | 'good' | 'strong';
+  customFields?: any;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    // Add any counts if needed
+  };
+}
+
+export interface PasswordCategory {
+  id: string;
+  userId: string;
+  name: string;
+  color?: string;
+  icon?: string;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PasswordSecurityEvent {
+  id: string;
+  userId: string;
+  eventType: string;
+  ipAddress?: string;
+  userAgent?: string;
+  metadata?: any;
+  createdAt: string;
+}
+
+export interface PasswordStrengthCheck {
+  score: number;
+  strength: 'weak' | 'fair' | 'good' | 'strong';
+  feedback: string[];
+}
+
+export interface PasswordGenerationOptions {
+  length?: number;
+  includeUppercase?: boolean;
+  includeLowercase?: boolean;
+  includeNumbers?: boolean;
+  includeSymbols?: boolean;
+  excludeSimilar?: boolean;
+}
+
+// Password Vault API
+export const passwordVaultApi = {
+  // Dashboard
+  getDashboard: () => 
+    api.get<{ success: boolean; data: any }>('/password-vault/dashboard'),
+
+  // Password Entries
+  getPasswords: (params?: {
+    category?: string;
+    search?: string;
+    tags?: string[];
+    isFavorite?: boolean;
+    sortBy?: 'name' | 'createdAt' | 'lastUsedAt' | 'category';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }) => 
+    api.get<{ success: boolean; data: PasswordEntry[]; meta: any }>('/password-vault/passwords', { params }),
+
+  getPassword: (id: string, masterKey: string) => 
+    api.post<{ success: boolean; data: PasswordEntry }>(`/password-vault/passwords/${id}`, { masterKey }),
+
+  createPassword: (data: {
+    name: string;
+    username?: string;
+    password: string;
+    url?: string;
+    notes?: string;
+    category?: string;
+    tags?: string[];
+    customFields?: any;
+  }, masterKey: string) => 
+    api.post<{ success: boolean; data: PasswordEntry }>('/password-vault/passwords', { ...data, masterKey }),
+
+  updatePassword: (id: string, data: Partial<PasswordEntry>, masterKey: string) => 
+    api.patch<{ success: boolean; data: PasswordEntry }>(`/password-vault/passwords/${id}`, { ...data, masterKey }),
+
+  deletePassword: (id: string) => 
+    api.delete<{ success: boolean; data: { deleted: boolean } }>(`/password-vault/passwords/${id}`),
+
+  // Categories
+  getCategories: () => 
+    api.get<{ success: boolean; data: PasswordCategory[] }>('/password-vault/categories'),
+
+  createCategory: (data: {
+    name: string;
+    color?: string;
+    icon?: string;
+  }) => 
+    api.post<{ success: boolean; data: PasswordCategory }>('/password-vault/categories', data),
+
+  updateCategory: (id: string, data: Partial<PasswordCategory>) => 
+    api.patch<{ success: boolean; data: PasswordCategory }>(`/password-vault/categories/${id}`, data),
+
+  deleteCategory: (id: string) => 
+    api.delete<{ success: boolean; data: { deleted: boolean } }>(`/password-vault/categories/${id}`),
+
+  // Password Generation & Strength
+  generatePassword: (options?: PasswordGenerationOptions) => 
+    api.post<{ success: boolean; data: { password: string } }>('/password-vault/generate-password', options),
+
+  checkPasswordStrength: (password: string) => 
+    api.post<{ success: boolean; data: PasswordStrengthCheck }>('/password-vault/check-password-strength', { password }),
+
+  // Security Events
+  getSecurityEvents: (limit?: number) => 
+    api.get<{ success: boolean; data: PasswordSecurityEvent[] }>('/password-vault/security-events', { params: { limit } }),
+
+  // Export
+  exportCSV: (masterKey: string) => 
+    api.get('/password-vault/export/csv', { 
+      params: { masterKey },
+      responseType: 'blob',
+    }),
+};
+
 // Job Status Options
 export const JOB_STATUSES = [
   { value: 'wishlist', label: 'Wishlist', color: 'gray' },

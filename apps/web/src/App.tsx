@@ -15,6 +15,7 @@ import { JobTrackerDashboardPage } from '@/pages/JobTrackerDashboardPage';
 import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
 import { TodoPage } from '@/pages/TodoPage';
+import { PasswordVaultDashboardPage } from '@/pages/PasswordVaultDashboardPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
@@ -183,6 +184,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <JobApplicationFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/password-vault"
+                element={
+                  <ProtectedRoute>
+                    <PasswordVaultDashboardPage />
                   </ProtectedRoute>
                 }
               />

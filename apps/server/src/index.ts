@@ -13,6 +13,7 @@ import telegramRoutes from './routes/telegram.routes';
 import pluginsRoutes from './routes/plugins.routes';
 import jobTrackerRoutes from './routes/job-tracker.routes';
 import todoRoutes from './routes/todo.routes';
+import passwordVaultRoutes from './routes/password-vault.routes';
 
 const app: Application = express();
 
@@ -70,6 +71,7 @@ app.use('/api/telegram', apiLimiter, telegramRoutes);
 app.use('/api/plugins', apiLimiter, pluginsRoutes);
 app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
 app.use('/api/todo', apiLimiter, todoRoutes);
+app.use('/api/password-vault', apiLimiter, passwordVaultRoutes);
 
 // Error handling
 app.use(notFoundHandler);

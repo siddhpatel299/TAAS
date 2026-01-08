@@ -368,3 +368,63 @@ model JobActivity {
   @@schema("public")
 }
 
+// =====================================
+// PASSWORD VAULT PLUGIN
+// =====================================
+
+model PasswordEntry {
+  id             String    @id @default(cuid())
+  userId         String
+  name           String    // e.g., "Google Account", "Work Email"
+  username       String?   // Email, username, or identifier
+  password       String    @db.Text // Encrypted password
+  url            String?   // Website or service URL
+  notes          String?   @db.Text // Additional notes (encrypted)
+  category       String?   // social, work, finance, shopping, entertainment, etc.
+  tags           String[]  // Custom tags for organization
+  isFavorite     Boolean   @default(false)
+  lastUsedAt     DateTime?
+  passwordStrength String?  // weak, fair, good, strong
+  customFields   Json?     // Additional custom fields (encrypted)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@index([isFavorite])
+  @@index([name])
+  @@map("pv_passwords")
+  @@schema("public")
+}
+
+model PasswordCategory {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   @unique // e.g., "Social Media", "Work", "Finance"
+  color       String?  // Hex color code
+  icon        String?  // Icon name
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@map("pv_categories")
+  @@schema("public")
+}
+
+model PasswordSecurityEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  eventType   String   // login_failed, password_exported, master_key_changed, etc.
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json?    // Additional event data
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("pv_security_events")
+  @@schema("public")
+}
+
