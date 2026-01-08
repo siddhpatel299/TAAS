@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import {
   Shield,
   Eye,
@@ -50,9 +49,8 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [passwordStrength, setPasswordStrength] = useState<any>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   
-  const { createPassword, generatePassword, checkPasswordStrength, isCreating } = usePasswordVaultStore();
+  const { createPassword, isCreating } = usePasswordVaultStore();
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -72,8 +70,10 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
     }
   }, [isOpen]);
 
-  // Check password strength when password changes
+  // Check password strength when password changes - TEMPORARILY DISABLED
   useEffect(() => {
+    // Disabled for debugging
+    /*
     if (formData.password) {
       const timer = setTimeout(() => {
         checkPasswordStrength(formData.password)
@@ -88,6 +88,7 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
     } else {
       setPasswordStrength(null);
     }
+    */
   }, [formData.password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,6 +109,8 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
   };
 
   const generateNewPassword = async () => {
+    // Temporarily disabled for debugging
+    /*
     setIsGenerating(true);
     try {
       const newPassword = await generatePassword({
@@ -123,6 +126,7 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
     } finally {
       setIsGenerating(false);
     }
+    */
   };
 
   const addTag = () => {
@@ -155,17 +159,11 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
   if (!isOpen) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+    <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
+      <div
         className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -256,10 +254,10 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
                 <button
                   type="button"
                   onClick={generateNewPassword}
-                  disabled={isGenerating}
+                  disabled={false}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
                 >
-                  <RefreshCw className={cn("w-4 h-4", isGenerating && "animate-spin")} />
+                  <RefreshCw className="w-4 h-4" />
                   Generate
                 </button>
               </div>
@@ -422,7 +420,7 @@ export function AddPasswordDialog({ isOpen, onClose }: AddPasswordDialogProps) {
             </button>
           </div>
         </form>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
