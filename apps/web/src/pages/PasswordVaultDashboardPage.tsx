@@ -30,6 +30,8 @@ import { usePasswordVaultStore } from '@/stores/password-vault.store';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { PasswordEntry } from '@/lib/plugins-api';
+import { AddPasswordDialog } from '@/components/AddPasswordDialog';
+import { MasterKeyDialog } from '@/components/MasterKeyDialog';
 
 // Category Icons
 const categoryIcons: Record<string, React.ElementType> = {
@@ -273,6 +275,7 @@ export function PasswordVaultDashboardPage() {
     error,
     viewMode,
     filters,
+    isMasterKeySet,
     fetchDashboard,
     fetchPasswords,
     fetchCategories,
@@ -286,6 +289,8 @@ export function PasswordVaultDashboardPage() {
 
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showMasterKeyDialog, setShowMasterKeyDialog] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -313,21 +318,28 @@ export function PasswordVaultDashboardPage() {
     window.location.href = `/plugins/password-vault/passwords/${id}/edit`;
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deletePassword(id);
-      setDeleteConfirm(null);
-    } catch (err) {
-      console.error('Failed to delete:', err);
+  const handleAddPassword = () => {
+    if (!isMasterKeySet) {
+      setShowMasterKeyDialog(true);
+    } else {
+      setShowAddDialog(true);
     }
   };
 
   const handleCopy = async (id: string) => {
     try {
       await copyPassword(id);
-      // Show success message
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deletePassword(id);
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error('Failed to delete:', err);
     }
   };
 
@@ -376,7 +388,7 @@ export function PasswordVaultDashboardPage() {
               <Settings className="w-5 h-5" />
             </button>
             <button
-              onClick={() => {/* Add dialog functionality */}}
+              onClick={handleAddPassword}
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-rose-700 transition-all shadow-lg shadow-red-500/25"
             >
               <Plus className="w-4 h-4" />
@@ -516,7 +528,7 @@ export function PasswordVaultDashboardPage() {
             </p>
             {!filters.search && !filters.category && !filters.isFavorite && (
               <button
-                onClick={() => {/* Add dialog functionality */}}
+                onClick={handleAddPassword}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-rose-700 transition-all"
               >
                 <Plus className="w-5 h-5" />
@@ -579,6 +591,18 @@ export function PasswordVaultDashboardPage() {
             </motion.div>
           </motion.div>
         )}
+        
+        {/* Add Password Dialog */}
+        <AddPasswordDialog
+          isOpen={showAddDialog}
+          onClose={() => setShowAddDialog(false)}
+        />
+        
+        {/* Master Key Dialog */}
+        <MasterKeyDialog
+          isOpen={showMasterKeyDialog}
+          onClose={() => setShowMasterKeyDialog(false)}
+        />
       </main>
     </div>
   );
