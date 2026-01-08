@@ -16,6 +16,10 @@ import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PasswordVaultDashboardPage } from '@/pages/PasswordVaultDashboardPage';
+import { InvoiceDashboardPage } from '@/pages/InvoiceDashboardPage';
+import { SubscriptionDashboardPage } from '@/pages/SubscriptionDashboardPage';
+import { InvestmentDashboardPage } from '@/pages/InvestmentDashboardPage';
+import { BillDashboardPage } from '@/pages/BillDashboardPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
@@ -192,6 +196,38 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <PasswordVaultDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/invoice-generator"
+                element={
+                  <ProtectedRoute>
+                    <InvoiceDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/subscription-tracker"
+                element={
+                  <ProtectedRoute>
+                    <SubscriptionDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/investment-portfolio"
+                element={
+                  <ProtectedRoute>
+                    <InvestmentDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/bill-reminders"
+                element={
+                  <ProtectedRoute>
+                    <BillDashboardPage />
                   </ProtectedRoute>
                 }
               />
