@@ -83,8 +83,14 @@ router.get('/invoices/:id', authMiddleware, asyncHandler(async (req: AuthRequest
 
 // Create invoice
 router.post('/invoices', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
-  const invoice = await invoiceService.createInvoice(req.user!.id, req.body);
-  res.status(201).json({ success: true, data: invoice });
+  try {
+    console.log('Creating invoice with data:', JSON.stringify(req.body, null, 2));
+    const invoice = await invoiceService.createInvoice(req.user!.id, req.body);
+    res.status(201).json({ success: true, data: invoice });
+  } catch (error: any) {
+    console.error('Invoice creation error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to create invoice' });
+  }
 }));
 
 // Update invoice

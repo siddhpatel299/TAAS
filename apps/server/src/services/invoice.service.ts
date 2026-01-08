@@ -250,20 +250,24 @@ export const invoiceService = {
       return { description: item.description, quantity, unitPrice, amount };
     });
 
-    const taxAmount = data.taxRate ? subtotal * (data.taxRate / 100) : 0;
-    const discount = data.discount || 0;
+    const taxRate = data.taxRate ? Number(data.taxRate) : 0;
+    const taxAmount = taxRate > 0 ? subtotal * (taxRate / 100) : 0;
+    const discount = data.discount ? Number(data.discount) : 0;
     const total = subtotal + taxAmount - discount;
+
+    // Handle empty clientId - set to null if empty string
+    const clientId = data.clientId && data.clientId.trim() !== '' ? data.clientId : null;
 
     return prisma.invoice.create({
       data: {
         userId,
-        clientId: data.clientId,
+        clientId,
         invoiceNumber,
         status: data.status || 'draft',
         issueDate: data.issueDate || new Date(),
         dueDate: data.dueDate,
         subtotal,
-        taxRate: data.taxRate,
+        taxRate: taxRate || null,
         taxAmount,
         discount,
         total,
