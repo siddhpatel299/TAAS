@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FileText,
@@ -9,16 +8,14 @@ import {
   Clock,
   AlertCircle,
   Send,
-  CheckCircle,
   ArrowRight,
   Search,
-  Filter,
   MoreVertical,
   Trash2,
   Edit,
   Eye,
 } from 'lucide-react';
-import { ModernSidebar } from '@/components/ModernSidebar';
+import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
 import {
   invoiceApi,
@@ -29,7 +26,6 @@ import {
 } from '@/lib/finance-api';
 
 export function InvoiceDashboardPage() {
-  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState<InvoiceDashboard | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<InvoiceClient[]>([]);
@@ -37,8 +33,8 @@ export function InvoiceDashboardPage() {
   const [activeTab, setActiveTab] = useState<'invoices' | 'clients'>('invoices');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showNewInvoiceModal, setShowNewInvoiceModal] = useState(false);
-  const [showNewClientModal, setShowNewClientModal] = useState(false);
+  const [, setShowNewInvoiceModal] = useState(false);
+  const [, setShowNewClientModal] = useState(false);
 
   useEffect(() => {
     loadData();

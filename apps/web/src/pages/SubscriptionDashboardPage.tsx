@@ -12,11 +12,10 @@ import {
   Search,
   MoreVertical,
   Trash2,
-  Edit,
   ExternalLink,
   TrendingUp,
 } from 'lucide-react';
-import { ModernSidebar } from '@/components/ModernSidebar';
+import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
 import {
   subscriptionApi,

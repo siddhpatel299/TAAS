@@ -4,7 +4,6 @@ import {
   Bell,
   Plus,
   DollarSign,
-  Calendar,
   AlertCircle,
   CheckCircle,
   Clock,
@@ -14,7 +13,7 @@ import {
   X,
   ExternalLink,
 } from 'lucide-react';
-import { ModernSidebar } from '@/components/ModernSidebar';
+import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
 import {
   billApi,

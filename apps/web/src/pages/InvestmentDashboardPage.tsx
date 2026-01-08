@@ -8,14 +8,13 @@ import {
   PieChart,
   Eye,
   Search,
-  MoreVertical,
   Trash2,
   Edit,
   ArrowUpRight,
   ArrowDownRight,
   X,
 } from 'lucide-react';
-import { ModernSidebar } from '@/components/ModernSidebar';
+import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
 import {
   investmentApi,
