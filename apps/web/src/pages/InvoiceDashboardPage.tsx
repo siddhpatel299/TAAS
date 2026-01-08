@@ -8,12 +8,12 @@ import {
   Clock,
   AlertCircle,
   Send,
-  ArrowRight,
   Search,
   MoreVertical,
   Trash2,
-  Edit,
   Eye,
+  X,
+  CheckCircle,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,7 @@ import {
   InvoiceClient,
   InvoiceDashboard,
   INVOICE_STATUSES,
+  PAYMENT_METHODS,
 } from '@/lib/finance-api';
 
 export function InvoiceDashboardPage() {
@@ -33,8 +34,41 @@ export function InvoiceDashboardPage() {
   const [activeTab, setActiveTab] = useState<'invoices' | 'clients'>('invoices');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [, setShowNewInvoiceModal] = useState(false);
-  const [, setShowNewClientModal] = useState(false);
+  const [showNewInvoiceModal, setShowNewInvoiceModal] = useState(false);
+  const [showNewClientModal, setShowNewClientModal] = useState(false);
+  const [showInvoiceDetail, setShowInvoiceDetail] = useState<Invoice | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState<Invoice | null>(null);
+  
+  // New Invoice Form State
+  const [newInvoice, setNewInvoice] = useState({
+    clientId: '',
+    dueDate: '',
+    notes: '',
+    terms: '',
+    taxRate: 0,
+    items: [{ description: '', quantity: 1, unitPrice: 0 }] as { description: string; quantity: number; unitPrice: number }[],
+  });
+  
+  // New Client Form State
+  const [newClient, setNewClient] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    postalCode: '',
+  });
+  
+  // Payment Form State
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    paymentMethod: '',
+    reference: '',
+    notes: '',
+  });
 
   useEffect(() => {
     loadData();
@@ -91,6 +125,151 @@ export function InvoiceDashboardPage() {
       day: 'numeric',
       year: 'numeric',
     });
+  };
+
+  // Calculate invoice subtotal
+  const calculateSubtotal = () => {
+    return newInvoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  };
+
+  const calculateTax = () => {
+    return calculateSubtotal() * (newInvoice.taxRate / 100);
+  };
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateTax();
+  };
+
+  // Add invoice item
+  const addInvoiceItem = () => {
+    setNewInvoice({
+      ...newInvoice,
+      items: [...newInvoice.items, { description: '', quantity: 1, unitPrice: 0 }],
+    });
+  };
+
+  // Remove invoice item
+  const removeInvoiceItem = (index: number) => {
+    setNewInvoice({
+      ...newInvoice,
+      items: newInvoice.items.filter((_, i) => i !== index),
+    });
+  };
+
+  // Update invoice item
+  const updateInvoiceItem = (index: number, field: string, value: string | number) => {
+    const items = [...newInvoice.items];
+    items[index] = { ...items[index], [field]: value };
+    setNewInvoice({ ...newInvoice, items });
+  };
+
+  // Create invoice
+  const handleCreateInvoice = async () => {
+    if (newInvoice.items.length === 0 || !newInvoice.items[0].description) {
+      alert('Please add at least one item');
+      return;
+    }
+    try {
+      await invoiceApi.createInvoice({
+        clientId: newInvoice.clientId || undefined,
+        dueDate: newInvoice.dueDate || undefined,
+        notes: newInvoice.notes || undefined,
+        terms: newInvoice.terms || undefined,
+        taxRate: newInvoice.taxRate || undefined,
+        items: newInvoice.items.filter(item => item.description),
+      });
+      setShowNewInvoiceModal(false);
+      setNewInvoice({
+        clientId: '',
+        dueDate: '',
+        notes: '',
+        terms: '',
+        taxRate: 0,
+        items: [{ description: '', quantity: 1, unitPrice: 0 }],
+      });
+      loadData();
+    } catch (error) {
+      console.error('Failed to create invoice:', error);
+      alert('Failed to create invoice');
+    }
+  };
+
+  // Create client
+  const handleCreateClient = async () => {
+    if (!newClient.name) {
+      alert('Client name is required');
+      return;
+    }
+    try {
+      await invoiceApi.createClient(newClient);
+      setShowNewClientModal(false);
+      setNewClient({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        address: '',
+        city: '',
+        state: '',
+        country: '',
+        postalCode: '',
+      });
+      loadData();
+    } catch (error) {
+      console.error('Failed to create client:', error);
+      alert('Failed to create client');
+    }
+  };
+
+  // Record payment
+  const handleRecordPayment = async () => {
+    if (!showPaymentModal || !paymentForm.amount) return;
+    try {
+      await invoiceApi.addPayment(showPaymentModal.id, {
+        amount: parseFloat(paymentForm.amount),
+        paymentMethod: paymentForm.paymentMethod || undefined,
+        reference: paymentForm.reference || undefined,
+        notes: paymentForm.notes || undefined,
+      });
+      setShowPaymentModal(null);
+      setPaymentForm({ amount: '', paymentMethod: '', reference: '', notes: '' });
+      loadData();
+    } catch (error) {
+      console.error('Failed to record payment:', error);
+      alert('Failed to record payment');
+    }
+  };
+
+  // Delete invoice
+  const handleDeleteInvoice = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this invoice?')) return;
+    try {
+      await invoiceApi.deleteInvoice(id);
+      loadData();
+    } catch (error) {
+      console.error('Failed to delete invoice:', error);
+    }
+  };
+
+  // Delete client
+  const handleDeleteClient = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this client? This will also delete all their invoices.')) return;
+    try {
+      await invoiceApi.deleteClient(id);
+      loadData();
+    } catch (error) {
+      console.error('Failed to delete client:', error);
+    }
+  };
+
+  // Mark invoice as sent
+  const handleMarkAsSent = async (invoice: Invoice) => {
+    try {
+      await invoiceApi.updateInvoice(invoice.id, { status: 'sent' });
+      loadData();
+    } catch (error) {
+      console.error('Failed to update invoice:', error);
+    }
   };
 
   if (isLoading) {
@@ -327,13 +506,30 @@ export function InvoiceDashboardPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                          <button 
+                            onClick={() => setShowInvoiceDetail(invoice)}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="View details"
+                          >
                             <Eye className="w-4 h-4 text-gray-500" />
                           </button>
-                          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <Edit className="w-4 h-4 text-gray-500" />
-                          </button>
-                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors">
+                          {invoice.status !== 'paid' && (
+                            <button 
+                              onClick={() => {
+                                setShowPaymentModal(invoice);
+                                setPaymentForm({ ...paymentForm, amount: String(invoice.total) });
+                              }}
+                              className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
+                              title="Record payment"
+                            >
+                              <DollarSign className="w-4 h-4 text-emerald-500" />
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => handleDeleteInvoice(invoice.id)}
+                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
                             <Trash2 className="w-4 h-4 text-red-500" />
                           </button>
                         </div>
@@ -378,13 +574,562 @@ export function InvoiceDashboardPage() {
                     <span className="text-sm text-gray-500">
                       {client._count?.invoices || 0} invoices
                     </span>
-                    <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1">
-                      View <ArrowRight className="w-3 h-3" />
+                    <button 
+                      onClick={() => handleDeleteClient(client.id)}
+                      className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3 h-3" /> Delete
                     </button>
                   </div>
                 </motion.div>
               ))
             )}
+          </div>
+        )}
+
+        {/* New Invoice Modal */}
+        {showNewInvoiceModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <h2 className="text-xl font-bold text-gray-900">Create New Invoice</h2>
+                <button
+                  onClick={() => setShowNewInvoiceModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Client Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Client</label>
+                  <select
+                    value={newInvoice.clientId}
+                    onChange={(e) => setNewInvoice({ ...newInvoice, clientId: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select a client (optional)</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>{client.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Due Date & Tax */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                    <input
+                      type="date"
+                      value={newInvoice.dueDate}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tax Rate (%)</label>
+                    <input
+                      type="number"
+                      value={newInvoice.taxRate}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, taxRate: parseFloat(e.target.value) || 0 })}
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Invoice Items */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-sm font-medium text-gray-700">Items</label>
+                    <button
+                      onClick={addInvoiceItem}
+                      className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" /> Add Item
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {newInvoice.items.map((item, index) => (
+                      <div key={index} className="flex gap-3 items-start">
+                        <input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
+                          placeholder="Description"
+                          className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateInvoiceItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                          placeholder="Qty"
+                          min="1"
+                          className="w-20 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <input
+                          type="number"
+                          value={item.unitPrice}
+                          onChange={(e) => updateInvoiceItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                          placeholder="Price"
+                          min="0"
+                          step="0.01"
+                          className="w-28 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <div className="w-24 px-4 py-2.5 bg-gray-50 rounded-xl text-right font-medium">
+                          {formatCurrency(item.quantity * item.unitPrice)}
+                        </div>
+                        {newInvoice.items.length > 1 && (
+                          <button
+                            onClick={() => removeInvoiceItem(index)}
+                            className="p-2.5 hover:bg-red-50 rounded-xl transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Totals */}
+                <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">{formatCurrency(calculateSubtotal())}</span>
+                  </div>
+                  {newInvoice.taxRate > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Tax ({newInvoice.taxRate}%)</span>
+                      <span className="font-medium">{formatCurrency(calculateTax())}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+                    <span>Total</span>
+                    <span className="text-emerald-600">{formatCurrency(calculateTotal())}</span>
+                  </div>
+                </div>
+
+                {/* Notes & Terms */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea
+                      value={newInvoice.notes}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, notes: e.target.value })}
+                      placeholder="Additional notes..."
+                      rows={3}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions</label>
+                    <textarea
+                      value={newInvoice.terms}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, terms: e.target.value })}
+                      placeholder="Payment terms..."
+                      rows={3}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-100 flex gap-3 justify-end sticky bottom-0 bg-white">
+                <button
+                  onClick={() => setShowNewInvoiceModal(false)}
+                  className="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateInvoice}
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Create Invoice
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* New Client Modal */}
+        {showNewClientModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">Add New Client</h2>
+                <button
+                  onClick={() => setShowNewClientModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    value={newClient.name}
+                    onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                    placeholder="Client name"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={newClient.email}
+                      onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                      placeholder="email@example.com"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={newClient.phone}
+                      onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                      placeholder="+1 234 567 8900"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                  <input
+                    type="text"
+                    value={newClient.company}
+                    onChange={(e) => setNewClient({ ...newClient, company: e.target.value })}
+                    placeholder="Company name"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <input
+                    type="text"
+                    value={newClient.address}
+                    onChange={(e) => setNewClient({ ...newClient, address: e.target.value })}
+                    placeholder="Street address"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input
+                      type="text"
+                      value={newClient.city}
+                      onChange={(e) => setNewClient({ ...newClient, city: e.target.value })}
+                      placeholder="City"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                    <input
+                      type="text"
+                      value={newClient.state}
+                      onChange={(e) => setNewClient({ ...newClient, state: e.target.value })}
+                      placeholder="State"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <input
+                      type="text"
+                      value={newClient.country}
+                      onChange={(e) => setNewClient({ ...newClient, country: e.target.value })}
+                      placeholder="Country"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                    <input
+                      type="text"
+                      value={newClient.postalCode}
+                      onChange={(e) => setNewClient({ ...newClient, postalCode: e.target.value })}
+                      placeholder="12345"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowNewClientModal(false)}
+                  className="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateClient}
+                  disabled={!newClient.name}
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Add Client
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Payment Modal */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl w-full max-w-md"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Record Payment</h2>
+                  <p className="text-sm text-gray-500">Invoice #{showPaymentModal.invoiceNumber}</p>
+                </div>
+                <button
+                  onClick={() => setShowPaymentModal(null)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="bg-emerald-50 rounded-xl p-4 text-center">
+                  <p className="text-sm text-emerald-600 mb-1">Amount Due</p>
+                  <p className="text-2xl font-bold text-emerald-700">
+                    {formatCurrency(showPaymentModal.total)}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Amount *</label>
+                  <input
+                    type="number"
+                    value={paymentForm.amount}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                    placeholder={String(showPaymentModal.total)}
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                  <select
+                    value={paymentForm.paymentMethod}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select method</option>
+                    {PAYMENT_METHODS.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reference #</label>
+                  <input
+                    type="text"
+                    value={paymentForm.reference}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, reference: e.target.value })}
+                    placeholder="Transaction ID, check number, etc."
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowPaymentModal(null)}
+                  className="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRecordPayment}
+                  disabled={!paymentForm.amount}
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Record Payment
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Invoice Detail Modal */}
+        {showInvoiceDetail && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Invoice #{showInvoiceDetail.invoiceNumber}</h2>
+                  <span className={cn(
+                    "px-2.5 py-1 text-xs font-medium rounded-full capitalize",
+                    getStatusColor(showInvoiceDetail.status)
+                  )}>
+                    {showInvoiceDetail.status}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {showInvoiceDetail.status === 'draft' && (
+                    <button
+                      onClick={() => {
+                        handleMarkAsSent(showInvoiceDetail);
+                        setShowInvoiceDetail(null);
+                      }}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all flex items-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Mark as Sent
+                    </button>
+                  )}
+                  {(showInvoiceDetail.status === 'sent' || showInvoiceDetail.status === 'overdue') && (
+                    <button
+                      onClick={() => {
+                        setShowPaymentModal(showInvoiceDetail);
+                        setPaymentForm({ ...paymentForm, amount: String(showInvoiceDetail.total) });
+                        setShowInvoiceDetail(null);
+                      }}
+                      className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all flex items-center gap-2"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      Record Payment
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowInvoiceDetail(null)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Client Info */}
+                {showInvoiceDetail.client && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h3 className="font-medium text-gray-900 mb-2">Bill To</h3>
+                    <p className="text-gray-700">{showInvoiceDetail.client.name}</p>
+                    {showInvoiceDetail.client.company && (
+                      <p className="text-gray-500 text-sm">{showInvoiceDetail.client.company}</p>
+                    )}
+                    {showInvoiceDetail.client.email && (
+                      <p className="text-gray-500 text-sm">{showInvoiceDetail.client.email}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Dates */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Issue Date</p>
+                    <p className="font-medium">{formatDate(showInvoiceDetail.issueDate)}</p>
+                  </div>
+                  {showInvoiceDetail.dueDate && (
+                    <div>
+                      <p className="text-sm text-gray-500">Due Date</p>
+                      <p className="font-medium">{formatDate(showInvoiceDetail.dueDate)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Items */}
+                {showInvoiceDetail.items && showInvoiceDetail.items.length > 0 && (
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-3">Items</h3>
+                    <div className="border border-gray-200 rounded-xl overflow-hidden">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="text-left px-4 py-2 text-sm font-medium text-gray-500">Description</th>
+                            <th className="text-right px-4 py-2 text-sm font-medium text-gray-500">Qty</th>
+                            <th className="text-right px-4 py-2 text-sm font-medium text-gray-500">Price</th>
+                            <th className="text-right px-4 py-2 text-sm font-medium text-gray-500">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {showInvoiceDetail.items.map((item, i) => (
+                            <tr key={i} className="border-t border-gray-100">
+                              <td className="px-4 py-3">{item.description}</td>
+                              <td className="px-4 py-3 text-right">{item.quantity}</td>
+                              <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice)}</td>
+                              <td className="px-4 py-3 text-right font-medium">{formatCurrency(item.amount)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Totals */}
+                <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">{formatCurrency(showInvoiceDetail.subtotal)}</span>
+                  </div>
+                  {showInvoiceDetail.taxAmount && showInvoiceDetail.taxAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tax ({showInvoiceDetail.taxRate}%)</span>
+                      <span className="font-medium">{formatCurrency(showInvoiceDetail.taxAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+                    <span>Total</span>
+                    <span className="text-emerald-600">{formatCurrency(showInvoiceDetail.total)}</span>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                {showInvoiceDetail.notes && (
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-2">Notes</h3>
+                    <p className="text-gray-600 text-sm">{showInvoiceDetail.notes}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </div>
         )}
       </main>
