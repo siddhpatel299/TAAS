@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   TrendingUp,
@@ -13,6 +13,13 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   X,
+  BarChart2,
+  Briefcase,
+  Bitcoin,
+  Building2,
+  Landmark,
+  Home,
+  Package,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
@@ -22,6 +29,27 @@ import {
   InvestmentDashboard,
   INVESTMENT_TYPES,
 } from '@/lib/finance-api';
+
+// Type colors for allocation chart
+const TYPE_COLORS: Record<string, string> = {
+  stock: '#3B82F6',
+  crypto: '#F59E0B',
+  etf: '#8B5CF6',
+  mutual_fund: '#10B981',
+  bond: '#6366F1',
+  real_estate: '#EC4899',
+  other: '#6B7280',
+};
+
+const TYPE_ICONS: Record<string, React.ReactNode> = {
+  stock: <BarChart2 className="w-4 h-4" />,
+  crypto: <Bitcoin className="w-4 h-4" />,
+  etf: <Briefcase className="w-4 h-4" />,
+  mutual_fund: <Building2 className="w-4 h-4" />,
+  bond: <Landmark className="w-4 h-4" />,
+  real_estate: <Home className="w-4 h-4" />,
+  other: <Package className="w-4 h-4" />,
+};
 
 export function InvestmentDashboardPage() {
   const [dashboard, setDashboard] = useState<InvestmentDashboard | null>(null);
@@ -33,6 +61,34 @@ export function InvestmentDashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [selectedInvestment, setSelectedInvestment] = useState<Investment | null>(null);
+
+  // Calculate type allocation for chart
+  const typeAllocation = useMemo(() => {
+    const allocation: { type: string; value: number; percentage: number; color: string; label: string }[] = [];
+    const typeMap = new Map<string, number>();
+    let totalValue = 0;
+    
+    investments
+      .filter(inv => !inv.isWatchlist)
+      .forEach(inv => {
+        const value = inv.currentValue || 0;
+        totalValue += value;
+        typeMap.set(inv.type, (typeMap.get(inv.type) || 0) + value);
+      });
+    
+    typeMap.forEach((value, type) => {
+      const typeInfo = INVESTMENT_TYPES.find(t => t.value === type);
+      allocation.push({
+        type,
+        value: Math.round(value * 100) / 100,
+        percentage: totalValue > 0 ? Math.round((value / totalValue) * 1000) / 10 : 0,
+        color: TYPE_COLORS[type] || '#6B7280',
+        label: typeInfo?.label || type,
+      });
+    });
+    
+    return allocation.sort((a, b) => b.value - a.value);
+  }, [investments]);
   const [newInvestment, setNewInvestment] = useState({
     symbol: '',
     name: '',
@@ -284,6 +340,90 @@ export function InvestmentDashboardPage() {
             <p className="text-sm text-gray-500">{dashboard?.watchlistCount || 0} in watchlist</p>
           </motion.div>
         </div>
+
+        {/* Portfolio Allocation */}
+        {typeAllocation.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Allocation Breakdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl border border-gray-100 p-6"
+            >
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <PieChart className="w-5 h-5 text-blue-500" />
+                Portfolio Allocation
+              </h3>
+              <div className="space-y-3">
+                {typeAllocation.map((item) => (
+                  <div key={item.type} className="flex items-center gap-4">
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                      style={{ backgroundColor: item.color }}
+                    >
+                      {TYPE_ICONS[item.type] || <Package className="w-4 h-4" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(item.value)}</span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${item.percentage}%` }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: item.color }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500 w-12 text-right">{item.percentage}%</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Top Performers */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-2xl border border-gray-100 p-6"
+            >
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-green-500" />
+                Top Performers
+              </h3>
+              <div className="space-y-3">
+                {investments
+                  .filter(inv => !inv.isWatchlist && (inv.gainLossPercent || 0) > 0)
+                  .sort((a, b) => (b.gainLossPercent || 0) - (a.gainLossPercent || 0))
+                  .slice(0, 5)
+                  .map((inv) => (
+                    <div key={inv.id} className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
+                          {inv.symbol.slice(0, 2)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{inv.symbol}</p>
+                          <p className="text-xs text-gray-500">{inv.name}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-green-600">+{formatPercent(inv.gainLossPercent || 0)}</p>
+                        <p className="text-xs text-green-600">+{formatCurrency(inv.gainLoss || 0)}</p>
+                      </div>
+                    </div>
+                  ))}
+                {investments.filter(inv => !inv.isWatchlist && (inv.gainLossPercent || 0) > 0).length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">No gains yet</p>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
 
         {/* Tabs and Filters */}
         <div className="flex gap-4 mb-6">
