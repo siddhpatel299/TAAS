@@ -35,6 +35,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Note, NoteFolder, NOTE_COLORS } from '@/lib/notes-api';
 import { RichTextEditor } from '@/components/notes/RichTextEditor';
 import { BlockEditor, Block } from '@/components/notes/BlockEditor';
+import SexyBlockEditor from '@/components/notes/SexyBlockEditor';
 
 // Note Card Component
 function NoteCard({
@@ -581,6 +582,7 @@ export function NotesDashboardPage() {
   const [editHtml, setEditHtml] = useState('');
   const [editBlocks, setEditBlocks] = useState<Block[]>([]);
   const [useBlocks, setUseBlocks] = useState(false);
+  const [useSexyBlocks, setUseSexyBlocks] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -715,7 +717,28 @@ export function NotesDashboardPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setUseBlocks(!useBlocks)}
+                onClick={() => {
+                  setUseSexyBlocks(!useSexyBlocks);
+                  if (!useSexyBlocks) {
+                    setUseBlocks(false);
+                  }
+                }}
+                className={cn(
+                  'px-3 py-2 rounded-xl font-medium transition-all',
+                  useSexyBlocks 
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                )}
+              >
+                {useSexyBlocks ? '✨ Sexy' : '✨ Sexy'}
+              </button>
+              <button
+                onClick={() => {
+                  setUseBlocks(!useBlocks);
+                  if (!useBlocks) {
+                    setUseSexyBlocks(false);
+                  }
+                }}
                 className={cn(
                   'px-3 py-2 rounded-xl font-medium transition-colors',
                   useBlocks 
@@ -755,7 +778,18 @@ export function NotesDashboardPage() {
           </div>
 
           {/* Editor Content */}
-          {useBlocks ? (
+          {useSexyBlocks ? (
+            <div className="bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 rounded-3xl border border-white/20 shadow-2xl shadow-purple-500/10 p-8">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-transparent bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text mb-2">✨ Sexy Block Editor</h3>
+                <p className="text-sm text-gray-600">Experience the future of note-taking with beautiful animations and glassmorphism</p>
+              </div>
+              <SexyBlockEditor
+                blocks={editBlocks}
+                onChange={setEditBlocks}
+              />
+            </div>
+          ) : useBlocks ? (
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <BlockEditor
                 blocks={editBlocks}
