@@ -616,9 +616,9 @@ export const notesService = {
       userId,
       title: template.name,
       content: template.content || '',
-      contentHtml: template.contentHtml,
+      contentHtml: template.contentHtml || undefined,
       folderId,
-      icon: template.icon
+      icon: template.icon || undefined
     });
 
     return note;
