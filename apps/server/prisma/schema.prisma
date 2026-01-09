@@ -711,8 +711,8 @@ model Note {
   id          String    @id @default(cuid())
   userId      String
   title       String
-  content     String?   @db.Text // Markdown content
-  contentHtml String?   @db.Text // Rendered HTML
+  content     String?   @db.Text // Markdown content (legacy)
+  contentHtml String?   @db.Text // Rendered HTML (legacy)
   folderId    String?
   isPinned    Boolean   @default(false)
   isFavorite  Boolean   @default(false)
@@ -730,6 +730,7 @@ model Note {
   updatedAt   DateTime  @updatedAt
 
   folder   NoteFolder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  blocks   NoteBlock[]
   versions NoteVersion[]
   shares   NoteShare[]
 
@@ -820,6 +821,71 @@ model NoteShare {
   @@index([noteId])
   @@index([token])
   @@map("nd_shares")
+  @@schema("public")
+}
+
+// =====================================
+// BLOCKS SYSTEM
+// =====================================
+
+model NoteBlock {
+  id          String   @id @default(cuid())
+  noteId      String
+  type        String   // text, heading_1, heading_2, heading_3, bullet_list, numbered_list, todo, quote, code, callout, bookmark, embed, column, synced_block, etc.
+  content     String?  @db.Text // JSON content based on block type
+  position    Int      // Order within the note
+  parentId    String?  // For nested blocks
+  properties  String?  @db.Text // JSON for block-specific properties (colors, styles, etc.)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  note     Note          @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  parent   NoteBlock?    @relation("BlockToBlock", fields: [parentId], references: [id], onDelete: Cascade)
+  children NoteBlock[]   @relation("BlockToBlock")
+  relations BlockRelation[] @relation("BlockToRelations")
+  targetRelations BlockRelation[] @relation("BlockToTargetRelations")
+
+  @@index([noteId])
+  @@index([type])
+  @@index([position])
+  @@index([parentId])
+  @@map("nd_blocks")
+  @@schema("public")
+}
+
+model BlockRelation {
+  id            String   @id @default(cuid())
+  sourceBlockId String
+  targetBlockId String
+  type          String   // reference, sync, embed
+  properties    String?  @db.Text // JSON for relation properties
+  createdAt     DateTime @default(now())
+
+  sourceBlock NoteBlock @relation("BlockToRelations", fields: [sourceBlockId], references: [id], onDelete: Cascade)
+  targetBlock NoteBlock @relation("BlockToTargetRelations", fields: [targetBlockId], references: [id], onDelete: Cascade)
+
+  @@index([sourceBlockId])
+  @@index([targetBlockId])
+  @@map("nd_block_relations")
+  @@schema("public")
+}
+
+model BlockTemplate {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  blockType   String
+  content     String?  @db.Text // JSON template content
+  properties  String?  @db.Text // JSON for template properties
+  isDefault   Boolean  @default(false)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([blockType])
+  @@map("nd_block_templates")
   @@schema("public")
 }
 

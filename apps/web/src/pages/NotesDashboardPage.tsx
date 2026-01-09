@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Note, NoteFolder, NOTE_COLORS } from '@/lib/notes-api';
 import { RichTextEditor } from '@/components/notes/RichTextEditor';
+import { BlockEditor, Block } from '@/components/notes/BlockEditor';
 
 // Note Card Component
 function NoteCard({
@@ -578,6 +579,8 @@ export function NotesDashboardPage() {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [editHtml, setEditHtml] = useState('');
+  const [editBlocks, setEditBlocks] = useState<Block[]>([]);
+  const [useBlocks, setUseBlocks] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -712,6 +715,17 @@ export function NotesDashboardPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
+                onClick={() => setUseBlocks(!useBlocks)}
+                className={cn(
+                  'px-3 py-2 rounded-xl font-medium transition-colors',
+                  useBlocks 
+                    ? 'bg-indigo-100 text-indigo-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                )}
+              >
+                {useBlocks ? 'Blocks' : 'Rich Text'}
+              </button>
+              <button
                 onClick={() => togglePin(selectedNote.id)}
                 className={cn(
                   'p-2 rounded-xl transition-colors',
@@ -740,15 +754,24 @@ export function NotesDashboardPage() {
             </div>
           </div>
 
-          {/* Rich Text Editor */}
-          <RichTextEditor
-            content={editContent}
-            onChange={(text, html) => {
-              setEditContent(text);
-              setEditHtml(html);
-            }}
-            placeholder="Start writing your note here..."
-          />
+          {/* Editor Content */}
+          {useBlocks ? (
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <BlockEditor
+                blocks={editBlocks}
+                onChange={setEditBlocks}
+              />
+            </div>
+          ) : (
+            <RichTextEditor
+              content={editContent}
+              onChange={(text, html) => {
+                setEditContent(text);
+                setEditHtml(html);
+              }}
+              placeholder="Start writing your note here..."
+            />
+          )}
 
           {/* Note Info Footer */}
           <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
