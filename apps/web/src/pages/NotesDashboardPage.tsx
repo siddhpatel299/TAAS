@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FileText,
@@ -21,6 +22,8 @@ import {
   ChevronDown,
   X,
   LayoutTemplate,
+  ArrowLeft,
+  Save,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore } from '@/stores/notes.store';
@@ -530,21 +533,27 @@ function CreateFolderDialog({
 }
 
 export function NotesDashboardPage() {
+  const { id: noteId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
   const {
     notes,
     folders,
     folderTree,
     dashboardStats,
+    selectedNote,
     isLoading,
     error,
     viewMode,
     filters,
     fetchDashboard,
     fetchNotes,
+    fetchNote,
     fetchFolders,
     fetchFolderTree,
     fetchTemplates,
     createNote,
+    updateNote,
     deleteNote,
     duplicateNote,
     togglePin,
@@ -552,6 +561,7 @@ export function NotesDashboardPage() {
     archiveNote,
     setFilters,
     setViewMode,
+    setSelectedNote,
     clearError,
   } = useNotesStore();
 
@@ -559,6 +569,29 @@ export function NotesDashboardPage() {
   const [showCreateNoteDialog, setShowCreateNoteDialog] = useState(false);
   const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  
+  // Editor state
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Load note if ID is provided
+  useEffect(() => {
+    if (noteId) {
+      fetchNote(noteId);
+    } else {
+      setSelectedNote(null);
+    }
+  }, [noteId]);
+
+  // Update editor state when note is loaded
+  useEffect(() => {
+    if (selectedNote) {
+      setEditTitle(selectedNote.title);
+      setEditContent(selectedNote.content || '');
+    }
+  }, [selectedNote]);
 
   useEffect(() => {
     fetchDashboard();
@@ -597,17 +630,20 @@ export function NotesDashboardPage() {
   };
 
   const handleSelectNote = (note: Note) => {
-    window.location.href = `/plugins/notes/${note.id}`;
+    navigate(`/plugins/notes/${note.id}`);
   };
 
   const handleEditNote = (note: Note) => {
-    window.location.href = `/plugins/notes/${note.id}/edit`;
+    navigate(`/plugins/notes/${note.id}`);
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteNote(id);
       setDeleteConfirm(null);
+      if (noteId === id) {
+        navigate('/plugins/notes');
+      }
     } catch (err) {
       console.error('Failed to delete:', err);
     }
@@ -617,7 +653,137 @@ export function NotesDashboardPage() {
     setFilters({ folderId });
   };
 
+  const handleSaveNote = async () => {
+    if (!selectedNote) return;
+    setIsSaving(true);
+    try {
+      await updateNote(selectedNote.id, {
+        title: editTitle,
+        content: editContent,
+      });
+      setLastSaved(new Date());
+    } catch (err) {
+      console.error('Failed to save note:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleBackToList = () => {
+    setSelectedNote(null);
+    navigate('/plugins/notes');
+  };
+
   const filteredNotes = notes;
+
+  // If a note is selected (via URL param), show the editor view
+  if (noteId && selectedNote) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <ModernSidebar />
+        <main className="ml-20 p-8">
+          {/* Editor Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleBackToList}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <div>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none focus:ring-0 w-full"
+                  placeholder="Note title..."
+                />
+                <p className="text-sm text-gray-500">
+                  {lastSaved ? `Last saved ${formatDistanceToNow(lastSaved, { addSuffix: true })}` : 'Not saved yet'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => togglePin(selectedNote.id)}
+                className={cn(
+                  'p-2 rounded-xl transition-colors',
+                  selectedNote.isPinned ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                )}
+              >
+                <Pin className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => toggleFavorite(selectedNote.id)}
+                className={cn(
+                  'p-2 rounded-xl transition-colors',
+                  selectedNote.isFavorite ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                )}
+              >
+                <Star className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleSaveNote}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+
+          {/* Editor Content */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full min-h-[60vh] p-6 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 resize-none font-mono"
+              placeholder="Start writing your note here...
+
+You can use Markdown formatting:
+- **bold** for bold text
+- *italic* for italic text
+- # Heading 1
+- ## Heading 2
+- - bullet points
+- 1. numbered lists
+- `code` for inline code
+- ```code blocks```"
+            />
+          </div>
+
+          {/* Note Info Footer */}
+          <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center gap-4">
+              <span>{editContent.split(/\s+/).filter(Boolean).length} words</span>
+              <span>~{Math.ceil(editContent.split(/\s+/).filter(Boolean).length / 200)} min read</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>Created {formatDistanceToNow(new Date(selectedNote.createdAt), { addSuffix: true })}</span>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Loading state for note
+  if (noteId && !selectedNote && isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <ModernSidebar />
+        <main className="ml-20 p-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-500">Loading note...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
