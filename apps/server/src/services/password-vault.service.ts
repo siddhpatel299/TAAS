@@ -21,7 +21,7 @@ export class PasswordEncryption {
     const iv = crypto.randomBytes(this.IV_LENGTH);
     const key = this.deriveKey(masterKey, salt);
     
-    const cipher = crypto.createCipher(this.ALGORITHM, key);
+    const cipher = crypto.createCipheriv(this.ALGORITHM, key, iv);
     cipher.setAAD(Buffer.from('password-vault', 'utf8'));
     
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -44,7 +44,7 @@ export class PasswordEncryption {
     const tag = Buffer.from(encryptedData.tag, 'hex');
     const key = this.deriveKey(masterKey, salt);
     
-    const decipher = crypto.createDecipher(this.ALGORITHM, key);
+    const decipher = crypto.createDecipheriv(this.ALGORITHM, key, iv);
     decipher.setAAD(Buffer.from('password-vault', 'utf8'));
     decipher.setAuthTag(tag);
     
@@ -561,6 +561,83 @@ export const passwordVaultService = {
       recentEntries,
       weakPasswords,
       securityScore: Math.max(0, 100 - (weakPasswords * 10))
+    };
+  },
+
+  // Bulk Operations
+  async bulkDeletePasswords(userId: string, passwordIds: string[]) {
+    const result = await prisma.passwordEntry.deleteMany({
+      where: {
+        id: { in: passwordIds },
+        userId
+      }
+    });
+
+    await this.logSecurityEvent(userId, 'bulk_delete', {
+      count: result.count,
+      passwordIds
+    });
+
+    return { deleted: result.count };
+  },
+
+  async bulkUpdateCategory(userId: string, passwordIds: string[], category: string | null) {
+    const result = await prisma.passwordEntry.updateMany({
+      where: {
+        id: { in: passwordIds },
+        userId
+      },
+      data: { category }
+    });
+
+    return { updated: result.count };
+  },
+
+  // Password Health Check
+  async getPasswordHealth(userId: string) {
+    const allPasswords = await prisma.passwordEntry.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        passwordStrength: true,
+        createdAt: true,
+        lastUsedAt: true
+      }
+    });
+
+    const now = new Date();
+    const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+    const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+
+    const weakPasswords = allPasswords.filter(p => p.passwordStrength === 'weak');
+    const oldPasswords = allPasswords.filter(p => new Date(p.createdAt) < oneYearAgo);
+    const unusedPasswords = allPasswords.filter(p => 
+      !p.lastUsedAt || new Date(p.lastUsedAt) < sixMonthsAgo
+    );
+
+    return {
+      totalPasswords: allPasswords.length,
+      weakPasswords: {
+        count: weakPasswords.length,
+        percentage: Math.round((weakPasswords.length / allPasswords.length) * 100),
+        items: weakPasswords.slice(0, 10)
+      },
+      oldPasswords: {
+        count: oldPasswords.length,
+        percentage: Math.round((oldPasswords.length / allPasswords.length) * 100),
+        items: oldPasswords.slice(0, 10)
+      },
+      unusedPasswords: {
+        count: unusedPasswords.length,
+        percentage: Math.round((unusedPasswords.length / allPasswords.length) * 100),
+        items: unusedPasswords.slice(0, 10)
+      },
+      overallScore: Math.max(0, 100 - (
+        (weakPasswords.length * 15) +
+        (oldPasswords.length * 5) +
+        (unusedPasswords.length * 2)
+      ))
     };
   }
 };

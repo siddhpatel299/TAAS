@@ -291,4 +291,50 @@ router.get('/export/csv', asyncHandler(async (req: AuthRequest, res: Response) =
   res.send(csv);
 }));
 
+// ==================== Bulk Operations ====================
+
+// Bulk delete passwords
+router.post('/bulk/delete', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { passwordIds } = req.body;
+
+  if (!passwordIds || !Array.isArray(passwordIds)) {
+    throw new ApiError('passwordIds array is required', 400);
+  }
+
+  const result = await passwordVaultService.bulkDeletePasswords(req.user!.id, passwordIds);
+
+  res.json({
+    success: true,
+    data: result,
+  });
+}));
+
+// Bulk update category
+router.post('/bulk/update-category', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { passwordIds, category } = req.body;
+
+  if (!passwordIds || !Array.isArray(passwordIds)) {
+    throw new ApiError('passwordIds array is required', 400);
+  }
+
+  const result = await passwordVaultService.bulkUpdateCategory(req.user!.id, passwordIds, category);
+
+  res.json({
+    success: true,
+    data: result,
+  });
+}));
+
+// ==================== Password Health ====================
+
+// Get password health report
+router.get('/health', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const health = await passwordVaultService.getPasswordHealth(req.user!.id);
+
+  res.json({
+    success: true,
+    data: health,
+  });
+}));
+
 export default router;

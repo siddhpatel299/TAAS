@@ -32,6 +32,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { PasswordEntry } from '@/lib/plugins-api';
 import { AddPasswordDialogSimple } from '@/components/AddPasswordDialogSimple';
 import { MasterKeyDialog } from '@/components/MasterKeyDialog';
+import { PasswordGeneratorDialog } from '@/components/PasswordGeneratorDialog';
 
 // Category Icons
 const categoryIcons: Record<string, React.ElementType> = {
@@ -291,6 +292,7 @@ export function PasswordVaultDashboardPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showMasterKeyDialog, setShowMasterKeyDialog] = useState(false);
+  const [showPasswordGenerator, setShowPasswordGenerator] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -373,6 +375,13 @@ export function PasswordVaultDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowPasswordGenerator(true)}
+              className="p-3 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
+              title="Password Generator"
+            >
+              <Key className="w-5 h-5" />
+            </button>
             <button
               onClick={() => {/* Export functionality */}}
               className="p-3 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
@@ -602,6 +611,12 @@ export function PasswordVaultDashboardPage() {
         <MasterKeyDialog
           isOpen={showMasterKeyDialog}
           onClose={() => setShowMasterKeyDialog(false)}
+        />
+        
+        {/* Password Generator Dialog */}
+        <PasswordGeneratorDialog
+          isOpen={showPasswordGenerator}
+          onClose={() => setShowPasswordGenerator(false)}
         />
       </main>
     </div>
