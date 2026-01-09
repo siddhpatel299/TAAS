@@ -13,6 +13,7 @@ import {
   Briefcase,
   CheckSquare,
   Shield,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth.store';
@@ -41,6 +42,7 @@ const pluginIcons: Record<string, React.ComponentType<{ className?: string }>> =
   'job-tracker': Briefcase,
   'todo-lists': CheckSquare,
   'password-vault': Shield,
+  'notes': FileText,
 };
 
 export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarProps) {

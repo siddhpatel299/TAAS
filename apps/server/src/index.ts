@@ -18,6 +18,7 @@ import invoiceRoutes from './routes/invoice.routes';
 import subscriptionRoutes from './routes/subscription.routes';
 import investmentRoutes from './routes/investment.routes';
 import billRoutes from './routes/bill.routes';
+import notesRoutes from './routes/notes.routes';
 
 const app: Application = express();
 
@@ -80,6 +81,7 @@ app.use('/api/invoices', apiLimiter, invoiceRoutes);
 app.use('/api/subscriptions', apiLimiter, subscriptionRoutes);
 app.use('/api/investments', apiLimiter, investmentRoutes);
 app.use('/api/bills', apiLimiter, billRoutes);
+app.use('/api/notes', apiLimiter, notesRoutes);
 
 // Error handling
 app.use(notFoundHandler);

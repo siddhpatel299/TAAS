@@ -703,3 +703,123 @@ model BillPayment {
   @@schema("public")
 }
 
+// =====================================
+// NOTES & DOCUMENTS PLUGIN
+// =====================================
+
+model Note {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  content     String?   @db.Text // Markdown content
+  contentHtml String?   @db.Text // Rendered HTML
+  folderId    String?
+  isPinned    Boolean   @default(false)
+  isFavorite  Boolean   @default(false)
+  isArchived  Boolean   @default(false)
+  isTrashed   Boolean   @default(false)
+  trashedAt   DateTime?
+  color       String?   // Note color theme
+  icon        String?   // Custom icon
+  coverImage  String?   // Cover image URL
+  tags        String[]
+  wordCount   Int       @default(0)
+  readingTime Int       @default(0) // Minutes
+  lastEditedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  folder   NoteFolder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  versions NoteVersion[]
+  shares   NoteShare[]
+
+  @@index([userId])
+  @@index([folderId])
+  @@index([isPinned])
+  @@index([isFavorite])
+  @@index([isArchived])
+  @@index([isTrashed])
+  @@index([title])
+  @@index([createdAt])
+  @@map("nd_notes")
+  @@schema("public")
+}
+
+model NoteFolder {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  parentId  String?
+  color     String?
+  icon      String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent   NoteFolder?  @relation("NoteFolderToNoteFolder", fields: [parentId], references: [id], onDelete: SetNull)
+  children NoteFolder[] @relation("NoteFolderToNoteFolder")
+  notes    Note[]
+
+  @@index([userId])
+  @@index([parentId])
+  @@map("nd_folders")
+  @@schema("public")
+}
+
+model NoteVersion {
+  id          String   @id @default(cuid())
+  noteId      String
+  title       String
+  content     String?  @db.Text
+  contentHtml String?  @db.Text
+  version     Int
+  createdAt   DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@index([version])
+  @@map("nd_versions")
+  @@schema("public")
+}
+
+model NoteTemplate {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  content     String?  @db.Text
+  contentHtml String?  @db.Text
+  category    String?
+  icon        String?
+  isDefault   Boolean  @default(false)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@map("nd_templates")
+  @@schema("public")
+}
+
+model NoteShare {
+  id        String    @id @default(cuid())
+  noteId    String
+  userId    String
+  token     String    @unique @default(cuid())
+  isPublic  Boolean   @default(false)
+  allowEdit Boolean   @default(false)
+  password  String?
+  expiresAt DateTime?
+  viewCount Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@index([token])
+  @@map("nd_shares")
+  @@schema("public")
+}
+

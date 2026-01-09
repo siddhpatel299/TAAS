@@ -20,6 +20,7 @@ import { InvoiceDashboardPage } from '@/pages/InvoiceDashboardPage';
 import { SubscriptionDashboardPage } from '@/pages/SubscriptionDashboardPage';
 import { InvestmentDashboardPage } from '@/pages/InvestmentDashboardPage';
 import { BillDashboardPage } from '@/pages/BillDashboardPage';
+import { NotesDashboardPage } from '@/pages/NotesDashboardPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
@@ -228,6 +229,22 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <BillDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/notes"
+                element={
+                  <ProtectedRoute>
+                    <NotesDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/notes/:id"
+                element={
+                  <ProtectedRoute>
+                    <NotesDashboardPage />
                   </ProtectedRoute>
                 }
               />
