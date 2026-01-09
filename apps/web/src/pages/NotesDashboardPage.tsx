@@ -24,12 +24,16 @@ import {
   LayoutTemplate,
   ArrowLeft,
   Save,
+  History,
+  Share2,
+  Download,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore } from '@/stores/notes.store';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Note, NoteFolder, NOTE_COLORS } from '@/lib/notes-api';
+import { RichTextEditor } from '@/components/notes/RichTextEditor';
 
 // Note Card Component
 function NoteCard({
@@ -573,6 +577,7 @@ export function NotesDashboardPage() {
   // Editor state
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [editHtml, setEditHtml] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -660,6 +665,7 @@ export function NotesDashboardPage() {
       await updateNote(selectedNote.id, {
         title: editTitle,
         content: editContent,
+        contentHtml: editHtml,
       });
       setLastSaved(new Date());
     } catch (err) {
@@ -734,25 +740,15 @@ export function NotesDashboardPage() {
             </div>
           </div>
 
-          {/* Editor Content */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
-            <textarea
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              className="w-full min-h-[60vh] p-6 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 resize-none font-mono"
-              placeholder="Start writing your note here...
-
-You can use Markdown formatting:
-- **bold** for bold text
-- *italic* for italic text
-- # Heading 1
-- ## Heading 2
-- - bullet points
-- 1. numbered lists
-- `code` for inline code
-- ```code blocks```"
-            />
-          </div>
+          {/* Rich Text Editor */}
+          <RichTextEditor
+            content={editContent}
+            onChange={(text, html) => {
+              setEditContent(text);
+              setEditHtml(html);
+            }}
+            placeholder="Start writing your note here..."
+          />
 
           {/* Note Info Footer */}
           <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
@@ -760,9 +756,43 @@ You can use Markdown formatting:
               <span>{editContent.split(/\s+/).filter(Boolean).length} words</span>
               <span>~{Math.ceil(editContent.split(/\s+/).filter(Boolean).length / 200)} min read</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>Created {formatDistanceToNow(new Date(selectedNote.createdAt), { addSuffix: true })}</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {}}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                title="Version History"
+              >
+                <History className="w-4 h-4" />
+                <span>History</span>
+              </button>
+              <button
+                onClick={() => {}}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                title="Share Note"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+              <button
+                onClick={() => {
+                  const blob = new Blob([editContent], { type: 'text/markdown' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${editTitle || 'note'}.md`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                title="Export as Markdown"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export</span>
+              </button>
+              <div className="flex items-center gap-2 ml-4 pl-4 border-l border-gray-200">
+                <Clock className="w-4 h-4" />
+                <span>Created {formatDistanceToNow(new Date(selectedNote.createdAt), { addSuffix: true })}</span>
+              </div>
             </div>
           </div>
         </main>
