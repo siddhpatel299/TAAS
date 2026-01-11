@@ -339,4 +339,12 @@ export const pluginsService = {
 
     return { success: true };
   },
+
+  async getPluginSettings(userId: string, pluginId: string): Promise<Record<string, any> | null> {
+    const plugin = await prisma.enabledPlugin.findFirst({
+      where: { userId, pluginId },
+    });
+
+    return plugin?.settings as Record<string, any> | null;
+  },
 };

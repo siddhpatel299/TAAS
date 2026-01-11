@@ -17,9 +17,11 @@ import {
   Download,
   X,
   ArrowLeft,
+  Users,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { AddJobDialog } from '@/components/AddJobDialog';
+import { CompanyContactsDialog } from '@/components/CompanyContactsDialog';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { JOB_STATUSES, JOB_PRIORITIES, JobApplication } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
@@ -66,11 +68,13 @@ function PriorityBadge({ priority }: { priority: string }) {
 function TableView({ 
   applications, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onFindContacts,
 }: { 
   applications: JobApplication[]; 
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onFindContacts: (job: JobApplication) => void;
 }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -137,14 +141,23 @@ function TableView({
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
                     <button
+                      onClick={() => onFindContacts(job)}
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      title="Find Contacts"
+                    >
+                      <Users className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => onEdit(job.id)}
                       className="p-2 text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                      title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => onDelete(job.id)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -163,11 +176,13 @@ function TableView({
 function CardView({ 
   applications, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onFindContacts,
 }: { 
   applications: JobApplication[]; 
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onFindContacts: (job: JobApplication) => void;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -249,14 +264,23 @@ function CardView({
             </div>
             <div className="flex items-center gap-1">
               <button
+                onClick={() => onFindContacts(job)}
+                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                title="Find Contacts"
+              >
+                <Users className="w-4 h-4" />
+              </button>
+              <button
                 onClick={() => onEdit(job.id)}
                 className="p-2 text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                title="Edit"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
                 onClick={() => onDelete(job.id)}
                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -395,6 +419,14 @@ export function JobApplicationsPage() {
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [contactsDialog, setContactsDialog] = useState<{ isOpen: boolean; job: JobApplication | null }>({
+    isOpen: false,
+    job: null,
+  });
+
+  const handleFindContacts = (job: JobApplication) => {
+    setContactsDialog({ isOpen: true, job });
+  };
 
   useEffect(() => {
     fetchApplications();
@@ -599,6 +631,7 @@ export function JobApplicationsPage() {
                 applications={applications} 
                 onEdit={handleEdit}
                 onDelete={(id) => setDeleteConfirm(id)}
+                onFindContacts={handleFindContacts}
               />
             )}
             {viewMode === 'cards' && (
@@ -606,6 +639,7 @@ export function JobApplicationsPage() {
                 applications={applications} 
                 onEdit={handleEdit}
                 onDelete={(id) => setDeleteConfirm(id)}
+                onFindContacts={handleFindContacts}
               />
             )}
             {viewMode === 'kanban' && (
@@ -664,6 +698,17 @@ export function JobApplicationsPage() {
           onClose={() => setShowAddDialog(false)}
           onSuccess={() => fetchApplications()}
         />
+
+        {/* Company Contacts Dialog */}
+        {contactsDialog.job && (
+          <CompanyContactsDialog
+            isOpen={contactsDialog.isOpen}
+            onClose={() => setContactsDialog({ isOpen: false, job: null })}
+            jobId={contactsDialog.job.id}
+            company={contactsDialog.job.company}
+            jobTitle={contactsDialog.job.jobTitle}
+          />
+        )}
       </main>
     </div>
   );

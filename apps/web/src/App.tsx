@@ -15,13 +15,8 @@ import { JobTrackerDashboardPage } from '@/pages/JobTrackerDashboardPage';
 import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
 import { TodoPage } from '@/pages/TodoPage';
-import { PasswordVaultDashboardPage } from '@/pages/PasswordVaultDashboardPage';
-import { InvoiceDashboardPage } from '@/pages/InvoiceDashboardPage';
-import { SubscriptionDashboardPage } from '@/pages/SubscriptionDashboardPage';
-import { InvestmentDashboardPage } from '@/pages/InvestmentDashboardPage';
-import { BillDashboardPage } from '@/pages/BillDashboardPage';
-import { NotesDashboardPage } from '@/pages/NotesDashboardPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
+import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
@@ -193,62 +188,6 @@ export default function App() {
                 }
               />
               <Route
-                path="/plugins/password-vault"
-                element={
-                  <ProtectedRoute>
-                    <PasswordVaultDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/invoice-generator"
-                element={
-                  <ProtectedRoute>
-                    <InvoiceDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/subscription-tracker"
-                element={
-                  <ProtectedRoute>
-                    <SubscriptionDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/investment-portfolio"
-                element={
-                  <ProtectedRoute>
-                    <InvestmentDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/bill-reminders"
-                element={
-                  <ProtectedRoute>
-                    <BillDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/notes"
-                element={
-                  <ProtectedRoute>
-                    <NotesDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/notes/:id"
-                element={
-                  <ProtectedRoute>
-                    <NotesDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/plugins/:pluginId"
                 element={
                   <ProtectedRoute>
@@ -257,6 +196,7 @@ export default function App() {
                 }
               />
               <Route path="/share/:token" element={<SharePage />} />
+              <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AuthCheck>

@@ -13,12 +13,14 @@ import {
   FileText,
   Plus,
   ChevronRight,
+  Settings,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { AddJobDialog } from '@/components/AddJobDialog';
+import { JobTrackerSettingsDialog } from '@/components/JobTrackerSettingsDialog';
 
 // Funnel Chart Component
 function ApplicationFunnel({ statusCounts }: { statusCounts: Record<string, number> }) {
@@ -74,6 +76,7 @@ export function JobTrackerDashboardPage() {
   } = useJobTrackerStore();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -132,13 +135,22 @@ export function JobTrackerDashboardPage() {
             </div>
           </div>
 
-          <button
-            onClick={() => setShowAddDialog(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-medium hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg shadow-sky-500/25"
-          >
-            <Plus className="w-4 h-4" />
-            New Job
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSettingsDialog(true)}
+              className="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setShowAddDialog(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-medium hover:from-sky-600 hover:to-blue-700 transition-all shadow-lg shadow-sky-500/25"
+            >
+              <Plus className="w-4 h-4" />
+              New Job
+            </button>
+          </div>
         </div>
 
         {/* Add Job Dialog */}
@@ -146,6 +158,12 @@ export function JobTrackerDashboardPage() {
           isOpen={showAddDialog} 
           onClose={() => setShowAddDialog(false)} 
           onSuccess={handleJobAdded}
+        />
+
+        {/* Settings Dialog */}
+        <JobTrackerSettingsDialog
+          isOpen={showSettingsDialog}
+          onClose={() => setShowSettingsDialog(false)}
         />
 
         {/* Stats Cards */}

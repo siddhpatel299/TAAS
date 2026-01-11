@@ -4,6 +4,8 @@ import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { jobTrackerService } from '../services/job-tracker.service';
 import { pluginsService } from '../services/plugins.service';
 import { jobScraperService } from '../services/job-scraper.service';
+import { CompanyContactsService } from '../services/company-contacts.service';
+import { EmailOutreachService } from '../services/email-outreach.service';
 
 const router: Router = Router();
 
@@ -311,6 +313,392 @@ router.get('/export/csv', asyncHandler(async (req: AuthRequest, res: Response) =
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="job-applications.csv"');
   res.send(csv);
+}));
+
+// ==================== Company Contacts Finder ====================
+
+// Find company contacts (emails & LinkedIn profiles)
+router.post('/applications/:id/contacts', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { 
+    mode = 'hr', 
+    targetRoles = [], 
+    location,
+    maxResults = 10 
+  } = req.body;
+
+  // Verify job application belongs to user
+  const job = await jobTrackerService.getJobApplication(req.user!.id, id);
+
+  // Get API keys from plugin settings
+  const pluginSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const serpApiKey = pluginSettings?.serpApiKey as string | undefined;
+  const hunterApiKey = pluginSettings?.hunterApiKey as string | undefined;
+
+  if (!serpApiKey) {
+    throw new ApiError('SERP API key not configured. Please add it in Job Tracker settings.', 400);
+  }
+
+  // Create service with user's API keys
+  const contactsService = new CompanyContactsService(serpApiKey, hunterApiKey);
+
+  // Find contacts at the company
+  const result = await contactsService.findCompanyContacts(job.company, {
+    mode: mode as 'hr' | 'functional',
+    targetRoles: targetRoles as string[],
+    location: location as string | undefined,
+    maxResults: Math.min(maxResults, 25), // Cap at 25
+  });
+
+  res.json({
+    success: true,
+    data: {
+      company: job.company,
+      contacts: result.contacts,
+      emailPattern: result.emailPattern,
+      totalFound: result.totalFound,
+      patternFromCache: result.patternFromCache,
+    },
+  });
+}));
+
+// Get default HR roles
+router.get('/contacts/default-roles', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const hrRoles = CompanyContactsService.getDefaultHRRoles();
+
+  res.json({
+    success: true,
+    data: {
+      hrRoles,
+      functionalCategories: [
+        'Software Engineer',
+        'Security Engineer',
+        'Data Scientist',
+        'Product Manager',
+        'DevOps',
+      ],
+    },
+  });
+}));
+
+// Expand role keywords
+router.post('/contacts/expand-roles', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { role } = req.body;
+
+  if (!role || typeof role !== 'string') {
+    throw new ApiError('Role is required', 400);
+  }
+
+  const expandedRoles = CompanyContactsService.getExpandedRoles(role);
+
+  res.json({
+    success: true,
+    data: expandedRoles,
+  });
+}));
+
+// Save API keys to plugin settings
+router.post('/settings/api-keys', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { serpApiKey, hunterApiKey } = req.body;
+
+  // Get current settings
+  const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
+
+  // Update with new API keys (only update if provided)
+  const newSettings = {
+    ...currentSettings,
+    ...(serpApiKey !== undefined && { serpApiKey }),
+    ...(hunterApiKey !== undefined && { hunterApiKey }),
+  };
+
+  await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', newSettings);
+
+  res.json({
+    success: true,
+    data: {
+      serpApiKey: serpApiKey ? '***' + serpApiKey.slice(-4) : null,
+      hunterApiKey: hunterApiKey ? '***' + hunterApiKey.slice(-4) : null,
+    },
+  });
+}));
+
+// Get API keys status (masked)
+router.get('/settings/api-keys', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+
+  res.json({
+    success: true,
+    data: {
+      hasSerpApiKey: !!settings?.serpApiKey,
+      hasHunterApiKey: !!settings?.hunterApiKey,
+      serpApiKeyMasked: settings?.serpApiKey ? '***' + (settings.serpApiKey as string).slice(-4) : null,
+      hunterApiKeyMasked: settings?.hunterApiKey ? '***' + (settings.hunterApiKey as string).slice(-4) : null,
+    },
+  });
+}));
+
+// ==================== Email Pattern Cache ====================
+
+// Get cache statistics
+router.get('/contacts/cache/stats', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const stats = await CompanyContactsService.getCacheStats();
+
+  res.json({
+    success: true,
+    data: stats,
+  });
+}));
+
+// Clear cached pattern for a domain
+router.delete('/contacts/cache/:domain', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { domain } = req.params;
+
+  if (!domain) {
+    throw new ApiError('Domain is required', 400);
+  }
+
+  const deleted = await CompanyContactsService.clearCachedPattern(domain);
+
+  res.json({
+    success: true,
+    data: { deleted, domain },
+  });
+}));
+
+// ==================== Email Outreach ====================
+
+// Get default email templates
+router.get('/email/templates', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const templates = EmailOutreachService.getDefaultTemplates();
+
+  res.json({
+    success: true,
+    data: templates,
+  });
+}));
+
+// Generate AI-powered personalized email
+router.post('/email/generate', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { 
+    recipientName, 
+    recipientPosition, 
+    company, 
+    jobTitle, 
+    tone = 'professional',
+    purpose = 'cold-outreach'
+  } = req.body;
+
+  // Get user's settings
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const openaiApiKey = settings?.openaiApiKey as string | undefined;
+  const resumeText = settings?.resumeText as string | undefined;
+
+  if (!openaiApiKey) {
+    throw new ApiError('OpenAI API key not configured. Please add it in Job Tracker settings.', 400);
+  }
+
+  if (!resumeText) {
+    throw new ApiError('Resume text not configured. Please add it in Job Tracker settings.', 400);
+  }
+
+  const emailService = new EmailOutreachService(undefined, openaiApiKey);
+
+  const generated = await emailService.generatePersonalizedEmail({
+    recipientName,
+    recipientPosition,
+    company,
+    jobTitle,
+    resumeText,
+    tone,
+    purpose,
+  });
+
+  res.json({
+    success: true,
+    data: generated,
+  });
+}));
+
+// Send emails to contacts
+router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { 
+    contacts, 
+    subject, 
+    body, 
+    attachments = [],
+    senderName 
+  } = req.body;
+
+  if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
+    throw new ApiError('At least one contact is required', 400);
+  }
+
+  if (!subject || !body) {
+    throw new ApiError('Subject and body are required', 400);
+  }
+
+  // Get Gmail tokens from settings
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const gmailTokens = settings?.gmailTokens as { accessToken: string; refreshToken: string } | undefined;
+
+  if (!gmailTokens) {
+    throw new ApiError('Gmail not connected. Please connect your Gmail account in settings.', 400);
+  }
+
+  const emailService = new EmailOutreachService(gmailTokens);
+
+  const results = await emailService.sendBulkEmails(
+    contacts,
+    { subject, body },
+    senderName || 'Job Seeker',
+    attachments
+  );
+
+  const successful = results.filter(r => r.success).length;
+  const failed = results.filter(r => !r.success).length;
+
+  res.json({
+    success: true,
+    data: {
+      results,
+      summary: {
+        total: results.length,
+        successful,
+        failed,
+      },
+    },
+  });
+}));
+
+// Get Gmail OAuth URL
+router.get('/email/gmail/auth-url', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const state = Buffer.from(JSON.stringify({ userId: req.user!.id })).toString('base64');
+  const authUrl = EmailOutreachService.getGmailAuthUrl(state);
+
+  res.json({
+    success: true,
+    data: { authUrl },
+  });
+}));
+
+// Handle Gmail OAuth callback
+router.post('/email/gmail/callback', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { code } = req.body;
+
+  if (!code) {
+    throw new ApiError('Authorization code is required', 400);
+  }
+
+  const tokens = await EmailOutreachService.exchangeCodeForTokens(code);
+
+  // Save tokens to plugin settings
+  const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
+  await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', {
+    ...currentSettings,
+    gmailTokens: {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    },
+    gmailEmail: tokens.email,
+  });
+
+  res.json({
+    success: true,
+    data: {
+      email: tokens.email,
+      connected: true,
+    },
+  });
+}));
+
+// Disconnect Gmail
+router.delete('/email/gmail/disconnect', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
+  
+  // Remove Gmail tokens
+  const { gmailTokens, gmailEmail, ...restSettings } = currentSettings;
+  await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', restSettings);
+
+  res.json({
+    success: true,
+    data: { disconnected: true },
+  });
+}));
+
+// Save resume text
+router.post('/settings/resume', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { resumeText } = req.body;
+
+  if (typeof resumeText !== 'string') {
+    throw new ApiError('Resume text must be a string', 400);
+  }
+
+  const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
+  await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', {
+    ...currentSettings,
+    resumeText,
+  });
+
+  res.json({
+    success: true,
+    data: {
+      saved: true,
+      length: resumeText.length,
+    },
+  });
+}));
+
+// Get resume text
+router.get('/settings/resume', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+
+  res.json({
+    success: true,
+    data: {
+      resumeText: settings?.resumeText || '',
+      hasResume: !!settings?.resumeText,
+    },
+  });
+}));
+
+// Save OpenAI API key
+router.post('/settings/openai-key', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { openaiApiKey } = req.body;
+
+  const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
+  await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', {
+    ...currentSettings,
+    openaiApiKey,
+  });
+
+  res.json({
+    success: true,
+    data: {
+      saved: true,
+      masked: openaiApiKey ? '***' + openaiApiKey.slice(-4) : null,
+    },
+  });
+}));
+
+// Get full settings status (all API keys + Gmail + resume)
+router.get('/settings/full', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+
+  res.json({
+    success: true,
+    data: {
+      hasSerpApiKey: !!settings?.serpApiKey,
+      hasHunterApiKey: !!settings?.hunterApiKey,
+      hasOpenaiApiKey: !!settings?.openaiApiKey,
+      hasResume: !!settings?.resumeText,
+      resumeLength: (settings?.resumeText as string)?.length || 0,
+      gmailConnected: !!settings?.gmailTokens,
+      gmailEmail: settings?.gmailEmail || null,
+      serpApiKeyMasked: settings?.serpApiKey ? '***' + (settings.serpApiKey as string).slice(-4) : null,
+      hunterApiKeyMasked: settings?.hunterApiKey ? '***' + (settings.hunterApiKey as string).slice(-4) : null,
+      openaiApiKeyMasked: settings?.openaiApiKey ? '***' + (settings.openaiApiKey as string).slice(-4) : null,
+    },
+  });
 }));
 
 export default router;

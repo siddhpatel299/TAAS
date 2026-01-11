@@ -13,12 +13,6 @@ import telegramRoutes from './routes/telegram.routes';
 import pluginsRoutes from './routes/plugins.routes';
 import jobTrackerRoutes from './routes/job-tracker.routes';
 import todoRoutes from './routes/todo.routes';
-import passwordVaultRoutes from './routes/password-vault.routes';
-import invoiceRoutes from './routes/invoice.routes';
-import subscriptionRoutes from './routes/subscription.routes';
-import investmentRoutes from './routes/investment.routes';
-import billRoutes from './routes/bill.routes';
-import notesRoutes from './routes/notes.routes';
 
 const app: Application = express();
 
@@ -76,12 +70,6 @@ app.use('/api/telegram', apiLimiter, telegramRoutes);
 app.use('/api/plugins', apiLimiter, pluginsRoutes);
 app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
 app.use('/api/todo', apiLimiter, todoRoutes);
-app.use('/api/password-vault', apiLimiter, passwordVaultRoutes);
-app.use('/api/invoices', apiLimiter, invoiceRoutes);
-app.use('/api/subscriptions', apiLimiter, subscriptionRoutes);
-app.use('/api/investments', apiLimiter, investmentRoutes);
-app.use('/api/bills', apiLimiter, billRoutes);
-app.use('/api/notes', apiLimiter, notesRoutes);
 
 // Error handling
 app.use(notFoundHandler);

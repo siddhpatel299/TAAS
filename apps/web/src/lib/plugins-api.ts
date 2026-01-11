@@ -160,6 +160,70 @@ export const pluginsApi = {
     api.patch(`/plugins/${pluginId}/settings`, { settings }),
 };
 
+// Company Contact types
+export interface CompanyContact {
+  name: string;
+  firstName: string;
+  lastName: string;
+  position: string;
+  linkedinUrl: string;
+  email: string | null;
+  emailConfidence: number;
+  source: string;
+}
+
+export interface EmailPattern {
+  pattern: string;
+  confidence: number;
+}
+
+export interface CompanyContactsResult {
+  company: string;
+  contacts: CompanyContact[];
+  emailPattern: EmailPattern | null;
+  totalFound: number;
+  patternFromCache: boolean;
+}
+
+// Email Outreach Types
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  isAiGenerated?: boolean;
+}
+
+export interface ContactForEmail {
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  position: string;
+  company: string;
+}
+
+export interface EmailSendResult {
+  success: boolean;
+  email: string;
+  name: string;
+  error?: string;
+  messageId?: string;
+}
+
+export interface FullSettingsStatus {
+  hasSerpApiKey: boolean;
+  hasHunterApiKey: boolean;
+  hasOpenaiApiKey: boolean;
+  hasResume: boolean;
+  resumeLength: number;
+  gmailConnected: boolean;
+  gmailEmail: string | null;
+  serpApiKeyMasked: string | null;
+  hunterApiKeyMasked: string | null;
+  openaiApiKeyMasked: string | null;
+}
+
 // Job Tracker API
 export const jobTrackerApi = {
   // Dashboard
@@ -169,6 +233,76 @@ export const jobTrackerApi = {
   // Scrape job from URL
   scrapeJob: (url: string) => 
     api.post<{ success: boolean; data: ScrapedJobData }>('/job-tracker/scrape', { url }),
+
+  // Company Contacts Finder
+  findCompanyContacts: (jobId: string, options: {
+    mode: 'hr' | 'functional';
+    targetRoles?: string[];
+    location?: string;
+    maxResults?: number;
+  }) => 
+    api.post<{ success: boolean; data: CompanyContactsResult }>(`/job-tracker/applications/${jobId}/contacts`, options),
+
+  getDefaultRoles: () =>
+    api.get<{ success: boolean; data: { hrRoles: string[]; functionalCategories: string[] } }>('/job-tracker/contacts/default-roles'),
+
+  expandRoles: (role: string) =>
+    api.post<{ success: boolean; data: string[] }>('/job-tracker/contacts/expand-roles', { role }),
+
+  // API Keys management
+  getApiKeysStatus: () =>
+    api.get<{ success: boolean; data: { hasSerpApiKey: boolean; hasHunterApiKey: boolean; serpApiKeyMasked: string | null; hunterApiKeyMasked: string | null } }>('/job-tracker/settings/api-keys'),
+
+  saveApiKeys: (keys: { serpApiKey?: string; hunterApiKey?: string }) =>
+    api.post<{ success: boolean; data: { serpApiKey: string | null; hunterApiKey: string | null } }>('/job-tracker/settings/api-keys', keys),
+
+  // Full Settings
+  getFullSettings: () =>
+    api.get<{ success: boolean; data: FullSettingsStatus }>('/job-tracker/settings/full'),
+
+  // Email Outreach
+  getEmailTemplates: () =>
+    api.get<{ success: boolean; data: EmailTemplate[] }>('/job-tracker/email/templates'),
+
+  generateEmail: (options: {
+    recipientName: string;
+    recipientPosition: string;
+    company: string;
+    jobTitle: string;
+    tone?: 'professional' | 'friendly' | 'casual';
+    purpose?: 'referral' | 'introduction' | 'follow-up' | 'cold-outreach';
+  }) =>
+    api.post<{ success: boolean; data: { subject: string; body: string } }>('/job-tracker/email/generate', options),
+
+  sendEmails: (data: {
+    contacts: ContactForEmail[];
+    subject: string;
+    body: string;
+    senderName: string;
+    attachments?: Array<{ filename: string; content: string; mimeType: string }>;
+  }) =>
+    api.post<{ success: boolean; data: { results: EmailSendResult[]; summary: { total: number; successful: number; failed: number } } }>('/job-tracker/email/send', data),
+
+  // Gmail OAuth
+  getGmailAuthUrl: () =>
+    api.get<{ success: boolean; data: { authUrl: string } }>('/job-tracker/email/gmail/auth-url'),
+
+  connectGmail: (code: string) =>
+    api.post<{ success: boolean; data: { email: string; connected: boolean } }>('/job-tracker/email/gmail/callback', { code }),
+
+  disconnectGmail: () =>
+    api.delete<{ success: boolean; data: { disconnected: boolean } }>('/job-tracker/email/gmail/disconnect'),
+
+  // Resume
+  saveResume: (resumeText: string) =>
+    api.post<{ success: boolean; data: { saved: boolean; length: number } }>('/job-tracker/settings/resume', { resumeText }),
+
+  getResume: () =>
+    api.get<{ success: boolean; data: { resumeText: string; hasResume: boolean } }>('/job-tracker/settings/resume'),
+
+  // OpenAI Key
+  saveOpenaiKey: (openaiApiKey: string) =>
+    api.post<{ success: boolean; data: { saved: boolean; masked: string | null } }>('/job-tracker/settings/openai-key', { openaiApiKey }),
 
   // Applications
   getApplications: (params?: {
