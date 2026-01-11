@@ -157,28 +157,31 @@ export class EmailOutreachService {
 
     const prompt = `Generate a personalized cold outreach email for a job seeker.
 
-RECIPIENT INFO:
-- Name: ${options.recipientName}
-- Position: ${options.recipientPosition}
+CONTEXT (for understanding, but use placeholders in output):
+- Target recipient position: ${options.recipientPosition}
 - Company: ${options.company}
-
-JOB SEEKER INFO:
 - Target Role: ${options.jobTitle}
-- Resume/Background:
+- Job seeker background:
 ${options.resumeText.substring(0, 2000)}
 
 REQUIREMENTS:
 - Tone: ${toneDescription[options.tone || 'professional']}
 - Purpose: ${purposeDescription[options.purpose || 'cold-outreach']}
 - Keep it concise (under 200 words)
-- Be genuine and specific (reference their role/company)
+- Be genuine and specific (reference the company and role type)
 - Include a clear call-to-action
-- DO NOT include placeholders like [Your Name] - the email will be personalized separately
+
+IMPORTANT - USE THESE PLACEHOLDERS (they will be replaced for each recipient):
+- Use {firstName} for the recipient's first name (e.g., "Dear {firstName},")
+- Use {lastName} for recipient's last name
+- Use {position} for recipient's job title
+- Use {company} for company name (already "${options.company}")
+- Do NOT use actual names - the email may be sent to multiple people
 
 Return JSON format:
 {
-  "subject": "Email subject line",
-  "body": "Email body in plain text with proper line breaks"
+  "subject": "Email subject line (can include {company})",
+  "body": "Email body starting with 'Dear {firstName},' and using placeholders"
 }`;
 
     const completion = await this.openai.chat.completions.create({

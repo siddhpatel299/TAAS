@@ -116,22 +116,18 @@ export function EmailComposerDialog({
   };
 
   const applyTemplate = (template: EmailTemplate) => {
-    // Replace placeholders with actual values
+    // Keep placeholders - only replace company/jobTitle/senderName which are same for all
+    // {firstName}, {lastName}, {name}, {position} will be replaced per-contact by backend
     let newSubject = template.subject;
     let newBody = template.body;
 
-    const firstContact = contacts[0];
-    const variables: Record<string, string> = {
+    const staticVariables: Record<string, string> = {
       company,
       jobTitle,
-      firstName: firstContact?.firstName || '[First Name]',
-      lastName: firstContact?.lastName || '[Last Name]',
-      name: firstContact?.name || '[Name]',
-      position: firstContact?.position || '[Position]',
       senderName: senderName || '[Your Name]',
     };
 
-    for (const [key, value] of Object.entries(variables)) {
+    for (const [key, value] of Object.entries(staticVariables)) {
       const regex = new RegExp(`\\{${key}\\}`, 'gi');
       newSubject = newSubject.replace(regex, value);
       newBody = newBody.replace(regex, value);
@@ -512,6 +508,29 @@ export function EmailComposerDialog({
                 Use {'{firstName}'}, {'{lastName}'}, {'{company}'}, {'{position}'} for personalization
               </p>
             </div>
+
+            {/* Preview Section - Show how email will look for each contact */}
+            {contacts.length > 1 && body.includes('{') && (
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Preview: Each contact will receive a personalized email
+                </h4>
+                <div className="text-xs text-blue-700 space-y-1">
+                  {contacts.slice(0, 3).map((contact, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="font-medium">{contact.name}:</span>
+                      <span className="text-blue-600">
+                        "{body.replace(/{firstName}/gi, contact.firstName).replace(/{lastName}/gi, contact.lastName).replace(/{name}/gi, contact.name).replace(/{position}/gi, contact.position).split('\n')[0].substring(0, 50)}..."
+                      </span>
+                    </div>
+                  ))}
+                  {contacts.length > 3 && (
+                    <div className="text-blue-500">...and {contacts.length - 3} more contacts</div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Attachments */}
             <div>
