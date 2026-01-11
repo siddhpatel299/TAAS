@@ -422,7 +422,7 @@ export const investmentService = {
 
     for (const mf of mutualFunds) {
       // Symbol should contain the AMFI scheme code for Indian MFs
-      const navData = await this.fetchMutualFundNAV(mf.symbol);
+      const navData = await this.fetchMutualFundNAV(mf.symbol || '');
       
       if (navData) {
         const oldPrice = Number(mf.currentPrice) || 0;
@@ -437,7 +437,7 @@ export const investmentService = {
         });
 
         results.push({
-          symbol: mf.symbol,
+          symbol: mf.symbol || '',
           name: mf.name,
           oldPrice,
           newPrice,

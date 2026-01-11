@@ -392,21 +392,27 @@ model EmailPatternCache {
 // =====================================
 
 model Note {
-  id          String    @id @default(cuid())
-  userId      String
-  folderId    String?
-  title       String
-  content     String?   @db.Text
-  contentJson Json?
-  icon        String?
-  coverImage  String?
-  isPinned    Boolean   @default(false)
-  isArchived  Boolean   @default(false)
-  isTrashed   Boolean   @default(false)
-  trashedAt   DateTime?
-  tags        String[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  userId       String
+  folderId     String?
+  title        String
+  content      String?   @db.Text
+  contentJson  Json?
+  contentHtml  String?   @db.Text
+  icon         String?
+  coverImage   String?
+  color        String?
+  isPinned     Boolean   @default(false)
+  isFavorite   Boolean   @default(false)
+  isArchived   Boolean   @default(false)
+  isTrashed    Boolean   @default(false)
+  trashedAt    DateTime?
+  tags         String[]
+  wordCount    Int?
+  readingTime  Int?
+  lastEditedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   folder   NoteFolder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
   versions NoteVersion[]
@@ -415,6 +421,7 @@ model Note {
   @@index([userId])
   @@index([folderId])
   @@index([isPinned])
+  @@index([isFavorite])
   @@index([isArchived])
   @@index([isTrashed])
   @@map("nd_notes")
@@ -422,13 +429,14 @@ model Note {
 }
 
 model NoteVersion {
-  id        String   @id @default(cuid())
-  noteId    String
-  title     String
-  content   String?  @db.Text
+  id          String   @id @default(cuid())
+  noteId      String
+  title       String
+  content     String?  @db.Text
   contentJson Json?
-  version   Int
-  createdAt DateTime @default(now())
+  contentHtml String?  @db.Text
+  version     Int
+  createdAt   DateTime @default(now())
 
   note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
 
@@ -465,29 +473,38 @@ model NoteTemplate {
   description String?
   content     String?  @db.Text
   contentJson Json?
+  contentHtml String?  @db.Text
   icon        String?
   isPublic    Boolean  @default(false)
+  isDefault   Boolean  @default(false)
+  usageCount  Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([userId])
+  @@index([isDefault])
+  @@index([usageCount])
   @@map("nd_templates")
   @@schema("public")
 }
 
 model NoteShare {
   id         String    @id @default(cuid())
+  userId     String
   noteId     String
   token      String    @unique @default(cuid())
   password   String?
   expiresAt  DateTime?
   canEdit    Boolean   @default(false)
+  allowEdit  Boolean   @default(false)
+  isPublic   Boolean   @default(false)
   viewCount  Int       @default(0)
   isActive   Boolean   @default(true)
   createdAt  DateTime  @default(now())
 
   note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@index([token])
   @@index([noteId])
   @@map("nd_shares")
@@ -499,34 +516,59 @@ model NoteShare {
 // =====================================
 
 model Invoice {
-  id            String    @id @default(cuid())
-  userId        String
-  invoiceNumber String
-  clientName    String
-  clientEmail   String?
-  clientAddress String?   @db.Text
-  status        String    @default("draft") // draft, sent, paid, overdue, cancelled
-  issueDate     DateTime  @default(now())
-  dueDate       DateTime?
-  subtotal      Float     @default(0)
-  taxRate       Float     @default(0)
-  taxAmount     Float     @default(0)
-  discount      Float     @default(0)
-  total         Float     @default(0)
-  currency      String    @default("USD")
-  notes         String?   @db.Text
-  terms         String?   @db.Text
-  paidAt        DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  userId          String
+  clientId        String?
+  invoiceNumber   String
+  clientName      String?
+  clientEmail     String?
+  clientAddress   String?   @db.Text
+  status          String    @default("draft") // draft, sent, paid, overdue, cancelled
+  issueDate       DateTime  @default(now())
+  dueDate         DateTime?
+  subtotal        Float     @default(0)
+  taxRate         Float     @default(0)
+  taxAmount       Float     @default(0)
+  discount        Float?
+  total           Float     @default(0)
+  currency        String    @default("USD")
+  notes           String?   @db.Text
+  terms           String?   @db.Text
+  isRecurring     Boolean   @default(false)
+  recurringPeriod String?
+  paidAt          DateTime?
+  paidDate        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
+  client   InvoiceClient?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
   items    InvoiceItem[]
   payments InvoicePayment[]
 
   @@index([userId])
+  @@index([clientId])
   @@index([status])
   @@index([invoiceNumber])
-  @@map("inv_invoices")
+  @@map("invoice_invoices")
+  @@schema("public")
+}
+
+model InvoiceClient {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  address   String?  @db.Text
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoices Invoice[]
+
+  @@index([userId])
+  @@map("invoice_clients")
   @@schema("public")
 }
 
@@ -542,24 +584,27 @@ model InvoiceItem {
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
-  @@map("inv_items")
+  @@map("invoice_items")
   @@schema("public")
 }
 
 model InvoicePayment {
-  id        String   @id @default(cuid())
-  invoiceId String
-  amount    Float
-  method    String?
-  reference String?
-  notes     String?
-  paidAt    DateTime @default(now())
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  invoiceId     String
+  amount        Float
+  method        String?
+  paymentMethod String?
+  reference     String?
+  notes         String?
+  paymentDate   DateTime @default(now())
+  paidAt        DateTime @default(now())
+  createdAt     DateTime @default(now())
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
-  @@map("inv_payments")
+  @@index([paymentDate])
+  @@map("invoice_payments")
   @@schema("public")
 }
 
@@ -568,25 +613,24 @@ model InvoicePayment {
 // =====================================
 
 model PasswordEntry {
-  id             String    @id @default(cuid())
-  userId         String
-  categoryId     String?
-  title          String
-  username       String?
-  encryptedPassword String  @db.Text
-  passwordIv     String
-  url            String?
-  notes          String?   @db.Text
-  isFavorite     Boolean   @default(false)
-  lastUsedAt     DateTime?
-  passwordChangedAt DateTime @default(now())
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  category PasswordCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  id               String    @id @default(cuid())
+  userId           String
+  category         String?
+  name             String
+  username         String?
+  password         String?   @db.Text // JSON string with encrypted data
+  url              String?
+  notes            String?   @db.Text
+  tags             String[]
+  customFields     Json?
+  isFavorite       Boolean   @default(false)
+  passwordStrength String?   // weak, fair, good, strong
+  lastUsedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([userId])
-  @@index([categoryId])
+  @@index([category])
   @@index([isFavorite])
   @@map("pw_entries")
   @@schema("public")
@@ -598,10 +642,9 @@ model PasswordCategory {
   name      String
   icon      String?
   color     String?
+  position  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  entries PasswordEntry[]
 
   @@index([userId])
   @@map("pw_categories")
@@ -638,7 +681,11 @@ model Subscription {
   currency        String    @default("USD")
   billingCycle    String    @default("monthly") // monthly, yearly, weekly, quarterly
   category        String?
+  color           String?
+  icon            String?
+  status          String    @default("active") // active, paused, cancelled
   startDate       DateTime  @default(now())
+  endDate         DateTime?
   nextBillingDate DateTime?
   reminderDays    Int       @default(3)
   isActive        Boolean   @default(true)
@@ -651,6 +698,7 @@ model Subscription {
   payments SubscriptionPayment[]
 
   @@index([userId])
+  @@index([status])
   @@index([isActive])
   @@index([nextBillingDate])
   @@map("sub_subscriptions")
@@ -661,14 +709,16 @@ model SubscriptionPayment {
   id             String   @id @default(cuid())
   subscriptionId String
   amount         Float
-  paidAt         DateTime @default(now())
+  paymentDate    DateTime @default(now())
   method         String?
+  status         String?
   notes          String?
   createdAt      DateTime @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 
   @@index([subscriptionId])
+  @@index([paymentDate])
   @@map("sub_payments")
   @@schema("public")
 }
@@ -678,27 +728,56 @@ model SubscriptionPayment {
 // =====================================
 
 model Bill {
-  id          String    @id @default(cuid())
-  userId      String
-  name        String
-  description String?
-  amount      Float
-  currency    String    @default("USD")
-  category    String?
-  dueDate     DateTime
-  isPaid      Boolean   @default(false)
-  paidAt      DateTime?
-  isRecurring Boolean   @default(false)
-  recurringInterval String? // monthly, yearly, weekly
-  reminderDays Int      @default(3)
-  notes       String?   @db.Text
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  userId          String
+  name            String
+  payee           String?
+  accountNumber   String?
+  description     String?
+  amount          Float
+  currency        String    @default("USD")
+  category        String?
+  color           String?
+  icon            String?
+  status          String    @default("pending") // pending, paid, overdue
+  dueDate         DateTime
+  isPaid          Boolean   @default(false)
+  paidAt          DateTime?
+  isRecurring     Boolean   @default(false)
+  recurringPeriod String?   // monthly, yearly, weekly
+  autopay         Boolean   @default(false)
+  website         String?
+  reminderDays    Int       @default(3)
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  payments BillPayment[]
 
   @@index([userId])
+  @@index([status])
   @@index([isPaid])
   @@index([dueDate])
   @@map("bill_bills")
+  @@schema("public")
+}
+
+model BillPayment {
+  id            String   @id @default(cuid())
+  billId        String
+  amount        Float
+  paymentDate   DateTime @default(now())
+  paymentMethod String?
+  method        String?
+  reference     String?
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+  @@index([paymentDate])
+  @@map("bill_payments")
   @@schema("public")
 }
 
@@ -713,20 +792,67 @@ model Investment {
   name          String
   type          String    // stocks, bonds, mutual_funds, crypto, real_estate, etc.
   symbol        String?
+  sector        String?
+  exchange      String?
+  currency      String    @default("USD")
   quantity      Float     @default(0)
-  purchasePrice Float
+  purchasePrice Float?
   currentPrice  Float?
+  avgCostBasis  Float?
   purchaseDate  DateTime  @default(now())
+  isWatchlist   Boolean   @default(false)
   notes         String?   @db.Text
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  client InvestmentClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  client       InvestmentClient?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  transactions InvestmentTransaction[]
+  dividends    InvestmentDividend[]
 
   @@index([userId])
   @@index([clientId])
   @@index([type])
+  @@index([sector])
+  @@index([isWatchlist])
   @@map("inv_investments")
+  @@schema("public")
+}
+
+model InvestmentTransaction {
+  id           String   @id @default(cuid())
+  investmentId String
+  type         String   // buy, sell
+  quantity     Float
+  price        Float?
+  pricePerUnit Float?
+  totalAmount  Float?
+  fees         Float    @default(0)
+  date         DateTime @default(now())
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+
+  @@index([investmentId])
+  @@index([date])
+  @@map("inv_transactions")
+  @@schema("public")
+}
+
+model InvestmentDividend {
+  id           String   @id @default(cuid())
+  investmentId String
+  amount       Float
+  date         DateTime @default(now())
+  isReinvested Boolean  @default(false)
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+
+  @@index([investmentId])
+  @@index([date])
+  @@map("inv_dividends")
   @@schema("public")
 }
 

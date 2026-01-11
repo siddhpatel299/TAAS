@@ -267,7 +267,7 @@ export const invoiceService = {
         issueDate: data.issueDate || new Date(),
         dueDate: data.dueDate,
         subtotal,
-        taxRate: taxRate || null,
+        taxRate: taxRate || undefined,
         taxAmount,
         discount,
         total,

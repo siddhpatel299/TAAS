@@ -301,7 +301,7 @@ export class CompanyContactsService {
         return [];
       }
 
-      const data = await response.json();
+      const data = await response.json() as { organic_results?: any[] };
       const results = data.organic_results || [];
 
       const profiles: SerpProfile[] = [];
@@ -412,7 +412,7 @@ export class CompanyContactsService {
         return { email: null, confidence: 0 };
       }
 
-      const data = await response.json();
+      const data = await response.json() as { data?: { email?: string; confidence?: number } };
       const emailData = data.data || {};
 
       return {
@@ -446,7 +446,7 @@ export class CompanyContactsService {
         return null;
       }
 
-      const data = await response.json();
+      const data = await response.json() as { data?: { emails?: any[] } };
       const emails = data.data?.emails || [];
       
       if (emails.length === 0) {
