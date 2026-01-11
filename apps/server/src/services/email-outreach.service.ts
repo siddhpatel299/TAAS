@@ -427,10 +427,12 @@ Return JSON format:
    * Get Gmail OAuth URL
    */
   static getGmailAuthUrl(state?: string): string {
+    const redirectUri = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/google/callback`;
+    
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/google/callback`
+      redirectUri
     );
 
     const scopes = [
@@ -443,6 +445,7 @@ Return JSON format:
       scope: scopes,
       prompt: 'consent',
       state: state,
+      redirect_uri: redirectUri, // Explicitly include redirect_uri
     });
   }
 
