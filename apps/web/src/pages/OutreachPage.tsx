@@ -1,26 +1,20 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Mail,
   Send,
   Calendar,
   Clock,
-  CheckCircle2,
   XCircle,
   MessageSquare,
   Search,
-  Filter,
-  ChevronDown,
   MoreVertical,
   Eye,
   Trash2,
   CalendarPlus,
   Download,
   Building2,
-  User,
   AlertCircle,
-  TrendingUp,
-  Users,
   RefreshCw,
   Loader2,
   X,
@@ -50,7 +44,6 @@ export function OutreachPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [showFollowUpsDue, setShowFollowUpsDue] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -587,7 +580,7 @@ export function OutreachPage() {
             setShowPreviewModal(false);
             setSelectedEmail(null);
           }}
-          onStatusUpdate={(status) => handleStatusUpdate(selectedEmail.id, status)}
+          onStatusUpdate={(status: string) => handleStatusUpdate(selectedEmail.id, status)}
           onScheduleFollowUp={() => handleScheduleFollowUp(selectedEmail.id)}
         />
       )}

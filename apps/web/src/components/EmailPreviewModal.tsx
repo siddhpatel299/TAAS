@@ -9,7 +9,6 @@ import {
   Clock,
   MessageSquare,
   CalendarPlus,
-  Send,
   Copy,
   Check,
   ExternalLink,
