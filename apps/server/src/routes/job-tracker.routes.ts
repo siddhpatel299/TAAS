@@ -570,6 +570,71 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
   });
 }));
 
+// Send test email to yourself
+router.post('/email/test', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { 
+    subject, 
+    body, 
+    senderName,
+    testContact // First contact for preview
+  } = req.body;
+
+  if (!subject || !body) {
+    throw new ApiError('Subject and body are required', 400);
+  }
+
+  // Get Gmail tokens and email from settings
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const gmailTokens = settings?.gmailTokens as { accessToken: string; refreshToken: string } | undefined;
+  const gmailEmail = settings?.gmailEmail as string | undefined;
+
+  if (!gmailTokens || !gmailEmail) {
+    throw new ApiError('Gmail not connected. Please connect your Gmail account in settings.', 400);
+  }
+
+  const emailService = new EmailOutreachService(gmailTokens);
+
+  // Apply personalization for the test contact
+  let testSubject = `[TEST] ${subject}`;
+  let testBody = body;
+
+  if (testContact) {
+    const variables: Record<string, string> = {
+      firstName: testContact.firstName || 'FirstName',
+      lastName: testContact.lastName || 'LastName',
+      name: testContact.name || 'Name',
+      position: testContact.position || 'Position',
+      company: testContact.company || 'Company',
+      senderName: senderName || 'Your Name',
+    };
+
+    for (const [key, value] of Object.entries(variables)) {
+      const regex = new RegExp(`\\{${key}\\}`, 'gi');
+      testSubject = testSubject.replace(regex, value);
+      testBody = testBody.replace(regex, value);
+    }
+  }
+
+  // Add test notice at top of email
+  testBody = `[THIS IS A TEST EMAIL - Preview of what "${testContact?.name || 'recipient'}" would receive]\n\n---\n\n${testBody}`;
+
+  // Send to user's own Gmail
+  const result = await emailService.sendEmail(gmailEmail, testSubject, testBody, []);
+
+  if (!result.success) {
+    throw new ApiError(`Failed to send test email: ${result.error}`, 500);
+  }
+
+  res.json({
+    success: true,
+    data: {
+      message: `Test email sent to ${gmailEmail}`,
+      sentTo: gmailEmail,
+      messageId: result.messageId,
+    },
+  });
+}));
+
 // Get Gmail OAuth URL
 router.get('/email/gmail/auth-url', asyncHandler(async (req: AuthRequest, res: Response) => {
   const state = Buffer.from(JSON.stringify({ userId: req.user!.id })).toString('base64');

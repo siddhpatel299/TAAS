@@ -63,6 +63,8 @@ export function EmailComposerDialog({
   
   // Sending state
   const [isSending, setIsSending] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testSentTo, setTestSentTo] = useState<string | null>(null);
   const [sendResults, setSendResults] = useState<{
     total: number;
     successful: number;
@@ -221,6 +223,39 @@ export function EmailComposerDialog({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const sendTestEmail = async () => {
+    if (!settingsStatus.gmailConnected) {
+      setError('Gmail not connected. Please connect your Gmail account in Job Tracker settings.');
+      return;
+    }
+
+    if (!subject.trim() || !body.trim()) {
+      setError('Subject and body are required');
+      return;
+    }
+
+    setIsSendingTest(true);
+    setError(null);
+    setTestSentTo(null);
+
+    try {
+      const response = await jobTrackerApi.sendTestEmail({
+        subject,
+        body,
+        senderName: senderName || 'Job Seeker',
+        testContact: contacts[0], // Use first contact for preview
+      });
+
+      const data = response.data.data;
+      setTestSentTo(data.sentTo);
+    } catch (err: any) {
+      const message = err.response?.data?.error || err.message || 'Failed to send test email';
+      setError(message);
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
   const sendEmails = async () => {
     if (!settingsStatus.gmailConnected) {
       setError('Gmail not connected. Please connect your Gmail account in Job Tracker settings.');
@@ -313,6 +348,16 @@ export function EmailComposerDialog({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
+            {/* Test Email Success Message */}
+            {testSentTo && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <Check className="w-5 h-5" />
+                  <span className="font-medium">Test email sent to {testSentTo}! Check your inbox (and spam folder).</span>
+                </div>
+              </div>
+            )}
+
             {/* Success Message */}
             {sendResults && sendResults.failed === 0 && (
               <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
@@ -591,11 +636,33 @@ export function EmailComposerDialog({
                 Cancel
               </button>
               <button
+                onClick={sendTestEmail}
+                disabled={isSendingTest || isSending || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all border',
+                  isSendingTest || isSending || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'
+                )}
+              >
+                {isSendingTest ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending Test...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4" />
+                    Send Test to Me
+                  </>
+                )}
+              </button>
+              <button
                 onClick={sendEmails}
-                disabled={isSending || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
+                disabled={isSending || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
                 className={cn(
                   'flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all',
-                  isSending || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
+                  isSending || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25'
                 )}

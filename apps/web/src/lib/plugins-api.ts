@@ -283,6 +283,14 @@ export const jobTrackerApi = {
   }) =>
     api.post<{ success: boolean; data: { results: EmailSendResult[]; summary: { total: number; successful: number; failed: number } } }>('/job-tracker/email/send', data),
 
+  sendTestEmail: (data: {
+    subject: string;
+    body: string;
+    senderName: string;
+    testContact?: ContactForEmail;
+  }) =>
+    api.post<{ success: boolean; data: { message: string; sentTo: string; messageId?: string } }>('/job-tracker/email/test', data),
+
   // Gmail OAuth
   getGmailAuthUrl: () =>
     api.get<{ success: boolean; data: { authUrl: string } }>('/job-tracker/email/gmail/auth-url'),
