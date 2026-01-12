@@ -26,6 +26,7 @@ interface EmailComposerDialogProps {
   company: string;
   jobTitle: string;
   jobDescription?: string;
+  jobApplicationId?: string;
 }
 
 interface Attachment {
@@ -42,6 +43,7 @@ export function EmailComposerDialog({
   company,
   jobTitle,
   jobDescription,
+  jobApplicationId,
 }: EmailComposerDialogProps) {
   // Email content
   const [subject, setSubject] = useState('');
@@ -335,6 +337,7 @@ export function EmailComposerDialog({
         body,
         senderName: senderName || 'Job Seeker',
         attachments,
+        jobApplicationId,
       });
 
       const data = response.data.data;

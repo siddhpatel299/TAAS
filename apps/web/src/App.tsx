@@ -14,6 +14,7 @@ import { PluginsPage } from '@/pages/PluginsPage';
 import { JobTrackerDashboardPage } from '@/pages/JobTrackerDashboardPage';
 import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
+import { OutreachPage } from '@/pages/OutreachPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
@@ -184,6 +185,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <JobApplicationFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plugins/job-tracker/outreach"
+                element={
+                  <ProtectedRoute>
+                    <OutreachPage />
                   </ProtectedRoute>
                 }
               />

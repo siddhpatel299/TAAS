@@ -6,6 +6,7 @@ import { pluginsService } from '../services/plugins.service';
 import { jobScraperService } from '../services/job-scraper.service';
 import { CompanyContactsService } from '../services/company-contacts.service';
 import { EmailOutreachService } from '../services/email-outreach.service';
+import { sentEmailsService } from '../services/sent-emails.service';
 
 const router: Router = Router();
 
@@ -574,7 +575,8 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
     subject, 
     body, 
     attachments = [],
-    senderName 
+    senderName,
+    jobApplicationId, // Optional - link emails to a job application
   } = req.body;
 
   if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
@@ -605,14 +607,59 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
   const successful = results.filter(r => r.success).length;
   const failed = results.filter(r => !r.success).length;
 
+  // Save successfully sent emails to database for tracking
+  const savedEmails = [];
+  for (const result of results) {
+    if (result.success) {
+      const contact = contacts.find((c: any) => c.email === result.email);
+      if (contact) {
+        // Apply personalization to get the actual sent content
+        const personalizedSubject = subject
+          .replace(/{firstName}/gi, contact.firstName)
+          .replace(/{lastName}/gi, contact.lastName)
+          .replace(/{name}/gi, contact.name)
+          .replace(/{position}/gi, contact.position)
+          .replace(/{company}/gi, contact.company);
+        
+        const personalizedBody = body
+          .replace(/{firstName}/gi, contact.firstName)
+          .replace(/{lastName}/gi, contact.lastName)
+          .replace(/{name}/gi, contact.name)
+          .replace(/{position}/gi, contact.position)
+          .replace(/{company}/gi, contact.company)
+          .replace(/{senderName}/gi, senderName || 'Job Seeker');
+
+        try {
+          const savedEmail = await sentEmailsService.create({
+            userId: req.user!.id,
+            jobApplicationId: jobApplicationId || undefined,
+            recipientName: contact.name,
+            recipientEmail: contact.email,
+            recipientPosition: contact.position,
+            company: contact.company,
+            subject: personalizedSubject,
+            body: personalizedBody,
+            gmailMessageId: result.messageId,
+          });
+          savedEmails.push(savedEmail);
+        } catch (saveError) {
+          console.error('Failed to save sent email record:', saveError);
+          // Don't fail the request, email was sent successfully
+        }
+      }
+    }
+  }
+
   res.json({
     success: true,
     data: {
       results,
+      savedEmails,
       summary: {
         total: results.length,
         successful,
         failed,
+        tracked: savedEmails.length,
       },
     },
   });
@@ -812,6 +859,205 @@ router.get('/settings/full', asyncHandler(async (req: AuthRequest, res: Response
       openaiApiKeyMasked: settings?.openaiApiKey ? '***' + (settings.openaiApiKey as string).slice(-4) : null,
     },
   });
+}));
+
+// ==================== Sent Emails Tracking ====================
+
+// Get all sent emails with filters
+router.get('/outreach/emails', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const {
+    jobApplicationId,
+    company,
+    status,
+    followUpDue,
+    search,
+    dateFrom,
+    dateTo,
+    sortBy,
+    sortOrder,
+    page,
+    limit,
+  } = req.query;
+
+  const result = await sentEmailsService.getMany({
+    userId: req.user!.id,
+    jobApplicationId: jobApplicationId as string | undefined,
+    company: company as string | undefined,
+    status: status as string | undefined,
+    followUpDue: followUpDue === 'true',
+    search: search as string | undefined,
+    dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
+    dateTo: dateTo ? new Date(dateTo as string) : undefined,
+    sortBy: sortBy as any,
+    sortOrder: sortOrder as any,
+    page: page ? parseInt(page as string) : 1,
+    limit: limit ? parseInt(limit as string) : 20,
+  });
+
+  res.json({
+    success: true,
+    data: result.emails,
+    meta: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      hasMore: result.hasMore,
+    },
+  });
+}));
+
+// Get outreach dashboard stats
+router.get('/outreach/stats', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const stats = await sentEmailsService.getOutreachStats(req.user!.id);
+
+  res.json({
+    success: true,
+    data: stats,
+  });
+}));
+
+// Get follow-up stats (for main dashboard)
+router.get('/outreach/follow-up-stats', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const stats = await sentEmailsService.getFollowUpStats(req.user!.id);
+
+  res.json({
+    success: true,
+    data: stats,
+  });
+}));
+
+// Get emails due for follow-up
+router.get('/outreach/follow-ups-due', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+  const emails = await sentEmailsService.getFollowUpsDue(req.user!.id, limit);
+
+  res.json({
+    success: true,
+    data: emails,
+  });
+}));
+
+// Get emails by company (for bulk view)
+router.get('/outreach/by-company/:company', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const emails = await sentEmailsService.getByCompany(req.user!.id, req.params.company);
+
+  res.json({
+    success: true,
+    data: emails,
+  });
+}));
+
+// Get emails for a specific job application
+router.get('/outreach/by-job/:jobId', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const emails = await sentEmailsService.getByJobApplication(req.user!.id, req.params.jobId);
+
+  res.json({
+    success: true,
+    data: emails,
+  });
+}));
+
+// Get single sent email
+router.get('/outreach/emails/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const email = await sentEmailsService.getById(req.user!.id, req.params.id);
+
+  res.json({
+    success: true,
+    data: email,
+  });
+}));
+
+// Update sent email (status, follow-up, notes)
+router.patch('/outreach/emails/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { status, followUpDate, followedUp, notes } = req.body;
+
+  const email = await sentEmailsService.update(req.user!.id, req.params.id, {
+    status,
+    followUpDate: followUpDate ? new Date(followUpDate) : followUpDate,
+    followedUp,
+    notes,
+  });
+
+  res.json({
+    success: true,
+    data: email,
+  });
+}));
+
+// Quick action: Mark as replied
+router.post('/outreach/emails/:id/replied', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const email = await sentEmailsService.markAsReplied(req.user!.id, req.params.id);
+
+  res.json({
+    success: true,
+    data: email,
+  });
+}));
+
+// Quick action: Mark as meeting scheduled
+router.post('/outreach/emails/:id/meeting-scheduled', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const email = await sentEmailsService.markAsMeetingScheduled(req.user!.id, req.params.id);
+
+  res.json({
+    success: true,
+    data: email,
+  });
+}));
+
+// Quick action: Mark as no response
+router.post('/outreach/emails/:id/no-response', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const email = await sentEmailsService.markAsNoResponse(req.user!.id, req.params.id);
+
+  res.json({
+    success: true,
+    data: email,
+  });
+}));
+
+// Schedule follow-up
+router.post('/outreach/emails/:id/schedule-follow-up', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { followUpDate } = req.body;
+
+  if (!followUpDate) {
+    throw new ApiError('Follow-up date is required', 400);
+  }
+
+  const email = await sentEmailsService.scheduleFollowUp(
+    req.user!.id, 
+    req.params.id, 
+    new Date(followUpDate)
+  );
+
+  res.json({
+    success: true,
+    data: email,
+  });
+}));
+
+// Delete sent email record
+router.delete('/outreach/emails/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
+  await sentEmailsService.delete(req.user!.id, req.params.id);
+
+  res.json({
+    success: true,
+    data: { deleted: true },
+  });
+}));
+
+// Export sent emails to CSV
+router.get('/outreach/export/csv', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { company, status, dateFrom, dateTo } = req.query;
+
+  const csv = await sentEmailsService.exportToCSV(req.user!.id, {
+    company: company as string | undefined,
+    status: status as string | undefined,
+    dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
+    dateTo: dateTo ? new Date(dateTo as string) : undefined,
+  });
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="sent-emails.csv"');
+  res.send(csv);
 }));
 
 export default router;

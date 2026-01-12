@@ -224,6 +224,54 @@ export interface FullSettingsStatus {
   openaiApiKeyMasked: string | null;
 }
 
+// Sent Email Tracking Types
+export interface SentEmail {
+  id: string;
+  userId: string;
+  jobApplicationId?: string;
+  recipientName: string;
+  recipientEmail: string;
+  recipientPosition?: string;
+  company: string;
+  subject: string;
+  body: string;
+  status: 'sent' | 'replied' | 'meeting_scheduled' | 'not_interested' | 'no_response';
+  gmailMessageId?: string;
+  gmailThreadId?: string;
+  followUpDate?: string;
+  followedUp: boolean;
+  followUpCount: number;
+  lastFollowUpAt?: string;
+  notes?: string;
+  sentAt: string;
+  createdAt: string;
+  updatedAt: string;
+  jobApplication?: {
+    id: string;
+    company: string;
+    jobTitle: string;
+    status: string;
+  };
+}
+
+export interface FollowUpStats {
+  dueToday: number;
+  overdue: number;
+  upcoming: number;
+  noResponse: number;
+}
+
+export interface OutreachStats {
+  totalSent: number;
+  totalReplied: number;
+  totalMeetings: number;
+  totalNoResponse: number;
+  responseRate: number;
+  meetingRate: number;
+  statusCounts: Record<string, number>;
+  recentEmails: SentEmail[];
+}
+
 // Job Tracker API
 export const jobTrackerApi = {
   // Dashboard
@@ -292,8 +340,9 @@ export const jobTrackerApi = {
     body: string;
     senderName: string;
     attachments?: Array<{ filename: string; content: string; mimeType: string }>;
+    jobApplicationId?: string;
   }) =>
-    api.post<{ success: boolean; data: { results: EmailSendResult[]; summary: { total: number; successful: number; failed: number } } }>('/job-tracker/email/send', data),
+    api.post<{ success: boolean; data: { results: EmailSendResult[]; savedEmails: SentEmail[]; summary: { total: number; successful: number; failed: number; tracked: number } } }>('/job-tracker/email/send', data),
 
   sendTestEmail: (data: {
     subject: string;
@@ -394,6 +443,81 @@ export const jobTrackerApi = {
   // Export
   exportCSV: (params?: { status?: string; dateFrom?: string; dateTo?: string }) => 
     api.get('/job-tracker/export/csv', { 
+      params,
+      responseType: 'blob',
+    }),
+
+  // ==================== Outreach / Sent Emails ====================
+
+  // Get all sent emails with filters
+  getSentEmails: (params?: {
+    jobApplicationId?: string;
+    company?: string;
+    status?: string;
+    followUpDue?: boolean;
+    search?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    sortBy?: 'sentAt' | 'followUpDate' | 'company' | 'status';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }) => 
+    api.get<{ success: boolean; data: SentEmail[]; meta: any }>('/job-tracker/outreach/emails', { params }),
+
+  // Get outreach dashboard stats
+  getOutreachStats: () =>
+    api.get<{ success: boolean; data: OutreachStats }>('/job-tracker/outreach/stats'),
+
+  // Get follow-up stats for main dashboard
+  getFollowUpStats: () =>
+    api.get<{ success: boolean; data: FollowUpStats }>('/job-tracker/outreach/follow-up-stats'),
+
+  // Get emails due for follow-up
+  getFollowUpsDue: (limit?: number) =>
+    api.get<{ success: boolean; data: SentEmail[] }>('/job-tracker/outreach/follow-ups-due', { params: { limit } }),
+
+  // Get emails by company
+  getEmailsByCompany: (company: string) =>
+    api.get<{ success: boolean; data: SentEmail[] }>(`/job-tracker/outreach/by-company/${encodeURIComponent(company)}`),
+
+  // Get emails for a job application
+  getEmailsByJobApplication: (jobId: string) =>
+    api.get<{ success: boolean; data: SentEmail[] }>(`/job-tracker/outreach/by-job/${jobId}`),
+
+  // Get single sent email
+  getSentEmail: (id: string) =>
+    api.get<{ success: boolean; data: SentEmail }>(`/job-tracker/outreach/emails/${id}`),
+
+  // Update sent email
+  updateSentEmail: (id: string, data: {
+    status?: string;
+    followUpDate?: string | null;
+    followedUp?: boolean;
+    notes?: string;
+  }) =>
+    api.patch<{ success: boolean; data: SentEmail }>(`/job-tracker/outreach/emails/${id}`, data),
+
+  // Quick actions
+  markEmailAsReplied: (id: string) =>
+    api.post<{ success: boolean; data: SentEmail }>(`/job-tracker/outreach/emails/${id}/replied`),
+
+  markEmailAsMeetingScheduled: (id: string) =>
+    api.post<{ success: boolean; data: SentEmail }>(`/job-tracker/outreach/emails/${id}/meeting-scheduled`),
+
+  markEmailAsNoResponse: (id: string) =>
+    api.post<{ success: boolean; data: SentEmail }>(`/job-tracker/outreach/emails/${id}/no-response`),
+
+  scheduleFollowUp: (id: string, followUpDate: string) =>
+    api.post<{ success: boolean; data: SentEmail }>(`/job-tracker/outreach/emails/${id}/schedule-follow-up`, { followUpDate }),
+
+  // Delete sent email record
+  deleteSentEmail: (id: string) =>
+    api.delete<{ success: boolean; data: { deleted: boolean } }>(`/job-tracker/outreach/emails/${id}`),
+
+  // Export sent emails to CSV
+  exportSentEmailsCSV: (params?: { company?: string; status?: string; dateFrom?: string; dateTo?: string }) =>
+    api.get('/job-tracker/outreach/export/csv', { 
       params,
       responseType: 'blob',
     }),

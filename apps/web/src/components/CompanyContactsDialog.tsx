@@ -642,6 +642,7 @@ export function CompanyContactsDialog({
           company={company}
           jobTitle={jobTitle}
           jobDescription={jobDescription}
+          jobApplicationId={jobId}
         />
       )}
     </>

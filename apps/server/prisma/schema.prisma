@@ -275,10 +275,11 @@ model JobApplication {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  documents JobDocument[]
-  tasks     JobTask[]
-  referrals JobReferral[]
+  documents  JobDocument[]
+  tasks      JobTask[]
+  referrals  JobReferral[]
   activities JobActivity[]
+  sentEmails SentEmail[]
 
   @@index([userId])
   @@index([status])
@@ -384,6 +385,58 @@ model EmailPatternCache {
 
   @@index([domain])
   @@map("email_pattern_cache")
+  @@schema("public")
+}
+
+// =====================================
+// SENT EMAILS TRACKING
+// =====================================
+
+model SentEmail {
+  id               String    @id @default(cuid())
+  userId           String
+  jobApplicationId String?   // Optional - link to job application
+  
+  // Recipient info
+  recipientName    String
+  recipientEmail   String
+  recipientPosition String?
+  company          String
+  
+  // Email content
+  subject          String
+  body             String    @db.Text
+  
+  // Status tracking (manual - no tracking pixels)
+  status           String    @default("sent") // sent, replied, meeting_scheduled, not_interested, no_response
+  
+  // Gmail reference (for potential future Gmail API integration)
+  gmailMessageId   String?
+  gmailThreadId    String?
+  
+  // Follow-up tracking
+  followUpDate     DateTime?
+  followedUp       Boolean   @default(false)
+  followUpCount    Int       @default(0)
+  lastFollowUpAt   DateTime?
+  
+  // Notes
+  notes            String?   @db.Text
+  
+  sentAt           DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  jobApplication JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([jobApplicationId])
+  @@index([recipientEmail])
+  @@index([company])
+  @@index([status])
+  @@index([followUpDate])
+  @@index([sentAt])
+  @@map("jt_sent_emails")
   @@schema("public")
 }
 

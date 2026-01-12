@@ -14,6 +14,8 @@ import {
   Plus,
   ChevronRight,
   Settings,
+  Mail,
+  Send,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
@@ -21,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { AddJobDialog } from '@/components/AddJobDialog';
 import { JobTrackerSettingsDialog } from '@/components/JobTrackerSettingsDialog';
+import { jobTrackerApi, FollowUpStats } from '@/lib/plugins-api';
 
 // Funnel Chart Component
 function ApplicationFunnel({ statusCounts }: { statusCounts: Record<string, number> }) {
@@ -77,9 +80,14 @@ export function JobTrackerDashboardPage() {
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [followUpStats, setFollowUpStats] = useState<FollowUpStats | null>(null);
 
   useEffect(() => {
     fetchDashboard();
+    // Load follow-up stats
+    jobTrackerApi.getFollowUpStats()
+      .then(res => setFollowUpStats(res.data.data))
+      .catch(err => console.error('Failed to load follow-up stats:', err));
   }, [fetchDashboard]);
 
   const handleJobAdded = () => {
@@ -326,8 +334,34 @@ export function JobTrackerDashboardPage() {
           </motion.div>
         </div>
 
+        {/* Follow-up Alert Banner */}
+        {followUpStats && (followUpStats.overdue > 0 || followUpStats.dueToday > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-amber-600" />
+                <span className="text-amber-800">
+                  <strong>{followUpStats.overdue}</strong> overdue and <strong>{followUpStats.dueToday}</strong> email follow-ups due today
+                </span>
+              </div>
+              <Link
+                to="/plugins/job-tracker/outreach"
+                className="text-sm font-medium text-amber-700 hover:text-amber-800 flex items-center gap-1"
+              >
+                View Outreach
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
+
         {/* Quick Links */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <Link
             to="/plugins/job-tracker/applications"
             className="bg-white rounded-xl p-4 border border-gray-200 hover:border-sky-200 hover:shadow-md transition-all flex items-center gap-4"
@@ -340,6 +374,25 @@ export function JobTrackerDashboardPage() {
               <p className="text-sm text-gray-500">View all jobs</p>
             </div>
             <ArrowRight className="w-5 h-5 text-gray-400 ml-auto" />
+          </Link>
+
+          <Link
+            to="/plugins/job-tracker/outreach"
+            className="bg-white rounded-xl p-4 border border-gray-200 hover:border-emerald-200 hover:shadow-md transition-all flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <Send className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900">Outreach</h3>
+              <p className="text-sm text-gray-500">Track sent emails</p>
+            </div>
+            {followUpStats && (followUpStats.overdue + followUpStats.dueToday) > 0 && (
+              <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                {followUpStats.overdue + followUpStats.dueToday}
+              </span>
+            )}
+            <ArrowRight className="w-5 h-5 text-gray-400" />
           </Link>
 
           <Link
