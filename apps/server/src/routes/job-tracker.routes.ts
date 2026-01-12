@@ -484,6 +484,7 @@ router.post('/email/generate', asyncHandler(async (req: AuthRequest, res: Respon
     recipientPosition, 
     company, 
     jobTitle, 
+    jobDescription,
     tone = 'professional',
     purpose = 'cold-outreach'
   } = req.body;
@@ -508,6 +509,7 @@ router.post('/email/generate', asyncHandler(async (req: AuthRequest, res: Respon
     recipientPosition,
     company,
     jobTitle,
+    jobDescription,
     resumeText,
     tone,
     purpose,
@@ -516,6 +518,52 @@ router.post('/email/generate', asyncHandler(async (req: AuthRequest, res: Respon
   res.json({
     success: true,
     data: generated,
+  });
+}));
+
+// Refine/modify AI-generated email based on user instructions
+router.post('/email/refine', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { 
+    currentSubject,
+    currentBody,
+    instruction,
+    recipientName,
+    recipientPosition,
+    company,
+    jobTitle,
+  } = req.body;
+
+  if (!currentSubject || !currentBody) {
+    throw new ApiError('Current email subject and body are required', 400);
+  }
+
+  if (!instruction) {
+    throw new ApiError('Refinement instruction is required', 400);
+  }
+
+  // Get user's settings
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const openaiApiKey = settings?.openaiApiKey as string | undefined;
+
+  if (!openaiApiKey) {
+    throw new ApiError('OpenAI API key not configured. Please add it in Job Tracker settings.', 400);
+  }
+
+  const emailService = new EmailOutreachService(undefined, openaiApiKey);
+
+  const refined = await emailService.refineEmail({
+    currentSubject,
+    currentBody,
+    instruction,
+    recipientName,
+    recipientPosition,
+    company,
+    jobTitle,
+  });
+
+  res.json({
+    success: true,
+    data: refined,
   });
 }));
 

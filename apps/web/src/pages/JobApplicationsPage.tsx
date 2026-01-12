@@ -707,6 +707,7 @@ export function JobApplicationsPage() {
             jobId={contactsDialog.job.id}
             company={contactsDialog.job.company}
             jobTitle={contactsDialog.job.jobTitle}
+            jobDescription={contactsDialog.job.jobDescription}
           />
         )}
       </main>

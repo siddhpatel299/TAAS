@@ -269,10 +269,22 @@ export const jobTrackerApi = {
     recipientPosition: string;
     company: string;
     jobTitle: string;
+    jobDescription?: string;
     tone?: 'professional' | 'friendly' | 'casual';
     purpose?: 'referral' | 'introduction' | 'follow-up' | 'cold-outreach';
   }) =>
     api.post<{ success: boolean; data: { subject: string; body: string } }>('/job-tracker/email/generate', options),
+
+  refineEmail: (options: {
+    currentSubject: string;
+    currentBody: string;
+    instruction: string;
+    recipientName?: string;
+    recipientPosition?: string;
+    company?: string;
+    jobTitle?: string;
+  }) =>
+    api.post<{ success: boolean; data: { subject: string; body: string } }>('/job-tracker/email/refine', options),
 
   sendEmails: (data: {
     contacts: ContactForEmail[];

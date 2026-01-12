@@ -25,6 +25,7 @@ interface EmailComposerDialogProps {
   contacts: ContactForEmail[];
   company: string;
   jobTitle: string;
+  jobDescription?: string;
 }
 
 interface Attachment {
@@ -40,6 +41,7 @@ export function EmailComposerDialog({
   contacts,
   company,
   jobTitle,
+  jobDescription,
 }: EmailComposerDialogProps) {
   // Email content
   const [subject, setSubject] = useState('');
@@ -56,6 +58,12 @@ export function EmailComposerDialog({
   const [aiTone, setAiTone] = useState<'professional' | 'friendly' | 'casual'>('professional');
   const [aiPurpose, setAiPurpose] = useState<'referral' | 'introduction' | 'follow-up' | 'cold-outreach'>('cold-outreach');
   const [showAiOptions, setShowAiOptions] = useState(false);
+  
+  // AI Refinement
+  const [isRefining, setIsRefining] = useState(false);
+  const [refineInstruction, setRefineInstruction] = useState('');
+  const [showRefineInput, setShowRefineInput] = useState(false);
+  const [hasGeneratedEmail, setHasGeneratedEmail] = useState(false);
   
   // Attachments
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -167,6 +175,7 @@ export function EmailComposerDialog({
         recipientPosition: firstContact.position,
         company,
         jobTitle,
+        jobDescription, // Include job description for context
         tone: aiTone,
         purpose: aiPurpose,
       });
@@ -175,11 +184,59 @@ export function EmailComposerDialog({
       setSubject(data.subject);
       setBody(data.body);
       setSelectedTemplate(null);
+      setHasGeneratedEmail(true);
+      setShowRefineInput(false);
+      setRefineInstruction('');
     } catch (err: any) {
       const message = err.response?.data?.error || err.message || 'Failed to generate email';
       setError(message);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const refineWithAi = async () => {
+    if (!settingsStatus.hasOpenaiApiKey) {
+      setError('OpenAI API key not configured. Please add it in Job Tracker settings.');
+      return;
+    }
+
+    if (!refineInstruction.trim()) {
+      setError('Please enter instructions for how to modify the email.');
+      return;
+    }
+
+    if (!subject.trim() || !body.trim()) {
+      setError('Generate an email first before refining it.');
+      return;
+    }
+
+    const firstContact = contacts[0];
+    
+    setIsRefining(true);
+    setError(null);
+
+    try {
+      const response = await jobTrackerApi.refineEmail({
+        currentSubject: subject,
+        currentBody: body,
+        instruction: refineInstruction,
+        recipientName: firstContact?.name,
+        recipientPosition: firstContact?.position,
+        company,
+        jobTitle,
+      });
+
+      const data = response.data.data;
+      setSubject(data.subject);
+      setBody(data.body);
+      setRefineInstruction('');
+      setShowRefineInput(false);
+    } catch (err: any) {
+      const message = err.response?.data?.error || err.message || 'Failed to refine email';
+      setError(message);
+    } finally {
+      setIsRefining(false);
     }
   };
 
@@ -522,6 +579,77 @@ export function EmailComposerDialog({
                 />
               </div>
             </div>
+
+            {/* AI Refinement Section - Shows after email has content */}
+            {(hasGeneratedEmail || (subject.trim() && body.trim())) && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Wand2 className="w-4 h-4 text-violet-600" />
+                    <span className="text-sm font-medium text-violet-800">Refine with AI</span>
+                  </div>
+                  {!showRefineInput && (
+                    <button
+                      onClick={() => setShowRefineInput(true)}
+                      className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                    >
+                      + Add Instructions
+                    </button>
+                  )}
+                </div>
+                
+                {showRefineInput ? (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <textarea
+                        value={refineInstruction}
+                        onChange={(e) => setRefineInstruction(e.target.value)}
+                        placeholder="Tell AI how to modify the email... e.g., 'Make it shorter', 'Add more about my security experience', 'Make it more casual', 'Emphasize my leadership skills'"
+                        rows={2}
+                        className="w-full px-4 py-3 bg-white border border-violet-200 rounded-xl text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={() => {
+                          setShowRefineInput(false);
+                          setRefineInstruction('');
+                        }}
+                        className="text-sm text-gray-500 hover:text-gray-700"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={refineWithAi}
+                        disabled={isRefining || !refineInstruction.trim()}
+                        className={cn(
+                          'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                          isRefining || !refineInstruction.trim()
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-violet-600 text-white hover:bg-violet-700'
+                        )}
+                      >
+                        {isRefining ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Refining...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            Apply Changes
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-violet-600">
+                    Not satisfied with the generated email? Click above to give AI instructions on how to modify it.
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Subject */}
             <div className="mb-4">

@@ -40,6 +40,7 @@ interface CompanyContactsDialogProps {
   jobId: string;
   company: string;
   jobTitle?: string;
+  jobDescription?: string;
 }
 
 export function CompanyContactsDialog({
@@ -48,6 +49,7 @@ export function CompanyContactsDialog({
   jobId,
   company,
   jobTitle = '',
+  jobDescription = '',
 }: CompanyContactsDialogProps) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -639,6 +641,7 @@ export function CompanyContactsDialog({
           contacts={getSelectedContactsForEmail()}
           company={company}
           jobTitle={jobTitle}
+          jobDescription={jobDescription}
         />
       )}
     </>
