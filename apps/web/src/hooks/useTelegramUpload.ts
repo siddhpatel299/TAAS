@@ -9,12 +9,11 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { getTelegramClient, getSessionString, setSessionFromServer } from '@/lib/telegram-client';
-import { 
-  uploadFileDirect, 
+import { getTelegramClient, setSessionFromServer } from '@/lib/telegram-client';
+import {
+  uploadFileDirect,
   calculateFileHashStreaming,
   UploadProgress,
-  UploadResult 
 } from '@/lib/telegram-upload';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
@@ -44,8 +43,8 @@ export interface UseDirectUploadOptions {
 
 export function useDirectUpload(options: UseDirectUploadOptions) {
   const { channelId, folderId, onUploadComplete, onAllComplete, onError } = options;
-  const { user } = useAuthStore();
-  
+  const { user: _user } = useAuthStore();
+
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -56,7 +55,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
    * Update a specific upload item
    */
   const updateUpload = useCallback((id: string, updates: Partial<UploadItem>) => {
-    setUploads(prev => prev.map(item => 
+    setUploads(prev => prev.map(item =>
       item.id === id ? { ...item, ...updates } : item
     ));
   }, []);
@@ -72,7 +71,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
    * Clear all completed/errored uploads
    */
   const clearCompleted = useCallback(() => {
-    setUploads(prev => prev.filter(item => 
+    setUploads(prev => prev.filter(item =>
       item.status === 'pending' || item.status === 'uploading'
     ));
   }, []);
@@ -106,17 +105,17 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
       try {
         // Get Telegram client
         updateUpload(uploadId, { status: 'uploading' });
-        
+
         // Try to get client, if not authenticated, get session from server
         let client;
         try {
           client = await getTelegramClient();
-          
+
           // Check if actually connected and authenticated
           await client.getMe();
         } catch (error) {
           console.log('[DirectUpload] Client not ready, fetching session from server...');
-          
+
           // Get session from backend (existing auth system)
           const response = await api.get('/auth/session');
           if (response.data?.data?.sessionData) {
@@ -128,7 +127,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
 
         // Upload directly to Telegram
         console.log(`[DirectUpload] Starting upload: ${file.name}`);
-        
+
         const uploadResult = await uploadFileDirect(
           client,
           channelId,
@@ -143,7 +142,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
         );
 
         console.log(`[DirectUpload] Upload complete, registering metadata...`);
-        
+
         // Calculate checksum (memory-safe for large files)
         updateUpload(uploadId, { status: 'registering', progress: 100 });
         const checksum = await calculateFileHashStreaming(file);
@@ -164,7 +163,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
         console.log(`[DirectUpload] Metadata registered successfully`);
 
         // Mark as completed
-        updateUpload(uploadId, { 
+        updateUpload(uploadId, {
           status: 'completed',
           result: {
             fileId: uploadResult.fileId,
@@ -180,7 +179,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
 
       } catch (error: any) {
         console.error(`[DirectUpload] Upload failed:`, error);
-        
+
         updateUpload(uploadId, {
           status: 'error',
           error: error.message || 'Upload failed',
@@ -207,7 +206,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
   const uploadFiles = useCallback((files: File[]) => {
     // Add to queue
     uploadQueueRef.current.push(...files);
-    
+
     // Start processing if not already
     processQueue();
   }, [processQueue]);
@@ -218,7 +217,7 @@ export function useDirectUpload(options: UseDirectUploadOptions) {
   const cancelAll = useCallback(() => {
     uploadQueueRef.current = [];
     abortControllerRef.current?.abort();
-    setUploads(prev => prev.map(item => 
+    setUploads(prev => prev.map(item =>
       item.status === 'pending' || item.status === 'uploading'
         ? { ...item, status: 'error', error: 'Cancelled' }
         : item

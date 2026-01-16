@@ -13,6 +13,7 @@
 
 import { TelegramClient, Api } from 'telegram';
 import bigInt from 'big-integer';
+import { Buffer } from 'buffer';
 
 // Telegram's optimal chunk size for uploads
 // 512KB is the sweet spot - safe for memory and Telegram rate limits
@@ -42,16 +43,15 @@ export type ProgressCallback = (progress: UploadProgress) => void;
  * Used for integrity verification
  */
 export async function calculateFileHash(file: File): Promise<string> {
-  const HASH_CHUNK_SIZE = 1024 * 1024; // 1MB chunks for hashing
-  const chunks = Math.ceil(file.size / HASH_CHUNK_SIZE);
-  
+  // Note: HASH_CHUNK_SIZE is kept for documentation - full file is hashed at once for now
+
   // Use SubtleCrypto for streaming hash
   const hashBuffer = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
-  
+
   // For very large files, we should stream the hash calculation
   // But for now, most browsers can handle this reasonably
   // TODO: Implement true streaming hash for 1GB+ files
-  
+
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
@@ -65,36 +65,36 @@ export async function calculateFileHashStreaming(file: File): Promise<string> {
   if (file.size < 50 * 1024 * 1024) {
     return calculateFileHash(file);
   }
-  
+
   // For larger files, we need to be more careful
   // Use a simple checksum based on sampling
   // Full hash would require reading entire file which defeats memory safety
   const sampleSize = 1024 * 1024; // 1MB samples
   const samples: ArrayBuffer[] = [];
-  
+
   // Sample start, middle, and end of file
   const positions = [0, Math.floor(file.size / 2), Math.max(0, file.size - sampleSize)];
-  
+
   for (const pos of positions) {
     const chunk = file.slice(pos, Math.min(pos + sampleSize, file.size));
     samples.push(await chunk.arrayBuffer());
   }
-  
+
   // Combine samples with file size for a unique-enough identifier
   const combined = new Uint8Array(
     samples.reduce((acc, buf) => acc + buf.byteLength, 0) + 8
   );
-  
+
   let offset = 0;
   for (const sample of samples) {
     combined.set(new Uint8Array(sample), offset);
     offset += sample.byteLength;
   }
-  
+
   // Add file size as last 8 bytes
   const sizeView = new DataView(combined.buffer, offset, 8);
   sizeView.setBigInt64(0, BigInt(file.size), true);
-  
+
   const hashBuffer = await crypto.subtle.digest('SHA-256', combined);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -107,12 +107,12 @@ function generateFileId(): bigInt.BigInteger {
   // Generate random 64-bit integer
   const array = new Uint8Array(8);
   crypto.getRandomValues(array);
-  
+
   let result = bigInt(0);
   for (let i = 0; i < 8; i++) {
     result = result.multiply(256).add(array[i]);
   }
-  
+
   return result;
 }
 
@@ -146,20 +146,20 @@ export async function uploadFileDirect(
   // ═══════════════════════════════════════════════════════════════
   // PHASE 1: Upload chunks sequentially (memory-safe)
   // ═══════════════════════════════════════════════════════════════
-  
+
   for (let part = 0; part < totalParts; part++) {
     // Calculate chunk boundaries
     const start = part * CHUNK_SIZE;
     const end = Math.min(start + CHUNK_SIZE, file.size);
-    
+
     // Slice only the current chunk - this is O(1) memory
     // The File API creates a lightweight reference, not a copy
     const chunkBlob = file.slice(start, end);
-    
+
     // Read only this chunk into memory (~512KB max)
     const chunkBuffer = await chunkBlob.arrayBuffer();
     const bytes = new Uint8Array(chunkBuffer);
-    
+
     // Upload chunk to Telegram
     try {
       if (isBigFile) {
@@ -184,7 +184,7 @@ export async function uploadFileDirect(
       console.error(`[TelegramUpload] Chunk ${part + 1}/${totalParts} failed:`, error);
       throw new Error(`Upload failed at chunk ${part + 1}: ${error.message}`);
     }
-    
+
     // Report progress
     const uploadedBytes = Math.min((part + 1) * CHUNK_SIZE, file.size);
     onProgress?.({
@@ -194,12 +194,12 @@ export async function uploadFileDirect(
       currentChunk: part + 1,
       totalChunks: totalParts,
     });
-    
+
     // Log progress every 10 chunks or for small files
     if (totalParts < 10 || (part + 1) % 10 === 0 || part === totalParts - 1) {
       console.log(`[TelegramUpload] Progress: ${part + 1}/${totalParts} chunks (${Math.round(uploadedBytes / file.size * 100)}%)`);
     }
-    
+
     // bytes goes out of scope here
     // JavaScript GC can reclaim the ~512KB buffer
   }
@@ -209,32 +209,32 @@ export async function uploadFileDirect(
   // ═══════════════════════════════════════════════════════════════
   // PHASE 2: Create InputFile reference
   // ═══════════════════════════════════════════════════════════════
-  
+
   const inputFile = isBigFile
     ? new Api.InputFileBig({
-        id: fileId,
-        parts: totalParts,
-        name: file.name,
-      })
+      id: fileId,
+      parts: totalParts,
+      name: file.name,
+    })
     : new Api.InputFile({
-        id: fileId,
-        parts: totalParts,
-        name: file.name,
-        md5Checksum: '', // Not required for Telegram
-      });
+      id: fileId,
+      parts: totalParts,
+      name: file.name,
+      md5Checksum: '', // Not required for Telegram
+    });
 
   // ═══════════════════════════════════════════════════════════════
   // PHASE 3: Send file to channel as document message
   // ═══════════════════════════════════════════════════════════════
-  
+
   console.log(`[TelegramUpload] Sending to channel: ${channelId}`);
-  
+
   // Get channel entity
   const channel = await client.getEntity(channelId);
-  
+
   // Generate random ID for the message
   const randomId = generateFileId();
-  
+
   // Send the uploaded file as a document
   const result = await client.invoke(
     new Api.messages.SendMedia({
@@ -257,7 +257,7 @@ export async function uploadFileDirect(
   // ═══════════════════════════════════════════════════════════════
   // PHASE 4: Extract message ID and file ID from response
   // ═══════════════════════════════════════════════════════════════
-  
+
   let messageId: number;
   let documentId: string;
   let accessHash: string;
@@ -268,18 +268,18 @@ export async function uploadFileDirect(
       (update): update is Api.UpdateNewChannelMessage =>
         update instanceof Api.UpdateNewChannelMessage
     );
-    
+
     if (!newMessageUpdate) {
       throw new Error('Failed to get message from Telegram response');
     }
-    
+
     const message = newMessageUpdate.message as Api.Message;
     messageId = message.id;
-    
+
     // Extract document info
     const mediaDoc = message.media as Api.MessageMediaDocument;
     const document = mediaDoc.document as Api.Document;
-    
+
     documentId = document.id.toString();
     accessHash = document.accessHash.toString();
   } else if (result instanceof Api.UpdateShortSentMessage) {
@@ -331,19 +331,19 @@ export async function downloadFileFromTelegram(
   onProgress?: (percent: number) => void
 ): Promise<Blob> {
   const channel = await client.getEntity(channelId);
-  
+
   // Get the message with the file
   const messages = await client.getMessages(channel, { ids: [messageId] });
-  
+
   if (!messages.length || !messages[0]) {
     throw new Error('Message not found');
   }
-  
+
   const message = messages[0];
   if (!message.media) {
     throw new Error('Message has no media');
   }
-  
+
   // Download the file
   const buffer = await client.downloadMedia(message, {
     progressCallback: (downloaded, total) => {
@@ -352,11 +352,11 @@ export async function downloadFileFromTelegram(
       }
     },
   });
-  
+
   if (!buffer) {
     throw new Error('Failed to download file');
   }
-  
+
   // Convert to Blob
   return new Blob([buffer as Buffer]);
 }

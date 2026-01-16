@@ -5,7 +5,7 @@
  * Memory-efficient: files are uploaded directly to Telegram, not through server.
  */
 
-import { X, CheckCircle, AlertCircle, Loader2, Upload, RefreshCw, Cloud, Zap } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Loader2, RefreshCw, Cloud, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ export function DirectUploadQueue() {
   if (uploads.length === 0) return null;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       className="fixed bottom-4 right-4 w-96 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden z-50 border border-gray-200 dark:border-gray-700"
@@ -94,27 +94,27 @@ interface UploadItemProps {
 
 function UploadItem({ upload, onRemove, onRetry }: UploadItemProps) {
   const statusConfig = {
-    queued: { 
+    queued: {
       icon: <Loader2 className="w-4 h-4 animate-pulse text-gray-400" />,
       bg: 'bg-gray-50 dark:bg-gray-800/50',
       label: 'Queued',
     },
-    uploading: { 
+    uploading: {
       icon: <Loader2 className="w-4 h-4 animate-spin text-cyan-500" />,
       bg: 'bg-cyan-50 dark:bg-cyan-900/30',
       label: 'Uploading to Telegram',
     },
-    registering: { 
+    registering: {
       icon: <Loader2 className="w-4 h-4 animate-spin text-blue-500" />,
       bg: 'bg-blue-50 dark:bg-blue-900/30',
       label: 'Registering...',
     },
-    completed: { 
+    completed: {
       icon: <CheckCircle className="w-4 h-4 text-green-500" />,
       bg: 'bg-green-50 dark:bg-green-900/30',
       label: 'Completed',
     },
-    error: { 
+    error: {
       icon: <AlertCircle className="w-4 h-4 text-red-500" />,
       bg: 'bg-red-50 dark:bg-red-900/30',
       label: 'Failed',
@@ -134,12 +134,12 @@ function UploadItem({ upload, onRemove, onRetry }: UploadItemProps) {
         <div className={`w-8 h-8 rounded-lg ${status.bg} flex items-center justify-center flex-shrink-0`}>
           {status.icon}
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
             {upload.fileName}
           </p>
-          
+
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-gray-500">
               {formatBytes(upload.uploadedBytes)} / {formatBytes(upload.totalBytes)}

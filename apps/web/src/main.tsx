@@ -1,6 +1,7 @@
 // Global polyfills for Node.js APIs (required for telegram/GramJS)
 // Must be at the very top before any other imports
 import { Buffer } from 'buffer';
+// @ts-ignore - process/browser doesn't have type definitions
 import process from 'process/browser';
 
 // Create a complete os mock for telegram library
