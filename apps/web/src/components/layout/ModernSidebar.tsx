@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -21,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { AccountSettingsDialog } from '@/components/AccountSettingsDialog';
 
 interface ModernSidebarProps {
   collapsed?: boolean;
@@ -45,6 +47,9 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
   const location = useLocation();
   const { logout } = useAuthStore();
   const { enabledPlugins } = usePluginsStore();
+
+  // Settings dialog state
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Get enabled plugin items for sidebar
   const enabledPluginItems = enabledPlugins
@@ -71,9 +76,9 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
       {/* Main Navigation */}
       <nav className="flex-1 flex flex-col items-center gap-2">
         {mainNavItems.map((item) => {
-          const isActive = location.pathname === item.path || 
+          const isActive = location.pathname === item.path ||
             (item.path === '/' && location.pathname.startsWith('/?'));
-          
+
           return (
             <Tooltip key={item.path} delayDuration={0}>
               <TooltipTrigger asChild>
@@ -108,7 +113,7 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
         {enabledPluginItems.map((item) => {
           const isActive = location.pathname.startsWith(item.path);
           const Icon = item.icon;
-          
+
           return (
             <Tooltip key={item.path} delayDuration={0}>
               <TooltipTrigger asChild>
@@ -165,13 +170,14 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => setSettingsOpen(true)}
               className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all duration-200"
             >
               <Settings className="w-5 h-5" />
             </motion.button>
           </TooltipTrigger>
           <TooltipContent side="right" className="bg-gray-900 text-white border-0">
-            Settings (Coming Soon)
+            Account Settings
           </TooltipContent>
         </Tooltip>
 
@@ -192,6 +198,9 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
           </TooltipContent>
         </Tooltip>
       </div>
+
+      {/* Account Settings Dialog */}
+      <AccountSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </aside>
   );
 }

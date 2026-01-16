@@ -41,6 +41,24 @@ export const authApi = {
   getMe: () => api.get('/auth/me'),
 
   logout: () => api.post('/auth/logout'),
+
+  // Email/Password authentication
+  register: (data: { email: string; password: string; firstName?: string; lastName?: string }) =>
+    api.post('/auth/register', data),
+
+  emailLogin: (email: string, password: string) =>
+    api.post('/auth/email-login', { email, password }),
+
+  // Link Telegram to email account
+  linkTelegramSendCode: (phoneNumber: string) =>
+    api.post('/auth/link-telegram/send-code', { phoneNumber }),
+
+  linkTelegramVerifyCode: (sessionId: string, code: string, password?: string) =>
+    api.post('/auth/link-telegram/verify-code', { sessionId, code, password }),
+
+  // Add email to existing phone account
+  addEmail: (email: string, password: string) =>
+    api.post('/auth/add-email', { email, password }),
 };
 
 // Files API

@@ -3,11 +3,13 @@ import { persist } from 'zustand/middleware';
 
 interface User {
   id: string;
-  telegramId: string;
+  telegramId?: string | null;
+  email?: string | null;
   username?: string;
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+  hasTelegramLinked?: boolean;
 }
 
 interface StorageChannel {

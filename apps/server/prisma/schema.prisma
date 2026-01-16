@@ -11,7 +11,9 @@ datasource db {
 
 model User {
   id          String   @id @default(cuid())
-  telegramId  String   @unique
+  telegramId  String?  @unique  // Optional - for Telegram login
+  email       String?  @unique  // For email/password login
+  passwordHash String?          // Bcrypt hashed password
   username    String?
   firstName   String?
   lastName    String?

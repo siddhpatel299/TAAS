@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Lock, Loader2, ArrowRight, Send, Crown, Shield, Cloud, Zap } from 'lucide-react';
+import { Phone, Lock, Loader2, ArrowRight, Send, Crown, Shield, Cloud, Zap, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores/auth.store';
 import { authApi } from '@/lib/api';
 
-type Step = 'phone' | 'code' | '2fa';
+type AuthMode = 'phone' | 'email';
+type Step = 'phone' | 'code' | '2fa' | 'email';
 
 const features = [
   { icon: Cloud, label: 'Unlimited Storage', description: 'No limits, ever' },
@@ -19,7 +20,8 @@ const features = [
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
-  
+
+  const [authMode, setAuthMode] = useState<AuthMode>('phone');
   const [step, setStep] = useState<Step>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [code, setCode] = useState('');
@@ -27,6 +29,10 @@ export function LoginPage() {
   const [sessionId, setSessionId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Email login state
+  const [email, setEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
 
   const handleSendCode = async () => {
     if (!phoneNumber) {
@@ -59,7 +65,7 @@ export function LoginPage() {
 
     try {
       const response = await authApi.verifyCode(sessionId, code, password || undefined);
-      
+
       if (response.data.data.requires2FA) {
         setStep('2fa');
         return;
@@ -75,6 +81,33 @@ export function LoginPage() {
     }
   };
 
+  const handleEmailLogin = async () => {
+    if (!email || !emailPassword) {
+      setError('Please enter email and password');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await authApi.emailLogin(email, emailPassword);
+      const { token, user, storageChannel } = response.data.data;
+      login(user, token, storageChannel);
+      navigate('/');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const switchAuthMode = (mode: AuthMode) => {
+    setAuthMode(mode);
+    setStep(mode === 'phone' ? 'phone' : 'email');
+    setError('');
+  };
+
   return (
     <div className="min-h-screen flex relative overflow-hidden">
       {/* Subtle ambient lighting */}
@@ -84,15 +117,15 @@ export function LoginPage() {
       {/* Left side - Branding with glassmorphism */}
       <div className="hidden lg:flex lg:w-1/2 relative p-12 flex-col justify-between">
         {/* Glass card behind content */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-8 glass-strong rounded-2xl luxury-border"
         />
-        
+
         <div className="relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -104,7 +137,7 @@ export function LoginPage() {
             <span className="text-3xl font-bold text-gradient tracking-wide">TAAS</span>
           </motion.div>
         </div>
-        
+
         <div className="relative z-10 space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -117,12 +150,12 @@ export function LoginPage() {
               <span className="text-foreground/90">Cloud Storage</span>
             </h1>
             <p className="text-foreground/70 text-xl mt-4 max-w-md leading-relaxed">
-              Store any file, any size. No limits, no subscriptions. 
+              Store any file, any size. No limits, no subscriptions.
               Your Telegram account becomes your personal cloud.
             </p>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -146,7 +179,7 @@ export function LoginPage() {
           </motion.div>
         </div>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
@@ -184,18 +217,19 @@ export function LoginPage() {
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-foreground/5 dark:bg-white/10 border border-foreground/10 dark:border-white/10 mb-4">
                   <Crown className="w-4 h-4 text-foreground/70" />
                   <span className="text-sm font-medium text-foreground/80">
-                    {step === 'phone' && 'Welcome'}
+                    {(step === 'phone' || step === 'email') && 'Welcome'}
                     {step === 'code' && 'Almost there'}
                     {step === '2fa' && 'One more step'}
                   </span>
                 </div>
                 <h2 className="text-3xl font-bold text-foreground/90">
-                  {step === 'phone' && 'Sign in to TAAS'}
+                  {(step === 'phone' || step === 'email') && 'Sign in to TAAS'}
                   {step === 'code' && 'Enter code'}
                   {step === '2fa' && 'Two-factor auth'}
                 </h2>
                 <p className="text-foreground/60 mt-2">
                   {step === 'phone' && 'Use your Telegram account to continue'}
+                  {step === 'email' && 'Sign in with your email and password'}
                   {step === 'code' && `We sent a code to ${phoneNumber}`}
                   {step === '2fa' && 'Enter your Telegram 2FA password'}
                 </p>
@@ -215,6 +249,32 @@ export function LoginPage() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Auth Mode Tabs - only show on initial screens */}
+            {(step === 'phone' || step === 'email') && (
+              <div className="flex gap-2 p-1 bg-foreground/5 dark:bg-white/5 rounded-xl">
+                <button
+                  onClick={() => switchAuthMode('phone')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${authMode === 'phone'
+                      ? 'bg-foreground text-background shadow-sm'
+                      : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
+                    }`}
+                >
+                  <Phone className="w-4 h-4" />
+                  Phone
+                </button>
+                <button
+                  onClick={() => switchAuthMode('email')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${authMode === 'email'
+                      ? 'bg-foreground text-background shadow-sm'
+                      : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
+                    }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  Email
+                </button>
+              </div>
+            )}
 
             <div className="space-y-6">
               <AnimatePresence mode="wait">
@@ -259,6 +319,71 @@ export function LoginPage() {
                         </>
                       )}
                     </Button>
+                  </motion.div>
+                )}
+
+                {step === 'email' && (
+                  <motion.div
+                    key="email-form"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-6"
+                  >
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-foreground/70 font-medium text-luxury">Email</Label>
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-foreground/5 dark:bg-white/5 rounded-xl blur opacity-0 group-focus-within:opacity-50 transition-opacity" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-foreground transition-colors" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/10 transition-all text-lg"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="emailPassword" className="text-foreground/70 font-medium text-luxury">Password</Label>
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-foreground/5 dark:bg-white/5 rounded-xl blur opacity-0 group-focus-within:opacity-50 transition-opacity" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 group-focus-within:text-foreground transition-colors" />
+                        <Input
+                          id="emailPassword"
+                          type="password"
+                          placeholder="••••••••"
+                          value={emailPassword}
+                          onChange={(e) => setEmailPassword(e.target.value)}
+                          className="pl-12 h-14 rounded-xl bg-white/50 dark:bg-white/5 border-foreground/10 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/10 transition-all text-lg"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      className="w-full h-14 rounded-xl text-lg font-semibold btn-luxury"
+                      onClick={handleEmailLogin}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>
+                          Sign In
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                    <div className="text-center">
+                      <Link
+                        to="/register"
+                        className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+                      >
+                        Don't have an account? <span className="font-medium">Register</span>
+                      </Link>
+                    </div>
                   </motion.div>
                 )}
 

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { DirectUploadProvider } from '@/contexts/DirectUploadContext';
 import { LoginPage } from '@/pages/LoginPage';
+import { RegisterPage } from '@/pages/RegisterPage';
 import { ModernDashboardPage } from '@/pages/ModernDashboardPage';
 import { MyFilesPage } from '@/pages/MyFilesPage';
 import { TelegramChatsPage } from '@/pages/TelegramChatsPage';
@@ -42,8 +43,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         {/* Subtle ambient lighting */}
         <div className="ambient-glow ambient-glow-1" />
         <div className="ambient-glow ambient-glow-2" />
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           className="glass-strong rounded-2xl p-12 flex flex-col items-center gap-6 luxury-border"
@@ -107,109 +108,110 @@ export default function App() {
         <BrowserRouter>
           <AuthCheck>
             <DirectUploadProvider>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <ModernDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/files"
-                element={
-                  <ProtectedRoute>
-                    <MyFilesPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/telegram"
-                element={
-                  <ProtectedRoute>
-                    <TelegramChatsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/starred"
-                element={
-                  <ProtectedRoute>
-                    <StarredPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/trash"
-                element={
-                  <ProtectedRoute>
-                    <TrashPage />
-                  </ProtectedRoute>
-                }
-              />
-              {/* Plugin Routes */}
-              <Route
-                path="/plugins"
-                element={
-                  <ProtectedRoute>
-                    <PluginsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/todo-lists"
-                element={
-                  <ProtectedRoute>
-                    <TodoPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/job-tracker"
-                element={
-                  <ProtectedRoute>
-                    <JobTrackerDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/job-tracker/applications"
-                element={
-                  <ProtectedRoute>
-                    <JobApplicationsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/job-tracker/applications/:id"
-                element={
-                  <ProtectedRoute>
-                    <JobApplicationFormPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/job-tracker/outreach"
-                element={
-                  <ProtectedRoute>
-                    <OutreachPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plugins/:pluginId"
-                element={
-                  <ProtectedRoute>
-                    <PluginComingSoonPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/share/:token" element={<SharePage />} />
-              <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <ModernDashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/files"
+                  element={
+                    <ProtectedRoute>
+                      <MyFilesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/telegram"
+                  element={
+                    <ProtectedRoute>
+                      <TelegramChatsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/starred"
+                  element={
+                    <ProtectedRoute>
+                      <StarredPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/trash"
+                  element={
+                    <ProtectedRoute>
+                      <TrashPage />
+                    </ProtectedRoute>
+                  }
+                />
+                {/* Plugin Routes */}
+                <Route
+                  path="/plugins"
+                  element={
+                    <ProtectedRoute>
+                      <PluginsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plugins/todo-lists"
+                  element={
+                    <ProtectedRoute>
+                      <TodoPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plugins/job-tracker"
+                  element={
+                    <ProtectedRoute>
+                      <JobTrackerDashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plugins/job-tracker/applications"
+                  element={
+                    <ProtectedRoute>
+                      <JobApplicationsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plugins/job-tracker/applications/:id"
+                  element={
+                    <ProtectedRoute>
+                      <JobApplicationFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plugins/job-tracker/outreach"
+                  element={
+                    <ProtectedRoute>
+                      <OutreachPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/plugins/:pluginId"
+                  element={
+                    <ProtectedRoute>
+                      <PluginComingSoonPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/share/:token" element={<SharePage />} />
+                <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
             </DirectUploadProvider>
           </AuthCheck>
         </BrowserRouter>
