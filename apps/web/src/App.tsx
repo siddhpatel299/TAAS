@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { DirectUploadProvider } from '@/contexts/DirectUploadContext';
 import { LoginPage } from '@/pages/LoginPage';
 import { ModernDashboardPage } from '@/pages/ModernDashboardPage';
 import { MyFilesPage } from '@/pages/MyFilesPage';
@@ -105,6 +106,7 @@ export default function App() {
       <TooltipProvider>
         <BrowserRouter>
           <AuthCheck>
+            <DirectUploadProvider>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route
@@ -208,6 +210,7 @@ export default function App() {
               <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            </DirectUploadProvider>
           </AuthCheck>
         </BrowserRouter>
       </TooltipProvider>

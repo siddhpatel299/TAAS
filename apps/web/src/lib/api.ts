@@ -34,12 +34,12 @@ api.interceptors.response.use(
 export const authApi = {
   sendCode: (phoneNumber: string) =>
     api.post('/auth/send-code', { phoneNumber }),
-  
+
   verifyCode: (sessionId: string, code: string, password?: string) =>
     api.post('/auth/verify-code', { sessionId, code, password }),
-  
+
   getMe: () => api.get('/auth/me'),
-  
+
   logout: () => api.post('/auth/logout'),
 };
 
@@ -198,9 +198,9 @@ export const telegramApi = {
   // Get messages from a specific chat (files only by default)
   getChatMessages: (
     chatId: string,
-    params?: { 
-      limit?: number; 
-      offsetId?: number; 
+    params?: {
+      limit?: number;
+      offsetId?: number;
       filesOnly?: boolean;
       fileType?: 'video' | 'photo' | 'document' | 'audio';
     }

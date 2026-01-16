@@ -48,9 +48,10 @@ import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { FileUploader } from '@/components/FileUploader';
 import { FilePreview } from '@/components/FilePreview';
 import { ShareDialog } from '@/components/ShareDialog';
-import { UploadQueue } from '@/components/UploadQueue';
+import { DirectUploadQueue } from '@/components/DirectUploadQueue';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { useAuthStore } from '@/stores/auth.store';
+import { useDirectUpload } from '@/contexts/DirectUploadContext';
 import { filesApi, foldersApi, bulkApi } from '@/lib/api';
 
 interface FolderType {
@@ -104,8 +105,6 @@ export function MyFilesPage() {
   const {
     files,
     setFiles,
-    addUpload,
-    updateUpload,
     setLoading,
   } = useFilesStore();
 
@@ -125,7 +124,7 @@ export function MyFilesPage() {
   const [previewFile, setPreviewFile] = useState<StoredFile | null>(null);
   const [shareFile, setShareFile] = useState<StoredFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  
+
   // Bulk selection state
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showMoveDialog, setShowMoveDialog] = useState(false);
@@ -243,9 +242,9 @@ export function MyFilesPage() {
       ]);
 
       setFolders(foldersRes.data.data);
-      
+
       let filteredFiles = filesRes.data.data as StoredFile[];
-      
+
       // Apply type filter
       if (filterType) {
         filteredFiles = filteredFiles.filter(file => {
@@ -255,20 +254,20 @@ export function MyFilesPage() {
             case 'photo':
               return file.mimeType.startsWith('image/');
             case 'document':
-              return file.mimeType.includes('pdf') || 
-                     file.mimeType.includes('document') || 
-                     file.mimeType.includes('text');
+              return file.mimeType.includes('pdf') ||
+                file.mimeType.includes('document') ||
+                file.mimeType.includes('text');
             case 'other':
               return !file.mimeType.startsWith('video/') &&
-                     !file.mimeType.startsWith('image/') &&
-                     !file.mimeType.includes('pdf') &&
-                     !file.mimeType.includes('document');
+                !file.mimeType.startsWith('image/') &&
+                !file.mimeType.includes('pdf') &&
+                !file.mimeType.includes('document');
             default:
               return true;
           }
         });
       }
-      
+
       setFiles(filteredFiles);
     } catch (error) {
       console.error('Failed to load content:', error);
@@ -332,30 +331,18 @@ export function MyFilesPage() {
     }
   };
 
-  // File operations
+  // Direct upload hook for browser-to-Telegram uploads
+  const { uploadFiles: directUploadFiles, uploads: directUploads, isClientReady } = useDirectUpload();
+
+  // File operations - Using direct browser-to-Telegram upload
   const handleUpload = async (uploadFiles: File[]) => {
-    for (const file of uploadFiles) {
-      const uploadId = Math.random().toString(36).substring(2);
-      addUpload({
-        id: uploadId,
-        fileName: file.name,
-        progress: 0,
-        status: 'uploading',
-      });
-      try {
-        await filesApi.uploadFile(file, currentFolderId || undefined, (progress) => {
-          updateUpload(uploadId, { progress });
-        });
-        updateUpload(uploadId, { status: 'completed', progress: 100 });
-        loadContent();
-      } catch (error: any) {
-        updateUpload(uploadId, {
-          status: 'error',
-          error: error.response?.data?.error || 'Upload failed',
-        });
-      }
-    }
+    // Use direct upload (browser → Telegram, bypasses server)
+    // This is memory-efficient and works with large files
+    directUploadFiles(uploadFiles, currentFolderId);
     setShowUploader(false);
+    
+    // Reload content after a short delay to show new files
+    setTimeout(() => loadContent(), 2000);
   };
 
   const handleDownload = async (file: StoredFile) => {
@@ -481,11 +468,10 @@ export function MyFilesPage() {
                   {index > 0 && <ChevronRight className="w-4 h-4 text-gray-400" />}
                   <button
                     onClick={() => navigateToFolder(item.id, item.name)}
-                    className={`px-2 py-1 rounded-lg hover:bg-white transition-colors flex items-center gap-1 ${
-                      index === breadcrumb.length - 1
+                    className={`px-2 py-1 rounded-lg hover:bg-white transition-colors flex items-center gap-1 ${index === breadcrumb.length - 1
                         ? 'font-medium text-gray-900'
                         : 'text-gray-500'
-                    }`}
+                      }`}
                   >
                     {index === 0 && <Home className="w-4 h-4" />}
                     {item.name}
@@ -515,21 +501,19 @@ export function MyFilesPage() {
             <div className="flex items-center bg-white rounded-xl p-1 shadow-sm">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'grid'
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
                     ? 'bg-cyan-100 text-cyan-600'
                     : 'text-gray-400 hover:text-gray-600'
-                }`}
+                  }`}
               >
                 <Grid3X3 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list'
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
                     ? 'bg-cyan-100 text-cyan-600'
                     : 'text-gray-400 hover:text-gray-600'
-                }`}
+                  }`}
               >
                 <List className="w-4 h-4" />
               </button>
@@ -578,7 +562,7 @@ export function MyFilesPage() {
                   {selectedFiles.size === files.length ? 'Deselect all' : 'Select all'}
                 </button>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
@@ -723,27 +707,25 @@ export function MyFilesPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ y: -2 }}
                   onClick={() => toggleFileSelection(file.id)}
-                  className={`bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all group cursor-pointer relative ${
-                    selectedFiles.has(file.id) ? 'ring-2 ring-cyan-500 bg-cyan-50' : ''
-                  }`}
+                  className={`bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all group cursor-pointer relative ${selectedFiles.has(file.id) ? 'ring-2 ring-cyan-500 bg-cyan-50' : ''
+                    }`}
                 >
                   {/* Selection checkbox */}
                   <div
-                    className={`absolute top-2 left-2 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                      selectedFiles.has(file.id)
+                    className={`absolute top-2 left-2 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${selectedFiles.has(file.id)
                         ? 'bg-cyan-500 border-cyan-500'
                         : 'border-gray-300 opacity-0 group-hover:opacity-100'
-                    }`}
+                      }`}
                   >
                     {selectedFiles.has(file.id) && <Check className="w-3 h-3 text-white" />}
                   </div>
-                  
+
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
                       {getFileIcon(file.mimeType)}
                     </div>
                     <DropdownMenu>
-                      <DropdownMenuTrigger 
+                      <DropdownMenuTrigger
                         onClick={(e) => e.stopPropagation()}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded-lg"
                       >
@@ -794,11 +776,10 @@ export function MyFilesPage() {
                     <th className="w-12 py-4 px-4">
                       <button
                         onClick={selectAllFiles}
-                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                          selectedFiles.size === files.length && files.length > 0
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${selectedFiles.size === files.length && files.length > 0
                             ? 'bg-cyan-500 border-cyan-500'
                             : 'border-gray-300'
-                        }`}
+                          }`}
                       >
                         {selectedFiles.size === files.length && files.length > 0 && (
                           <Check className="w-3 h-3 text-white" />
@@ -816,17 +797,15 @@ export function MyFilesPage() {
                     <tr
                       key={file.id}
                       onClick={() => toggleFileSelection(file.id)}
-                      className={`border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer ${
-                        selectedFiles.has(file.id) ? 'bg-cyan-50' : ''
-                      }`}
+                      className={`border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer ${selectedFiles.has(file.id) ? 'bg-cyan-50' : ''
+                        }`}
                     >
                       <td className="py-4 px-4">
                         <div
-                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                            selectedFiles.has(file.id)
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${selectedFiles.has(file.id)
                               ? 'bg-cyan-500 border-cyan-500'
                               : 'border-gray-300'
-                          }`}
+                            }`}
                         >
                           {selectedFiles.has(file.id) && <Check className="w-3 h-3 text-white" />}
                         </div>
@@ -1002,8 +981,8 @@ export function MyFilesPage() {
         <ShareDialog open={!!shareFile} file={shareFile} onClose={() => setShareFile(null)} />
       )}
 
-      {/* Upload Queue */}
-      <UploadQueue />
+      {/* Direct Upload Queue - Browser to Telegram */}
+      <DirectUploadQueue />
 
       {/* Drop Overlay */}
       <AnimatePresence>

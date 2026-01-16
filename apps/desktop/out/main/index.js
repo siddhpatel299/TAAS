@@ -1,19 +1,19 @@
 "use strict";
 const require$$1$3 = require("electron");
-const require$$0$7 = require("path");
-const require$$2 = require("os");
-const require$$2$1 = require("events");
-const require$$0$8 = require("fs");
+const require$$0$8 = require("path");
+const require$$0$7 = require("os");
+const require$$2 = require("events");
+const require$$0$9 = require("fs");
 const require$$1$5 = require("util");
 const require$$1$4 = require("stream");
-const crypto$6 = require("crypto");
-const require$$0$9 = require("tty");
+const crypto$5 = require("crypto");
+const require$$0$a = require("tty");
 const require$$4 = require("net");
-const require$$2$2 = require("url");
-const require$$0$a = require("buffer");
+const require$$2$1 = require("url");
+const require$$0$b = require("buffer");
 const require$$3$1 = require("http");
 const require$$4$1 = require("https");
-const require$$0$b = require("constants");
+const require$$0$c = require("constants");
 const require$$5 = require("assert");
 function _interopNamespaceDefault(e) {
   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
@@ -31,14 +31,14 @@ function _interopNamespaceDefault(e) {
   n.default = e;
   return Object.freeze(n);
 }
-const require$$0__namespace$1 = /* @__PURE__ */ _interopNamespaceDefault(require$$0$7);
-const require$$0__namespace = /* @__PURE__ */ _interopNamespaceDefault(require$$0$8);
-const crypto__namespace = /* @__PURE__ */ _interopNamespaceDefault(crypto$6);
+const require$$0__namespace$1 = /* @__PURE__ */ _interopNamespaceDefault(require$$0$8);
+const require$$0__namespace = /* @__PURE__ */ _interopNamespaceDefault(require$$0$9);
+const crypto__namespace = /* @__PURE__ */ _interopNamespaceDefault(crypto$5);
 const is = {
   dev: process.env.NODE_ENV === "development" || !require$$1$3.app.isPackaged,
-  mac: require$$2.platform() === "darwin",
-  windows: require$$2.platform() === "win32",
-  linux: require$$2.platform() === "linux"
+  mac: require$$0$7.platform() === "darwin",
+  windows: require$$0$7.platform() === "win32",
+  linux: require$$0$7.platform() === "linux"
 };
 const electronApp = {
   setAppUserModelId: (id2) => {
@@ -10809,7 +10809,7 @@ var mimeDb = require$$0$6;
  */
 (function(exports$1) {
   var db = mimeDb;
-  var extname = require$$0$7.extname;
+  var extname = require$$0$8.extname;
   var EXTRACT_TYPE_REGEXP = /^\s*([^;\s]*)(?:;|\s|$)/;
   var TEXT_TYPE_REGEXP = /^text\//i;
   exports$1.charset = charset;
@@ -10896,7 +10896,7 @@ const rnds8Pool = new Uint8Array(256);
 let poolPtr = rnds8Pool.length;
 function rng() {
   if (poolPtr > rnds8Pool.length - 16) {
-    crypto$6.randomFillSync(rnds8Pool);
+    crypto$5.randomFillSync(rnds8Pool);
     poolPtr = 0;
   }
   return rnds8Pool.slice(poolPtr, poolPtr += 16);
@@ -10909,7 +10909,7 @@ function unsafeStringify(arr, offset = 0) {
   return byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]];
 }
 const native = {
-  randomUUID: crypto$6.randomUUID
+  randomUUID: crypto$5.randomUUID
 };
 function v4(options, buf, offset) {
   if (native.randomUUID && true && !options) {
@@ -10922,7 +10922,7 @@ function v4(options, buf, offset) {
   return unsafeStringify(rnds);
 }
 var utils$f = {};
-const path$9 = require$$0$7;
+const path$9 = require$$0$8;
 const WIN_SLASH = "\\\\/";
 const WIN_NO_SLASH = `[^${WIN_SLASH}]`;
 const DOT_LITERAL = "\\.";
@@ -11113,7 +11113,7 @@ var constants$c = {
   }
 };
 (function(exports$1) {
-  const path2 = require$$0$7;
+  const path2 = require$$0$8;
   const win32 = process.platform === "win32";
   const {
     REGEX_BACKSLASH,
@@ -12257,7 +12257,7 @@ parse$b.fastpaths = (input, options) => {
   return source2;
 };
 var parse_1$2 = parse$b;
-const path$8 = require$$0$7;
+const path$8 = require$$0$8;
 const scan = scan_1;
 const parse$a = parse_1$2;
 const utils$c = utils$f;
@@ -12392,9 +12392,9 @@ picomatch$3.toRegex = (source2, options) => {
 picomatch$3.constants = constants$a;
 var picomatch_1 = picomatch$3;
 var picomatch$2 = picomatch_1;
-const fs$7 = require$$0$8;
+const fs$7 = require$$0$9;
 const { Readable } = require$$1$4;
-const sysPath$3 = require$$0$7;
+const sysPath$3 = require$$0$8;
 const { promisify: promisify$3 } = require$$1$5;
 const picomatch$1 = picomatch$2;
 const readdir$1 = promisify$3(fs$7.readdir);
@@ -12854,8 +12854,8 @@ var isGlob$2 = function isGlob(str, options) {
   return check2(str);
 };
 var isGlob$1 = isGlob$2;
-var pathPosixDirname = require$$0$7.posix.dirname;
-var isWin32 = require$$2.platform() === "win32";
+var pathPosixDirname = require$$0$8.posix.dirname;
+var isWin32 = require$$0$7.platform() === "win32";
 var slash = "/";
 var backslash = /\\/g;
 var enclosure = /[\{\[].*[\}\]]$/;
@@ -14109,15 +14109,15 @@ const require$$0$5 = [
   "zipx"
 ];
 var binaryExtensions$1 = require$$0$5;
-const path$7 = require$$0$7;
+const path$7 = require$$0$8;
 const binaryExtensions = binaryExtensions$1;
 const extensions$1 = new Set(binaryExtensions);
 var isBinaryPath$1 = (filePath) => extensions$1.has(path$7.extname(filePath).slice(1).toLowerCase());
 var constants$8 = {};
 (function(exports$1) {
-  const { sep } = require$$0$7;
+  const { sep } = require$$0$8;
   const { platform: platform2 } = process;
-  const os2 = require$$2;
+  const os2 = require$$0$7;
   exports$1.EV_ALL = "all";
   exports$1.EV_READY = "ready";
   exports$1.EV_ADD = "add";
@@ -14173,8 +14173,8 @@ var constants$8 = {};
   exports$1.isLinux = platform2 === "linux";
   exports$1.isIBMi = os2.type() === "OS400";
 })(constants$8);
-const fs$6 = require$$0$8;
-const sysPath$2 = require$$0$7;
+const fs$6 = require$$0$9;
+const sysPath$2 = require$$0$8;
 const { promisify: promisify$2 } = require$$1$5;
 const isBinaryPath = isBinaryPath$1;
 const {
@@ -14738,8 +14738,8 @@ function requireFsevents() {
   fsevents$3.constants = events2;
   return fsevents$3;
 }
-const fs$5 = require$$0$8;
-const sysPath$1 = require$$0$7;
+const fs$5 = require$$0$9;
+const sysPath$1 = require$$0$8;
 const { promisify: promisify$1 } = require$$1$5;
 let fsevents;
 try {
@@ -15128,9 +15128,9 @@ let FsEventsHandler$1 = class FsEventsHandler {
 fseventsHandler.exports = FsEventsHandler$1;
 fseventsHandler.exports.canUse = canUse;
 var fseventsHandlerExports = fseventsHandler.exports;
-const { EventEmitter: EventEmitter$7 } = require$$2$1;
-const fs$4 = require$$0$8;
-const sysPath = require$$0$7;
+const { EventEmitter: EventEmitter$7 } = require$$2;
+const fs$4 = require$$0$9;
+const sysPath = require$$0$8;
 const { promisify } = require$$1$5;
 const readdirp = readdirp_1;
 const anymatch = anymatchExports.default;
@@ -15923,7 +15923,7 @@ const DEFAULT_SYNC_SETTINGS = {
     "*~"
   ]
 };
-class FolderWatcherService extends require$$2$1.EventEmitter {
+class FolderWatcherService extends require$$2.EventEmitter {
   watchers = /* @__PURE__ */ new Map();
   settings = DEFAULT_SYNC_SETTINGS;
   isPaused = false;
@@ -16232,7 +16232,7 @@ class EncryptionService {
     return this.masterKey !== null;
   }
 }
-class SyncManager extends require$$2$1.EventEmitter {
+class SyncManager extends require$$2.EventEmitter {
   storeService;
   telegramService;
   folderWatcher;
@@ -17897,36 +17897,60 @@ var BigIntegerExports = BigInteger.exports;
 const bigInt$1 = /* @__PURE__ */ getDefaultExportFromCjs(BigIntegerExports);
 var Helpers$1 = {};
 var CryptoFile = {};
-var __createBinding$9 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
-  if (k2 === void 0) k2 = k;
-  var desc = Object.getOwnPropertyDescriptor(m, k);
-  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-    desc = { enumerable: true, get: function() {
-      return m[k];
-    } };
-  }
-  Object.defineProperty(o, k2, desc);
-} : function(o, m, k, k2) {
-  if (k2 === void 0) k2 = k;
-  o[k2] = m[k];
-});
-var __setModuleDefault$9 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
-  Object.defineProperty(o, "default", { enumerable: true, value: v });
-} : function(o, v) {
-  o["default"] = v;
-});
-var __importStar$9 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$9(result, mod, k);
-  }
-  __setModuleDefault$9(result, mod);
-  return result;
-};
 Object.defineProperty(CryptoFile, "__esModule", { value: true });
-const crypto$5 = __importStar$9(crypto$6);
-CryptoFile.default = crypto$5;
+var isBrowser$1 = typeof window !== "undefined";
+var browserCrypto = {
+  createHash: function(algorithm) {
+    if (!isBrowser$1) return crypto$5.createHash(algorithm);
+    var data = [];
+    return {
+      update: function(chunk) {
+        if (typeof chunk === "string") {
+          data.push(new TextEncoder().encode(chunk));
+        } else {
+          data.push(chunk);
+        }
+        return this;
+      },
+      digest: function(encoding) {
+        data.reduce(function(acc, arr) {
+          return acc + arr.length;
+        }, 0);
+        var result = new Uint8Array(32);
+        for (var i = 0; i < data.length; i++) {
+          for (var j = 0; j < data[i].length; j++) {
+            result[(i + j) % 32] ^= data[i][j];
+          }
+        }
+        if (encoding === "hex") {
+          return Array.from(result).map(function(b) {
+            return b.toString(16).padStart(2, "0");
+          }).join("");
+        }
+        return Buffer.from(result);
+      }
+    };
+  },
+  randomBytes: function(size) {
+    if (!isBrowser$1) return crypto$5.randomBytes(size);
+    var bytes = new Uint8Array(size);
+    crypto.getRandomValues(bytes);
+    return Buffer.from(bytes);
+  },
+  createCipheriv: function(algorithm, key, iv) {
+    if (!isBrowser$1) return crypto$5.createCipheriv(algorithm, key, iv);
+    throw new Error("createCipheriv not supported in browser - use GramJS built-in crypto");
+  },
+  createDecipheriv: function(algorithm, key, iv) {
+    if (!isBrowser$1) return crypto$5.createDecipheriv(algorithm, key, iv);
+    throw new Error("createDecipheriv not supported in browser - use GramJS built-in crypto");
+  },
+  pbkdf2Sync: function(password, salt, iterations, keylen, digest) {
+    if (!isBrowser$1) return crypto$5.pbkdf2Sync(password, salt, iterations, keylen, digest);
+    throw new Error("pbkdf2Sync not supported in browser - use GramJS built-in crypto");
+  }
+};
+CryptoFile.default = browserCrypto;
 var platform = {};
 (function(exports$1) {
   Object.defineProperty(exports$1, "__esModule", { value: true });
@@ -27987,7 +28011,7 @@ var __assign$1 = commonjsGlobal && commonjsGlobal.__assign || function() {
   };
   return __assign$1.apply(this, arguments);
 };
-var __createBinding$8 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$7 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   Object.defineProperty(o, k2, { enumerable: true, get: function() {
     return m[k];
@@ -27996,22 +28020,22 @@ var __createBinding$8 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$8 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$7 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$8 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$7 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$8(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$7(result, mod, k);
   }
-  __setModuleDefault$8(result, mod);
+  __setModuleDefault$7(result, mod);
   return result;
 };
 Object.defineProperty(lib$2, "__esModule", { value: true });
-var ElementType = __importStar$8(lib$4);
+var ElementType = __importStar$7(lib$4);
 var entities_1 = lib$1;
 var foreignNames_1 = foreignNames;
 var unencodedElements = /* @__PURE__ */ new Set([
@@ -28817,7 +28841,7 @@ var __extends$2 = commonjsGlobal && commonjsGlobal.__extends || /* @__PURE__ */ 
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
 }();
-var __createBinding$7 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$6 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   Object.defineProperty(o, k2, { enumerable: true, get: function() {
     return m[k];
@@ -28826,18 +28850,18 @@ var __createBinding$7 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$7 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$6 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$7 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$6 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$7(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$6(result, mod, k);
   }
-  __setModuleDefault$7(result, mod);
+  __setModuleDefault$6(result, mod);
   return result;
 };
 var __importDefault$5 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
@@ -28846,7 +28870,7 @@ var __importDefault$5 = commonjsGlobal && commonjsGlobal.__importDefault || func
 Object.defineProperty(FeedHandler$1, "__esModule", { value: true });
 FeedHandler$1.parseFeed = FeedHandler$1.FeedHandler = void 0;
 var domhandler_1 = __importDefault$5(lib$5);
-var DomUtils = __importStar$7(lib$3);
+var DomUtils = __importStar$6(lib$3);
 var Parser_1 = Parser$1;
 var FeedItemMediaMedium;
 (function(FeedItemMediaMedium2) {
@@ -37815,7 +37839,7 @@ function requireNode() {
   if (hasRequiredNode) return node.exports;
   hasRequiredNode = 1;
   (function(module, exports$1) {
-    var tty = require$$0$9;
+    var tty = require$$0$a;
     var util2 = require$$1$5;
     exports$1 = module.exports = requireDebug();
     exports$1.init = init;
@@ -37895,7 +37919,7 @@ function requireNode() {
           }
           break;
         case "FILE":
-          var fs2 = require$$0$8;
+          var fs2 = require$$0$9;
           stream22 = new fs2.SyncWriteStream(fd2, { autoClose: false });
           stream22._type = "fs";
           break;
@@ -37945,7 +37969,7 @@ utils$5.extend = function extend(dest, source2) {
     dest[prop2] = source2[prop2];
   }
 };
-utils$5.eventEmitterListenerCount = require$$2$1.EventEmitter.listenerCount || function(emitter, type2) {
+utils$5.eventEmitterListenerCount = require$$2.EventEmitter.listenerCount || function(emitter, type2) {
   return emitter.listeners(type2).length;
 };
 utils$5.bufferAllocUnsafe = Buffer.allocUnsafe ? Buffer.allocUnsafe : function oldBufferAllocUnsafe(size) {
@@ -38006,9 +38030,9 @@ var hasRequiredNodeGypBuild$1;
 function requireNodeGypBuild$1() {
   if (hasRequiredNodeGypBuild$1) return nodeGypBuild;
   hasRequiredNodeGypBuild$1 = 1;
-  var fs2 = require$$0$8;
-  var path2 = require$$0$7;
-  var os2 = require$$2;
+  var fs2 = require$$0$9;
+  var path2 = require$$0$8;
+  var os2 = require$$0$7;
   var runtimeRequire = typeof __webpack_require__ === "function" ? __non_webpack_require__ : commonjsRequire;
   var vars = process.config && process.config.variables || {};
   var prebuildsOnly = !!process.env.PREBUILDS_ONLY;
@@ -38416,8 +38440,8 @@ WebSocketFrame$1.prototype.toString = function() {
 };
 var WebSocketFrame_1 = WebSocketFrame$1;
 var FastBufferList = { exports: {} };
-var Buffer$1 = require$$0$a.Buffer;
-var EventEmitter$6 = require$$2$1.EventEmitter;
+var Buffer$1 = require$$0$b.Buffer;
+var EventEmitter$6 = require$$2.EventEmitter;
 var bufferAllocUnsafe$2 = utils$5.bufferAllocUnsafe;
 FastBufferList.exports = BufferList$1;
 FastBufferList.exports.BufferList = BufferList$1;
@@ -38595,7 +38619,7 @@ try {
 var utf8ValidateExports = utf8Validate.exports;
 var util$7 = require$$1$5;
 var utils$4 = utils$5;
-var EventEmitter$5 = require$$2$1.EventEmitter;
+var EventEmitter$5 = require$$2.EventEmitter;
 var WebSocketFrame = WebSocketFrame_1;
 var BufferList = FastBufferListExports;
 var isValidUTF8 = utf8ValidateExports;
@@ -39307,10 +39331,10 @@ function instrumentSocketForDebugging(connection2, socket) {
     })(key);
   }
 }
-var crypto$4 = crypto$6;
+var crypto$4 = crypto$5;
 var util$6 = require$$1$5;
-var url$1 = require$$2$2;
-var EventEmitter$4 = require$$2$1.EventEmitter;
+var url$1 = require$$2$1;
+var EventEmitter$4 = require$$2.EventEmitter;
 var WebSocketConnection$1 = WebSocketConnection_1;
 var headerValueSplitRegExp = /,\s*/;
 var headerParamSplitRegExp = /;\s*/;
@@ -39712,7 +39736,7 @@ var extend$2 = utils$5.extend;
 var utils$3 = utils$5;
 var util$5 = require$$1$5;
 var debug$2 = srcExports("websocket:server");
-var EventEmitter$3 = require$$2$1.EventEmitter;
+var EventEmitter$3 = require$$2.EventEmitter;
 var WebSocketRequest = WebSocketRequest_1;
 var WebSocketServer = function WebSocketServer2(config) {
   EventEmitter$3.call(this);
@@ -39911,11 +39935,11 @@ WebSocketServer.prototype.handleRequestResolved = function(request) {
 var utils$2 = utils$5;
 var extend$1 = utils$2.extend;
 var util$4 = require$$1$5;
-var EventEmitter$2 = require$$2$1.EventEmitter;
+var EventEmitter$2 = require$$2.EventEmitter;
 var http$1 = require$$3$1;
 var https$1 = require$$4$1;
-var url = require$$2$2;
-var crypto$3 = crypto$6;
+var url = require$$2$1;
+var crypto$3 = crypto$5;
 var WebSocketConnection = WebSocketConnection_1;
 var bufferAllocUnsafe = utils$2.bufferAllocUnsafe;
 var protocolSeparators = [
@@ -40198,7 +40222,7 @@ WebSocketClient$1.prototype.abort = function() {
 };
 var WebSocketClient_1 = WebSocketClient$1;
 var util$3 = require$$1$5;
-var EventEmitter$1 = require$$2$1.EventEmitter;
+var EventEmitter$1 = require$$2.EventEmitter;
 function WebSocketRouterRequest$1(webSocketRequest, resolvedProtocol) {
   EventEmitter$1.call(this);
   this.webSocketRequest = webSocketRequest;
@@ -40229,7 +40253,7 @@ WebSocketRouterRequest$1.prototype.reject = function(status, reason, extraHeader
 var WebSocketRouterRequest_1 = WebSocketRouterRequest$1;
 var extend2 = utils$5.extend;
 var util$2 = require$$1$5;
-var EventEmitter = require$$2$1.EventEmitter;
+var EventEmitter = require$$2.EventEmitter;
 var WebSocketRouterRequest = WebSocketRouterRequest_1;
 function WebSocketRouter(config) {
   EventEmitter.call(this);
@@ -40837,7 +40861,7 @@ function __generator(thisArg, body) {
     return { value: op[0] ? op[1] : void 0, done: true };
   }
 }
-var __createBinding$6 = Object.create ? function(o, m, k, k2) {
+var __createBinding$5 = Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   var desc = Object.getOwnPropertyDescriptor(m, k);
   if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -40851,7 +40875,7 @@ var __createBinding$6 = Object.create ? function(o, m, k, k2) {
   o[k2] = m[k];
 };
 function __exportStar(m, o) {
-  for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding$6(o, m, p);
+  for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding$5(o, m, p);
 }
 function __values$1(o) {
   var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -40986,7 +41010,7 @@ function __makeTemplateObject(cooked, raw) {
   }
   return cooked;
 }
-var __setModuleDefault$6 = Object.create ? function(o, v) {
+var __setModuleDefault$5 = Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
@@ -40999,13 +41023,13 @@ var ownKeys = function(o) {
   };
   return ownKeys(o);
 };
-function __importStar$6(mod) {
+function __importStar$5(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding$6(result, mod, k[i]);
+    for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding$5(result, mod, k[i]);
   }
-  __setModuleDefault$6(result, mod);
+  __setModuleDefault$5(result, mod);
   return result;
 }
 function __importDefault$3(mod) {
@@ -41104,7 +41128,7 @@ const tslib_es6 = {
   __metadata,
   __awaiter,
   __generator,
-  __createBinding: __createBinding$6,
+  __createBinding: __createBinding$5,
   __exportStar,
   __values: __values$1,
   __read,
@@ -41116,7 +41140,7 @@ const tslib_es6 = {
   __asyncDelegator,
   __asyncValues,
   __makeTemplateObject,
-  __importStar: __importStar$6,
+  __importStar: __importStar$5,
   __importDefault: __importDefault$3,
   __classPrivateFieldGet,
   __classPrivateFieldSet,
@@ -41139,7 +41163,7 @@ const tslib_es6$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   __classPrivateFieldGet,
   __classPrivateFieldIn,
   __classPrivateFieldSet,
-  __createBinding: __createBinding$6,
+  __createBinding: __createBinding$5,
   __decorate,
   __disposeResources,
   __esDecorate,
@@ -41147,7 +41171,7 @@ const tslib_es6$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   __extends,
   __generator,
   __importDefault: __importDefault$3,
-  __importStar: __importStar$6,
+  __importStar: __importStar$5,
   __makeTemplateObject,
   __metadata,
   __param,
@@ -41639,7 +41663,7 @@ var socksclient = {};
 var smartbuffer = {};
 var utils$1 = {};
 Object.defineProperty(utils$1, "__esModule", { value: true });
-const buffer_1 = require$$0$a;
+const buffer_1 = require$$0$b;
 const ERRORS$1 = {
   INVALID_ENCODING: "Invalid encoding provided. Please specify a valid encoding the internal Node.js Buffer supports.",
   INVALID_SMARTBUFFER_SIZE: "Invalid size provided. Size must be a valid integer greater than zero.",
@@ -43041,7 +43065,7 @@ class AddressError extends Error {
   }
 }
 addressError.AddressError = AddressError;
-var __createBinding$5 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$4 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   var desc = Object.getOwnPropertyDescriptor(m, k);
   if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -43054,24 +43078,24 @@ var __createBinding$5 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$5 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$4 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$5 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$4 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$5(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$4(result, mod, k);
   }
-  __setModuleDefault$5(result, mod);
+  __setModuleDefault$4(result, mod);
   return result;
 };
 Object.defineProperty(ipv4, "__esModule", { value: true });
 ipv4.Address4 = void 0;
-const common$2 = __importStar$5(common$3);
-const constants$3 = __importStar$5(constants$4);
+const common$2 = __importStar$4(common$3);
+const constants$3 = __importStar$4(constants$4);
 const address_error_1$1 = addressError;
 class Address4 {
   constructor(address) {
@@ -43453,7 +43477,7 @@ function simpleGroup(addressString, offset = 0) {
   });
 }
 var regularExpressions = {};
-var __createBinding$4 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$3 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   var desc = Object.getOwnPropertyDescriptor(m, k);
   if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -43466,18 +43490,18 @@ var __createBinding$4 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$4 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$3 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$4 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$3 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$4(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$3(result, mod, k);
   }
-  __setModuleDefault$4(result, mod);
+  __setModuleDefault$3(result, mod);
   return result;
 };
 Object.defineProperty(regularExpressions, "__esModule", { value: true });
@@ -43486,7 +43510,7 @@ regularExpressions.groupPossibilities = groupPossibilities;
 regularExpressions.padGroup = padGroup;
 regularExpressions.simpleRegularExpression = simpleRegularExpression;
 regularExpressions.possibleElisions = possibleElisions;
-const v6 = __importStar$4(constants$2);
+const v6 = __importStar$3(constants$2);
 function groupPossibilities(possibilities) {
   return `(${possibilities.join("|")})`;
 }
@@ -43538,7 +43562,7 @@ function possibleElisions(elidedGroups, moreLeft, moreRight) {
   }
   return groupPossibilities(possibilities);
 }
-var __createBinding$3 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$2 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   var desc = Object.getOwnPropertyDescriptor(m, k);
   if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -43551,26 +43575,26 @@ var __createBinding$3 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$3 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$2 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$3 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$2 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$3(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$2(result, mod, k);
   }
-  __setModuleDefault$3(result, mod);
+  __setModuleDefault$2(result, mod);
   return result;
 };
 Object.defineProperty(ipv6, "__esModule", { value: true });
 ipv6.Address6 = void 0;
-const common$1 = __importStar$3(common$3);
-const constants4 = __importStar$3(constants$4);
-const constants6 = __importStar$3(constants$2);
-const helpers = __importStar$3(helpers$1);
+const common$1 = __importStar$2(common$3);
+const constants4 = __importStar$2(constants$4);
+const constants6 = __importStar$2(constants$2);
+const helpers = __importStar$2(helpers$1);
 const ipv4_1 = ipv4;
 const regular_expressions_1 = regularExpressions;
 const address_error_1 = addressError;
@@ -44662,7 +44686,7 @@ receivebuffer.ReceiveBuffer = ReceiveBuffer;
   };
   Object.defineProperty(exports$1, "__esModule", { value: true });
   exports$1.SocksClientError = exports$1.SocksClient = void 0;
-  const events_1 = require$$2$1;
+  const events_1 = require$$2;
   const net2 = require$$4;
   const smart_buffer_1 = smartbuffer;
   const constants_12 = constants$5;
@@ -45346,7 +45370,7 @@ receivebuffer.ReceiveBuffer = ReceiveBuffer;
   Object.defineProperty(exports$1, "__esModule", { value: true });
   __exportStar2(build, exports$1);
 })(socks);
-var __createBinding$2 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$1 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   var desc = Object.getOwnPropertyDescriptor(m, k);
   if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -45359,23 +45383,23 @@ var __createBinding$2 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$2 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$1 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$2 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$1 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$2(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$1(result, mod, k);
   }
-  __setModuleDefault$2(result, mod);
+  __setModuleDefault$1(result, mod);
   return result;
 };
 Object.defineProperty(PromisedNetSockets$1, "__esModule", { value: true });
 PromisedNetSockets$1.PromisedNetSockets = void 0;
-const net = __importStar$2(net$2);
+const net = __importStar$1(net$2);
 const socks_1 = socks;
 const async_mutex_1 = lib;
 const mutex = new async_mutex_1.Mutex();
@@ -46476,7 +46500,7 @@ async function pbkdf2Sync(password, salt, iterations, ...args) {
 function createHash(algorithm) {
   return new Hash(algorithm);
 }
-var __createBinding$1 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0) k2 = k;
   var desc = Object.getOwnPropertyDescriptor(m, k);
   if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -46489,23 +46513,23 @@ var __createBinding$1 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
   if (k2 === void 0) k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$1 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$1 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding$1(result, mod, k);
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
   }
-  __setModuleDefault$1(result, mod);
+  __setModuleDefault(result, mod);
   return result;
 };
 Object.defineProperty(CTR$2, "__esModule", { value: true });
 CTR$2.CTR = void 0;
-const crypto$1 = __importStar$1(crypto$2);
+const crypto$1 = __importStar(crypto$2);
 class CTR2 {
   constructor(key, iv) {
     if (!Buffer.isBuffer(key) || !Buffer.isBuffer(iv) || iv.length !== 16) {
@@ -47404,7 +47428,7 @@ var hasRequiredPolyfills;
 function requirePolyfills() {
   if (hasRequiredPolyfills) return polyfills;
   hasRequiredPolyfills = 1;
-  var constants2 = require$$0$b;
+  var constants2 = require$$0$c;
   var origCwd = process.cwd;
   var cwd = null;
   var platform2 = process.env.GRACEFUL_FS_PLATFORM || process.platform;
@@ -47812,7 +47836,7 @@ var hasRequiredGracefulFs;
 function requireGracefulFs() {
   if (hasRequiredGracefulFs) return gracefulFs;
   hasRequiredGracefulFs = 1;
-  var fs2 = require$$0$8;
+  var fs2 = require$$0$9;
   var polyfills2 = requirePolyfills();
   var legacy2 = requireLegacyStreams();
   var clone = requireClone();
@@ -48522,9 +48546,9 @@ function requireLocalStorage$1() {
       child.__super__ = parent.prototype;
       return child;
     }, hasProp = {}.hasOwnProperty;
-    path2 = require$$0$7;
-    fs2 = require$$0$8;
-    events2 = require$$2$1;
+    path2 = require$$0$8;
+    fs2 = require$$0$9;
+    events2 = require$$2;
     writeSync = requireWriteFileAtomic().sync;
     KEY_FOR_EMPTY_STRING = "---.EMPTY_STRING.---";
     _emptyDirectory = function(target2) {
@@ -48945,37 +48969,59 @@ function requireSessions() {
   })(sessions);
   return sessions;
 }
-var os$2 = {};
-var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
-  if (k2 === void 0) k2 = k;
-  var desc = Object.getOwnPropertyDescriptor(m, k);
-  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-    desc = { enumerable: true, get: function() {
-      return m[k];
-    } };
-  }
-  Object.defineProperty(o, k2, desc);
-} : function(o, m, k, k2) {
-  if (k2 === void 0) k2 = k;
-  o[k2] = m[k];
-});
-var __setModuleDefault = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
-  Object.defineProperty(o, "default", { enumerable: true, value: v });
-} : function(o, v) {
-  o["default"] = v;
-});
-var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-  }
-  __setModuleDefault(result, mod);
-  return result;
+var os$1 = {};
+Object.defineProperty(os$1, "__esModule", { value: true });
+var isBrowser = typeof window !== "undefined";
+var browserOs = {
+  type: function() {
+    if (!isBrowser) return require$$0$7.type();
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.includes("win")) return "Windows_NT";
+    if (ua.includes("mac")) return "Darwin";
+    if (ua.includes("linux")) return "Linux";
+    return "Browser";
+  },
+  platform: function() {
+    if (!isBrowser) return require$$0$7.platform();
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.includes("win")) return "win32";
+    if (ua.includes("mac")) return "darwin";
+    if (ua.includes("linux")) return "linux";
+    return "browser";
+  },
+  release: function() {
+    return isBrowser ? "1.0.0" : require$$0$7.release();
+  },
+  arch: function() {
+    return isBrowser ? "x64" : require$$0$7.arch();
+  },
+  hostname: function() {
+    return isBrowser ? "browser" : require$$0$7.hostname();
+  },
+  homedir: function() {
+    return isBrowser ? "/" : require$$0$7.homedir();
+  },
+  tmpdir: function() {
+    return isBrowser ? "/tmp" : require$$0$7.tmpdir();
+  },
+  cpus: function() {
+    return isBrowser ? [] : require$$0$7.cpus();
+  },
+  totalmem: function() {
+    return isBrowser ? 8589934592 : require$$0$7.totalmem();
+  },
+  freemem: function() {
+    return isBrowser ? 4294967296 : require$$0$7.freemem();
+  },
+  networkInterfaces: function() {
+    return isBrowser ? {} : require$$0$7.networkInterfaces();
+  },
+  endianness: function() {
+    return "LE";
+  },
+  EOL: "\n"
 };
-Object.defineProperty(os$2, "__esModule", { value: true });
-const os$1 = __importStar(require$$2);
-os$2.default = os$1;
+os$1.default = browserOs;
 var entityCache = {};
 var hasRequiredEntityCache;
 function requireEntityCache() {
@@ -50684,7 +50730,7 @@ function requireTelegramBaseClient() {
   const sessions_1 = requireSessions();
   const extensions_1 = requireExtensions();
   const tl_1 = requireTl();
-  const os_1 = __importDefault2(os$2);
+  const os_1 = __importDefault2(os$1);
   const entityCache_1 = requireEntityCache();
   const markdown_1 = requireMarkdown();
   const network_1 = requireNetwork();
@@ -51740,14 +51786,14 @@ var fs$3 = {};
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports$12, p)) __createBinding2(exports$12, m, p);
   };
   Object.defineProperty(exports$1, "__esModule", { value: true });
-  __exportStar2(require$$0$8, exports$1);
+  __exportStar2(require$$0$9, exports$1);
 })(fs$3);
 var path$6 = {};
 var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
   return mod && mod.__esModule ? mod : { "default": mod };
 };
 Object.defineProperty(path$6, "__esModule", { value: true });
-const path_1 = __importDefault(require$$0$7);
+const path_1 = __importDefault(require$$0$8);
 path$6.default = path_1.default;
 var hasRequiredDownloads;
 function requireDownloads() {
@@ -56390,7 +56436,7 @@ var pkgUp = { exports: {} };
 var findUp$1 = { exports: {} };
 var locatePath$1 = { exports: {} };
 var pathExists$1 = { exports: {} };
-const fs$2 = require$$0$8;
+const fs$2 = require$$0$9;
 pathExists$1.exports = (fp) => new Promise((resolve2) => {
   fs$2.access(fp, (err2) => {
     resolve2(!err2);
@@ -56478,7 +56524,7 @@ var pLocate$1 = (iterable, tester, opts) => {
   return Promise.all(items2.map((el2) => checkLimit(finder, el2))).then(() => {
   }).catch((err2) => err2 instanceof EndError ? err2.value : Promise.reject(err2));
 };
-const path$5 = require$$0$7;
+const path$5 = require$$0$8;
 const pathExists = pathExistsExports;
 const pLocate = pLocate$1;
 locatePath$1.exports = (iterable, options) => {
@@ -56498,7 +56544,7 @@ locatePath$1.exports.sync = (iterable, options) => {
   }
 };
 var locatePathExports = locatePath$1.exports;
-const path$4 = require$$0$7;
+const path$4 = require$$0$8;
 const locatePath = locatePathExports;
 findUp$1.exports = (filename, opts = {}) => {
   const startDir = path$4.resolve(opts.cwd || "");
@@ -56539,8 +56585,8 @@ pkgUp.exports = async ({ cwd } = {}) => findUp("package.json", { cwd });
 pkgUp.exports.sync = ({ cwd } = {}) => findUp.sync("package.json", { cwd });
 var pkgUpExports = pkgUp.exports;
 var envPaths$1 = { exports: {} };
-const path$3 = require$$0$7;
-const os = require$$2;
+const path$3 = require$$0$8;
+const os = require$$0$7;
 const homedir = os.homedir();
 const tmpdir = os.tmpdir();
 const { env } = process;
@@ -56768,7 +56814,7 @@ const retryifySync = (fn, isRetriableError) => {
 };
 retryify.retryifySync = retryifySync;
 Object.defineProperty(fs$1, "__esModule", { value: true });
-const fs = require$$0$8;
+const fs = require$$0$9;
 const util_1$r = require$$1$5;
 const attemptify_1 = attemptify;
 const fs_handlers_1 = fs_handlers;
@@ -56850,7 +56896,7 @@ const Scheduler = {
 scheduler.default = Scheduler;
 var temp = {};
 Object.defineProperty(temp, "__esModule", { value: true });
-const path$2 = require$$0$7;
+const path$2 = require$$0$8;
 const consts_1$1 = consts;
 const fs_1$1 = fs$1;
 const Temp = {
@@ -56899,7 +56945,7 @@ process.on("exit", Temp.purgeSyncAll);
 temp.default = Temp;
 Object.defineProperty(dist$1, "__esModule", { value: true });
 dist$1.writeFileSync = dist$1.writeFile = dist$1.readFileSync = dist$1.readFile = void 0;
-const path$1 = require$$0$7;
+const path$1 = require$$0$8;
 const consts_1 = consts;
 const fs_1 = fs$1;
 const lang_1 = lang;
@@ -59412,9 +59458,9 @@ function commentKeyword({ gen, schemaEnv, schema, errSchemaPath, opts }) {
   }
 }
 function returnResults(it2) {
-  const { gen, schemaEnv, validateName, ValidationError, opts } = it2;
+  const { gen, schemaEnv, validateName, ValidationError: ValidationError2, opts } = it2;
   if (schemaEnv.$async) {
-    gen.if((0, codegen_1$n._)`${names_1$3.default.errors} === 0`, () => gen.return(names_1$3.default.data), () => gen.throw((0, codegen_1$n._)`new ${ValidationError}(${names_1$3.default.vErrors})`));
+    gen.if((0, codegen_1$n._)`${names_1$3.default.errors} === 0`, () => gen.return(names_1$3.default.data), () => gen.throw((0, codegen_1$n._)`new ${ValidationError2}(${names_1$3.default.vErrors})`));
   } else {
     gen.assign((0, codegen_1$n._)`${validateName}.errors`, names_1$3.default.vErrors);
     if (opts.unevaluated)
@@ -59758,21 +59804,15 @@ function getData($data, { dataLevel, dataNames, dataPathArr }) {
 }
 validate.getData = getData;
 var validation_error = {};
-var hasRequiredValidation_error;
-function requireValidation_error() {
-  if (hasRequiredValidation_error) return validation_error;
-  hasRequiredValidation_error = 1;
-  Object.defineProperty(validation_error, "__esModule", { value: true });
-  class ValidationError extends Error {
-    constructor(errors2) {
-      super("validation failed");
-      this.errors = errors2;
-      this.ajv = this.validation = true;
-    }
+Object.defineProperty(validation_error, "__esModule", { value: true });
+class ValidationError extends Error {
+  constructor(errors2) {
+    super("validation failed");
+    this.errors = errors2;
+    this.ajv = this.validation = true;
   }
-  validation_error.default = ValidationError;
-  return validation_error;
 }
+validation_error.default = ValidationError;
 var ref_error = {};
 Object.defineProperty(ref_error, "__esModule", { value: true });
 const resolve_1$1 = resolve$2;
@@ -59788,7 +59828,7 @@ var compile = {};
 Object.defineProperty(compile, "__esModule", { value: true });
 compile.resolveSchema = compile.getCompilingSchema = compile.resolveRef = compile.compileSchema = compile.SchemaEnv = void 0;
 const codegen_1$m = codegen;
-const validation_error_1 = requireValidation_error();
+const validation_error_1 = validation_error;
 const names_1$2 = names$1;
 const resolve_1 = resolve$2;
 const util_1$k = util;
@@ -60744,7 +60784,7 @@ uri$1.default = uri;
   Object.defineProperty(exports$1, "CodeGen", { enumerable: true, get: function() {
     return codegen_12.CodeGen;
   } });
-  const validation_error_12 = requireValidation_error();
+  const validation_error_12 = validation_error;
   const ref_error_12 = ref_error;
   const rules_12 = rules;
   const compile_12 = compile;
@@ -63197,7 +63237,7 @@ const require$$3 = {
   Object.defineProperty(exports$1, "CodeGen", { enumerable: true, get: function() {
     return codegen_12.CodeGen;
   } });
-  var validation_error_12 = requireValidation_error();
+  var validation_error_12 = validation_error;
   Object.defineProperty(exports$1, "ValidationError", { enumerable: true, get: function() {
     return validation_error_12.default;
   } });
@@ -65247,11 +65287,11 @@ var onetimeExports = onetime$1.exports;
   var _Conf_validator, _Conf_encryptionKey, _Conf_options, _Conf_defaultValues;
   Object.defineProperty(exports$1, "__esModule", { value: true });
   const util_12 = require$$1$5;
-  const fs2 = require$$0$8;
-  const path2 = require$$0$7;
-  const crypto2 = crypto$6;
+  const fs2 = require$$0$9;
+  const path2 = require$$0$8;
+  const crypto2 = crypto$5;
   const assert2 = require$$5;
-  const events_1 = require$$2$1;
+  const events_1 = require$$2;
   const dotProp$1 = dotProp;
   const pkgUp2 = pkgUpExports;
   const envPaths2 = envPathsExports;
@@ -65689,7 +65729,7 @@ var onetimeExports = onetime$1.exports;
   module.exports.default = Conf2;
 })(source, source.exports);
 var sourceExports = source.exports;
-const path = require$$0$7;
+const path = require$$0$8;
 const { app, ipcMain, ipcRenderer, shell } = require$$1$3;
 const Conf = sourceExports;
 let isInitialized = false;
@@ -65868,7 +65908,7 @@ function createWindow() {
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 15, y: 15 },
     webPreferences: {
-      preload: require$$0$7.join(__dirname, "../preload/index.js"),
+      preload: require$$0$8.join(__dirname, "../preload/index.js"),
       sandbox: false,
       contextIsolation: true,
       nodeIntegration: false
@@ -65884,7 +65924,7 @@ function createWindow() {
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(require$$0$7.join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(require$$0$8.join(__dirname, "../renderer/index.html"));
   }
 }
 function initializeServices() {

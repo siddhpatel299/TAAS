@@ -10,7 +10,8 @@
     "lint": "turbo run lint",
     "db:generate": "pnpm --filter @taas/server exec prisma generate",
     "db:push": "pnpm --filter @taas/server exec prisma db push",
-    "db:studio": "pnpm --filter @taas/server exec prisma studio"
+    "db:studio": "pnpm --filter @taas/server exec prisma studio",
+    "postinstall": "bash scripts/patch-telegram.sh"
   },
   "devDependencies": {
     "turbo": "^2.0.0",

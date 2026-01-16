@@ -189,6 +189,46 @@ router.get('/me', authMiddleware, asyncHandler(async (req: AuthRequest, res: Res
   });
 }));
 
+// Get session for browser MTProto client (direct uploads)
+// This allows the browser to connect directly to Telegram
+router.get('/session', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: {
+      id: true,
+      sessionData: true,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError('User not found', 404);
+  }
+
+  if (!user.sessionData) {
+    throw new ApiError('No active Telegram session. Please reconnect.', 400);
+  }
+
+  // Get storage channel info
+  const storageChannel = await prisma.storageChannel.findFirst({
+    where: { userId: user.id },
+    select: {
+      channelId: true,
+      channelName: true,
+    },
+  });
+
+  res.json({
+    success: true,
+    data: {
+      sessionData: user.sessionData,
+      storageChannel: storageChannel ? {
+        channelId: storageChannel.channelId,
+        channelName: storageChannel.channelName,
+      } : null,
+    },
+  });
+}));
+
 // Logout
 router.post('/logout', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   await telegramService.disconnect(req.user!.id);

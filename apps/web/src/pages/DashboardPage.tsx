@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils';
 export function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const folderId = searchParams.get('folder') || undefined;
-  
+
   const {
     files,
     folders,
@@ -102,7 +102,7 @@ export function DashboardPage() {
   const handleUpload = async (files: File[]) => {
     for (const file of files) {
       const uploadId = Math.random().toString(36).substring(2);
-      
+
       addUpload({
         id: uploadId,
         fileName: file.name,
@@ -163,7 +163,7 @@ export function DashboardPage() {
 
   const handleRename = async () => {
     if (!renameDialog) return;
-    
+
     try {
       if (renameDialog.type === 'file') {
         await filesApi.renameFile(renameDialog.id, renameDialog.name);
@@ -203,7 +203,7 @@ export function DashboardPage() {
   // Delete folder
   const handleDeleteFolder = async (folder: Folder) => {
     if (!confirm(`Delete folder "${folder.name}" and all its contents?`)) return;
-    
+
     try {
       await foldersApi.deleteFolder(folder.id);
       loadContent();
@@ -241,7 +241,7 @@ export function DashboardPage() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files);
       handleUpload(droppedFiles);
@@ -249,7 +249,7 @@ export function DashboardPage() {
   }, [handleUpload]);
 
   return (
-    <div 
+    <div
       className="h-screen flex relative overflow-hidden"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -289,7 +289,7 @@ export function DashboardPage() {
 
         <main className="flex-1 overflow-auto p-6 md:p-8">
           {/* Breadcrumb */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-2 mb-8 overflow-x-auto glass-subtle rounded-xl p-3"
@@ -336,7 +336,7 @@ export function DashboardPage() {
 
           {/* Loading state */}
           {isLoading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-20"
@@ -351,7 +351,7 @@ export function DashboardPage() {
 
           {/* Empty state */}
           {!isLoading && isEmpty && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-20"
@@ -365,14 +365,14 @@ export function DashboardPage() {
                   Upload files or create a folder to get started with your unlimited cloud storage
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button 
+                  <Button
                     onClick={() => setShowUploader(true)}
                     className="h-12 px-6 rounded-xl btn-luxury"
                   >
                     Upload Files
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setShowNewFolder(true)}
                     className="h-12 px-6 rounded-xl bg-foreground/5 border-border hover:bg-foreground/10"
                   >
@@ -408,7 +408,7 @@ export function DashboardPage() {
                     viewMode={viewMode}
                     onOpen={() => navigateToFolder(folder.id)}
                     onRename={() => setRenameDialog({ type: 'folder', id: folder.id, name: folder.name })}
-                    onMove={() => {}}
+                    onMove={() => { }}
                     onDelete={() => handleDeleteFolder(folder)}
                   />
                 </motion.div>
@@ -432,7 +432,7 @@ export function DashboardPage() {
                     onStar={() => handleStar(file)}
                     onDelete={() => handleDelete(file)}
                     onRename={() => setRenameDialog({ type: 'file', id: file.id, name: file.name })}
-                    onMove={() => {}}
+                    onMove={() => { }}
                     onShare={() => setShareFile(file)}
                     onPreview={() => setPreviewFile(file)}
                     onVersions={() => setVersionFile(file)}
@@ -463,14 +463,14 @@ export function DashboardPage() {
             />
           </div>
           <DialogFooter className="gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowNewFolder(false)}
               className="h-11 rounded-xl bg-foreground/5 border-border hover:bg-foreground/10"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateFolder}
               className="h-11 rounded-xl btn-luxury"
             >
@@ -498,14 +498,14 @@ export function DashboardPage() {
             />
           </div>
           <DialogFooter className="gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setRenameDialog(null)}
               className="h-11 rounded-xl bg-foreground/5 border-border hover:bg-foreground/10"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleRename}
               className="h-11 rounded-xl btn-luxury"
             >
@@ -557,7 +557,7 @@ export function DashboardPage() {
             className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
             style={{ background: 'rgba(0, 0, 0, 0.05)', backdropFilter: 'blur(8px)' }}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}

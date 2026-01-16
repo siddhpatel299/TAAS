@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  Bell, 
-  ChevronDown, 
+import {
+  Search,
+  Bell,
+  ChevronDown,
   Upload,
   FolderPlus,
 } from 'lucide-react';
@@ -85,13 +85,13 @@ export function ModernDashboardPage() {
       const videoFiles = allFiles.filter(f => f.mimeType.startsWith('video/'));
       const photoFiles = allFiles.filter(f => f.mimeType.startsWith('image/'));
       const audioFiles = allFiles.filter(f => f.mimeType.startsWith('audio/'));
-      const docFiles = allFiles.filter(f => 
-        f.mimeType.includes('pdf') || 
-        f.mimeType.includes('document') || 
+      const docFiles = allFiles.filter(f =>
+        f.mimeType.includes('pdf') ||
+        f.mimeType.includes('document') ||
         f.mimeType.includes('text')
       );
-      const otherFiles = allFiles.filter(f => 
-        !f.mimeType.startsWith('video/') && 
+      const otherFiles = allFiles.filter(f =>
+        !f.mimeType.startsWith('video/') &&
         !f.mimeType.startsWith('image/') &&
         !f.mimeType.startsWith('audio/') &&
         !f.mimeType.includes('pdf') &&
@@ -333,8 +333,8 @@ export function ModernDashboardPage() {
         </div>
 
         {/* Categories (Insights) */}
-        <FolderCategories 
-          categories={categories} 
+        <FolderCategories
+          categories={categories}
           onCategoryClick={handleCategoryClick}
         />
 
@@ -352,7 +352,7 @@ export function ModernDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
           {/* Quick Stats Widget */}
           <QuickStatsWidget stats={quickStats} />
-          
+
           {/* Quick Actions Widget */}
           <QuickActionsWidget onUpload={() => setShowUploader(true)} />
         </div>
@@ -369,13 +369,13 @@ export function ModernDashboardPage() {
             other: categories[3]?.size || 0,
           }}
         />
-        
-        <ActivityWidget 
+
+        <ActivityWidget
           activities={activities}
           onViewAll={() => navigate('/files')}
         />
-        
-        <StarredFilesWidget 
+
+        <StarredFilesWidget
           files={starredFiles.map(f => ({
             id: f.id,
             name: f.originalName,

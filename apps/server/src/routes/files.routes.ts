@@ -87,6 +87,101 @@ router.post('/upload', authMiddleware, upload.single('file'), asyncHandler(async
   });
 }));
 
+// ═══════════════════════════════════════════════════════════════════════════
+// DIRECT UPLOAD: Register file metadata (file uploaded directly browser→Telegram)
+// ═══════════════════════════════════════════════════════════════════════════
+// This endpoint receives only metadata, NOT the actual file data.
+// The file is uploaded directly from the browser to Telegram.
+// Server memory usage: ~1KB per request (metadata only)
+// ═══════════════════════════════════════════════════════════════════════════
+router.post('/register', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const {
+    telegramFileId,
+    telegramMessageId,
+    channelId,
+    fileName,
+    originalName,
+    mimeType,
+    size,
+    checksum,
+    folderId,
+  } = req.body;
+
+  // Validate required fields
+  if (!telegramFileId || !telegramMessageId || !channelId || !fileName || !size) {
+    throw new ApiError('Missing required fields: telegramFileId, telegramMessageId, channelId, fileName, size', 400);
+  }
+
+  // Verify the channel belongs to this user
+  const storageChannel = await prisma.storageChannel.findFirst({
+    where: {
+      channelId,
+      userId: req.user!.id,
+    },
+  });
+
+  if (!storageChannel) {
+    throw new ApiError('Invalid channel or channel not found for this user', 403);
+  }
+
+  // Verify folder if provided
+  if (folderId) {
+    const folder = await prisma.folder.findFirst({
+      where: {
+        id: folderId,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!folder) {
+      throw new ApiError('Folder not found', 404);
+    }
+  }
+
+  // Create file record (metadata only)
+  const file = await prisma.file.create({
+    data: {
+      name: fileName,
+      originalName: originalName || fileName,
+      mimeType: mimeType || 'application/octet-stream',
+      size: BigInt(size),
+      telegramFileId: String(telegramFileId),
+      telegramMessageId: Number(telegramMessageId),
+      channelId,
+      checksum: checksum || null,
+      folderId: folderId || null,
+      userId: req.user!.id,
+      isChunked: false, // Browser uploads handle chunking internally
+    },
+    include: {
+      folder: {
+        select: { id: true, name: true },
+      },
+    },
+  });
+
+  // Update storage channel stats
+  await prisma.storageChannel.update({
+    where: {
+      channelId_userId: { channelId, userId: req.user!.id },
+    },
+    data: {
+      usedBytes: { increment: BigInt(size) },
+      fileCount: { increment: 1 },
+    },
+  });
+
+  console.log(`[DirectUpload] File registered: ${fileName} (${size} bytes)`);
+
+  res.json({
+    success: true,
+    data: {
+      ...file,
+      size: Number(file.size),
+    },
+  });
+}));
+
 // Download file
 router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;

@@ -89,13 +89,13 @@ export async function encryptFileKey(
 ): Promise<{ encrypted: ArrayBuffer; iv: Uint8Array }> {
   const iv = generateIV();
   const rawKey = await exportKey(fileKey);
-  
+
   const encrypted = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv: new Uint8Array(iv), tagLength: TAG_LENGTH },
     masterKey,
     rawKey
   );
-  
+
   return { encrypted, iv };
 }
 
@@ -112,7 +112,7 @@ export async function decryptFileKey(
     masterKey,
     encryptedKey
   );
-  
+
   return importKey(rawKey);
 }
 
@@ -134,16 +134,16 @@ export async function encryptChunk(
   chunkIndex: number
 ): Promise<EncryptedChunk> {
   const iv = generateIV();
-  
+
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv: new Uint8Array(iv), tagLength: TAG_LENGTH },
     fileKey,
     chunk
   );
-  
+
   // Hash the ciphertext for integrity verification
   const hash = await calculateHash(ciphertext);
-  
+
   return {
     ciphertext,
     iv,
@@ -162,17 +162,17 @@ export async function decryptChunk(
   // Verify integrity before decryption
   const computedHash = await calculateHash(encryptedChunk.ciphertext);
   const verified = computedHash === encryptedChunk.hash;
-  
+
   if (!verified) {
     throw new Error(`Chunk ${encryptedChunk.chunkIndex} integrity check failed! Expected ${encryptedChunk.hash}, got ${computedHash}`);
   }
-  
+
   const plaintext = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv: new Uint8Array(encryptedChunk.iv), tagLength: TAG_LENGTH },
     fileKey,
     encryptedChunk.ciphertext
   );
-  
+
   return { plaintext, verified };
 }
 
@@ -193,26 +193,26 @@ export async function encryptFile(
 }> {
   // Generate a unique key for this file
   const fileKey = await generateFileKey();
-  
+
   // Encrypt the file key with master key
   const { encrypted: fileKeyEncrypted, iv: fileKeyIv } = await encryptFileKey(fileKey, masterKey);
-  
+
   // Calculate hash of original file for verification
   const originalHash = await calculateHash(file);
-  
+
   // Split into chunks and encrypt each
   const chunks: EncryptedChunk[] = [];
   const totalChunks = Math.ceil(file.byteLength / chunkSize);
-  
+
   for (let i = 0; i < totalChunks; i++) {
     const start = i * chunkSize;
     const end = Math.min(start + chunkSize, file.byteLength);
     const chunkData = file.slice(start, end);
-    
+
     const encryptedChunk = await encryptChunk(chunkData, fileKey, i);
     chunks.push(encryptedChunk);
   }
-  
+
   return {
     chunks,
     fileKeyEncrypted,
@@ -234,39 +234,39 @@ export async function decryptFile(
 ): Promise<ArrayBuffer> {
   // Decrypt the file key
   const fileKey = await decryptFileKey(fileKeyEncrypted, fileKeyIv, masterKey);
-  
+
   // Sort chunks by index
   const sortedChunks = [...chunks].sort((a, b) => a.chunkIndex - b.chunkIndex);
-  
+
   // Decrypt each chunk and collect plaintexts
   const decryptedChunks: ArrayBuffer[] = [];
-  
+
   for (const chunk of sortedChunks) {
     const { plaintext, verified } = await decryptChunk(chunk, fileKey);
-    
+
     if (!verified) {
       throw new Error(`Chunk ${chunk.chunkIndex} failed integrity verification`);
     }
-    
+
     decryptedChunks.push(plaintext);
   }
-  
+
   // Reassemble the file
   const totalSize = decryptedChunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
   const reassembled = new Uint8Array(totalSize);
-  
+
   let offset = 0;
   for (const chunk of decryptedChunks) {
     reassembled.set(new Uint8Array(chunk), offset);
     offset += chunk.byteLength;
   }
-  
+
   // Verify final hash
   const computedHash = await calculateHash(reassembled.buffer.slice(0) as ArrayBuffer);
   if (computedHash !== expectedHash) {
     throw new Error(`File integrity check failed! Expected ${expectedHash}, got ${computedHash}`);
   }
-  
+
   return reassembled.buffer;
 }
 
