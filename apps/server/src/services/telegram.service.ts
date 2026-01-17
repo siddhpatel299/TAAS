@@ -97,6 +97,16 @@ export class TelegramService {
       return existing.client;
     }
 
+    // If there's an existing disconnected client, clean it up
+    if (existing) {
+      try {
+        await existing.client.disconnect();
+      } catch (e) {
+        // Ignore disconnect errors
+      }
+      activeSessions.delete(userId);
+    }
+
     const client = new TelegramClient(
       new StringSession(sessionString),
       this.apiId,
@@ -106,15 +116,30 @@ export class TelegramService {
       }
     );
 
-    await client.connect();
+    try {
+      await client.connect();
 
-    // Populate entity cache by fetching dialogs
-    // This is necessary to resolve channel IDs later
-    await client.getDialogs({ limit: 100 });
+      // Populate entity cache by fetching dialogs
+      // This is necessary to resolve channel IDs later
+      await client.getDialogs({ limit: 100 });
 
-    activeSessions.set(userId, { client, userId });
+      activeSessions.set(userId, { client, userId });
 
-    return client;
+      return client;
+    } catch (error: any) {
+      // Handle AUTH_KEY_DUPLICATED - this means session was used elsewhere
+      if (error.errorMessage === 'AUTH_KEY_DUPLICATED') {
+        console.log('[Telegram] AUTH_KEY_DUPLICATED - session may be in use elsewhere');
+        // Clean up and throw - user may need to re-login
+        try {
+          await client.disconnect();
+        } catch (e) {
+          // Ignore
+        }
+        activeSessions.delete(userId);
+      }
+      throw error;
+    }
   }
 
   // Get user's Telegram info
@@ -234,6 +259,111 @@ export class TelegramService {
           console.error(`[Upload] Failed to clean up temp file: ${tempFilePath}`, e);
         }
       }
+    }
+  }
+
+  /**
+   * Upload file to Telegram with chunking for better reliability
+   * Splits large files into 25MB chunks for faster/more reliable uploads
+   * Note: Uses sequential upload due to Telegram's AUTH_KEY_DUPLICATED limitation
+   */
+  async uploadFileParallel(
+    client: TelegramClient,
+    channelId: string,
+    file: Buffer,
+    fileName: string,
+    mimeType: string,
+    onProgress?: (progress: number) => void
+  ): Promise<{ messageId: number; fileId: string; chunks?: Array<{ messageId: number; fileId: string; size: number; index: number }> }> {
+    const PARALLEL_THRESHOLD = 50 * 1024 * 1024; // 50MB
+    const CHUNK_SIZE = 25 * 1024 * 1024; // 25MB chunks
+
+    // For small files, use regular upload
+    if (file.length <= PARALLEL_THRESHOLD) {
+      return this.uploadFile(client, channelId, file, fileName, mimeType, onProgress);
+    }
+
+    console.log(`[ChunkedUpload] Starting chunked upload: ${fileName} (${(file.length / 1024 / 1024).toFixed(1)} MB)`);
+
+    const channel = await this.getChannelEntity(client, channelId);
+    const totalChunks = Math.ceil(file.length / CHUNK_SIZE);
+    const chunks: Array<{ messageId: number; fileId: string; size: number; index: number }> = [];
+
+    // Create temp files for each chunk
+    const os = await import('os');
+    const path = await import('path');
+    const fs = await import('fs/promises');
+
+    const tempFiles: string[] = [];
+
+    try {
+      // Write chunks to temp files first
+      console.log(`[ChunkedUpload] Splitting into ${totalChunks} chunks...`);
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.length);
+        const chunkBuffer = file.slice(start, end);
+
+        const tempPath = path.join(os.tmpdir(), `taas-chunk-${Date.now()}-${i}-${fileName}`);
+        await fs.writeFile(tempPath, chunkBuffer);
+        tempFiles.push(tempPath);
+      }
+
+      // Upload chunks sequentially (parallel causes AUTH_KEY_DUPLICATED)
+      console.log(`[ChunkedUpload] Uploading ${totalChunks} chunks sequentially...`);
+
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.length);
+        const chunkSize = end - start;
+        const chunkName = `${fileName}.part${i + 1}of${totalChunks}`;
+
+        console.log(`[ChunkedUpload] Uploading chunk ${i + 1}/${totalChunks}...`);
+
+        const customFile = new CustomFile(chunkName, chunkSize, tempFiles[i]);
+
+        const result = await client.sendFile(channel, {
+          file: customFile,
+          caption: `📦 ${chunkName}`,
+          progressCallback: (progress) => {
+            if (onProgress) {
+              // Calculate overall progress
+              const chunkProgress = (i + progress) / totalChunks * 100;
+              onProgress(chunkProgress);
+            }
+          },
+          forceDocument: true,
+        });
+
+        const message = result as Api.Message;
+        const document = message.media as Api.MessageMediaDocument;
+        const doc = document.document as Api.Document;
+
+        chunks.push({
+          index: i,
+          messageId: message.id,
+          fileId: doc.id.toString(),
+          size: chunkSize,
+        });
+      }
+
+      console.log(`[ChunkedUpload] Completed: ${fileName} (${chunks.length} chunks)`);
+
+      return {
+        messageId: chunks[0].messageId,
+        fileId: chunks[0].fileId,
+        chunks,
+      };
+    } finally {
+      // Clean up temp files
+      for (const tempPath of tempFiles) {
+        try {
+          await fs.unlink(tempPath);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+      console.log(`[ChunkedUpload] Cleaned up ${tempFiles.length} temp files`);
     }
   }
 

@@ -55,26 +55,20 @@ export class ChunkService {
    */
   async uploadFile(params: ChunkUploadParams): Promise<ChunkUploadResult> {
     const { client, channelId, buffer, fileName, mimeType, userId, sessionId, onProgress } = params;
-    
+
     // Use SHA-256 for checksum (more secure than MD5)
     const checksum = this.calculateHash(buffer);
 
     // Direct upload if under 2GB
     if (buffer.length <= TELEGRAM_LIMIT) {
-      // Apply throttling for single file upload
-      const result = await throttleService.executeWithThrottle(
-        userId,
-        async () => {
-          return telegramService.uploadFile(
-            client,
-            channelId,
-            buffer,
-            fileName,
-            mimeType,
-            onProgress
-          );
-        },
-        sessionId
+      // Use regular upload (reverted from parallel due to AUTH_KEY issues)
+      const result = await telegramService.uploadFile(
+        client,
+        channelId,
+        buffer,
+        fileName,
+        mimeType,
+        onProgress
       );
 
       return {
@@ -217,7 +211,7 @@ export class ChunkService {
 
     for (let i = 0; i < totalChunks; i++) {
       const chunk = file.chunks[i];
-      
+
       const chunkProgress = (progress: number) => {
         if (onProgress) {
           const overallProgress = ((i + progress / 100) / totalChunks) * 100;
