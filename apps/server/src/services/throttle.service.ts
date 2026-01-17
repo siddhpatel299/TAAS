@@ -7,14 +7,15 @@
 
 import { EventEmitter } from 'events';
 
-// Configuration
-const MIN_CHUNK_DELAY_MS = 500;
-const MAX_CHUNK_DELAY_MS = 2000;
-const MIN_FILE_DELAY_MS = 1000;
-const MAX_FILE_DELAY_MS = 3000;
-const JITTER_FACTOR = 0.3;
-const MAX_CHUNKS_PER_MINUTE = 10;
-const COOLDOWN_PERIOD_MS = 60000; // 1 minute
+// Configuration - Optimized for faster uploads while still providing some rate limiting
+// Reduced delays by ~10x from original conservative values
+const MIN_CHUNK_DELAY_MS = 50;      // Was 500ms
+const MAX_CHUNK_DELAY_MS = 200;     // Was 2000ms
+const MIN_FILE_DELAY_MS = 100;      // Was 1000ms
+const MAX_FILE_DELAY_MS = 300;      // Was 3000ms
+const JITTER_FACTOR = 0.2;          // Was 0.3
+const MAX_CHUNKS_PER_MINUTE = 60;   // Was 10 (now 1 per second max)
+const COOLDOWN_PERIOD_MS = 5000;    // Was 60000ms (now 5 seconds)
 
 interface UploadSession {
   userId: string;
@@ -79,16 +80,16 @@ export class ThrottleService extends EventEmitter {
 
     // Calculate progress-based delay (slower as upload progresses)
     const progressFactor = 1 + (session.chunksUploaded / session.totalChunks) * 0.5;
-    
+
     // Calculate load-based delay (slower if many recent uploads)
     const loadFactor = 1 + (state.uploadsInLastMinute / MAX_CHUNKS_PER_MINUTE) * 2;
 
     // Base delay with factors
-    const baseDelay = MIN_CHUNK_DELAY_MS + 
+    const baseDelay = MIN_CHUNK_DELAY_MS +
       Math.random() * (MAX_CHUNK_DELAY_MS - MIN_CHUNK_DELAY_MS);
-    
+
     const calculatedDelay = baseDelay * progressFactor * loadFactor;
-    
+
     return this.addJitter(calculatedDelay);
   }
 
@@ -106,9 +107,9 @@ export class ThrottleService extends EventEmitter {
     }
 
     // Base file delay with jitter
-    const baseDelay = MIN_FILE_DELAY_MS + 
+    const baseDelay = MIN_FILE_DELAY_MS +
       Math.random() * (MAX_FILE_DELAY_MS - MIN_FILE_DELAY_MS);
-    
+
     return this.addJitter(baseDelay);
   }
 
@@ -133,7 +134,7 @@ export class ThrottleService extends EventEmitter {
       // Trigger cooldown
       state.isInCooldown = true;
       state.cooldownUntil = now + COOLDOWN_PERIOD_MS;
-      
+
       return {
         allowed: false,
         waitTime: COOLDOWN_PERIOD_MS,
@@ -265,7 +266,7 @@ export class ThrottleService extends EventEmitter {
   ): Promise<T> {
     // Check if can proceed
     const { allowed, waitTime, reason } = this.canProceed(userId);
-    
+
     if (!allowed) {
       console.log(`Throttling user ${userId}: ${reason}, waiting ${waitTime}ms`);
       await this.sleep(waitTime);

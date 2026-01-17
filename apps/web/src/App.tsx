@@ -101,120 +101,155 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+import { VersionProvider, useVersion } from '@/contexts/VersionContext';
+import { WarZoneLayout } from '@/layouts/WarZoneLayout';
+import { WarZoneDashboardPage } from '@/pages/war-zone/WarZoneDashboardPage';
+import { WarZoneFilesPage } from '@/pages/war-zone/WarZoneFilesPage';
+import { WarZoneStarredPage } from '@/pages/war-zone/WarZoneStarredPage';
+
+// ... (existing imports remain the same)
+
+function AppContent() {
+  const { version } = useVersion();
+
+  if (version === 'war-zone') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <WarZoneLayout>
+            <Routes>
+              <Route path="/" element={<WarZoneDashboardPage />} />
+              <Route path="/files" element={<WarZoneFilesPage />} />
+              <Route path="/starred" element={<WarZoneStarredPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </WarZoneLayout>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  return (
+    <AuthCheck>
+      <DirectUploadProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <ModernDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/files"
+            element={
+              <ProtectedRoute>
+                <MyFilesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/telegram"
+            element={
+              <ProtectedRoute>
+                <TelegramChatsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/starred"
+            element={
+              <ProtectedRoute>
+                <StarredPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/trash"
+            element={
+              <ProtectedRoute>
+                <TrashPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* Plugin Routes */}
+          <Route
+            path="/plugins"
+            element={
+              <ProtectedRoute>
+                <PluginsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/todo-lists"
+            element={
+              <ProtectedRoute>
+                <TodoPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/job-tracker"
+            element={
+              <ProtectedRoute>
+                <JobTrackerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/job-tracker/applications"
+            element={
+              <ProtectedRoute>
+                <JobApplicationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/job-tracker/applications/:id"
+            element={
+              <ProtectedRoute>
+                <JobApplicationFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/job-tracker/outreach"
+            element={
+              <ProtectedRoute>
+                <OutreachPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/:pluginId"
+            element={
+              <ProtectedRoute>
+                <PluginComingSoonPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/share/:token" element={<SharePage />} />
+          <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </DirectUploadProvider>
+    </AuthCheck>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <BrowserRouter>
-          <AuthCheck>
-            <DirectUploadProvider>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <ModernDashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/files"
-                  element={
-                    <ProtectedRoute>
-                      <MyFilesPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/telegram"
-                  element={
-                    <ProtectedRoute>
-                      <TelegramChatsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/starred"
-                  element={
-                    <ProtectedRoute>
-                      <StarredPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/trash"
-                  element={
-                    <ProtectedRoute>
-                      <TrashPage />
-                    </ProtectedRoute>
-                  }
-                />
-                {/* Plugin Routes */}
-                <Route
-                  path="/plugins"
-                  element={
-                    <ProtectedRoute>
-                      <PluginsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/plugins/todo-lists"
-                  element={
-                    <ProtectedRoute>
-                      <TodoPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/plugins/job-tracker"
-                  element={
-                    <ProtectedRoute>
-                      <JobTrackerDashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/plugins/job-tracker/applications"
-                  element={
-                    <ProtectedRoute>
-                      <JobApplicationsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/plugins/job-tracker/applications/:id"
-                  element={
-                    <ProtectedRoute>
-                      <JobApplicationFormPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/plugins/job-tracker/outreach"
-                  element={
-                    <ProtectedRoute>
-                      <OutreachPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/plugins/:pluginId"
-                  element={
-                    <ProtectedRoute>
-                      <PluginComingSoonPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/share/:token" element={<SharePage />} />
-                <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </DirectUploadProvider>
-          </AuthCheck>
-        </BrowserRouter>
+        <VersionProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </VersionProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

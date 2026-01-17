@@ -13,10 +13,12 @@ import {
   Puzzle,
   Briefcase,
   CheckSquare,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
+import { useVersion } from '@/contexts/VersionContext';
 import {
   Tooltip,
   TooltipContent,
@@ -47,6 +49,7 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
   const location = useLocation();
   const { logout } = useAuthStore();
   const { enabledPlugins } = usePluginsStore();
+  const { toggleVersion } = useVersion();
 
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -165,6 +168,23 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
 
       {/* Bottom Navigation - Settings */}
       <div className="flex flex-col items-center gap-2">
+        {/* War Zone Toggle */}
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleVersion}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-cyan-500 bg-cyan-50 hover:bg-cyan-100 transition-all duration-200"
+            >
+              <Zap className="w-5 h-5" />
+            </motion.button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="bg-gray-900 text-white border-0">
+            Enter War Zone
+          </TooltipContent>
+        </Tooltip>
+
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <motion.button

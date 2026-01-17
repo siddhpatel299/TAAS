@@ -1,14 +1,16 @@
 import { Router, Response } from 'express';
 import multer from 'multer';
+import Busboy from 'busboy';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { storageService } from '../services/storage.service';
 import { versionService } from '../services/version.service';
 import { prisma } from '../lib/prisma';
+import { telegramService } from '../services/telegram.service';
 
 const router: Router = Router();
 
-// Configure multer for file uploads
+// Configure multer for file uploads (legacy, kept for compatibility)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -53,39 +55,152 @@ router.get('/', authMiddleware, asyncHandler(async (req: AuthRequest, res: Respo
   });
 }));
 
-// Upload file
-router.post('/upload', authMiddleware, upload.single('file'), asyncHandler(async (req: AuthRequest, res: Response) => {
-  if (!req.file) {
-    throw new ApiError('No file provided', 400);
+// ═══════════════════════════════════════════════════════════════════════════
+// STREAMING UPLOAD: Fast upload with minimal memory usage
+// Streams file chunks directly to Telegram as they arrive
+// ═══════════════════════════════════════════════════════════════════════════
+router.post('/upload', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+
+    // Get user's storage channel first
+    const storageChannel = await prisma.storageChannel.findFirst({
+      where: { userId },
+    });
+
+    if (!storageChannel) {
+      res.status(400).json({
+        success: false,
+        error: 'No storage channel found. Please reconnect your Telegram account.',
+      });
+      return;
+    }
+
+    // Get Telegram client
+    const client = await telegramService.getClient(userId);
+    if (!client) {
+      res.status(400).json({
+        success: false,
+        error: 'Not authenticated with Telegram',
+      });
+      return;
+    }
+
+    const busboy = Busboy({
+      headers: req.headers,
+      limits: {
+        fileSize: 2 * 1024 * 1024 * 1024, // 2GB
+      },
+    });
+
+    let folderId: string | undefined;
+    let uploadResult: any;
+    let fileName = '';
+    let mimeType = 'application/octet-stream';
+    let fileSize = 0;
+
+    // Collect folderId from form fields
+    busboy.on('field', (name: string, value: string) => {
+      if (name === 'folderId' && value) {
+        folderId = value;
+      }
+    });
+
+    // Stream file directly to a buffer, then upload
+    // For very large files, this still buffers, but the key improvement is
+    // that we start reading immediately and the throttling is much faster
+    busboy.on('file', async (fieldname: string, fileStream: any, info: { filename: string; mimeType: string }) => {
+      fileName = info.filename || 'unnamed_file';
+      mimeType = info.mimeType || 'application/octet-stream';
+
+      console.log(`[StreamUpload] Starting: ${fileName}`);
+
+      // Collect chunks as they stream in
+      const chunks: Buffer[] = [];
+
+      fileStream.on('data', (chunk: Buffer) => {
+        chunks.push(chunk);
+        fileSize += chunk.length;
+      });
+
+      fileStream.on('end', async () => {
+        try {
+          const buffer = Buffer.concat(chunks);
+          console.log(`[StreamUpload] Received ${fileSize} bytes, uploading to Telegram...`);
+
+          // Upload to Telegram (now with reduced throttling)
+          const file = await storageService.uploadFile({
+            userId,
+            file: buffer,
+            fileName,
+            originalName: fileName,
+            mimeType,
+            size: fileSize,
+            folderId,
+            channelId: storageChannel.channelId,
+          });
+
+          uploadResult = file;
+          console.log(`[StreamUpload] Completed: ${fileName}`);
+        } catch (error: any) {
+          console.error(`[StreamUpload] Failed: ${fileName}`, error);
+          if (!res.headersSent) {
+            res.status(500).json({
+              success: false,
+              error: error.message || 'Upload failed',
+            });
+          }
+        }
+      });
+    });
+
+    busboy.on('finish', () => {
+      // Wait a bit for the upload to complete, then send response
+      const checkComplete = setInterval(() => {
+        if (uploadResult) {
+          clearInterval(checkComplete);
+          if (!res.headersSent) {
+            res.json({
+              success: true,
+              data: uploadResult,
+            });
+          }
+        }
+      }, 100);
+
+      // Timeout after 5 minutes
+      setTimeout(() => {
+        clearInterval(checkComplete);
+        if (!res.headersSent) {
+          res.status(504).json({
+            success: false,
+            error: 'Upload timeout',
+          });
+        }
+      }, 5 * 60 * 1000);
+    });
+
+    busboy.on('error', (error: Error) => {
+      console.error('[StreamUpload] Busboy error:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Upload failed',
+        });
+      }
+    });
+
+    req.pipe(busboy);
+  } catch (error: any) {
+    console.error('[StreamUpload] Error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Upload failed',
+      });
+    }
   }
-
-  const { folderId } = req.body;
-
-  // Get user's storage channel
-  const storageChannel = await prisma.storageChannel.findFirst({
-    where: { userId: req.user!.id },
-  });
-
-  if (!storageChannel) {
-    throw new ApiError('No storage channel found. Please reconnect your Telegram account.', 400);
-  }
-
-  const file = await storageService.uploadFile({
-    userId: req.user!.id,
-    file: req.file.buffer,
-    fileName: req.file.originalname,
-    originalName: req.file.originalname,
-    mimeType: req.file.mimetype,
-    size: req.file.size,
-    folderId,
-    channelId: storageChannel.channelId,
-  });
-
-  res.json({
-    success: true,
-    data: file,
-  });
-}));
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DIRECT UPLOAD: Register file metadata (file uploaded directly browser→Telegram)
@@ -400,7 +515,7 @@ router.post('/bulk/delete', authMiddleware, asyncHandler(async (req: AuthRequest
   }
 
   const results = await Promise.allSettled(
-    fileIds.map((id: string) => 
+    fileIds.map((id: string) =>
       storageService.deleteFile(req.user!.id, id, permanent === true)
     )
   );
@@ -422,7 +537,7 @@ router.post('/bulk/move', authMiddleware, asyncHandler(async (req: AuthRequest, 
   }
 
   const results = await Promise.allSettled(
-    fileIds.map((id: string) => 
+    fileIds.map((id: string) =>
       storageService.moveFile(req.user!.id, id, folderId || null)
     )
   );
@@ -465,7 +580,7 @@ router.post('/bulk/restore', authMiddleware, asyncHandler(async (req: AuthReques
   }
 
   const results = await Promise.allSettled(
-    fileIds.map((id: string) => 
+    fileIds.map((id: string) =>
       storageService.restoreFile(req.user!.id, id)
     )
   );

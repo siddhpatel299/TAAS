@@ -105,15 +105,15 @@ export class TelegramService {
         connectionRetries: 5,
       }
     );
-    
+
     await client.connect();
-    
+
     // Populate entity cache by fetching dialogs
     // This is necessary to resolve channel IDs later
     await client.getDialogs({ limit: 100 });
-    
+
     activeSessions.set(userId, { client, userId });
-    
+
     return client;
   }
 
@@ -139,7 +139,7 @@ export class TelegramService {
         return channel;
       }
     }
-    
+
     throw new Error('Failed to create storage channel');
   }
 
@@ -160,7 +160,7 @@ export class TelegramService {
       // If that fails, refresh dialogs and try again
       console.log('Entity not found, refreshing dialogs...');
       await client.getDialogs({ limit: 100 });
-      
+
       try {
         return await client.getEntity(channelId);
       } catch (e) {
@@ -181,27 +181,60 @@ export class TelegramService {
     onProgress?: (progress: number) => void
   ): Promise<{ messageId: number; fileId: string }> {
     const channel = await this.getChannelEntity(client, channelId);
-    
-    // CustomFile(name, size, path, buffer) - path is empty string when using buffer
-    const customFile = new CustomFile(fileName, file.length, '', file);
-    
-    const result = await client.sendFile(channel, {
-      file: customFile,
-      caption: `📁 ${fileName}`,
-      progressCallback: onProgress
-        ? (progress) => onProgress(progress * 100)
-        : undefined,
-      forceDocument: true,
-    });
 
-    const message = result as Api.Message;
-    const document = message.media as Api.MessageMediaDocument;
-    const doc = document.document as Api.Document;
+    // For large files (> 100MB), write to temp file first
+    // CustomFile has issues with large buffers
+    const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100MB
+    let customFile: CustomFile;
+    let tempFilePath: string | null = null;
 
-    return {
-      messageId: message.id,
-      fileId: doc.id.toString(),
-    };
+    if (file.length > LARGE_FILE_THRESHOLD) {
+      // Write to temp file for large uploads
+      const os = await import('os');
+      const path = await import('path');
+      const fs = await import('fs/promises');
+
+      tempFilePath = path.join(os.tmpdir(), `taas-upload-${Date.now()}-${fileName}`);
+      await fs.writeFile(tempFilePath, file);
+      console.log(`[Upload] Using temp file for large upload: ${tempFilePath}`);
+
+      // CustomFile with file path instead of buffer
+      customFile = new CustomFile(fileName, file.length, tempFilePath);
+    } else {
+      // CustomFile(name, size, path, buffer) - path is empty string when using buffer
+      customFile = new CustomFile(fileName, file.length, '', file);
+    }
+
+    try {
+      const result = await client.sendFile(channel, {
+        file: customFile,
+        caption: `📁 ${fileName}`,
+        progressCallback: onProgress
+          ? (progress) => onProgress(progress * 100)
+          : undefined,
+        forceDocument: true,
+      });
+
+      const message = result as Api.Message;
+      const document = message.media as Api.MessageMediaDocument;
+      const doc = document.document as Api.Document;
+
+      return {
+        messageId: message.id,
+        fileId: doc.id.toString(),
+      };
+    } finally {
+      // Clean up temp file if created
+      if (tempFilePath) {
+        const fs = await import('fs/promises');
+        try {
+          await fs.unlink(tempFilePath);
+          console.log(`[Upload] Cleaned up temp file: ${tempFilePath}`);
+        } catch (e) {
+          console.error(`[Upload] Failed to clean up temp file: ${tempFilePath}`, e);
+        }
+      }
+    }
   }
 
   // Download file from Telegram
@@ -212,7 +245,7 @@ export class TelegramService {
     onProgress?: (progress: number) => void
   ): Promise<Buffer> {
     const channel = await this.getChannelEntity(client, channelId);
-    
+
     const messages = await client.getMessages(channel, {
       ids: [messageId],
     });
@@ -229,9 +262,9 @@ export class TelegramService {
     const buffer = await client.downloadMedia(message, {
       progressCallback: onProgress
         ? (downloaded, total) => {
-            const progress = total ? (Number(downloaded) / Number(total)) * 100 : 0;
-            onProgress(progress);
-          }
+          const progress = total ? (Number(downloaded) / Number(total)) * 100 : 0;
+          onProgress(progress);
+        }
         : undefined,
     });
 
@@ -291,15 +324,15 @@ export class TelegramService {
     fileSize: number
   ): Promise<Readable> {
     const stream = new PassThrough();
-    
+
     // Use iterDownload for streaming - processes in chunks
     const downloadChunkSize = 512 * 1024; // 512KB chunks
-    
+
     // Start async download and pipe to stream
     (async () => {
       try {
         let offset = 0;
-        
+
         for await (const chunk of client.iterDownload({
           file: media,
           requestSize: downloadChunkSize,
@@ -307,7 +340,7 @@ export class TelegramService {
           stream.write(chunk);
           offset += chunk.length;
         }
-        
+
         stream.end();
       } catch (error) {
         stream.destroy(error as Error);
@@ -332,27 +365,27 @@ export class TelegramService {
     onProgress?: (progress: number) => void
   ): Promise<{ messageId: number; fileId: string }> {
     const channel = await this.getChannelEntity(client, channelId);
-    
+
     // Collect stream into buffer for upload
     // Note: For files > 2GB, use chunked upload instead
     const chunks: Buffer[] = [];
     let receivedBytes = 0;
-    
+
     for await (const chunk of stream) {
       chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
       receivedBytes += chunk.length;
-      
+
       if (onProgress && fileSize > 0) {
         onProgress((receivedBytes / fileSize) * 50); // First 50% is receiving
       }
     }
-    
+
     const buffer = Buffer.concat(chunks);
-    
+
     // Upload to Telegram using CustomFile
     // CustomFile(name, size, path, buffer) - path is empty string when using buffer
     const customFile = new CustomFile(fileName, buffer.length, '', buffer);
-    
+
     const result = await client.sendFile(channel, {
       file: customFile,
       caption: `📁 ${fileName}`,
@@ -387,7 +420,7 @@ export class TelegramService {
   ): Promise<{ messageId: number; fileId: string }> {
     // Get download stream
     const downloadStream = await this.downloadFileAsStream(client, sourceMedia, fileSize);
-    
+
     // Upload from stream
     return this.uploadFileFromStream(
       client,
