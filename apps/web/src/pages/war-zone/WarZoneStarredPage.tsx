@@ -4,7 +4,6 @@ import { Star, FileText } from 'lucide-react';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { filesApi } from '@/lib/api';
 import { HoloCard } from '@/components/war-zone/HoloCard';
-import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
 export function WarZoneStarredPage() {

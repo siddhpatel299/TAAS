@@ -16,10 +16,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { filesApi } from '@/lib/api';
 import { HoloCard } from '@/components/war-zone/HoloCard';
 import { GlitchText } from '@/components/war-zone/GlitchText';
-import { CyberButton } from '@/components/war-zone/CyberButton';
 import { WarZoneFileUploader } from '@/components/war-zone/WarZoneFileUploader';
 import { WarZoneFileActions } from '@/components/war-zone/WarZoneFileActions';
-import { useDirectUpload } from '@/contexts/DirectUploadContext';
 import { cn } from '@/lib/utils';
 
 

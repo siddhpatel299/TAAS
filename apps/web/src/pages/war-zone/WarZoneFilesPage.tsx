@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
     Folder,
     FileText,
@@ -26,7 +26,6 @@ interface FolderData {
 export function WarZoneFilesPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const folderId = searchParams.get('folderId');
-    const navigate = useNavigate();
 
     const { setLoading } = useFilesStore();
     const [files, setFiles] = useState<StoredFile[]>([]);
@@ -201,7 +200,7 @@ function FileGridItem({ file, index, onDelete }: { file: StoredFile; index: numb
     );
 }
 
-function FileIcon({ mime }: { mime: string }) {
+function FileIcon({ mime: _mime }: { mime: string }) {
     return <FileText className="w-4 h-4" />;
 }
 

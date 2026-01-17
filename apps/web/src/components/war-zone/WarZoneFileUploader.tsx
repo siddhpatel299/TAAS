@@ -3,24 +3,17 @@ import { useDirectUpload } from '@/contexts/DirectUploadContext';
 import { Upload, X, Check, AlertTriangle, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { HoloCard } from './HoloCard';
-import { CyberButton } from './CyberButton';
 
 export function WarZoneFileUploader() {
     const {
-        isUploading,
         uploads,
         uploadFiles,
         cancelUpload,
-        removeUpload,
         clearCompleted
     } = useDirectUpload();
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
-
-    // Filter for active uploads to show in refined list
-    const activeUploads = uploads.filter(u => u.status !== 'completed' || Date.now() - 0 < 5000); // Keep completed for 5s (simulated)
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
