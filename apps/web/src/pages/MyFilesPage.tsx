@@ -130,6 +130,15 @@ export function MyFilesPage() {
   const [showMoveDialog, setShowMoveDialog] = useState(false);
   const [folderTree, setFolderTree] = useState<FolderType[]>([]);
 
+  // Download progress state
+  const [downloadProgress, setDownloadProgress] = useState<{
+    fileId: string;
+    fileName: string;
+    progress: number;
+    totalSize: number;
+    downloaded: number;
+  } | null>(null);
+
   // Toggle file selection
   const toggleFileSelection = (fileId: string) => {
     setSelectedFiles(prev => {
@@ -347,6 +356,80 @@ export function MyFilesPage() {
 
   const handleDownload = async (file: StoredFile) => {
     try {
+      const token = localStorage.getItem('token');
+      const baseUrl = import.meta.env.VITE_API_URL || '/api';
+      const downloadUrl = `${baseUrl}/files/${file.id}/download?token=${token}`;
+
+      // Initialize progress
+      setDownloadProgress({
+        fileId: file.id,
+        fileName: file.originalName,
+        progress: 0,
+        totalSize: Number(file.size),
+        downloaded: 0,
+      });
+
+      // Check if File System Access API is supported
+      if ('showSaveFilePicker' in window) {
+        try {
+          const ext = file.originalName.split('.').pop() || '';
+
+          const handle = await (window as any).showSaveFilePicker({
+            suggestedName: file.originalName,
+            types: [{
+              description: 'File',
+              accept: { [file.mimeType || 'application/octet-stream']: [`.${ext}`] }
+            }]
+          });
+
+          const writable = await handle.createWritable();
+
+          console.log(`[Download] Streaming ${file.originalName} directly to disk...`);
+          const response = await fetch(downloadUrl);
+
+          if (!response.ok) {
+            throw new Error(`Download failed: ${response.status}`);
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) throw new Error('No response body');
+
+          const totalSize = Number(file.size);
+          let downloaded = 0;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            await writable.write(value);
+            downloaded += value.length;
+
+            // Update progress state
+            const percent = Math.round((downloaded / totalSize) * 100);
+            setDownloadProgress({
+              fileId: file.id,
+              fileName: file.originalName,
+              progress: percent,
+              totalSize,
+              downloaded,
+            });
+          }
+
+          await writable.close();
+          console.log(`[Download] ✅ Complete: ${file.originalName}`);
+          setDownloadProgress(null);
+          return;
+        } catch (err: any) {
+          if (err.name === 'AbortError') {
+            console.log('[Download] User cancelled');
+            setDownloadProgress(null);
+            return;
+          }
+          console.warn('[Download] File System Access failed, falling back:', err.message);
+        }
+      }
+
+      // Fallback for unsupported browsers
       const response = await filesApi.downloadFile(file.id);
       const url = window.URL.createObjectURL(response.data);
       const a = document.createElement('a');
@@ -356,8 +439,10 @@ export function MyFilesPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      setDownloadProgress(null);
     } catch (error) {
       console.error('Download failed:', error);
+      setDownloadProgress(null);
     }
   };
 
@@ -1009,6 +1094,43 @@ export function MyFilesPage() {
               <p className="text-xl font-semibold text-gray-900">Drop files to upload</p>
               <p className="text-gray-500 mt-2">Release to start uploading</p>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Download Progress Indicator */}
+      <AnimatePresence>
+        {downloadProgress && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-6 right-6 z-50 bg-white rounded-2xl shadow-2xl p-4 min-w-[320px]"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center">
+                <Download className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 truncate text-sm">
+                  {downloadProgress.fileName}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {(downloadProgress.downloaded / 1024 / 1024).toFixed(1)} MB / {(downloadProgress.totalSize / 1024 / 1024).toFixed(1)} MB
+                </p>
+              </div>
+              <span className="text-lg font-bold text-cyan-600">
+                {downloadProgress.progress}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${downloadProgress.progress}%` }}
+                transition={{ duration: 0.2 }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

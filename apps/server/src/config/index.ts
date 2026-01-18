@@ -11,6 +11,9 @@ const envSchema = z.object({
   TELEGRAM_API_HASH: z.string(),
   JWT_SECRET: z.string(),
   FRONTEND_URL: z.string().default('http://localhost:5173'),
+  // Optional: Bot for parallel uploads
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_USERNAME: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -31,4 +34,7 @@ export const config = {
   jwtSecret: parsed.data.JWT_SECRET,
   frontendUrl: parsed.data.FRONTEND_URL,
   isProduction: parsed.data.NODE_ENV === 'production',
+  // Bot for parallel uploads (optional)
+  telegramBotToken: parsed.data.TELEGRAM_BOT_TOKEN || null,
+  telegramBotUsername: parsed.data.TELEGRAM_BOT_USERNAME || null,
 };

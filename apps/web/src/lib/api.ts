@@ -96,7 +96,10 @@ export const filesApi = {
   },
 
   downloadFile: (id: string) =>
-    api.get(`/files/${id}/download`, { responseType: 'blob' }),
+    api.get(`/files/${id}/download`, {
+      responseType: 'blob',
+      timeout: 600000, // 10 minutes for large files
+    }),
 
   renameFile: (id: string, name: string) =>
     api.patch(`/files/${id}`, { name }),

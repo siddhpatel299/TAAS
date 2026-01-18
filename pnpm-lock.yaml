@@ -163,6 +163,9 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/form-data':
+        specifier: ^2.5.2
+        version: 2.5.2
       '@types/jsonwebtoken':
         specifier: ^9.0.5
         version: 9.0.10
@@ -2907,6 +2910,13 @@ packages:
       '@types/express-serve-static-core': 4.19.7
       '@types/qs': 6.14.0
       '@types/serve-static': 1.15.10
+    dev: true
+
+  /@types/form-data@2.5.2:
+    resolution: {integrity: sha512-tfmcyHn1Pp9YHAO5r40+UuZUPAZbUEgqTel3EuEKpmF9hPkXgR4l41853raliXnb4gwyPNoQOfvgGGlHN5WSog==}
+    deprecated: This is a stub types definition. form-data provides its own type definitions, so you do not need this installed.
+    dependencies:
+      form-data: 4.0.5
     dev: true
 
   /@types/fs-extra@9.0.13:

@@ -161,11 +161,60 @@ export class TelegramService {
     if (result instanceof Api.Updates) {
       const channel = result.chats[0];
       if (channel instanceof Api.Channel) {
+        // Auto-invite bots to the channel
+        await this.inviteBotsToChannel(client, channel);
         return channel;
       }
     }
 
     throw new Error('Failed to create storage channel');
+  }
+
+  // Invite TAAS bots to a channel and promote them to admin
+  async inviteBotsToChannel(client: TelegramClient, channel: Api.Channel): Promise<void> {
+    const botUsernames = config.telegramBotUsername;
+    if (!botUsernames) {
+      console.log('[Telegram] No bot usernames configured, skipping bot invitation');
+      return;
+    }
+
+    // Support comma-separated usernames
+    const usernames = botUsernames.split(',').map(u => u.trim()).filter(u => u.length > 0);
+    console.log(`[Telegram] Inviting ${usernames.length} bots to channel ${channel.id}`);
+
+    for (const username of usernames) {
+      try {
+        // Resolve the bot by username
+        const botUser = await client.getEntity(username);
+
+        // Invite bot to channel
+        await client.invoke(
+          new Api.channels.InviteToChannel({
+            channel: channel,
+            users: [botUser],
+          })
+        );
+
+        // Promote bot to admin with necessary permissions
+        await client.invoke(
+          new Api.channels.EditAdmin({
+            channel: channel,
+            userId: botUser,
+            adminRights: new Api.ChatAdminRights({
+              postMessages: true,
+              editMessages: true,
+              deleteMessages: true,
+            }),
+            rank: 'TAAS Bot',
+          })
+        );
+
+        console.log(`[Telegram] ✅ Added bot @${username} as admin`);
+      } catch (error: any) {
+        console.error(`[Telegram] Failed to add bot @${username}:`, error.message);
+        // Continue with other bots even if one fails
+      }
+    }
   }
 
   // Get user's channels/groups that can be used for storage

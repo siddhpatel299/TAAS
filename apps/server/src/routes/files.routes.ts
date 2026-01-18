@@ -297,18 +297,29 @@ router.post('/register', authMiddleware, asyncHandler(async (req: AuthRequest, r
   });
 }));
 
-// Download file
+// Download file - STREAMING with Bot API (avoids AUTH_KEY_DUPLICATED)
 router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
 
-  const { buffer, fileName, mimeType } = await storageService.downloadFile(
-    req.user!.id,
-    id
-  );
+  // Get file info first
+  const file = await prisma.file.findFirst({
+    where: { id, userId: req.user!.id },
+  });
 
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(fileName)}"`);
-  res.setHeader('Content-Type', mimeType);
-  res.setHeader('Content-Length', buffer.length);
+  if (!file) {
+    throw new ApiError('File not found', 404);
+  }
+
+  // Send headers IMMEDIATELY - this triggers browser Save As dialog
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`);
+  res.setHeader('Content-Type', file.mimeType);
+  res.setHeader('Content-Length', file.size.toString());
+
+  // Use storageService which uses bots for parallel download (no AUTH_KEY issues)
+  console.log(`[StreamDownload] Starting download: ${file.originalName}`);
+  const { buffer } = await storageService.downloadFile(req.user!.id, id);
+
+  console.log(`[StreamDownload] Complete: ${file.originalName} (${buffer.length} bytes)`);
   res.send(buffer);
 }));
 

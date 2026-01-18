@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { telegramService } from './telegram.service';
 import { chunkService } from './chunk.service';
+import { botUploadService } from './bot-upload.service';
 import { Prisma } from '@prisma/client';
 
 interface FileUploadParams {
@@ -96,7 +97,7 @@ export class StorageService {
     };
   }
 
-  // Download a file (handles chunked files automatically)
+  // Download a file - uses Bot API first to avoid AUTH_KEY_DUPLICATED
   async downloadFile(userId: string, fileId: string, onProgress?: (progress: number) => void) {
     const file = await prisma.file.findFirst({
       where: { id: fileId, userId },
@@ -107,19 +108,44 @@ export class StorageService {
       throw new Error('File not found');
     }
 
+    // Try Bot API first (avoids AUTH_KEY_DUPLICATED entirely)
+    if (botUploadService.isAvailable()) {
+      try {
+        // For chunked files uploaded via bot
+        if (file.isChunked && file.chunks.length > 0) {
+          console.log(`[Storage] Bot download: ${file.originalName} (${file.chunks.length} chunks)`);
+          const chunkInfos = file.chunks.map(c => ({
+            fileId: c.telegramFileId,
+            chunkIndex: c.chunkIndex,
+          }));
+          const buffer = await botUploadService.downloadFile(chunkInfos);
+          return { buffer, fileName: file.originalName, mimeType: file.mimeType };
+        }
+
+        // For non-chunked files - try download by message ID (works for MTProto files!)
+        // This forwards the message to get a Bot API file_id
+        if (file.channelId && file.telegramMessageId) {
+          console.log(`[Storage] Bot download by message ID: ${file.originalName}`);
+          const buffer = await botUploadService.downloadByMessageId(
+            file.channelId,
+            file.telegramMessageId
+          );
+          return { buffer, fileName: file.originalName, mimeType: file.mimeType };
+        }
+      } catch (error) {
+        console.error('[Storage] Bot download failed, trying MTProto:', error);
+      }
+    }
+
+    // Fallback to MTProto (may cause AUTH_KEY_DUPLICATED if session is busy)
+    console.log(`[Storage] MTProto fallback for: ${file.originalName}`);
     const client = await telegramService.getClient(userId);
     if (!client) {
       throw new Error('Not authenticated with Telegram');
     }
 
-    // Use chunk service to download (handles both chunked and non-chunked)
     const buffer = await chunkService.downloadFile(client, fileId, onProgress);
-
-    return {
-      buffer,
-      fileName: file.originalName,
-      mimeType: file.mimeType,
-    };
+    return { buffer, fileName: file.originalName, mimeType: file.mimeType };
   }
 
   // Delete a file (move to trash or permanent delete)

@@ -3,11 +3,15 @@ import { prisma } from '../lib/prisma';
 import { telegramService } from './telegram.service';
 import { integrityService } from './integrity.service';
 import { throttleService } from './throttle.service';
+import { botUploadService } from './bot-upload.service';
 import crypto from 'crypto';
 
 // Telegram limit is 2GB, use 1.9GB chunks for safety margin
 const TELEGRAM_LIMIT = 2 * 1024 * 1024 * 1024; // 2 GB
 const CHUNK_SIZE = 1.9 * 1024 * 1024 * 1024;   // 1.9 GB per chunk
+
+// Threshold for using bot parallel upload (50MB)
+const BOT_UPLOAD_THRESHOLD = 50 * 1024 * 1024;
 
 interface ChunkUploadParams {
   client: TelegramClient;
@@ -50,8 +54,8 @@ export class ChunkService {
   }
 
   /**
-   * Upload a file - automatically chunks if > 2GB
-   * All uploads are throttled to avoid Telegram abuse detection
+   * Upload a file - uses bot parallel upload for large files if available
+   * Falls back to regular upload otherwise
    */
   async uploadFile(params: ChunkUploadParams): Promise<ChunkUploadResult> {
     const { client, channelId, buffer, fileName, mimeType, userId, sessionId, onProgress } = params;
@@ -59,9 +63,42 @@ export class ChunkService {
     // Use SHA-256 for checksum (more secure than MD5)
     const checksum = this.calculateHash(buffer);
 
-    // Direct upload if under 2GB
+    // Try bot parallel upload for files > 50MB
+    if (buffer.length > BOT_UPLOAD_THRESHOLD && botUploadService.isAvailable()) {
+      console.log(`[ChunkService] Using bot parallel upload for ${fileName} (${(buffer.length / 1024 / 1024).toFixed(1)} MB)`);
+
+      try {
+        const botResult = await botUploadService.uploadFile({
+          channelId,
+          buffer,
+          fileName,
+          mimeType,
+          onProgress,
+        });
+
+        if (botResult.success) {
+          return {
+            isChunked: botResult.isChunked,
+            checksum: botResult.checksum,
+            telegramFileId: botResult.chunks[0].fileId,
+            telegramMessageId: botResult.chunks[0].messageId,
+            chunks: botResult.isChunked ? botResult.chunks.map(c => ({
+              chunkIndex: c.chunkIndex,
+              telegramFileId: c.fileId,
+              telegramMessageId: c.messageId,
+              size: c.size,
+              hash: '', // Bot upload doesn't track per-chunk hash
+            })) : undefined,
+          };
+        }
+      } catch (error) {
+        console.error('[ChunkService] Bot upload failed, falling back to regular upload:', error);
+        // Fall through to regular upload
+      }
+    }
+
+    // Regular upload for smaller files or if bot isn't available
     if (buffer.length <= TELEGRAM_LIMIT) {
-      // Use regular upload (reverted from parallel due to AUTH_KEY issues)
       const result = await telegramService.uploadFile(
         client,
         channelId,
@@ -180,8 +217,32 @@ export class ChunkService {
       throw new Error('File not found');
     }
 
-    // Non-chunked file - simple download
+    // Non-chunked file - try bot download first (avoids AUTH_KEY_DUPLICATED)
     if (!file.isChunked || file.chunks.length === 0) {
+      // If bot is available and file has a fileId, use bot
+      if (botUploadService.isAvailable() && file.telegramFileId) {
+        console.log(`[ChunkService] Using bot download for ${file.name}`);
+        try {
+          const buffer = await botUploadService.downloadFile([{
+            fileId: file.telegramFileId,
+            chunkIndex: 0,
+          }]);
+
+          // Verify checksum
+          if (file.checksum) {
+            const downloadedChecksum = this.calculateHash(buffer);
+            if (downloadedChecksum !== file.checksum) {
+              throw new Error(`File integrity check FAILED`);
+            }
+          }
+          return buffer;
+        } catch (error) {
+          console.error('[ChunkService] Bot download failed, trying MTProto:', error);
+          // Fall through to MTProto
+        }
+      }
+
+      // Fallback to MTProto for non-chunked files
       const buffer = await telegramService.downloadFile(
         client,
         file.channelId,
@@ -204,7 +265,38 @@ export class ChunkService {
       return buffer;
     }
 
-    // Chunked file - download all chunks and verify each
+    // Chunked file - try bot parallel download first
+    if (botUploadService.isAvailable() && file.chunks.length > 0) {
+      console.log(`[ChunkService] Using bot parallel download for ${file.name} (${file.chunks.length} chunks)`);
+
+      try {
+        const chunkInfos = file.chunks.map(c => ({
+          fileId: c.telegramFileId,
+          chunkIndex: c.chunkIndex,
+        }));
+
+        const combinedBuffer = await botUploadService.downloadFile(chunkInfos);
+
+        // Verify final checksum
+        if (file.checksum) {
+          const downloadedChecksum = this.calculateHash(combinedBuffer);
+          if (downloadedChecksum !== file.checksum) {
+            throw new Error(
+              `Reassembled file integrity check FAILED - checksum mismatch! ` +
+              `Expected: ${file.checksum}, Got: ${downloadedChecksum}. ` +
+              `File may be corrupted or tampered with.`
+            );
+          }
+        }
+
+        return combinedBuffer;
+      } catch (error) {
+        console.error('[ChunkService] Bot parallel download failed, falling back to sequential:', error);
+        // Fall through to sequential download
+      }
+    }
+
+    // Fallback: Sequential chunked download via MTProto
     const buffers: Buffer[] = [];
     const totalChunks = file.chunks.length;
     const failedChunks: number[] = [];
