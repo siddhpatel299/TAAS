@@ -641,15 +641,19 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
   res.setHeader('Content-Type', file.mimeType);
   res.setHeader('Content-Length', file.size.toString());
 
-  console.log(`[StreamDownload] Starting: ${file.originalName} (${file.chunks?.length || 0} chunks)`);
+  console.log(`[StreamDownload] Starting: ${file.originalName} (isChunked: ${file.isChunked}, chunks: ${file.chunks?.length || 0})`);
 
   // If file has chunks, stream them one by one
   if (file.isChunked && file.chunks && file.chunks.length > 0) {
     // Sort chunks by index
     const sortedChunks = [...file.chunks].sort((a, b) => a.chunkIndex - b.chunkIndex);
 
+    console.log(`[StreamDownload] Chunk file IDs:`, sortedChunks.map(c => ({ index: c.chunkIndex, fileId: c.telegramFileId?.substring(0, 20) + '...' })));
+
     for (const chunk of sortedChunks) {
       try {
+        console.log(`[StreamDownload] Downloading chunk ${chunk.chunkIndex} with fileId: ${chunk.telegramFileId?.substring(0, 30)}...`);
+
         // Download this chunk using bot (one at a time to save memory)
         const chunkBuffer = await botUploadService.downloadSingleChunk(
           chunk.telegramFileId,
@@ -658,9 +662,13 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
 
         // Write to response immediately
         res.write(chunkBuffer);
-        console.log(`[StreamDownload] Chunk ${chunk.chunkIndex + 1}/${sortedChunks.length} sent`);
+        console.log(`[StreamDownload] Chunk ${chunk.chunkIndex + 1}/${sortedChunks.length} sent (${chunkBuffer.length} bytes)`);
       } catch (error: any) {
-        console.error(`[StreamDownload] Chunk ${chunk.chunkIndex} failed:`, error.message);
+        console.error(`[StreamDownload] Chunk ${chunk.chunkIndex} FAILED:`, {
+          error: error.message,
+          fileId: chunk.telegramFileId,
+          response: error.response?.data,
+        });
         // If we've already started sending data, we can't send error
         if (!res.headersSent) {
           throw error;
@@ -672,7 +680,7 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
     res.end();
   } else {
     // Single file (not chunked) - download via bot service
-    console.log(`[StreamDownload] Single file download: ${file.originalName}`);
+    console.log(`[StreamDownload] Single file download: ${file.originalName} (telegramFileId: ${file.telegramFileId?.substring(0, 30)}...)`);
     const { buffer } = await storageService.downloadFile(req.user!.id, id);
     res.send(buffer);
   }
