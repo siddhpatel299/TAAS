@@ -650,11 +650,11 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
 
     for (const chunk of sortedChunks) {
       try {
-        // Download this chunk using bot
-        const chunkBuffer = await botUploadService.downloadFile([{
-          fileId: chunk.telegramFileId,
-          chunkIndex: chunk.chunkIndex,
-        }]);
+        // Download this chunk using bot (one at a time to save memory)
+        const chunkBuffer = await botUploadService.downloadSingleChunk(
+          chunk.telegramFileId,
+          chunk.chunkIndex
+        );
 
         // Write to response immediately
         res.write(chunkBuffer);

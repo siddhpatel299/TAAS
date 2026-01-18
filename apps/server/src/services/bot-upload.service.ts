@@ -173,9 +173,9 @@ export class BotUploadService {
     }
 
     /**
-     * Download a single chunk via Bot API
+     * Download a single chunk via Bot API (public for streaming downloads)
      */
-    private async downloadChunk(botToken: string, fileId: string): Promise<Buffer> {
+    public async downloadChunk(botToken: string, fileId: string): Promise<Buffer> {
         // Step 1: Get file path from Telegram
         const getFileUrl = `https://api.telegram.org/bot${botToken}/getFile?file_id=${encodeURIComponent(fileId)}`;
 
@@ -202,6 +202,14 @@ export class BotUploadService {
             console.error(`[BotDownload] Download failed:`, error.response?.data || error.message);
             throw error;
         }
+    }
+
+    /**
+     * Download a single chunk by file ID (convenience wrapper)
+     */
+    public async downloadSingleChunk(fileId: string, chunkIndex: number = 0): Promise<Buffer> {
+        const botToken = this.getNextBotToken(chunkIndex);
+        return this.downloadChunk(botToken, fileId);
     }
 
     /**
