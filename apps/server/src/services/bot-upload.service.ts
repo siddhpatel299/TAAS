@@ -253,36 +253,70 @@ export class BotUploadService {
 
         const url = `https://api.telegram.org/bot${botToken}/sendDocument`;
 
-        try {
-            const response = await axios.post(url, formData, {
-                headers: formData.getHeaders(),
-                maxContentLength: Infinity,
-                maxBodyLength: Infinity,
-                timeout: 120000, // 2 minutes for 20MB chunks
-                onUploadProgress: (progressEvent) => {
-                    if (onProgress && progressEvent.total) {
-                        const progress = (progressEvent.loaded / progressEvent.total) * 100;
-                        onProgress(progress);
-                    }
-                },
-            });
+        // Retry logic for transient network errors
+        const maxRetries = 3;
+        let lastError: any;
 
-            if (!response.data.ok) {
-                throw new Error(response.data.description || 'Bot API error');
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[BotUpload] Attempt ${attempt}/${maxRetries} for ${fileName}`);
+
+                // Need to recreate formData for retry (streams can only be read once)
+                const retryFormData = new FormData();
+                retryFormData.append('chat_id', chatId);
+                retryFormData.append('document', buffer, {
+                    filename: fileName,
+                    contentType: mimeType,
+                });
+                retryFormData.append('caption', `📦 ${fileName}`);
+
+                const response = await axios.post(url, retryFormData, {
+                    headers: retryFormData.getHeaders(),
+                    maxContentLength: Infinity,
+                    maxBodyLength: Infinity,
+                    timeout: 120000, // 2 minutes for 20MB chunks
+                    onUploadProgress: (progressEvent) => {
+                        if (onProgress && progressEvent.total) {
+                            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                            onProgress(progress);
+                        }
+                    },
+                });
+
+                if (!response.data.ok) {
+                    throw new Error(response.data.description || 'Bot API error');
+                }
+
+                const message = response.data.result;
+                const document = message.document;
+
+                console.log(`[BotUpload] Success on attempt ${attempt}`);
+                return {
+                    messageId: message.message_id,
+                    fileId: document.file_id,
+                    size: document.file_size
+                };
+            } catch (error: any) {
+                lastError = error;
+                const isRetryable = error.code === 'ETIMEDOUT' ||
+                    error.code === 'ECONNRESET' ||
+                    error.code === 'ENETUNREACH' ||
+                    error.message?.includes('timeout');
+
+                console.error(`[BotUpload] Attempt ${attempt} failed:`, error.code || error.message);
+
+                if (attempt < maxRetries && isRetryable) {
+                    const delay = Math.pow(2, attempt) * 2500; // 5s, 10s, 20s
+                    console.log(`[BotUpload] Retrying in ${delay / 1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else if (!isRetryable) {
+                    break; // Don't retry non-transient errors
+                }
             }
-
-            const message = response.data.result;
-            const document = message.document;
-
-            return {
-                messageId: message.message_id,
-                fileId: document.file_id,
-                size: document.file_size
-            };
-        } catch (error: any) {
-            console.error(`[BotUpload] Chunk upload failed:`, error.response?.data || error.message);
-            throw error;
         }
+
+        console.error(`[BotUpload] All ${maxRetries} attempts failed for ${fileName}`);
+        throw lastError;
     }
 
     /**
