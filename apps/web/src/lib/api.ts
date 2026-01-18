@@ -76,23 +76,52 @@ export const filesApi = {
 
   getFile: (id: string) => api.get(`/files/${id}`),
 
-  uploadFile: (
+  uploadFile: async (
     file: File,
     folderId?: string,
     onProgress?: (progress: number) => void
   ) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (folderId) formData.append('folderId', folderId);
+    const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
+    const totalSize = file.size;
+    const totalParts = Math.ceil(totalSize / CHUNK_SIZE);
 
-    return api.post('/files/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress: (e) => {
-        if (e.total && onProgress) {
-          onProgress((e.loaded / e.total) * 100);
-        }
-      },
+    // Step 1: Initialize multipart upload
+    const initResponse = await api.post('/files/upload/init', {
+      fileName: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      totalSize,
+      totalParts,
+      folderId,
     });
+    const { uploadId } = initResponse.data.data;
+
+    // Step 2: Upload each chunk
+    let uploadedBytes = 0;
+    for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+      const start = partNumber * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, totalSize);
+      const chunk = file.slice(start, end);
+
+      const formData = new FormData();
+      formData.append('uploadId', uploadId);
+      formData.append('partNumber', String(partNumber));
+      formData.append('chunk', chunk, `chunk-${partNumber}`);
+
+      await api.post('/files/upload/part', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e) => {
+          if (e.total && onProgress) {
+            const totalProgress = uploadedBytes + e.loaded;
+            onProgress((totalProgress / totalSize) * 100);
+          }
+        },
+      });
+
+      uploadedBytes += (end - start);
+    }
+
+    // Step 3: Complete upload
+    return api.post('/files/upload/complete', { uploadId });
   },
 
   downloadFile: (id: string) =>
