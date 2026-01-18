@@ -331,6 +331,203 @@ router.post('/upload', authMiddleware, async (req: AuthRequest, res: Response) =
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// MULTIPART UPLOAD: Client-side chunking for large files
+// Client sends 20MB chunks individually to avoid timeouts
+// ═══════════════════════════════════════════════════════════════════════════
+
+// In-memory store for active uploads (use Redis in production)
+const activeUploads = new Map<string, {
+  userId: string;
+  channelId: string;
+  fileName: string;
+  mimeType: string;
+  folderId?: string;
+  totalSize: number;
+  totalParts: number;
+  uploadedParts: { partNumber: number; fileId: string; messageId: number; size: number }[];
+  createdAt: Date;
+}>();
+
+// Cleanup old uploads every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [uploadId, upload] of activeUploads) {
+    if (now - upload.createdAt.getTime() > 30 * 60 * 1000) { // 30 min expiry
+      activeUploads.delete(uploadId);
+      console.log(`[MultipartUpload] Expired upload: ${uploadId}`);
+    }
+  }
+}, 10 * 60 * 1000);
+
+// Initialize multipart upload
+router.post('/upload/init', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.id;
+  const { fileName, mimeType, totalSize, totalParts, folderId } = req.body;
+
+  if (!fileName || !totalSize || !totalParts) {
+    throw new ApiError('Missing required fields: fileName, totalSize, totalParts', 400);
+  }
+
+  // Get user's storage channel
+  const storageChannel = await prisma.storageChannel.findFirst({
+    where: { userId },
+  });
+
+  if (!storageChannel) {
+    throw new ApiError('No storage channel found. Please reconnect your Telegram account.', 400);
+  }
+
+  // Check if bots are available
+  if (!botUploadService.isAvailable()) {
+    throw new ApiError('Bot service not available', 500);
+  }
+
+  // Create upload session
+  const uploadId = crypto.randomUUID();
+  activeUploads.set(uploadId, {
+    userId,
+    channelId: storageChannel.channelId,
+    fileName,
+    mimeType: mimeType || 'application/octet-stream',
+    folderId,
+    totalSize,
+    totalParts,
+    uploadedParts: [],
+    createdAt: new Date(),
+  });
+
+  console.log(`[MultipartUpload] Init: ${uploadId} - ${fileName} (${totalParts} parts, ${(totalSize / 1024 / 1024).toFixed(1)} MB)`);
+
+  res.json({
+    success: true,
+    data: {
+      uploadId,
+      channelId: storageChannel.channelId,
+    },
+  });
+}));
+
+// Upload a single part
+router.post('/upload/part', authMiddleware, upload.single('chunk'), asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.id;
+  const { uploadId, partNumber } = req.body;
+
+  if (!uploadId || partNumber === undefined || !req.file) {
+    throw new ApiError('Missing required fields: uploadId, partNumber, chunk', 400);
+  }
+
+  const uploadSession = activeUploads.get(uploadId);
+  if (!uploadSession) {
+    throw new ApiError('Upload session not found or expired', 404);
+  }
+
+  if (uploadSession.userId !== userId) {
+    throw new ApiError('Unauthorized', 403);
+  }
+
+  const partNum = parseInt(partNumber);
+  const buffer = req.file.buffer;
+
+  console.log(`[MultipartUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
+
+  // Get bot token for this part (round-robin)
+  const botToken = botUploadService.getNextBotToken(partNum);
+
+  // Upload chunk to Telegram
+  const chunkFileName = uploadSession.totalParts > 1
+    ? `${uploadSession.fileName}.part${partNum + 1}of${uploadSession.totalParts}`
+    : uploadSession.fileName;
+
+  const result = await botUploadService.uploadChunk(
+    botToken,
+    uploadSession.channelId,
+    buffer,
+    chunkFileName,
+    uploadSession.mimeType
+  );
+
+  // Store part info
+  uploadSession.uploadedParts.push({
+    partNumber: partNum,
+    fileId: result.fileId,
+    messageId: result.messageId,
+    size: result.size,
+  });
+
+  res.json({
+    success: true,
+    data: {
+      partNumber: partNum,
+      fileId: result.fileId,
+      messageId: result.messageId,
+    },
+  });
+}));
+
+// Complete multipart upload
+router.post('/upload/complete', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.id;
+  const { uploadId } = req.body;
+
+  if (!uploadId) {
+    throw new ApiError('Missing uploadId', 400);
+  }
+
+  const uploadSession = activeUploads.get(uploadId);
+  if (!uploadSession) {
+    throw new ApiError('Upload session not found or expired', 404);
+  }
+
+  if (uploadSession.userId !== userId) {
+    throw new ApiError('Unauthorized', 403);
+  }
+
+  // Check all parts uploaded
+  if (uploadSession.uploadedParts.length !== uploadSession.totalParts) {
+    throw new ApiError(`Missing parts: got ${uploadSession.uploadedParts.length}/${uploadSession.totalParts}`, 400);
+  }
+
+  // Sort parts by part number
+  uploadSession.uploadedParts.sort((a, b) => a.partNumber - b.partNumber);
+
+  // Calculate checksum placeholder (we don't have the full file on server)
+  const checksum = crypto.randomUUID(); // Client should send real checksum
+
+  // Save to database
+  const savedFile = await storageService.saveUploadResult({
+    userId,
+    fileName: uploadSession.fileName,
+    originalName: uploadSession.fileName,
+    mimeType: uploadSession.mimeType,
+    size: uploadSession.totalSize,
+    folderId: uploadSession.folderId,
+    channelId: uploadSession.channelId,
+    chunks: uploadSession.uploadedParts.map(p => ({
+      chunkIndex: p.partNumber,
+      fileId: p.fileId,
+      messageId: p.messageId,
+      size: p.size,
+    })),
+    checksum,
+    telegramFileId: uploadSession.uploadedParts[0].fileId,
+    telegramMessageId: uploadSession.uploadedParts[0].messageId,
+  });
+
+  // Cleanup
+  activeUploads.delete(uploadId);
+
+  console.log(`[MultipartUpload] Complete: ${uploadSession.fileName}`);
+
+  res.json({
+    success: true,
+    data: {
+      ...savedFile,
+      size: Number(savedFile.size),
+    },
+  });
+}));
+
+// ═══════════════════════════════════════════════════════════════════════════
 // DIRECT UPLOAD: Register file metadata (file uploaded directly browser→Telegram)
 // ═══════════════════════════════════════════════════════════════════════════
 // This endpoint receives only metadata, NOT the actual file data.

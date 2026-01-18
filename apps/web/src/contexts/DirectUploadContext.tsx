@@ -61,7 +61,10 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
     ));
   }, []);
 
-  // Process upload queue - uploads via server API
+  // Chunk size for multipart upload (20MB)
+  const CHUNK_SIZE = 20 * 1024 * 1024;
+
+  // Process upload queue - uses multipart chunked upload for large files
   const processQueue = useCallback(async () => {
     if (isProcessingRef.current || uploadQueueRef.current.length === 0) {
       return;
@@ -77,42 +80,69 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
         // Update status to uploading
         updateUpload(item.id, { status: 'uploading' });
 
-        // Create form data for upload
-        const formData = new FormData();
-        formData.append('file', item.file);
-        if (item.folderId) {
-          formData.append('folderId', item.folderId);
+        const file = item.file;
+        const totalSize = file.size;
+        const totalParts = Math.ceil(totalSize / CHUNK_SIZE);
+
+        console.log(`[Upload] Starting multipart upload: ${item.fileName} (${totalParts} parts)`);
+
+        // Step 1: Initialize multipart upload
+        const initResponse = await api.post('/files/upload/init', {
+          fileName: item.fileName,
+          mimeType: file.type || 'application/octet-stream',
+          totalSize,
+          totalParts,
+          folderId: item.folderId,
+        });
+
+        const { uploadId } = initResponse.data.data;
+        console.log(`[Upload] Got uploadId: ${uploadId}`);
+
+        // Step 2: Upload each chunk
+        let uploadedBytes = 0;
+
+        for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+          const start = partNumber * CHUNK_SIZE;
+          const end = Math.min(start + CHUNK_SIZE, totalSize);
+          const chunk = file.slice(start, end);
+
+          // Create form data for this chunk
+          const formData = new FormData();
+          formData.append('uploadId', uploadId);
+          formData.append('partNumber', String(partNumber));
+          formData.append('chunk', chunk, `chunk-${partNumber}`);
+
+          console.log(`[Upload] Uploading part ${partNumber + 1}/${totalParts}`);
+
+          await api.post('/files/upload/part', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: (progressEvent) => {
+              const chunkProgress = progressEvent.loaded;
+              const totalProgress = uploadedBytes + chunkProgress;
+              const percent = Math.round((totalProgress / totalSize) * 100);
+              updateUpload(item.id, {
+                progress: percent,
+                uploadedBytes: totalProgress,
+              });
+            },
+          });
+
+          uploadedBytes += (end - start);
+          updateUpload(item.id, {
+            progress: Math.round((uploadedBytes / totalSize) * 100),
+            uploadedBytes,
+          });
         }
 
-        // Create abort controller for this upload
-        const abortController = new AbortController();
-        abortControllersRef.current.set(item.id, abortController);
-
-        console.log(`[Upload] Starting: ${item.fileName}`);
-
-        // Upload via server API with progress tracking
-        await api.post('/files/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          signal: abortController.signal,
-          onUploadProgress: (progressEvent) => {
-            const percent = progressEvent.total
-              ? Math.round((progressEvent.loaded / progressEvent.total) * 100)
-              : 0;
-            updateUpload(item.id, {
-              progress: percent,
-              uploadedBytes: progressEvent.loaded,
-            });
-          },
-        });
+        // Step 3: Complete the upload
+        console.log(`[Upload] Completing multipart upload`);
+        await api.post('/files/upload/complete', { uploadId });
 
         // Mark as completed
         updateUpload(item.id, { status: 'completed', progress: 100 });
         console.log(`[Upload] Completed: ${item.fileName}`);
-
-        // Clean up abort controller
-        abortControllersRef.current.delete(item.id);
 
       } catch (error: any) {
         if (error.name === 'CanceledError' || error.name === 'AbortError') {
@@ -125,10 +155,9 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
           console.error(`[Upload] Failed: ${item.fileName}`, error);
           updateUpload(item.id, {
             status: 'error',
-            error: error.response?.data?.message || error.message || 'Upload failed',
+            error: error.response?.data?.error || error.message || 'Upload failed',
           });
         }
-        abortControllersRef.current.delete(item.id);
       }
 
       // Remove from queue
