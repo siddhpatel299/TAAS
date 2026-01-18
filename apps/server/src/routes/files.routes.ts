@@ -629,6 +629,7 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
   // Get file info first
   const file = await prisma.file.findFirst({
     where: { id, userId: req.user!.id },
+    include: { chunks: true },
   });
 
   if (!file) {
@@ -636,16 +637,47 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
   }
 
   // Send headers IMMEDIATELY - this triggers browser Save As dialog
-  res.setHeader('Content-Disposition', `attachment; filename = "${encodeURIComponent(file.originalName)}"`);
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`);
   res.setHeader('Content-Type', file.mimeType);
   res.setHeader('Content-Length', file.size.toString());
 
-  // Use storageService which uses bots for parallel download (no AUTH_KEY issues)
-  console.log(`[StreamDownload] Starting download: ${file.originalName} `);
-  const { buffer } = await storageService.downloadFile(req.user!.id, id);
+  console.log(`[StreamDownload] Starting: ${file.originalName} (${file.chunks?.length || 0} chunks)`);
 
-  console.log(`[StreamDownload] Complete: ${file.originalName} (${buffer.length} bytes)`);
-  res.send(buffer);
+  // If file has chunks, stream them one by one
+  if (file.isChunked && file.chunks && file.chunks.length > 0) {
+    // Sort chunks by index
+    const sortedChunks = [...file.chunks].sort((a, b) => a.chunkIndex - b.chunkIndex);
+
+    for (const chunk of sortedChunks) {
+      try {
+        // Download this chunk using bot
+        const chunkBuffer = await botUploadService.downloadFile([{
+          fileId: chunk.telegramFileId,
+          chunkIndex: chunk.chunkIndex,
+        }]);
+
+        // Write to response immediately
+        res.write(chunkBuffer);
+        console.log(`[StreamDownload] Chunk ${chunk.chunkIndex + 1}/${sortedChunks.length} sent`);
+      } catch (error: any) {
+        console.error(`[StreamDownload] Chunk ${chunk.chunkIndex} failed:`, error.message);
+        // If we've already started sending data, we can't send error
+        if (!res.headersSent) {
+          throw error;
+        }
+        res.end();
+        return;
+      }
+    }
+    res.end();
+  } else {
+    // Single file (not chunked) - download via bot service
+    console.log(`[StreamDownload] Single file download: ${file.originalName}`);
+    const { buffer } = await storageService.downloadFile(req.user!.id, id);
+    res.send(buffer);
+  }
+
+  console.log(`[StreamDownload] Complete: ${file.originalName}`);
 }));
 
 // Get file details

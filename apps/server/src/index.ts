@@ -49,6 +49,9 @@ app.use(cors({
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Disposition', 'Content-Length'],
 }));
 
 // Rate limiting - different limits for different routes
