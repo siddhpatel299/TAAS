@@ -64,7 +64,7 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
     }));
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-20 bg-white shadow-sm flex flex-col items-center py-6 z-50">
+    <aside className="fixed left-0 top-0 h-full w-20 bg-white shadow-sm flex flex-col items-center py-6 pb-8 z-50 overflow-y-auto">
       {/* Logo */}
       <Link to="/" className="mb-8">
         <motion.div
@@ -167,7 +167,7 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
       </nav>
 
       {/* Bottom Navigation - Settings */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 pb-2 mt-auto flex-shrink-0">
         {/* War Zone Toggle */}
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>

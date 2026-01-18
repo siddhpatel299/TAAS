@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowUpDown, 
-  Filter, 
-  FileText, 
-  Image, 
-  Video, 
+import {
+  ArrowUpDown,
+  Filter,
+  FileText,
+  Image,
+  Video,
   Archive,
   MoreHorizontal,
   Download,
@@ -101,7 +101,7 @@ export function RecentFiles({
       <div className="flex items-center justify-between p-6 border-b border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900">Recent files</h2>
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={() => setSortDirection(d => d === 'asc' ? 'desc' : 'asc')}
             className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
           >
@@ -114,17 +114,17 @@ export function RecentFiles({
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-sm font-medium text-gray-500">
+      <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-sm font-medium text-gray-500">
         <div className="col-span-1 flex items-center">
-          <Checkbox 
+          <Checkbox
             checked={selectedFiles.size === files.length && files.length > 0}
             onCheckedChange={toggleSelectAll}
           />
         </div>
-        <div className="col-span-5">Name</div>
+        <div className="col-span-5 lg:col-span-4">Name</div>
         <div className="col-span-2">Size</div>
-        <div className="col-span-2">Shared</div>
-        <div className="col-span-2">Latest changes</div>
+        <div className="col-span-2 hidden lg:block">Shared</div>
+        <div className="col-span-4 lg:col-span-3">Latest changes</div>
       </div>
 
       {/* File Rows */}
@@ -142,44 +142,43 @@ export function RecentFiles({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ delay: index * 0.03 }}
-                className={`grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors group ${
-                  isSelected ? 'bg-cyan-50' : ''
-                }`}
+                className={`grid grid-cols-12 gap-2 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors group ${isSelected ? 'bg-cyan-50' : ''
+                  }`}
               >
                 {/* Checkbox */}
                 <div className="col-span-1 flex items-center">
-                  <Checkbox 
+                  <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => toggleSelection(file.id)}
                   />
                 </div>
 
                 {/* Name */}
-                <div className="col-span-5 flex items-center gap-3">
-                  <div className={`w-10 h-10 ${fileType.bg} rounded-xl flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${fileType.color}`} />
+                <div className="col-span-10 sm:col-span-5 lg:col-span-4 flex items-center gap-2 sm:gap-3">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 ${fileType.bg} rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${fileType.color}`} />
                   </div>
-                  <span className="font-medium text-gray-900 truncate">
+                  <span className="font-medium text-gray-900 truncate text-sm sm:text-base">
                     {file.originalName}
                   </span>
                   {file.isStarred && (
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
                   )}
                 </div>
 
                 {/* Size */}
-                <div className="col-span-2 flex items-center text-gray-600">
+                <div className="hidden sm:flex col-span-2 items-center text-gray-600 text-sm">
                   {formatFileSize(file.size)}
                 </div>
 
                 {/* Shared */}
-                <div className="col-span-2 flex items-center text-gray-600">
+                <div className="hidden lg:flex col-span-2 items-center text-gray-600 text-sm">
                   Me
                 </div>
 
                 {/* Date */}
-                <div className="col-span-2 flex items-center justify-between">
-                  <span className="text-gray-600">
+                <div className="col-span-2 sm:col-span-4 lg:col-span-3 flex items-center justify-end sm:justify-between gap-2">
+                  <span className="hidden sm:inline text-gray-600 text-sm">
                     {formatDate(file.createdAt)}
                   </span>
 
@@ -208,7 +207,7 @@ export function RecentFiles({
                         {file.isStarred ? 'Unstar' : 'Star'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => onDelete?.(file)}
                         className="text-red-600 focus:text-red-600"
                       >

@@ -7,6 +7,8 @@ import {
   ChevronDown,
   Upload,
   FolderPlus,
+  Menu,
+  X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -63,6 +65,7 @@ export function ModernDashboardPage() {
     documents: 0,
     audio: 0,
   });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Load recent files and stats
   const loadContent = useCallback(async () => {
@@ -245,29 +248,68 @@ export function ModernDashboardPage() {
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
-      {/* Sidebar */}
-      <ModernSidebar />
+      {/* Sidebar - Hidden on mobile, shown on md+ */}
+      <div className="hidden md:block">
+        <ModernSidebar />
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ x: -100 }}
+              animate={{ x: 0 }}
+              exit={{ x: -100 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="fixed left-0 top-0 bottom-0 w-20 z-50 md:hidden"
+            >
+              <ModernSidebar />
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="absolute top-4 right-[-48px] w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 ml-20 p-6 lg:p-8">
+      <main className="flex-1 md:ml-20 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <header className="flex items-center justify-between mb-8">
-          <div>
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:shadow-md transition-shadow"
+            >
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
             <motion.h1
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-3xl font-bold text-gray-900"
+              className="text-2xl sm:text-3xl font-bold text-gray-900"
             >
               Welcome to TAAS
             </motion.h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-gray-500 mt-1 text-sm sm:text-base">
               Hello {userName}! Manage your files stored on Telegram.
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Search - redirects to My Files */}
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
                 type="text"
@@ -279,56 +321,56 @@ export function ModernDashboardPage() {
                     navigate(`/files?search=${encodeURIComponent(localSearch)}`);
                   }
                 }}
-                className="pl-12 pr-4 py-3 w-80 bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-cyan-500"
+                className="pl-12 pr-4 py-3 w-48 lg:w-80 bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
             {/* Notifications */}
-            <button className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm hover:shadow-md transition-shadow">
-              <Bell className="w-5 h-5 text-gray-500" />
+            <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm hover:shadow-md transition-shadow">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
             </button>
 
             {/* User Avatar */}
-            <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-2 shadow-sm">
-              <Avatar className="w-10 h-10">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-xl sm:rounded-2xl px-2 sm:px-4 py-2 shadow-sm">
+              <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
                 <AvatarImage src={user?.avatarUrl} />
-                <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white">
+                <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white text-sm">
                   {userName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="hidden sm:block">
+              <div className="hidden lg:block">
                 <p className="text-sm font-medium text-gray-900">{userName}</p>
                 <p className="text-xs text-gray-500">Premium</p>
               </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
             </div>
           </div>
         </header>
 
         {/* Quick Actions */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex flex-wrap gap-3 sm:gap-4 mb-8">
           <motion.button
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowUploader(true)}
-            className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 transition-all"
+            className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 transition-all"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <Upload className="w-5 h-5" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center">
+              <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="font-medium">Upload Files</span>
+            <span className="font-medium text-sm sm:text-base">Upload Files</span>
           </motion.button>
 
           <motion.button
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/files')}
-            className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white border border-gray-100 hover:shadow-lg hover:shadow-gray-200/50 transition-all"
+            className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-white border border-gray-100 hover:shadow-lg hover:shadow-gray-200/50 transition-all"
           >
-            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
-              <FolderPlus className="w-5 h-5 text-gray-600" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-100 flex items-center justify-center">
+              <FolderPlus className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
             </div>
-            <span className="font-medium text-gray-700">Manage Files</span>
+            <span className="font-medium text-gray-700 text-sm sm:text-base">Manage Files</span>
           </motion.button>
         </div>
 
@@ -358,8 +400,8 @@ export function ModernDashboardPage() {
         </div>
       </main>
 
-      {/* Right Sidebar - Widgets */}
-      <aside className="hidden xl:flex xl:flex-col xl:gap-6 w-80 p-6 overflow-y-auto max-h-screen">
+      {/* Right Sidebar - Widgets (visible on lg+) */}
+      <aside className="hidden lg:flex lg:flex-col lg:gap-6 w-72 xl:w-80 p-4 xl:p-6 overflow-y-auto max-h-screen flex-shrink-0">
         <StorageWidget
           totalUsed={storageUsed}
           byType={{
