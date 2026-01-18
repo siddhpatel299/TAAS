@@ -1,9 +1,19 @@
 // Global polyfills for Node.js APIs (required for telegram/GramJS)
 // Must be at the very top before any other imports
 import { Buffer } from 'buffer';
-// @ts-ignore - process/browser doesn't have type definitions
-import process from 'process/browser';
 
+// Create process mock inline (process/browser has path resolution issues on Vercel)
+const processMock = {
+  env: {},
+  browser: true,
+  version: '',
+  platform: 'browser',
+  nextTick: (fn: () => void) => setTimeout(fn, 0),
+  cwd: () => '/',
+  argv: [],
+  pid: 1,
+  title: 'browser',
+};
 // Create a complete os mock for telegram library
 const osMock = {
   type: () => 'Browser',
@@ -24,9 +34,9 @@ const osMock = {
 // Set globals before any module loads
 (window as any).Buffer = Buffer;
 (window as any).global = window;
-(window as any).process = process;
+(window as any).process = processMock;
 (globalThis as any).Buffer = Buffer;
-(globalThis as any).process = process;
+(globalThis as any).process = processMock;
 
 // Make os available globally for telegram library
 (window as any).os = osMock;
