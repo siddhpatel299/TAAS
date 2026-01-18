@@ -5,7 +5,6 @@ import {
   Briefcase,
   TrendingUp,
   Calendar,
-  Users,
   ArrowRight,
   Clock,
   CheckCircle2,
