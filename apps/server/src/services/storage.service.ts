@@ -97,6 +97,70 @@ export class StorageService {
     };
   }
 
+  // Save upload result from streaming upload
+  async saveUploadResult(params: {
+    userId: string;
+    fileName: string;
+    originalName: string;
+    mimeType: string;
+    size: number;
+    folderId?: string;
+    channelId: string;
+    chunks: any[];
+    checksum: string;
+    telegramFileId: string;
+    telegramMessageId: number;
+  }) {
+    const { userId, fileName, originalName, mimeType, size, folderId, channelId, chunks, checksum, telegramFileId, telegramMessageId } = params;
+
+    // Save to database
+    const savedFile = await prisma.file.create({
+      data: {
+        name: fileName,
+        originalName,
+        mimeType,
+        size: BigInt(size),
+        telegramFileId,
+        telegramMessageId,
+        channelId,
+        folderId,
+        userId,
+        isChunked: chunks.length > 1,
+        checksum,
+      },
+    });
+
+    // Save chunks if file was chunked
+    if (chunks.length > 0) {
+      await prisma.fileChunk.createMany({
+        data: chunks.map(chunk => ({
+          fileId: savedFile.id,
+          chunkIndex: chunk.chunkIndex,
+          telegramFileId: chunk.fileId, // Note: chunk.fileId from bot result
+          telegramMessageId: chunk.messageId, // Note: chunk.messageId from bot result
+          channelId,
+          size: BigInt(chunk.size),
+        })),
+      });
+    }
+
+    // Update storage channel stats
+    await prisma.storageChannel.update({
+      where: {
+        channelId_userId: { channelId, userId },
+      },
+      data: {
+        usedBytes: { increment: BigInt(size) },
+        fileCount: { increment: 1 },
+      },
+    });
+
+    return {
+      ...savedFile,
+      size: Number(savedFile.size),
+    };
+  }
+
   // Download a file - uses Bot API first to avoid AUTH_KEY_DUPLICATED
   async downloadFile(userId: string, fileId: string, onProgress?: (progress: number) => void) {
     const file = await prisma.file.findFirst({

@@ -173,16 +173,57 @@ export class BotUploadService {
     }
 
     /**
-     * Upload a single chunk via Bot API
+     * Download a single chunk via Bot API
      */
-    private async uploadChunk(
+    private async downloadChunk(botToken: string, fileId: string): Promise<Buffer> {
+        // Step 1: Get file path from Telegram
+        const getFileUrl = `https://api.telegram.org/bot${botToken}/getFile?file_id=${encodeURIComponent(fileId)}`;
+
+        try {
+            const fileInfoResponse = await axios.get(getFileUrl);
+
+            if (!fileInfoResponse.data.ok) {
+                throw new Error(fileInfoResponse.data.description || 'Failed to get file info');
+            }
+
+            const filePath = fileInfoResponse.data.result.file_path;
+
+            // Step 2: Download the file
+            const downloadUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
+            const response = await axios.get(downloadUrl, {
+                responseType: 'arraybuffer',
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+            });
+
+            return Buffer.from(response.data);
+        } catch (error: any) {
+            console.error(`[BotDownload] Download failed:`, error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get next bot token for round-robin distribution
+     */
+    getNextBotToken(currentIndex: number): string {
+        if (this.botTokens.length === 0) return '';
+        return this.botTokens[currentIndex % this.botTokens.length];
+    }
+
+    /**
+     * Upload a single chunk via Bot API
+     * Made public to allow streaming uploads from routes
+     */
+    public async uploadChunk(
         botToken: string,
         channelId: string,
         buffer: Buffer,
         fileName: string,
         mimeType: string,
         onProgress?: (progress: number) => void
-    ): Promise<{ messageId: number; fileId: string }> {
+    ): Promise<{ messageId: number; fileId: string; size: number }> {
         const formData = new FormData();
 
         // Channel ID format for Bot API
@@ -226,6 +267,7 @@ export class BotUploadService {
             return {
                 messageId: message.message_id,
                 fileId: document.file_id,
+                size: document.file_size
             };
         } catch (error: any) {
             console.error(`[BotUpload] Chunk upload failed:`, error.response?.data || error.message);
@@ -275,37 +317,7 @@ export class BotUploadService {
         return combined;
     }
 
-    /**
-     * Download a single chunk via Bot API
-     */
-    private async downloadChunk(botToken: string, fileId: string): Promise<Buffer> {
-        // Step 1: Get file path from Telegram
-        const getFileUrl = `https://api.telegram.org/bot${botToken}/getFile?file_id=${encodeURIComponent(fileId)}`;
 
-        try {
-            const fileInfoResponse = await axios.get(getFileUrl);
-
-            if (!fileInfoResponse.data.ok) {
-                throw new Error(fileInfoResponse.data.description || 'Failed to get file info');
-            }
-
-            const filePath = fileInfoResponse.data.result.file_path;
-
-            // Step 2: Download the file
-            const downloadUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
-
-            const response = await axios.get(downloadUrl, {
-                responseType: 'arraybuffer',
-                maxContentLength: Infinity,
-                maxBodyLength: Infinity,
-            });
-
-            return Buffer.from(response.data);
-        } catch (error: any) {
-            console.error(`[BotDownload] Download failed:`, error.response?.data || error.message);
-            throw error;
-        }
-    }
 
     /**
      * Calculate SHA-256 hash

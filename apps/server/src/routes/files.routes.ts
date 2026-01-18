@@ -7,6 +7,8 @@ import { storageService } from '../services/storage.service';
 import { versionService } from '../services/version.service';
 import { prisma } from '../lib/prisma';
 import { telegramService } from '../services/telegram.service';
+import { botUploadService } from '../services/bot-upload.service';
+import crypto from 'crypto';
 
 const router: Router = Router();
 
@@ -106,52 +108,178 @@ router.post('/upload', authMiddleware, async (req: AuthRequest, res: Response) =
       }
     });
 
-    // Stream file directly to a buffer, then upload
-    // For very large files, this still buffers, but the key improvement is
-    // that we start reading immediately and the throttling is much faster
+    // Stream file directly to a buffer, but upload in chunks to avoid memory overflow for large files
     busboy.on('file', async (fieldname: string, fileStream: any, info: { filename: string; mimeType: string }) => {
       fileName = info.filename || 'unnamed_file';
       mimeType = info.mimeType || 'application/octet-stream';
 
-      console.log(`[StreamUpload] Starting: ${fileName}`);
+      console.log(`[StreamUpload] Starting: ${fileName} `);
 
-      // Collect chunks as they stream in
-      const chunks: Buffer[] = [];
+      // If bots are available, use streaming chunk upload
+      if (botUploadService.isAvailable()) {
+        const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
+        let currentChunkBuffer: Buffer = Buffer.alloc(0);
+        let chunkIndex = 0;
+        const uploadPromises: Promise<any>[] = [];
+        const uploadedChunks: any[] = [];
+        const MAX_CONCURRENT = botUploadService.getBotCount();
+        const hash = crypto.createHash('sha256');
 
-      fileStream.on('data', (chunk: Buffer) => {
-        chunks.push(chunk);
-        fileSize += chunk.length;
-      });
+        fileStream.on('data', async (chunk: Buffer) => {
+          // Pause stream processing to handle buffer
+          fileStream.pause();
 
-      fileStream.on('end', async () => {
-        try {
-          const buffer = Buffer.concat(chunks);
-          console.log(`[StreamUpload] Received ${fileSize} bytes, uploading to Telegram...`);
+          hash.update(chunk);
+          currentChunkBuffer = Buffer.concat([currentChunkBuffer, chunk]);
+          fileSize += chunk.length;
 
-          // Upload to Telegram (now with reduced throttling)
-          const file = await storageService.uploadFile({
-            userId,
-            file: buffer,
-            fileName,
-            originalName: fileName,
-            mimeType,
-            size: fileSize,
-            folderId,
-            channelId: storageChannel.channelId,
-          });
+          // If buffer exceeds chunk size, upload it
+          if (currentChunkBuffer.length >= CHUNK_SIZE) {
+            const chunkToUpload = currentChunkBuffer.slice(0, CHUNK_SIZE);
+            currentChunkBuffer = currentChunkBuffer.slice(CHUNK_SIZE);
 
-          uploadResult = file;
-          console.log(`[StreamUpload] Completed: ${fileName}`);
-        } catch (error: any) {
-          console.error(`[StreamUpload] Failed: ${fileName}`, error);
-          if (!res.headersSent) {
-            res.status(500).json({
-              success: false,
-              error: error.message || 'Upload failed',
+            const currentIndex = chunkIndex++;
+            const botToken = botUploadService.getNextBotToken(currentIndex);
+
+            // Wait if too many concurrent uploads
+            if (uploadPromises.length >= MAX_CONCURRENT) {
+              await Promise.race(uploadPromises);
+            }
+
+            const promise = botUploadService.uploadChunk(
+              botToken,
+              storageChannel.channelId,
+              chunkToUpload,
+              `${fileName}.part${currentIndex} `,
+              mimeType
+            ).then(result => {
+              // Remove self from promises
+              const pIndex = uploadPromises.indexOf(promise);
+              if (pIndex > -1) uploadPromises.splice(pIndex, 1);
+
+              uploadedChunks.push({
+                chunkIndex: currentIndex,
+                fileId: result.fileId,
+                messageId: result.messageId,
+                size: result.size
+              });
+              return result;
+            }).catch(err => {
+              console.error(`[StreamUpload] Chunk ${currentIndex} failed: `, err);
+              throw err;
             });
+
+            uploadPromises.push(promise);
           }
-        }
-      });
+
+          fileStream.resume();
+        });
+
+        fileStream.on('end', async () => {
+          try {
+            console.log(`[StreamUpload] Stream ended, uploading remaining buffer...`);
+
+            // Upload remaining buffer
+            if (currentChunkBuffer.length > 0) {
+              const currentIndex = chunkIndex++;
+              const botToken = botUploadService.getNextBotToken(currentIndex);
+
+              const promise = botUploadService.uploadChunk(
+                botToken,
+                storageChannel.channelId,
+                currentChunkBuffer,
+                `${fileName}.part${currentIndex} `,
+                mimeType
+              ).then(result => {
+                uploadedChunks.push({
+                  chunkIndex: currentIndex,
+                  fileId: result.fileId,
+                  messageId: result.messageId,
+                  size: result.size
+                });
+                return result;
+              });
+              uploadPromises.push(promise);
+            }
+
+            // Wait for all uploads to finish
+            await Promise.all(uploadPromises);
+
+            // Sort chunks by index
+            uploadedChunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
+
+            // For single chunk files, use the first chunk as the file
+            const telegramFileId = uploadedChunks[0].fileId;
+            const telegramMessageId = uploadedChunks[0].messageId;
+
+            const checksum = hash.digest('hex');
+
+            console.log(`[StreamUpload] All chunks uploaded.Saving metadata...`);
+
+            // Save upload result
+            uploadResult = await storageService.saveUploadResult({
+              userId,
+              fileName,
+              originalName: fileName,
+              mimeType,
+              size: fileSize,
+              folderId,
+              channelId: storageChannel.channelId,
+              chunks: uploadedChunks,
+              checksum,
+              telegramFileId,
+              telegramMessageId
+            });
+
+            console.log(`[StreamUpload] Completed: ${fileName} `);
+          } catch (error: any) {
+            console.error(`[StreamUpload] Failed: ${fileName} `, error);
+            if (!res.headersSent) {
+              res.status(500).json({
+                success: false,
+                error: error.message || 'Upload failed',
+              });
+            }
+          }
+        });
+      } else {
+        // Fallback to memory buffering (old behavior) for when bots are not available
+        // Note: This might still crash 512MB limit for large files
+        const chunks: Buffer[] = [];
+        fileStream.on('data', (chunk: Buffer) => {
+          chunks.push(chunk);
+          fileSize += chunk.length;
+        });
+
+        fileStream.on('end', async () => {
+          try {
+            const buffer = Buffer.concat(chunks);
+            console.log(`[StreamUpload] Buffered ${fileSize} bytes, uploading to Telegram(Legacy)...`);
+
+            const file = await storageService.uploadFile({
+              userId,
+              file: buffer,
+              fileName,
+              originalName: fileName,
+              mimeType,
+              size: fileSize,
+              folderId,
+              channelId: storageChannel.channelId,
+            });
+
+            uploadResult = file;
+            console.log(`[StreamUpload] Completed: ${fileName} `);
+          } catch (error: any) {
+            console.error(`[StreamUpload] Failed: ${fileName} `, error);
+            if (!res.headersSent) {
+              res.status(500).json({
+                success: false,
+                error: error.message || 'Upload failed',
+              });
+            }
+          }
+        });
+      }
     });
 
     busboy.on('finish', () => {
@@ -311,12 +439,12 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
   }
 
   // Send headers IMMEDIATELY - this triggers browser Save As dialog
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`);
+  res.setHeader('Content-Disposition', `attachment; filename = "${encodeURIComponent(file.originalName)}"`);
   res.setHeader('Content-Type', file.mimeType);
   res.setHeader('Content-Length', file.size.toString());
 
   // Use storageService which uses bots for parallel download (no AUTH_KEY issues)
-  console.log(`[StreamDownload] Starting download: ${file.originalName}`);
+  console.log(`[StreamDownload] Starting download: ${file.originalName} `);
   const { buffer } = await storageService.downloadFile(req.user!.id, id);
 
   console.log(`[StreamDownload] Complete: ${file.originalName} (${buffer.length} bytes)`);
@@ -447,7 +575,7 @@ router.get('/:id/preview', authMiddleware, asyncHandler(async (req: AuthRequest,
   );
 
   // Set appropriate headers for inline viewing
-  res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileName)}"`);
+  res.setHeader('Content-Disposition', `inline; filename = "${encodeURIComponent(fileName)}"`);
   res.setHeader('Content-Type', mimeType);
   res.setHeader('Content-Length', buffer.length);
   res.setHeader('Accept-Ranges', 'bytes');
