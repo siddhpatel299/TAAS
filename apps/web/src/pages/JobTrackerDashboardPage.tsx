@@ -16,6 +16,7 @@ import {
   Settings,
   Mail,
   Send,
+  Search,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
@@ -42,7 +43,7 @@ function ApplicationFunnel({ statusCounts }: { statusCounts: Record<string, numb
       {stages.map(stage => {
         const count = statusCounts[stage.status] || 0;
         const percentage = Math.round((count / maxCount) * 100);
-        
+
         return (
           <div key={stage.status} className="flex items-center gap-4">
             <div className="w-24 text-sm text-gray-600 text-right">{stage.label}</div>
@@ -129,7 +130,7 @@ export function JobTrackerDashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <ModernSidebar />
-      
+
       <main className="ml-20 p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -162,9 +163,9 @@ export function JobTrackerDashboardPage() {
         </div>
 
         {/* Add Job Dialog */}
-        <AddJobDialog 
-          isOpen={showAddDialog} 
-          onClose={() => setShowAddDialog(false)} 
+        <AddJobDialog
+          isOpen={showAddDialog}
+          onClose={() => setShowAddDialog(false)}
           onSuccess={handleJobAdded}
         />
 
@@ -267,7 +268,7 @@ export function JobTrackerDashboardPage() {
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
-            
+
             <ApplicationFunnel statusCounts={stats?.statusCounts || {}} />
           </motion.div>
 
@@ -294,14 +295,14 @@ export function JobTrackerDashboardPage() {
               <div className="space-y-3">
                 {upcomingTasks.slice(0, 5).map(task => {
                   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
-                  
+
                   return (
                     <div
                       key={task.id}
                       className={cn(
                         "p-3 rounded-xl border transition-colors",
-                        isOverdue 
-                          ? "border-red-200 bg-red-50" 
+                        isOverdue
+                          ? "border-red-200 bg-red-50"
                           : "border-gray-100 hover:border-gray-200 bg-gray-50"
                       )}
                     >
@@ -410,15 +411,15 @@ export function JobTrackerDashboardPage() {
           </Link>
 
           <Link
-            to="/plugins/job-tracker/applications"
-            className="bg-white rounded-xl p-4 border border-gray-200 hover:border-sky-200 hover:shadow-md transition-all flex items-center gap-4"
+            to="/plugins/job-tracker/contacts"
+            className="bg-white rounded-xl p-4 border border-gray-200 hover:border-indigo-200 hover:shadow-md transition-all flex items-center gap-4"
           >
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Users className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+              <Search className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">Referrals</h3>
-              <p className="text-sm text-gray-500">Track contacts</p>
+              <h3 className="font-medium text-gray-900">Find Contacts</h3>
+              <p className="text-sm text-gray-500">Email finder</p>
             </div>
             <ArrowRight className="w-5 h-5 text-gray-400 ml-auto" />
           </Link>
@@ -437,8 +438,8 @@ export function JobTrackerDashboardPage() {
               <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
             </div>
             {recentActivity.length > 3 && (
-              <Link 
-                to="/plugins/job-tracker/applications" 
+              <Link
+                to="/plugins/job-tracker/applications"
                 className="text-sm text-sky-600 hover:text-sky-700 font-medium"
               >
                 View all

@@ -321,11 +321,11 @@ router.get('/export/csv', asyncHandler(async (req: AuthRequest, res: Response) =
 // Find company contacts (emails & LinkedIn profiles)
 router.post('/applications/:id/contacts', asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const { 
-    mode = 'hr', 
-    targetRoles = [], 
+  const {
+    mode = 'hr',
+    targetRoles = [],
     location,
-    maxResults = 10 
+    maxResults = 10
   } = req.body;
 
   // Verify job application belongs to user
@@ -355,6 +355,52 @@ router.post('/applications/:id/contacts', asyncHandler(async (req: AuthRequest, 
     success: true,
     data: {
       company: job.company,
+      contacts: result.contacts,
+      emailPattern: result.emailPattern,
+      totalFound: result.totalFound,
+      patternFromCache: result.patternFromCache,
+    },
+  });
+}));
+
+// Standalone contact finder (no job application required)
+router.post('/contacts/search', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const {
+    company,
+    mode = 'hr',
+    targetRoles = [],
+    location,
+    maxResults = 10
+  } = req.body;
+
+  if (!company || typeof company !== 'string') {
+    throw new ApiError('Company name is required', 400);
+  }
+
+  // Get API keys from plugin settings
+  const pluginSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const serpApiKey = pluginSettings?.serpApiKey as string | undefined;
+  const hunterApiKey = pluginSettings?.hunterApiKey as string | undefined;
+
+  if (!serpApiKey) {
+    throw new ApiError('SERP API key not configured. Please add it in Job Tracker settings.', 400);
+  }
+
+  // Create service with user's API keys
+  const contactsService = new CompanyContactsService(serpApiKey, hunterApiKey);
+
+  // Find contacts at the company
+  const result = await contactsService.findCompanyContacts(company, {
+    mode: mode as 'hr' | 'functional',
+    targetRoles: targetRoles as string[],
+    location: location as string | undefined,
+    maxResults: Math.min(maxResults, 25), // Cap at 25
+  });
+
+  res.json({
+    success: true,
+    data: {
+      company,
       contacts: result.contacts,
       emailPattern: result.emailPattern,
       totalFound: result.totalFound,
@@ -480,11 +526,11 @@ router.get('/email/templates', asyncHandler(async (req: AuthRequest, res: Respon
 
 // Generate AI-powered personalized email
 router.post('/email/generate', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { 
-    recipientName, 
-    recipientPosition, 
-    company, 
-    jobTitle, 
+  const {
+    recipientName,
+    recipientPosition,
+    company,
+    jobTitle,
     jobDescription,
     tone = 'professional',
     purpose = 'cold-outreach'
@@ -524,7 +570,7 @@ router.post('/email/generate', asyncHandler(async (req: AuthRequest, res: Respon
 
 // Refine/modify AI-generated email based on user instructions
 router.post('/email/refine', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { 
+  const {
     currentSubject,
     currentBody,
     instruction,
@@ -570,10 +616,10 @@ router.post('/email/refine', asyncHandler(async (req: AuthRequest, res: Response
 
 // Send emails to contacts
 router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { 
-    contacts, 
-    subject, 
-    body, 
+  const {
+    contacts,
+    subject,
+    body,
     attachments = [],
     senderName,
     jobApplicationId, // Optional - link emails to a job application
@@ -620,7 +666,7 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
           .replace(/{name}/gi, contact.name)
           .replace(/{position}/gi, contact.position)
           .replace(/{company}/gi, contact.company);
-        
+
         const personalizedBody = body
           .replace(/{firstName}/gi, contact.firstName)
           .replace(/{lastName}/gi, contact.lastName)
@@ -667,9 +713,9 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
 
 // Send test email to yourself
 router.post('/email/test', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { 
-    subject, 
-    body, 
+  const {
+    subject,
+    body,
     senderName,
     testContact // First contact for preview
   } = req.body;
@@ -774,7 +820,7 @@ router.post('/email/gmail/callback', asyncHandler(async (req: AuthRequest, res: 
 // Disconnect Gmail
 router.delete('/email/gmail/disconnect', asyncHandler(async (req: AuthRequest, res: Response) => {
   const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
-  
+
   // Remove Gmail tokens
   const { gmailTokens, gmailEmail, ...restSettings } = currentSettings;
   await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', restSettings);
@@ -1023,8 +1069,8 @@ router.post('/outreach/emails/:id/schedule-follow-up', asyncHandler(async (req: 
   }
 
   const email = await sentEmailsService.scheduleFollowUp(
-    req.user!.id, 
-    req.params.id, 
+    req.user!.id,
+    req.params.id,
     new Date(followUpDate)
   );
 

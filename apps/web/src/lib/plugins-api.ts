@@ -144,19 +144,19 @@ export interface Plugin {
 // Plugins API
 export const pluginsApi = {
   getAvailable: () => api.get<{ success: boolean; data: Plugin[] }>('/plugins/available'),
-  
+
   getEnabled: () => api.get<{ success: boolean; data: Plugin[] }>('/plugins/enabled'),
-  
-  checkStatus: (pluginId: string) => 
+
+  checkStatus: (pluginId: string) =>
     api.get<{ success: boolean; data: { enabled: boolean } }>(`/plugins/${pluginId}/status`),
-  
-  enable: (pluginId: string, settings?: any) => 
+
+  enable: (pluginId: string, settings?: any) =>
     api.post(`/plugins/${pluginId}/enable`, { settings }),
-  
-  disable: (pluginId: string) => 
+
+  disable: (pluginId: string) =>
     api.post(`/plugins/${pluginId}/disable`),
-  
-  updateSettings: (pluginId: string, settings: any) => 
+
+  updateSettings: (pluginId: string, settings: any) =>
     api.patch(`/plugins/${pluginId}/settings`, { settings }),
 };
 
@@ -275,11 +275,11 @@ export interface OutreachStats {
 // Job Tracker API
 export const jobTrackerApi = {
   // Dashboard
-  getDashboard: () => 
+  getDashboard: () =>
     api.get<{ success: boolean; data: DashboardStats }>('/job-tracker/dashboard'),
 
   // Scrape job from URL
-  scrapeJob: (url: string) => 
+  scrapeJob: (url: string) =>
     api.post<{ success: boolean; data: ScrapedJobData }>('/job-tracker/scrape', { url }),
 
   // Company Contacts Finder
@@ -288,8 +288,18 @@ export const jobTrackerApi = {
     targetRoles?: string[];
     location?: string;
     maxResults?: number;
-  }) => 
+  }) =>
     api.post<{ success: boolean; data: CompanyContactsResult }>(`/job-tracker/applications/${jobId}/contacts`, options),
+
+  // Standalone contact finder (no job application required)
+  searchContacts: (options: {
+    company: string;
+    mode?: 'hr' | 'functional';
+    targetRoles?: string[];
+    location?: string;
+    maxResults?: number;
+  }) =>
+    api.post<{ success: boolean; data: CompanyContactsResult }>('/job-tracker/contacts/search', options),
 
   getDefaultRoles: () =>
     api.get<{ success: boolean; data: { hrRoles: string[]; functionalCategories: string[] } }>('/job-tracker/contacts/default-roles'),
@@ -388,61 +398,61 @@ export const jobTrackerApi = {
     limit?: number;
   }) => api.get<{ success: boolean; data: JobApplication[]; meta: any }>('/job-tracker/applications', { params }),
 
-  getApplication: (id: string) => 
+  getApplication: (id: string) =>
     api.get<{ success: boolean; data: JobApplication }>(`/job-tracker/applications/${id}`),
 
-  createApplication: (data: Partial<JobApplication>) => 
+  createApplication: (data: Partial<JobApplication>) =>
     api.post<{ success: boolean; data: JobApplication }>('/job-tracker/applications', data),
 
-  updateApplication: (id: string, data: Partial<JobApplication>) => 
+  updateApplication: (id: string, data: Partial<JobApplication>) =>
     api.patch<{ success: boolean; data: JobApplication }>(`/job-tracker/applications/${id}`, data),
 
-  deleteApplication: (id: string) => 
+  deleteApplication: (id: string) =>
     api.delete(`/job-tracker/applications/${id}`),
 
   // Documents
-  getDocuments: (jobId: string) => 
+  getDocuments: (jobId: string) =>
     api.get<{ success: boolean; data: JobDocument[] }>(`/job-tracker/applications/${jobId}/documents`),
 
-  addDocument: (jobId: string, data: { fileId: string; documentType: string; label?: string }) => 
+  addDocument: (jobId: string, data: { fileId: string; documentType: string; label?: string }) =>
     api.post<{ success: boolean; data: JobDocument }>(`/job-tracker/applications/${jobId}/documents`, data),
 
-  removeDocument: (jobId: string, docId: string) => 
+  removeDocument: (jobId: string, docId: string) =>
     api.delete(`/job-tracker/applications/${jobId}/documents/${docId}`),
 
   // Tasks
-  getUpcomingTasks: (limit?: number) => 
+  getUpcomingTasks: (limit?: number) =>
     api.get<{ success: boolean; data: JobTask[] }>('/job-tracker/tasks/upcoming', { params: { limit } }),
 
-  createTask: (jobId: string, data: Partial<JobTask>) => 
+  createTask: (jobId: string, data: Partial<JobTask>) =>
     api.post<{ success: boolean; data: JobTask }>(`/job-tracker/applications/${jobId}/tasks`, data),
 
-  updateTask: (taskId: string, data: Partial<JobTask>) => 
+  updateTask: (taskId: string, data: Partial<JobTask>) =>
     api.patch<{ success: boolean; data: JobTask }>(`/job-tracker/tasks/${taskId}`, data),
 
-  deleteTask: (taskId: string) => 
+  deleteTask: (taskId: string) =>
     api.delete(`/job-tracker/tasks/${taskId}`),
 
   // Referrals
-  getReferrals: (status?: string) => 
+  getReferrals: (status?: string) =>
     api.get<{ success: boolean; data: JobReferral[] }>('/job-tracker/referrals', { params: { status } }),
 
-  createReferral: (data: Partial<JobReferral>) => 
+  createReferral: (data: Partial<JobReferral>) =>
     api.post<{ success: boolean; data: JobReferral }>('/job-tracker/referrals', data),
 
-  updateReferral: (id: string, data: Partial<JobReferral>) => 
+  updateReferral: (id: string, data: Partial<JobReferral>) =>
     api.patch<{ success: boolean; data: JobReferral }>(`/job-tracker/referrals/${id}`, data),
 
-  deleteReferral: (id: string) => 
+  deleteReferral: (id: string) =>
     api.delete(`/job-tracker/referrals/${id}`),
 
   // Activity
-  getActivity: (limit?: number) => 
+  getActivity: (limit?: number) =>
     api.get<{ success: boolean; data: JobActivity[] }>('/job-tracker/activity', { params: { limit } }),
 
   // Export
-  exportCSV: (params?: { status?: string; dateFrom?: string; dateTo?: string }) => 
-    api.get('/job-tracker/export/csv', { 
+  exportCSV: (params?: { status?: string; dateFrom?: string; dateTo?: string }) =>
+    api.get('/job-tracker/export/csv', {
       params,
       responseType: 'blob',
     }),
@@ -462,7 +472,7 @@ export const jobTrackerApi = {
     sortOrder?: 'asc' | 'desc';
     page?: number;
     limit?: number;
-  }) => 
+  }) =>
     api.get<{ success: boolean; data: SentEmail[]; meta: any }>('/job-tracker/outreach/emails', { params }),
 
   // Get outreach dashboard stats
@@ -517,7 +527,7 @@ export const jobTrackerApi = {
 
   // Export sent emails to CSV
   exportSentEmailsCSV: (params?: { company?: string; status?: string; dateFrom?: string; dateTo?: string }) =>
-    api.get('/job-tracker/outreach/export/csv', { 
+    api.get('/job-tracker/outreach/export/csv', {
       params,
       responseType: 'blob',
     }),
@@ -584,7 +594,7 @@ export interface PasswordGenerationOptions {
 // Password Vault API
 export const passwordVaultApi = {
   // Dashboard
-  getDashboard: () => 
+  getDashboard: () =>
     api.get<{ success: boolean; data: any }>('/password-vault/dashboard'),
 
   // Password Entries
@@ -597,10 +607,10 @@ export const passwordVaultApi = {
     sortOrder?: 'asc' | 'desc';
     page?: number;
     limit?: number;
-  }) => 
+  }) =>
     api.get<{ success: boolean; data: PasswordEntry[]; meta: any }>('/password-vault/passwords', { params }),
 
-  getPassword: (id: string, masterKey: string) => 
+  getPassword: (id: string, masterKey: string) =>
     api.post<{ success: boolean; data: PasswordEntry }>(`/password-vault/passwords/${id}`, { masterKey }),
 
   createPassword: (data: {
@@ -612,46 +622,46 @@ export const passwordVaultApi = {
     category?: string;
     tags?: string[];
     customFields?: any;
-  }, masterKey: string) => 
+  }, masterKey: string) =>
     api.post<{ success: boolean; data: PasswordEntry }>('/password-vault/passwords', { ...data, masterKey }),
 
-  updatePassword: (id: string, data: Partial<PasswordEntry>, masterKey: string) => 
+  updatePassword: (id: string, data: Partial<PasswordEntry>, masterKey: string) =>
     api.patch<{ success: boolean; data: PasswordEntry }>(`/password-vault/passwords/${id}`, { ...data, masterKey }),
 
-  deletePassword: (id: string) => 
+  deletePassword: (id: string) =>
     api.delete<{ success: boolean; data: { deleted: boolean } }>(`/password-vault/passwords/${id}`),
 
   // Categories
-  getCategories: () => 
+  getCategories: () =>
     api.get<{ success: boolean; data: PasswordCategory[] }>('/password-vault/categories'),
 
   createCategory: (data: {
     name: string;
     color?: string;
     icon?: string;
-  }) => 
+  }) =>
     api.post<{ success: boolean; data: PasswordCategory }>('/password-vault/categories', data),
 
-  updateCategory: (id: string, data: Partial<PasswordCategory>) => 
+  updateCategory: (id: string, data: Partial<PasswordCategory>) =>
     api.patch<{ success: boolean; data: PasswordCategory }>(`/password-vault/categories/${id}`, data),
 
-  deleteCategory: (id: string) => 
+  deleteCategory: (id: string) =>
     api.delete<{ success: boolean; data: { deleted: boolean } }>(`/password-vault/categories/${id}`),
 
   // Password Generation & Strength
-  generatePassword: (options?: PasswordGenerationOptions) => 
+  generatePassword: (options?: PasswordGenerationOptions) =>
     api.post<{ success: boolean; data: { password: string } }>('/password-vault/generate-password', options),
 
-  checkPasswordStrength: (password: string) => 
+  checkPasswordStrength: (password: string) =>
     api.post<{ success: boolean; data: PasswordStrengthCheck }>('/password-vault/check-password-strength', { password }),
 
   // Security Events
-  getSecurityEvents: (limit?: number) => 
+  getSecurityEvents: (limit?: number) =>
     api.get<{ success: boolean; data: PasswordSecurityEvent[] }>('/password-vault/security-events', { params: { limit } }),
 
   // Export
-  exportCSV: (masterKey: string) => 
-    api.get('/password-vault/export/csv', { 
+  exportCSV: (masterKey: string) =>
+    api.get('/password-vault/export/csv', {
       params: { masterKey },
       responseType: 'blob',
     }),
