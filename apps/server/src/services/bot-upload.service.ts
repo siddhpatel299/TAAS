@@ -8,6 +8,7 @@
 
 import axios from 'axios';
 import FormData from 'form-data';
+import fs from 'fs';
 import { config } from '../config';
 import crypto from 'crypto';
 
@@ -316,6 +317,87 @@ export class BotUploadService {
         }
 
         console.error(`[BotUpload] All ${maxRetries} attempts failed for ${fileName}`);
+        throw lastError;
+    }
+
+    /**
+     * Upload a chunk from a file path (streaming - minimal memory usage)
+     * Streams directly to Telegram without loading entire file into memory
+     */
+    public async uploadChunkFromFile(
+        botToken: string,
+        channelId: string,
+        filePath: string,
+        fileName: string,
+        mimeType: string,
+        fileSize: number
+    ): Promise<{ messageId: number; fileId: string; size: number }> {
+        // Channel ID format for Bot API
+        let chatId = channelId;
+        if (!channelId.startsWith('-')) {
+            chatId = `-100${channelId}`;
+        }
+
+        const url = `https://api.telegram.org/bot${botToken}/sendDocument`;
+        const maxRetries = 3;
+        let lastError: any;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[BotUpload] Streaming attempt ${attempt}/${maxRetries} for ${fileName}`);
+
+                // Create fresh stream and form data for each attempt
+                const fileStream = fs.createReadStream(filePath);
+                const formData = new FormData();
+
+                formData.append('chat_id', chatId);
+                formData.append('document', fileStream, {
+                    filename: fileName,
+                    contentType: mimeType,
+                    knownLength: fileSize,
+                });
+                formData.append('caption', `📦 ${fileName}`);
+
+                const response = await axios.post(url, formData, {
+                    headers: formData.getHeaders(),
+                    maxContentLength: Infinity,
+                    maxBodyLength: Infinity,
+                    timeout: 120000, // 2 minutes
+                });
+
+                if (!response.data.ok) {
+                    throw new Error(response.data.description || 'Bot API error');
+                }
+
+                const message = response.data.result;
+                const document = message.document;
+
+                console.log(`[BotUpload] Stream success on attempt ${attempt}`);
+                return {
+                    messageId: message.message_id,
+                    fileId: document.file_id,
+                    size: document.file_size
+                };
+            } catch (error: any) {
+                lastError = error;
+                const isRetryable = error.code === 'ETIMEDOUT' ||
+                    error.code === 'ECONNRESET' ||
+                    error.code === 'ENETUNREACH' ||
+                    error.message?.includes('timeout');
+
+                console.error(`[BotUpload] Stream attempt ${attempt} failed:`, error.code || error.message);
+
+                if (attempt < maxRetries && isRetryable) {
+                    const delay = Math.pow(2, attempt) * 2500;
+                    console.log(`[BotUpload] Retrying in ${delay / 1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else if (!isRetryable) {
+                    break;
+                }
+            }
+        }
+
+        console.error(`[BotUpload] All ${maxRetries} stream attempts failed for ${fileName}`);
         throw lastError;
     }
 

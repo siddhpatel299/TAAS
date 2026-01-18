@@ -439,27 +439,28 @@ router.post('/upload/part', authMiddleware, upload.single('chunk'), asyncHandler
 
   const partNum = parseInt(partNumber);
 
-  // Read buffer from disk file (multer uses diskStorage now)
+  // Get file info from disk (multer uses diskStorage)
   const tempFilePath = req.file.path;
-  const buffer = fs.readFileSync(tempFilePath);
+  const fileSize = req.file.size;
 
-  console.log(`[MultipartUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(buffer.length / 1024 / 1024).toFixed(1)} MB (from disk)`);
+  console.log(`[MultipartUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(fileSize / 1024 / 1024).toFixed(1)} MB (streaming)`);
 
   try {
     // Get bot token for this part (round-robin)
     const botToken = botUploadService.getNextBotToken(partNum);
 
-    // Upload chunk to Telegram
+    // Upload chunk to Telegram using STREAMING (minimal memory)
     const chunkFileName = uploadSession.totalParts > 1
       ? `${uploadSession.fileName}.part${partNum + 1}of${uploadSession.totalParts}`
       : uploadSession.fileName;
 
-    const result = await botUploadService.uploadChunk(
+    const result = await botUploadService.uploadChunkFromFile(
       botToken,
       uploadSession.channelId,
-      buffer,
+      tempFilePath,
       chunkFileName,
-      uploadSession.mimeType
+      uploadSession.mimeType,
+      fileSize
     );
 
     // Store part info
