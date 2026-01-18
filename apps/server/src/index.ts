@@ -26,8 +26,28 @@ app.use(helmet());
 // Normalize frontend URL (remove trailing slash)
 const frontendUrl = config.frontendUrl?.replace(/\/$/, '') || '*';
 
+// Allowed origins
+const allowedOrigins = [
+  frontendUrl,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://taas-ten.vercel.app', // Vercel Production
+  'https://taas-git-main-siddhpatel299s-projects.vercel.app' // Vercel Preview
+];
+
 app.use(cors({
-  origin: frontendUrl === '*' ? '*' : frontendUrl,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if origin is allowed
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
