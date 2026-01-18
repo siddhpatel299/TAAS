@@ -100,9 +100,9 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
 
         // Step 2: Upload chunks in parallel (up to 4 at a time for 4 bots)
         const MAX_CONCURRENT = 4;
-        const uploadedParts = new Set<number>();
+        let completedParts = 0;
 
-        const uploadPart = async (partNumber: number) => {
+        const uploadPart = async (partNumber: number): Promise<void> => {
           const start = partNumber * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, totalSize);
           const chunk = file.slice(start, end);
@@ -118,36 +118,33 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
 
-          uploadedParts.add(partNumber);
-
-          // Update progress based on completed parts
-          const completedBytes = [...uploadedParts].reduce((sum, p) => {
-            const pStart = p * CHUNK_SIZE;
-            const pEnd = Math.min(pStart + CHUNK_SIZE, totalSize);
-            return sum + (pEnd - pStart);
-          }, 0);
-
+          completedParts++;
           updateUpload(item.id, {
-            progress: Math.round((completedBytes / totalSize) * 100),
-            uploadedBytes: completedBytes,
+            progress: Math.round((completedParts / totalParts) * 100),
+            uploadedBytes: Math.round((completedParts / totalParts) * totalSize),
           });
         };
 
-        // Process in batches of MAX_CONCURRENT
-        const promises: Promise<void>[] = [];
-        for (let partNumber = 0; partNumber < totalParts; partNumber++) {
-          const promise = uploadPart(partNumber);
-          promises.push(promise);
+        // Simple parallel execution with concurrency limit
+        const executing: Promise<void>[] = [];
+        const allPromises: Promise<void>[] = [];
 
-          if (promises.length >= MAX_CONCURRENT) {
-            await Promise.race(promises);
-            // Keep only pending promises
-            const pending = promises.filter((_, i) => !uploadedParts.has(i));
-            promises.length = 0;
-            promises.push(...pending);
+        for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+          const promise = uploadPart(partNumber).finally(() => {
+            const idx = executing.indexOf(promise);
+            if (idx > -1) executing.splice(idx, 1);
+          });
+
+          allPromises.push(promise);
+          executing.push(promise);
+
+          if (executing.length >= MAX_CONCURRENT) {
+            await Promise.race(executing);
           }
         }
-        await Promise.all(promises);
+
+        // Wait for ALL uploads to complete
+        await Promise.all(allPromises);
 
         // Step 3: Complete the upload
         console.log(`[Upload] Completing multipart upload`);
