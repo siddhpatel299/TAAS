@@ -468,24 +468,28 @@ router.post('/upload/part', authMiddleware, (req: AuthRequest, res: Response) =>
       ? `${uploadSession.fileName}.part${partNum + 1}of${uploadSession.totalParts}`
       : uploadSession.fileName;
 
-    // Calculate expected chunk size
-    const chunkSize = partNum < uploadSession.totalParts - 1
-      ? 20 * 1024 * 1024  // 20MB for all but last chunk
-      : uploadSession.totalSize - (partNum * 20 * 1024 * 1024); // Remainder for last chunk
+    // Buffer stream into memory for retry capability
+    // Max 20MB per chunk, 2 concurrent = 40MB total
+    const chunks: Buffer[] = [];
+    fileStream.on('data', (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
 
-    console.log(`[PassthroughUpload] Part ${partNum + 1}/${uploadSession.totalParts} - streaming to Telegram`);
+    fileStream.on('end', async () => {
+      const buffer = Buffer.concat(chunks);
+      console.log(`[PassthroughUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(buffer.length / 1024 / 1024).toFixed(1)} MB (buffered for retry)`);
 
-    const botToken = botUploadService.getNextBotToken(partNum);
+      const botToken = botUploadService.getNextBotToken(partNum);
 
-    // Pipe incoming stream DIRECTLY to Telegram!
-    uploadPromise = botUploadService.uploadChunkFromStream(
-      botToken,
-      uploadSession.channelId,
-      fileStream,
-      chunkFileName,
-      uploadSession.mimeType,
-      chunkSize
-    );
+      // Use uploadChunk which has retry logic!
+      uploadPromise = botUploadService.uploadChunk(
+        botToken,
+        uploadSession.channelId,
+        buffer,
+        chunkFileName,
+        uploadSession.mimeType
+      );
+    });
   });
 
   busboy.on('finish', async () => {
