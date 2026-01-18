@@ -180,7 +180,7 @@ export class BotUploadService {
         const getFileUrl = `https://api.telegram.org/bot${botToken}/getFile?file_id=${encodeURIComponent(fileId)}`;
 
         try {
-            const fileInfoResponse = await axios.get(getFileUrl);
+            const fileInfoResponse = await axios.get(getFileUrl, { timeout: 30000 }); // 30s for file info
 
             if (!fileInfoResponse.data.ok) {
                 throw new Error(fileInfoResponse.data.description || 'Failed to get file info');
@@ -195,6 +195,7 @@ export class BotUploadService {
                 responseType: 'arraybuffer',
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity,
+                timeout: 120000, // 2 minutes for 20MB chunks
             });
 
             return Buffer.from(response.data);
@@ -257,6 +258,7 @@ export class BotUploadService {
                 headers: formData.getHeaders(),
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity,
+                timeout: 120000, // 2 minutes for 20MB chunks
                 onUploadProgress: (progressEvent) => {
                     if (onProgress && progressEvent.total) {
                         const progress = (progressEvent.loaded / progressEvent.total) * 100;
