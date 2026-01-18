@@ -98,8 +98,8 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
         const { uploadId } = initResponse.data.data;
         console.log(`[Upload] Got uploadId: ${uploadId}`);
 
-        // Step 2: Upload chunks in parallel (up to 4 at a time for 4 bots)
-        const MAX_CONCURRENT = 4;
+        // Step 2: Upload chunks in parallel (limit to 2 to stay under 512MB memory)
+        const MAX_CONCURRENT = 2;
         let completedParts = 0;
 
         const uploadPart = async (partNumber: number): Promise<void> => {

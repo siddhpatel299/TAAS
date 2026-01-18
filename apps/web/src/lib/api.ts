@@ -82,7 +82,7 @@ export const filesApi = {
     onProgress?: (progress: number) => void
   ) => {
     const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
-    const MAX_CONCURRENT = 4; // 4 bots = 4 parallel uploads
+    const MAX_CONCURRENT = 2; // Limit to 2 to stay under 512MB memory
     const totalSize = file.size;
     const totalParts = Math.ceil(totalSize / CHUNK_SIZE);
 
