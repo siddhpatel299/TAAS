@@ -402,6 +402,64 @@ export class BotUploadService {
     }
 
     /**
+     * Upload a chunk from a readable stream (TRUE passthrough - no disk!)
+     * Pipes directly from incoming request to Telegram
+     */
+    public async uploadChunkFromStream(
+        botToken: string,
+        channelId: string,
+        stream: NodeJS.ReadableStream,
+        fileName: string,
+        mimeType: string,
+        fileSize: number
+    ): Promise<{ messageId: number; fileId: string; size: number }> {
+        // Channel ID format for Bot API
+        let chatId = channelId;
+        if (!channelId.startsWith('-')) {
+            chatId = `-100${channelId}`;
+        }
+
+        const url = `https://api.telegram.org/bot${botToken}/sendDocument`;
+
+        console.log(`[BotUpload] Passthrough streaming ${fileName} (${(fileSize / 1024 / 1024).toFixed(1)} MB)`);
+
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('document', stream, {
+            filename: fileName,
+            contentType: mimeType,
+            knownLength: fileSize,
+        });
+        formData.append('caption', `📦 ${fileName}`);
+
+        try {
+            const response = await axios.post(url, formData, {
+                headers: formData.getHeaders(),
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+                timeout: 180000, // 3 minutes for streaming
+            });
+
+            if (!response.data.ok) {
+                throw new Error(response.data.description || 'Bot API error');
+            }
+
+            const message = response.data.result;
+            const document = message.document;
+
+            console.log(`[BotUpload] Passthrough success: ${fileName}`);
+            return {
+                messageId: message.message_id,
+                fileId: document.file_id,
+                size: document.file_size
+            };
+        } catch (error: any) {
+            console.error(`[BotUpload] Passthrough failed for ${fileName}:`, error.code || error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Download file chunks in parallel using multiple bots
      */
     async downloadFile(chunks: { fileId: string; chunkIndex: number }[]): Promise<Buffer> {

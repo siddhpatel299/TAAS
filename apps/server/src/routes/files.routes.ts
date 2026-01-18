@@ -419,75 +419,119 @@ router.post('/upload/init', authMiddleware, asyncHandler(async (req: AuthRequest
   });
 }));
 
-// Upload a single part
-router.post('/upload/part', authMiddleware, upload.single('chunk'), asyncHandler(async (req: AuthRequest, res: Response) => {
+// Upload a single part - TRUE PASSTHROUGH (no disk storage!)
+router.post('/upload/part', authMiddleware, (req: AuthRequest, res: Response) => {
   const userId = req.user!.id;
-  const { uploadId, partNumber } = req.body;
 
-  if (!uploadId || partNumber === undefined || !req.file) {
-    throw new ApiError('Missing required fields: uploadId, partNumber, chunk', 400);
-  }
+  const busboy = Busboy({ headers: req.headers });
 
-  const uploadSession = activeUploads.get(uploadId);
-  if (!uploadSession) {
-    throw new ApiError('Upload session not found or expired', 404);
-  }
+  let uploadId: string | null = null;
+  let partNumber: number | null = null;
+  let uploadPromise: Promise<any> | null = null;
+  let hasError = false;
 
-  if (uploadSession.userId !== userId) {
-    throw new ApiError('Unauthorized', 403);
-  }
+  // Parse form fields
+  busboy.on('field', (name, value) => {
+    if (name === 'uploadId') uploadId = value;
+    if (name === 'partNumber') partNumber = parseInt(value);
+  });
 
-  const partNum = parseInt(partNumber);
+  // Handle the file stream - pipe directly to Telegram!
+  busboy.on('file', async (fieldname, fileStream, { filename, mimeType }) => {
+    // Wait a tick to ensure fields are parsed
+    await new Promise(resolve => setImmediate(resolve));
 
-  // Get file info from disk (multer uses diskStorage)
-  const tempFilePath = req.file.path;
-  const fileSize = req.file.size;
+    if (!uploadId || partNumber === null) {
+      hasError = true;
+      res.status(400).json({ success: false, error: 'Missing uploadId or partNumber' });
+      fileStream.resume(); // Drain the stream
+      return;
+    }
 
-  console.log(`[MultipartUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(fileSize / 1024 / 1024).toFixed(1)} MB (streaming)`);
+    const uploadSession = activeUploads.get(uploadId);
+    if (!uploadSession) {
+      hasError = true;
+      res.status(404).json({ success: false, error: 'Upload session not found or expired' });
+      fileStream.resume();
+      return;
+    }
 
-  try {
-    // Get bot token for this part (round-robin)
-    const botToken = botUploadService.getNextBotToken(partNum);
+    if (uploadSession.userId !== userId) {
+      hasError = true;
+      res.status(403).json({ success: false, error: 'Unauthorized' });
+      fileStream.resume();
+      return;
+    }
 
-    // Upload chunk to Telegram using STREAMING (minimal memory)
+    const partNum = partNumber!;
     const chunkFileName = uploadSession.totalParts > 1
       ? `${uploadSession.fileName}.part${partNum + 1}of${uploadSession.totalParts}`
       : uploadSession.fileName;
 
-    const result = await botUploadService.uploadChunkFromFile(
+    // Calculate expected chunk size
+    const chunkSize = partNum < uploadSession.totalParts - 1
+      ? 20 * 1024 * 1024  // 20MB for all but last chunk
+      : uploadSession.totalSize - (partNum * 20 * 1024 * 1024); // Remainder for last chunk
+
+    console.log(`[PassthroughUpload] Part ${partNum + 1}/${uploadSession.totalParts} - streaming to Telegram`);
+
+    const botToken = botUploadService.getNextBotToken(partNum);
+
+    // Pipe incoming stream DIRECTLY to Telegram!
+    uploadPromise = botUploadService.uploadChunkFromStream(
       botToken,
       uploadSession.channelId,
-      tempFilePath,
+      fileStream,
       chunkFileName,
       uploadSession.mimeType,
-      fileSize
+      chunkSize
     );
+  });
 
-    // Store part info
-    uploadSession.uploadedParts.push({
-      partNumber: partNum,
-      fileId: result.fileId,
-      messageId: result.messageId,
-      size: result.size,
-    });
+  busboy.on('finish', async () => {
+    if (hasError) return;
 
-    res.json({
-      success: true,
-      data: {
-        partNumber: partNum,
-        fileId: result.fileId,
-        messageId: result.messageId,
-      },
-    });
-  } finally {
-    // Always clean up temp file
     try {
-      fs.unlinkSync(tempFilePath);
-    } catch (cleanupErr) {
-      console.warn(`[MultipartUpload] Failed to cleanup temp file: ${tempFilePath}`);
+      if (!uploadPromise) {
+        res.status(400).json({ success: false, error: 'No file received' });
+        return;
+      }
+
+      const result = await uploadPromise;
+
+      const uploadSession = activeUploads.get(uploadId!);
+      if (uploadSession) {
+        uploadSession.uploadedParts.push({
+          partNumber: partNumber!,
+          fileId: result.fileId,
+          messageId: result.messageId,
+          size: result.size,
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          partNumber: partNumber!,
+          fileId: result.fileId,
+          messageId: result.messageId,
+        },
+      });
+    } catch (error: any) {
+      console.error('[PassthroughUpload] Error:', error.message);
+      res.status(500).json({ success: false, error: error.message });
     }
-  }
-}));
+  });
+
+  busboy.on('error', (error) => {
+    console.error('[PassthroughUpload] Busboy error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, error: 'Upload parsing error' });
+    }
+  });
+
+  req.pipe(busboy);
+});
 
 // Complete multipart upload
 router.post('/upload/complete', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
