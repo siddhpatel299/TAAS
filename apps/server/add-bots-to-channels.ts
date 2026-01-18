@@ -69,7 +69,7 @@ async function main() {
                     const channel = await client.getEntity(new Api.PeerChannel({ channelId }));
 
                     if (channel instanceof Api.Channel) {
-                        // Invite bots to this channel
+                        // Use the updated inviteBotsToChannel logic (tries EditAdmin directly)
                         await telegramService.inviteBotsToChannel(client, channel);
                         successCount++;
                     } else {

@@ -187,7 +187,29 @@ export class TelegramService {
         // Resolve the bot by username
         const botUser = await client.getEntity(username);
 
-        // Invite bot to channel
+        console.log(`[Telegram] Adding bot @${username} as admin to channel...`);
+
+        // Method 1: Try EditAdmin directly (Standard way for bots in channels)
+        try {
+          await client.invoke(
+            new Api.channels.EditAdmin({
+              channel: channel,
+              userId: botUser,
+              adminRights: new Api.ChatAdminRights({
+                postMessages: true,
+                editMessages: true,
+                deleteMessages: true,
+              }),
+              rank: 'TAAS Bot',
+            })
+          );
+          console.log(`[Telegram] ✅ Added bot @${username} as admin (via EditAdmin)`);
+          continue; // Success!
+        } catch (error: any) {
+          console.log(`[Telegram] EditAdmin failed, trying InviteToChannel first... (${error.message})`);
+        }
+
+        // Method 2: Try InviteToChannel then EditAdmin (Fallback for groups/megagroups)
         await client.invoke(
           new Api.channels.InviteToChannel({
             channel: channel,
@@ -195,7 +217,7 @@ export class TelegramService {
           })
         );
 
-        // Promote bot to admin with necessary permissions
+        // Promote bot to admin
         await client.invoke(
           new Api.channels.EditAdmin({
             channel: channel,
@@ -209,10 +231,9 @@ export class TelegramService {
           })
         );
 
-        console.log(`[Telegram] ✅ Added bot @${username} as admin`);
+        console.log(`[Telegram] ✅ Added bot @${username} as admin (via Invite+Promote)`);
       } catch (error: any) {
         console.error(`[Telegram] Failed to add bot @${username}:`, error.message);
-        // Continue with other bots even if one fails
       }
     }
   }

@@ -84,28 +84,20 @@ export function ModernDashboardPage() {
       setStorageUsed(statsRes.data.data.totalUsed);
       setStarredFiles(starredRes.data.data as StoredFile[]);
 
-      // Calculate categories from all files stats
-      const videoFiles = allFiles.filter(f => f.mimeType.startsWith('video/'));
-      const photoFiles = allFiles.filter(f => f.mimeType.startsWith('image/'));
-      const audioFiles = allFiles.filter(f => f.mimeType.startsWith('audio/'));
-      const docFiles = allFiles.filter(f =>
-        f.mimeType.includes('pdf') ||
-        f.mimeType.includes('document') ||
-        f.mimeType.includes('text')
-      );
-      const otherFiles = allFiles.filter(f =>
-        !f.mimeType.startsWith('video/') &&
-        !f.mimeType.startsWith('image/') &&
-        !f.mimeType.startsWith('audio/') &&
-        !f.mimeType.includes('pdf') &&
-        !f.mimeType.includes('document')
-      );
+      // Use server-side calculated categories
+      const stats = statsRes.data.data;
+      const categories = stats.categories || {
+        video: { count: 0, size: 0 },
+        photo: { count: 0, size: 0 },
+        document: { count: 0, size: 0 },
+        other: { count: 0, size: 0 },
+      };
 
       setCategories([
-        { type: 'video', itemCount: videoFiles.length, size: videoFiles.reduce((sum, f) => sum + f.size, 0) },
-        { type: 'document', itemCount: docFiles.length, size: docFiles.reduce((sum, f) => sum + f.size, 0) },
-        { type: 'photo', itemCount: photoFiles.length, size: photoFiles.reduce((sum, f) => sum + f.size, 0) },
-        { type: 'other', itemCount: otherFiles.length, size: otherFiles.reduce((sum, f) => sum + f.size, 0) },
+        { type: 'video', itemCount: categories.video.count, size: categories.video.size },
+        { type: 'document', itemCount: categories.document.count, size: categories.document.size },
+        { type: 'photo', itemCount: categories.photo.count, size: categories.photo.size },
+        { type: 'other', itemCount: categories.other.count, size: categories.other.size },
       ]);
 
       // Set quick stats
@@ -117,14 +109,14 @@ export function ModernDashboardPage() {
       }).length;
 
       setQuickStats({
-        totalFiles: statsRes.data.data.fileCount || allFiles.length,
+        totalFiles: stats.totalFiles || 0,
         totalFolders: folderCount,
         starredFiles: starredCount,
         recentUploads: recentCount,
-        images: photoFiles.length,
-        videos: videoFiles.length,
-        documents: docFiles.length,
-        audio: audioFiles.length,
+        images: categories.photo.count,
+        videos: categories.video.count,
+        documents: categories.document.count,
+        audio: 0, // Audio is currently grouped in 'other' on the backend
       });
 
       // Generate activities from recent files

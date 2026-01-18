@@ -351,6 +351,7 @@ export class StorageService {
   }
 
   // Get storage stats
+  // Get storage stats
   async getStorageStats(userId: string) {
     const channels = await prisma.storageChannel.findMany({
       where: { userId },
@@ -359,9 +360,50 @@ export class StorageService {
     const totalUsed = channels.reduce((sum, c) => sum + Number(c.usedBytes), 0);
     const totalFiles = channels.reduce((sum, c) => sum + c.fileCount, 0);
 
+    // Get file counts by category
+    const files = await prisma.file.findMany({
+      where: {
+        userId,
+        isTrashed: false,
+      },
+      select: {
+        mimeType: true,
+        size: true,
+      },
+    });
+
+    const categories = {
+      video: { count: 0, size: 0 },
+      photo: { count: 0, size: 0 },
+      document: { count: 0, size: 0 },
+      other: { count: 0, size: 0 },
+    };
+
+    files.forEach(file => {
+      const size = Number(file.size);
+      if (file.mimeType.startsWith('video/')) {
+        categories.video.count++;
+        categories.video.size += size;
+      } else if (file.mimeType.startsWith('image/')) {
+        categories.photo.count++;
+        categories.photo.size += size;
+      } else if (
+        file.mimeType.includes('pdf') ||
+        file.mimeType.includes('document') ||
+        file.mimeType.includes('text')
+      ) {
+        categories.document.count++;
+        categories.document.size += size;
+      } else {
+        categories.other.count++;
+        categories.other.size += size;
+      }
+    });
+
     return {
       totalUsed,
       totalFiles,
+      categories,
       channels: channels.map((c) => ({
         ...c,
         usedBytes: Number(c.usedBytes),
