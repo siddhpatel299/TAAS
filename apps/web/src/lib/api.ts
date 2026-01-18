@@ -82,6 +82,7 @@ export const filesApi = {
     onProgress?: (progress: number) => void
   ) => {
     const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
+    const MAX_CONCURRENT = 4; // 4 bots = 4 parallel uploads
     const totalSize = file.size;
     const totalParts = Math.ceil(totalSize / CHUNK_SIZE);
 
@@ -95,9 +96,9 @@ export const filesApi = {
     });
     const { uploadId } = initResponse.data.data;
 
-    // Step 2: Upload each chunk
-    let uploadedBytes = 0;
-    for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+    // Step 2: Upload chunks in parallel (up to 4 at a time)
+    const uploadedParts = new Set<number>();
+    const uploadPart = async (partNumber: number) => {
       const start = partNumber * CHUNK_SIZE;
       const end = Math.min(start + CHUNK_SIZE, totalSize);
       const chunk = file.slice(start, end);
@@ -109,16 +110,41 @@ export const filesApi = {
 
       await api.post('/files/upload/part', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (e) => {
-          if (e.total && onProgress) {
-            const totalProgress = uploadedBytes + e.loaded;
-            onProgress((totalProgress / totalSize) * 100);
-          }
-        },
       });
 
-      uploadedBytes += (end - start);
+      uploadedParts.add(partNumber);
+      if (onProgress) {
+        const completedBytes = [...uploadedParts].reduce((sum, p) => {
+          const pStart = p * CHUNK_SIZE;
+          const pEnd = Math.min(pStart + CHUNK_SIZE, totalSize);
+          return sum + (pEnd - pStart);
+        }, 0);
+        onProgress((completedBytes / totalSize) * 100);
+      }
+    };
+
+    // Process in batches of MAX_CONCURRENT
+    const promises: Promise<void>[] = [];
+    for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+      const promise = uploadPart(partNumber);
+      promises.push(promise);
+
+      // When we hit MAX_CONCURRENT, wait for one to finish before adding more
+      if (promises.length >= MAX_CONCURRENT) {
+        await Promise.race(promises);
+        // Remove completed promises
+        const stillPending = promises.filter(p => {
+          let isPending = true;
+          p.then(() => { isPending = false; }).catch(() => { isPending = false; });
+          return isPending;
+        });
+        promises.length = 0;
+        promises.push(...stillPending);
+      }
     }
+
+    // Wait for all remaining uploads
+    await Promise.all(promises);
 
     // Step 3: Complete upload
     return api.post('/files/upload/complete', { uploadId });

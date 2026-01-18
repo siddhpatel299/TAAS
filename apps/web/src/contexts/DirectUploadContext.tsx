@@ -98,15 +98,15 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
         const { uploadId } = initResponse.data.data;
         console.log(`[Upload] Got uploadId: ${uploadId}`);
 
-        // Step 2: Upload each chunk
-        let uploadedBytes = 0;
+        // Step 2: Upload chunks in parallel (up to 4 at a time for 4 bots)
+        const MAX_CONCURRENT = 4;
+        const uploadedParts = new Set<number>();
 
-        for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+        const uploadPart = async (partNumber: number) => {
           const start = partNumber * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, totalSize);
           const chunk = file.slice(start, end);
 
-          // Create form data for this chunk
           const formData = new FormData();
           formData.append('uploadId', uploadId);
           formData.append('partNumber', String(partNumber));
@@ -115,26 +115,39 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
           console.log(`[Upload] Uploading part ${partNumber + 1}/${totalParts}`);
 
           await api.post('/files/upload/part', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-            onUploadProgress: (progressEvent) => {
-              const chunkProgress = progressEvent.loaded;
-              const totalProgress = uploadedBytes + chunkProgress;
-              const percent = Math.round((totalProgress / totalSize) * 100);
-              updateUpload(item.id, {
-                progress: percent,
-                uploadedBytes: totalProgress,
-              });
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
           });
 
-          uploadedBytes += (end - start);
+          uploadedParts.add(partNumber);
+
+          // Update progress based on completed parts
+          const completedBytes = [...uploadedParts].reduce((sum, p) => {
+            const pStart = p * CHUNK_SIZE;
+            const pEnd = Math.min(pStart + CHUNK_SIZE, totalSize);
+            return sum + (pEnd - pStart);
+          }, 0);
+
           updateUpload(item.id, {
-            progress: Math.round((uploadedBytes / totalSize) * 100),
-            uploadedBytes,
+            progress: Math.round((completedBytes / totalSize) * 100),
+            uploadedBytes: completedBytes,
           });
+        };
+
+        // Process in batches of MAX_CONCURRENT
+        const promises: Promise<void>[] = [];
+        for (let partNumber = 0; partNumber < totalParts; partNumber++) {
+          const promise = uploadPart(partNumber);
+          promises.push(promise);
+
+          if (promises.length >= MAX_CONCURRENT) {
+            await Promise.race(promises);
+            // Keep only pending promises
+            const pending = promises.filter((_, i) => !uploadedParts.has(i));
+            promises.length = 0;
+            promises.push(...pending);
+          }
         }
+        await Promise.all(promises);
 
         // Step 3: Complete the upload
         console.log(`[Upload] Completing multipart upload`);
