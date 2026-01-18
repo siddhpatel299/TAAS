@@ -1,6 +1,9 @@
 import { Router, Response } from 'express';
 import multer from 'multer';
 import Busboy from 'busboy';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { storageService } from '../services/storage.service';
@@ -12,11 +15,20 @@ import crypto from 'crypto';
 
 const router: Router = Router();
 
-// Configure multer for file uploads (legacy, kept for compatibility)
+// Configure multer for file uploads - use DISK storage to minimize memory usage
+const diskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, os.tmpdir()); // Use system temp directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, `upload-${Date.now()}-${Math.random().toString(36).substring(7)}`);
+  },
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: diskStorage,
   limits: {
-    fileSize: 2 * 1024 * 1024 * 1024, // 2GB max (Telegram limit)
+    fileSize: 25 * 1024 * 1024, // 25MB max per chunk (slightly above our 20MB chunks)
   },
 });
 
@@ -426,42 +438,54 @@ router.post('/upload/part', authMiddleware, upload.single('chunk'), asyncHandler
   }
 
   const partNum = parseInt(partNumber);
-  const buffer = req.file.buffer;
 
-  console.log(`[MultipartUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
+  // Read buffer from disk file (multer uses diskStorage now)
+  const tempFilePath = req.file.path;
+  const buffer = fs.readFileSync(tempFilePath);
 
-  // Get bot token for this part (round-robin)
-  const botToken = botUploadService.getNextBotToken(partNum);
+  console.log(`[MultipartUpload] Part ${partNum + 1}/${uploadSession.totalParts} - ${(buffer.length / 1024 / 1024).toFixed(1)} MB (from disk)`);
 
-  // Upload chunk to Telegram
-  const chunkFileName = uploadSession.totalParts > 1
-    ? `${uploadSession.fileName}.part${partNum + 1}of${uploadSession.totalParts}`
-    : uploadSession.fileName;
+  try {
+    // Get bot token for this part (round-robin)
+    const botToken = botUploadService.getNextBotToken(partNum);
 
-  const result = await botUploadService.uploadChunk(
-    botToken,
-    uploadSession.channelId,
-    buffer,
-    chunkFileName,
-    uploadSession.mimeType
-  );
+    // Upload chunk to Telegram
+    const chunkFileName = uploadSession.totalParts > 1
+      ? `${uploadSession.fileName}.part${partNum + 1}of${uploadSession.totalParts}`
+      : uploadSession.fileName;
 
-  // Store part info
-  uploadSession.uploadedParts.push({
-    partNumber: partNum,
-    fileId: result.fileId,
-    messageId: result.messageId,
-    size: result.size,
-  });
+    const result = await botUploadService.uploadChunk(
+      botToken,
+      uploadSession.channelId,
+      buffer,
+      chunkFileName,
+      uploadSession.mimeType
+    );
 
-  res.json({
-    success: true,
-    data: {
+    // Store part info
+    uploadSession.uploadedParts.push({
       partNumber: partNum,
       fileId: result.fileId,
       messageId: result.messageId,
-    },
-  });
+      size: result.size,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        partNumber: partNum,
+        fileId: result.fileId,
+        messageId: result.messageId,
+      },
+    });
+  } finally {
+    // Always clean up temp file
+    try {
+      fs.unlinkSync(tempFilePath);
+    } catch (cleanupErr) {
+      console.warn(`[MultipartUpload] Failed to cleanup temp file: ${tempFilePath}`);
+    }
+  }
 }));
 
 // Complete multipart upload
