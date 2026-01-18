@@ -81,7 +81,7 @@ export const filesApi = {
     folderId?: string,
     onProgress?: (progress: number) => void
   ) => {
-    const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB - reduced to stay under 512MB memory
     const MAX_CONCURRENT = 2; // Limit to 2 to stay under 512MB memory
     const totalSize = file.size;
     const totalParts = Math.ceil(totalSize / CHUNK_SIZE);

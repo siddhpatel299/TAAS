@@ -61,8 +61,8 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
     ));
   }, []);
 
-  // Chunk size for multipart upload (20MB)
-  const CHUNK_SIZE = 20 * 1024 * 1024;
+  // Chunk size for multipart upload (10MB - reduced to stay under 512MB memory)
+  const CHUNK_SIZE = 10 * 1024 * 1024;
 
   // Process upload queue - uses multipart chunked upload for large files
   const processQueue = useCallback(async () => {
