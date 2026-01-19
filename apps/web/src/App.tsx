@@ -112,6 +112,9 @@ import { HUDFilesPage } from '@/pages/hud/HUDFilesPage';
 import { HUDJobTrackerPage } from '@/pages/hud/HUDJobTrackerPage';
 import { HUDStarredPage } from '@/pages/hud/HUDStarredPage';
 import { HUDPluginsPage } from '@/pages/hud/HUDPluginsPage';
+import { HUDTrashPage } from '@/pages/hud/HUDTrashPage';
+import { HUDTodoPage } from '@/pages/hud/HUDTodoPage';
+import { HUDJobApplicationsPage } from '@/pages/hud/HUDJobApplicationsPage';
 
 // ... (existing imports remain the same)
 
@@ -130,11 +133,11 @@ function AppContent() {
             <Route path="/files" element={<ProtectedRoute><HUDFilesPage /></ProtectedRoute>} />
             <Route path="/telegram" element={<ProtectedRoute><TelegramChatsPage /></ProtectedRoute>} />
             <Route path="/starred" element={<ProtectedRoute><HUDStarredPage /></ProtectedRoute>} />
-            <Route path="/trash" element={<ProtectedRoute><TrashPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><HUDTrashPage /></ProtectedRoute>} />
             <Route path="/plugins" element={<ProtectedRoute><HUDPluginsPage /></ProtectedRoute>} />
-            <Route path="/plugins/todo-lists" element={<ProtectedRoute><TodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><HUDTodoPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker" element={<ProtectedRoute><HUDJobTrackerPage /></ProtectedRoute>} />
-            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><JobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><HUDJobApplicationsPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><JobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ContactFinderPage /></ProtectedRoute>} />
