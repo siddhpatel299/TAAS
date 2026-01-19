@@ -158,10 +158,54 @@ import { OrigamiOutreachPage } from '@/pages/origami/OrigamiOutreachPage';
 import { OrigamiContactFinderPage } from '@/pages/origami/OrigamiContactFinderPage';
 import { OrigamiTelegramPage } from '@/pages/origami/OrigamiTelegramPage';
 
+// Blueprint Theme imports
+import { BlueprintDashboardPage } from '@/pages/blueprint/BlueprintDashboardPage';
+import { BlueprintFilesPage } from '@/pages/blueprint/BlueprintFilesPage';
+import { BlueprintStarredPage } from '@/pages/blueprint/BlueprintStarredPage';
+import { BlueprintTrashPage } from '@/pages/blueprint/BlueprintTrashPage';
+import { BlueprintPluginsPage } from '@/pages/blueprint/BlueprintPluginsPage';
+import { BlueprintTodoPage } from '@/pages/blueprint/BlueprintTodoPage';
+import { BlueprintJobTrackerPage } from '@/pages/blueprint/BlueprintJobTrackerPage';
+import { BlueprintJobApplicationsPage } from '@/pages/blueprint/BlueprintJobApplicationsPage';
+import { BlueprintJobApplicationFormPage } from '@/pages/blueprint/BlueprintJobApplicationFormPage';
+import { BlueprintOutreachPage } from '@/pages/blueprint/BlueprintOutreachPage';
+import { BlueprintContactFinderPage } from '@/pages/blueprint/BlueprintContactFinderPage';
+import { BlueprintTelegramPage } from '@/pages/blueprint/BlueprintTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
   const { version } = useVersion();
+
+  // Blueprint Theme
+  if (version === 'blueprint') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><BlueprintDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><BlueprintFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><BlueprintTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><BlueprintStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><BlueprintTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><BlueprintPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><BlueprintTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><BlueprintJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><BlueprintJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BlueprintJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BlueprintOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BlueprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
 
   // Origami Theme
   if (version === 'origami') {
