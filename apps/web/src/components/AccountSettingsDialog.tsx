@@ -38,6 +38,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'hud', name: 'HUD', description: 'Sci-fi neon theme', color: 'bg-cyan-500' },
         { id: 'forest', name: 'Forest', description: 'Organic nature theme', color: 'bg-green-600' },
         { id: 'terminal', name: 'Terminal', description: 'Bloomberg monochrome', color: 'bg-neutral-800' },
+        { id: 'midnight', name: 'Midnight', description: 'Dark luxury purple & gold', color: 'bg-violet-900' },
     ] as const;
 
     const handleAddEmail = async () => {

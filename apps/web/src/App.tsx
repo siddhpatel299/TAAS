@@ -144,6 +144,20 @@ import { TerminalOutreachPage } from '@/pages/terminal/TerminalOutreachPage';
 import { TerminalContactFinderPage } from '@/pages/terminal/TerminalContactFinderPage';
 import { TerminalTelegramPage } from '@/pages/terminal/TerminalTelegramPage';
 
+// Midnight Theme imports
+import { MidnightDashboardPage } from '@/pages/midnight/MidnightDashboardPage';
+import { MidnightFilesPage } from '@/pages/midnight/MidnightFilesPage';
+import { MidnightStarredPage } from '@/pages/midnight/MidnightStarredPage';
+import { MidnightTrashPage } from '@/pages/midnight/MidnightTrashPage';
+import { MidnightPluginsPage } from '@/pages/midnight/MidnightPluginsPage';
+import { MidnightTodoPage } from '@/pages/midnight/MidnightTodoPage';
+import { MidnightJobTrackerPage } from '@/pages/midnight/MidnightJobTrackerPage';
+import { MidnightJobApplicationsPage } from '@/pages/midnight/MidnightJobApplicationsPage';
+import { MidnightJobApplicationFormPage } from '@/pages/midnight/MidnightJobApplicationFormPage';
+import { MidnightOutreachPage } from '@/pages/midnight/MidnightOutreachPage';
+import { MidnightContactFinderPage } from '@/pages/midnight/MidnightContactFinderPage';
+import { MidnightTelegramPage } from '@/pages/midnight/MidnightTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -199,6 +213,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><TerminalJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><TerminalOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><TerminalContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Midnight Theme
+  if (version === 'midnight') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><MidnightDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><MidnightFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><MidnightTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><MidnightStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><MidnightTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><MidnightPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><MidnightTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><MidnightJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><MidnightJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><MidnightJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><MidnightOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><MidnightContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
