@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type AppVersion = 'standard' | 'war-zone';
+type AppVersion = 'standard' | 'war-zone' | 'hud';
 
 interface VersionContextType {
     version: AppVersion;
     setVersion: (version: AppVersion) => void;
     toggleVersion: () => void;
+    cycleVersion: () => void;
 }
 
 const VersionContext = createContext<VersionContextType | undefined>(undefined);
@@ -20,18 +21,31 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         setVersionState(v);
         localStorage.setItem('app_version', v);
 
-        // Apply theme classes to body
+        // Remove all theme classes first
+        document.documentElement.classList.remove('war-zone', 'hud-theme');
+        document.body.classList.remove('war-zone-mode', 'hud-mode');
+
+        // Apply theme classes based on version
         if (v === 'war-zone') {
             document.documentElement.classList.add('war-zone');
             document.body.classList.add('war-zone-mode');
-        } else {
-            document.documentElement.classList.remove('war-zone');
-            document.body.classList.remove('war-zone-mode');
+        } else if (v === 'hud') {
+            document.documentElement.classList.add('hud-theme');
+            document.body.classList.add('hud-mode');
         }
     };
 
     const toggleVersion = () => {
+        // Toggle between standard and war-zone (legacy behavior)
         setVersion(version === 'standard' ? 'war-zone' : 'standard');
+    };
+
+    const cycleVersion = () => {
+        // Cycle through all themes: standard -> hud -> war-zone -> standard
+        const versions: AppVersion[] = ['standard', 'hud', 'war-zone'];
+        const currentIndex = versions.indexOf(version);
+        const nextIndex = (currentIndex + 1) % versions.length;
+        setVersion(versions[nextIndex]);
     };
 
     // Sync on mount
@@ -40,7 +54,7 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <VersionContext.Provider value={{ version, setVersion, toggleVersion }}>
+        <VersionContext.Provider value={{ version, setVersion, toggleVersion, cycleVersion }}>
             {children}
         </VersionContext.Provider>
     );

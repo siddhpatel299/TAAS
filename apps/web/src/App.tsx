@@ -107,12 +107,46 @@ import { WarZoneLayout } from '@/layouts/WarZoneLayout';
 import { WarZoneDashboardPage } from '@/pages/war-zone/WarZoneDashboardPage';
 import { WarZoneFilesPage } from '@/pages/war-zone/WarZoneFilesPage';
 import { WarZoneStarredPage } from '@/pages/war-zone/WarZoneStarredPage';
+import { HUDDashboardPage } from '@/pages/hud/HUDDashboardPage';
+import { HUDFilesPage } from '@/pages/hud/HUDFilesPage';
+import { HUDJobTrackerPage } from '@/pages/hud/HUDJobTrackerPage';
 
 // ... (existing imports remain the same)
 
 function AppContent() {
   const { version } = useVersion();
 
+  // HUD Theme
+  if (version === 'hud') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><HUDDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><HUDFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><TelegramChatsPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><StarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><TrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><PluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><TodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><HUDJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><JobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><JobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // War Zone Theme
   if (version === 'war-zone') {
     return (
       <AuthCheck>

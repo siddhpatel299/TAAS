@@ -1,0 +1,586 @@
+/* ============================================
+   HUD THEME - Sci-Fi Heads-Up Display Style
+   Cyan/Teal Neon Aesthetic
+   ============================================ */
+
+/* Color Tokens */
+:root {
+  --hud-bg-primary: #0a0e14;
+  --hud-bg-secondary: #0d1117;
+  --hud-bg-tertiary: #161b22;
+  
+  --hud-panel: rgba(0, 255, 255, 0.03);
+  --hud-panel-hover: rgba(0, 255, 255, 0.08);
+  --hud-panel-active: rgba(0, 255, 255, 0.12);
+  
+  --hud-border: rgba(0, 255, 255, 0.3);
+  --hud-border-bright: rgba(0, 255, 255, 0.6);
+  --hud-border-glow: #00ffff;
+  
+  --hud-text-primary: #e0ffff;
+  --hud-text-secondary: rgba(224, 255, 255, 0.7);
+  --hud-text-tertiary: rgba(224, 255, 255, 0.5);
+  --hud-text-muted: rgba(224, 255, 255, 0.3);
+  
+  --hud-accent: #00d4ff;
+  --hud-accent-bright: #00ffff;
+  --hud-accent-dim: rgba(0, 212, 255, 0.5);
+  
+  --hud-success: #00ff88;
+  --hud-warning: #ffaa00;
+  --hud-danger: #ff4757;
+  --hud-info: #00d4ff;
+  
+  --hud-glow-sm: 0 0 10px rgba(0, 255, 255, 0.3);
+  --hud-glow-md: 0 0 20px rgba(0, 255, 255, 0.4);
+  --hud-glow-lg: 0 0 30px rgba(0, 255, 255, 0.5);
+  --hud-glow-xl: 0 0 40px rgba(0, 255, 255, 0.6);
+  
+  --hud-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+.hud-theme {
+  background: var(--hud-bg-primary);
+  color: var(--hud-text-primary);
+  min-height: 100vh;
+}
+
+/* Grid Background */
+.hud-grid-bg {
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+}
+
+/* Scan Line Effect (subtle) */
+.hud-scanlines::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.3;
+}
+
+/* ============================================
+   PANEL STYLES
+   ============================================ */
+
+.hud-panel {
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: var(--hud-transition);
+}
+
+.hud-panel:hover {
+  background: var(--hud-panel-hover);
+  border-color: var(--hud-border-bright);
+  box-shadow: var(--hud-glow-sm);
+}
+
+.hud-panel-glow {
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border-bright);
+  border-radius: 8px;
+  box-shadow: 
+    var(--hud-glow-md),
+    inset 0 0 20px rgba(0, 255, 255, 0.05);
+}
+
+/* Clipped Corner Panel */
+.hud-panel-clipped {
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  clip-path: polygon(
+    0 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
+  position: relative;
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+
+.hud-card {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 255, 0.05) 0%,
+    rgba(0, 212, 255, 0.02) 100%
+  );
+  border: 1px solid var(--hud-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: var(--hud-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hud-accent),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.hud-card:hover {
+  border-color: var(--hud-border-bright);
+  box-shadow: var(--hud-glow-md);
+  transform: translateY(-2px);
+}
+
+.hud-card:hover::before {
+  opacity: 1;
+}
+
+/* Stat Card */
+.hud-stat-card {
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hud-accent),
+    transparent
+  );
+  border-radius: 3px 3px 0 0;
+}
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+
+.hud-btn {
+  background: transparent;
+  border: 1px solid var(--hud-border);
+  color: var(--hud-accent);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--hud-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-btn:hover {
+  background: var(--hud-panel-hover);
+  border-color: var(--hud-border-bright);
+  box-shadow: var(--hud-glow-sm);
+  color: var(--hud-accent-bright);
+}
+
+.hud-btn-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.2) 0%,
+    rgba(0, 255, 255, 0.1) 100%
+  );
+  border: 1px solid var(--hud-accent);
+  color: var(--hud-accent-bright);
+}
+
+.hud-btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.3) 0%,
+    rgba(0, 255, 255, 0.2) 100%
+  );
+  box-shadow: var(--hud-glow-md);
+}
+
+.hud-btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+/* ============================================
+   INPUT STYLES
+   ============================================ */
+
+.hud-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--hud-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--hud-text-primary);
+  transition: var(--hud-transition);
+}
+
+.hud-input::placeholder {
+  color: var(--hud-text-muted);
+}
+
+.hud-input:focus {
+  outline: none;
+  border-color: var(--hud-accent);
+  box-shadow: var(--hud-glow-sm);
+}
+
+/* ============================================
+   PROGRESS RING
+   ============================================ */
+
+.hud-progress-ring {
+  position: relative;
+}
+
+.hud-progress-ring svg {
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.5));
+}
+
+.hud-progress-ring circle {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.hud-progress-ring .progress-bg {
+  stroke: rgba(0, 255, 255, 0.1);
+}
+
+.hud-progress-ring .progress-fill {
+  stroke: var(--hud-accent);
+  filter: drop-shadow(0 0 6px var(--hud-accent));
+}
+
+/* ============================================
+   SIDEBAR STYLES
+   ============================================ */
+
+.hud-sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 14, 20, 0.95) 0%,
+    rgba(13, 17, 23, 0.98) 100%
+  );
+  border-right: 1px solid var(--hud-border);
+  backdrop-filter: blur(20px);
+}
+
+.hud-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: var(--hud-text-secondary);
+  border-radius: 8px;
+  transition: var(--hud-transition);
+  position: relative;
+}
+
+.hud-sidebar-item:hover {
+  color: var(--hud-accent);
+  background: var(--hud-panel-hover);
+}
+
+.hud-sidebar-item.active {
+  color: var(--hud-accent-bright);
+  background: var(--hud-panel-active);
+  border-left: 2px solid var(--hud-accent);
+  box-shadow: var(--hud-glow-sm);
+}
+
+.hud-sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--hud-accent);
+  border-radius: 0 3px 3px 0;
+  box-shadow: var(--hud-glow-sm);
+}
+
+/* ============================================
+   ICON STYLES
+   ============================================ */
+
+.hud-icon {
+  color: var(--hud-accent);
+  filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.3));
+}
+
+.hud-icon-glow {
+  filter: drop-shadow(0 0 8px var(--hud-accent));
+}
+
+/* ============================================
+   TEXT STYLES
+   ============================================ */
+
+.hud-text-glow {
+  text-shadow: 0 0 10px var(--hud-accent);
+}
+
+.hud-heading {
+  color: var(--hud-text-primary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hud-label {
+  color: var(--hud-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hud-value {
+  color: var(--hud-accent-bright);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ============================================
+   BADGE STYLES
+   ============================================ */
+
+.hud-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--hud-accent);
+}
+
+.hud-badge-success {
+  border-color: var(--hud-success);
+  color: var(--hud-success);
+}
+
+.hud-badge-warning {
+  border-color: var(--hud-warning);
+  color: var(--hud-warning);
+}
+
+.hud-badge-danger {
+  border-color: var(--hud-danger);
+  color: var(--hud-danger);
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+
+.hud-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hud-border),
+    transparent
+  );
+  margin: 1.5rem 0;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes hud-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes hud-glow-pulse {
+  0%, 100% {
+    box-shadow: var(--hud-glow-sm);
+  }
+  50% {
+    box-shadow: var(--hud-glow-lg);
+  }
+}
+
+@keyframes hud-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.hud-animate-pulse {
+  animation: hud-pulse 2s ease-in-out infinite;
+}
+
+.hud-animate-glow {
+  animation: hud-glow-pulse 3s ease-in-out infinite;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+.hud-theme::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.hud-theme::-webkit-scrollbar-track {
+  background: var(--hud-bg-secondary);
+}
+
+.hud-theme::-webkit-scrollbar-thumb {
+  background: var(--hud-border);
+  border-radius: 4px;
+}
+
+.hud-theme::-webkit-scrollbar-thumb:hover {
+  background: var(--hud-border-bright);
+}
+
+/* ============================================
+   FILE CARD SPECIFIC
+   ============================================ */
+
+.hud-file-card {
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-border);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: var(--hud-transition);
+  position: relative;
+}
+
+.hud-file-card:hover {
+  border-color: var(--hud-accent);
+  box-shadow: var(--hud-glow-md);
+}
+
+.hud-file-card .file-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid var(--hud-border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-file-card .file-icon svg {
+  color: var(--hud-accent);
+}
+
+/* ============================================
+   FOLDER CARD SPECIFIC
+   ============================================ */
+
+.hud-folder-card {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.08) 0%,
+    rgba(0, 255, 255, 0.03) 100%
+  );
+  border: 1px solid var(--hud-border);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: var(--hud-transition);
+}
+
+.hud-folder-card:hover {
+  border-color: var(--hud-accent);
+  box-shadow: var(--hud-glow-md);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.hud-border-glow {
+  border-color: var(--hud-accent) !important;
+  box-shadow: var(--hud-glow-md) !important;
+}
+
+.hud-text-accent {
+  color: var(--hud-accent);
+}
+
+.hud-text-success {
+  color: var(--hud-success);
+}
+
+.hud-text-warning {
+  color: var(--hud-warning);
+}
+
+.hud-text-danger {
+  color: var(--hud-danger);
+}
+
+.hud-bg-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+}
