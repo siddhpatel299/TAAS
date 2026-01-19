@@ -115,6 +115,8 @@ import { HUDPluginsPage } from '@/pages/hud/HUDPluginsPage';
 import { HUDTrashPage } from '@/pages/hud/HUDTrashPage';
 import { HUDTodoPage } from '@/pages/hud/HUDTodoPage';
 import { HUDJobApplicationsPage } from '@/pages/hud/HUDJobApplicationsPage';
+import { HUDOutreachPage } from '@/pages/hud/HUDOutreachPage';
+import { HUDContactFinderPage } from '@/pages/hud/HUDContactFinderPage';
 
 // ... (existing imports remain the same)
 
@@ -139,8 +141,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker" element={<ProtectedRoute><HUDJobTrackerPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><HUDJobApplicationsPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><JobApplicationFormPage /></ProtectedRoute>} />
-            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OutreachPage /></ProtectedRoute>} />
-            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><HUDOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><HUDContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
