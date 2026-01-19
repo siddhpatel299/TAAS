@@ -144,10 +144,54 @@ import { TerminalOutreachPage } from '@/pages/terminal/TerminalOutreachPage';
 import { TerminalContactFinderPage } from '@/pages/terminal/TerminalContactFinderPage';
 import { TerminalTelegramPage } from '@/pages/terminal/TerminalTelegramPage';
 
+// Origami Theme imports
+import { OrigamiDashboardPage } from '@/pages/origami/OrigamiDashboardPage';
+import { OrigamiFilesPage } from '@/pages/origami/OrigamiFilesPage';
+import { OrigamiStarredPage } from '@/pages/origami/OrigamiStarredPage';
+import { OrigamiTrashPage } from '@/pages/origami/OrigamiTrashPage';
+import { OrigamiPluginsPage } from '@/pages/origami/OrigamiPluginsPage';
+import { OrigamiTodoPage } from '@/pages/origami/OrigamiTodoPage';
+import { OrigamiJobTrackerPage } from '@/pages/origami/OrigamiJobTrackerPage';
+import { OrigamiJobApplicationsPage } from '@/pages/origami/OrigamiJobApplicationsPage';
+import { OrigamiJobApplicationFormPage } from '@/pages/origami/OrigamiJobApplicationFormPage';
+import { OrigamiOutreachPage } from '@/pages/origami/OrigamiOutreachPage';
+import { OrigamiContactFinderPage } from '@/pages/origami/OrigamiContactFinderPage';
+import { OrigamiTelegramPage } from '@/pages/origami/OrigamiTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
   const { version } = useVersion();
+
+  // Origami Theme
+  if (version === 'origami') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><OrigamiDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><OrigamiFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><OrigamiTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><OrigamiStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><OrigamiTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><OrigamiPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><OrigamiTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><OrigamiJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><OrigamiJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><OrigamiJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OrigamiOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><OrigamiContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
 
   // Forest Theme
   if (version === 'forest') {

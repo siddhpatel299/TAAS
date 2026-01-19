@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type AppVersion = 'standard' | 'hud' | 'forest' | 'terminal';
+type AppVersion = 'standard' | 'hud' | 'forest' | 'terminal' | 'origami';
 
 interface VersionContextType {
     version: AppVersion;
@@ -24,8 +24,8 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('app_version', v);
 
         // Remove all theme classes first
-        document.documentElement.classList.remove('hud-theme', 'forest-theme', 'terminal-theme');
-        document.body.classList.remove('hud-mode', 'forest-mode', 'terminal-mode');
+        document.documentElement.classList.remove('hud-theme', 'forest-theme', 'terminal-theme', 'origami-theme');
+        document.body.classList.remove('hud-mode', 'forest-mode', 'terminal-mode', 'origami-mode');
 
         // Apply theme classes based on version
         if (v === 'hud') {
@@ -37,6 +37,9 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         } else if (v === 'terminal') {
             document.documentElement.classList.add('terminal-theme');
             document.body.classList.add('terminal-mode');
+        } else if (v === 'origami') {
+            document.documentElement.classList.add('origami-theme');
+            document.body.classList.add('origami-mode');
         }
     };
 
@@ -47,7 +50,7 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
 
     const cycleVersion = () => {
         // Cycle through themes: standard -> hud -> forest -> terminal -> standard
-        const versions: AppVersion[] = ['standard', 'hud', 'forest', 'terminal'];
+        const versions: AppVersion[] = ['standard', 'hud', 'forest', 'terminal', 'origami'];
         const currentIndex = versions.indexOf(version);
         const nextIndex = (currentIndex + 1) % versions.length;
         setVersion(versions[nextIndex]);
