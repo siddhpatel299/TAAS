@@ -1,8 +1,9 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, FolderOpen, Star, Trash2, Puzzle, Settings, LogOut, Send, Grid3X3 } from 'lucide-react';
+import { Search, Home, FolderOpen, Star, Trash2, Puzzle, Send, Command } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { AccountSettingsDialog } from '@/components/AccountSettingsDialog';
+import { CommandPalette } from '@/components/blueprint/CommandPalette';
 import '@/styles/blueprint-theme.css';
 
 interface LayoutProps {
@@ -20,60 +21,89 @@ const navItems = [
 
 export function BlueprintLayout({ children }: LayoutProps) {
     const location = useLocation();
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
+    const [commandOpen, setCommandOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
 
+    // Global keyboard shortcut for command palette
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // CMD+K or Ctrl+K
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setCommandOpen(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     return (
-        <div className="blueprint-mode flex">
-            {/* Sidebar */}
-            <aside className="blueprint-sidebar">
-                <div className="blueprint-sidebar-header">
-                    <div className="blueprint-logo">
-                        <Grid3X3 className="w-5 h-5" />
-                        TAAS
+        <div className="blueprint-mode min-h-screen flex flex-col">
+            {/* Minimal Top Bar */}
+            <header className="h-14 border-b border-[var(--blueprint-line-dim)] flex items-center justify-between px-6">
+                {/* Left: Logo + Nav */}
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2 text-[var(--blueprint-cyan)]">
+                        <Command className="w-5 h-5" />
+                        <span className="font-mono text-sm font-semibold tracking-wider">TAAS</span>
                     </div>
+
+                    <nav className="hidden md:flex items-center gap-1">
+                        {navItems.map((item) => {
+                            const isActive = location.pathname === item.path ||
+                                (item.path !== '/' && location.pathname.startsWith(item.path));
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    className={`flex items-center gap-2 px-3 py-1.5 text-xs font-mono uppercase tracking-wide transition-colors ${isActive
+                                            ? 'bg-[var(--blueprint-cyan)] text-[var(--blueprint-bg)]'
+                                            : 'text-[var(--blueprint-text-dim)] hover:text-[var(--blueprint-text)] hover:bg-[var(--blueprint-line-dim)]/30'
+                                        }`}
+                                >
+                                    <item.icon className="w-3.5 h-3.5" />
+                                    <span className="hidden lg:inline">{item.label}</span>
+                                </Link>
+                            );
+                        })}
+                    </nav>
                 </div>
 
-                <nav className="blueprint-nav">
-                    {navItems.map((item) => {
-                        const isActive = location.pathname === item.path ||
-                            (item.path !== '/' && location.pathname.startsWith(item.path));
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={`blueprint-nav-link ${isActive ? 'active' : ''}`}
-                            >
-                                <item.icon className="w-4 h-4" />
-                                <span>{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                </nav>
+                {/* Center: Command Bar Trigger */}
+                <button
+                    onClick={() => setCommandOpen(true)}
+                    className="flex items-center gap-3 px-4 py-2 bg-[var(--blueprint-bg)] border border-[var(--blueprint-line-dim)] text-[var(--blueprint-text-dim)] hover:border-[var(--blueprint-cyan)] hover:text-[var(--blueprint-text)] transition-colors min-w-[300px]"
+                >
+                    <Search className="w-4 h-4" />
+                    <span className="text-sm font-mono">Search or type a command...</span>
+                    <kbd className="ml-auto text-[0.65rem] px-1.5 py-0.5 bg-[var(--blueprint-line-dim)] text-[var(--blueprint-text-muted)]">⌘K</kbd>
+                </button>
 
-                {/* User Section */}
-                <div className="mt-auto border-t border-[var(--blueprint-line-dim)]">
+                {/* Right: User */}
+                <div className="flex items-center gap-4">
                     {user && (
-                        <div className="px-6 py-4">
-                            <p className="text-xs uppercase tracking-wider text-[var(--blueprint-cyan)] truncate">{user.firstName || user.username}</p>
-                            <p className="text-xs text-[var(--blueprint-text-muted)] truncate">{user.email}</p>
+                        <div className="text-right hidden sm:block">
+                            <p className="text-xs font-mono text-[var(--blueprint-cyan)]">{user.firstName || user.username}</p>
+                            <p className="text-[0.65rem] text-[var(--blueprint-text-muted)]">{user.email}</p>
                         </div>
                     )}
-                    <button onClick={() => setSettingsOpen(true)} className="blueprint-nav-link w-full">
-                        <Settings className="w-4 h-4" />
-                        <span>Settings</span>
-                    </button>
-                    <button onClick={logout} className="blueprint-nav-link w-full text-[var(--blueprint-error)]">
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                    </button>
                 </div>
-            </aside>
+            </header>
 
-            {/* Main Content */}
-            <main className="flex-1 ml-[260px] p-6 min-h-screen">
-                {children}
+            {/* Main Content - Full Width, Command-First */}
+            <main className="flex-1 p-6">
+                <div className="max-w-7xl mx-auto">
+                    {children}
+                </div>
             </main>
+
+            {/* Command Palette */}
+            <CommandPalette
+                open={commandOpen}
+                onClose={() => setCommandOpen(false)}
+                onOpenSettings={() => setSettingsOpen(true)}
+            />
 
             <AccountSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
