@@ -37,6 +37,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'standard', name: 'Standard', description: 'Clean light theme', color: 'bg-sky-500' },
         { id: 'hud', name: 'HUD', description: 'Sci-fi neon theme', color: 'bg-cyan-500' },
         { id: 'forest', name: 'Forest', description: 'Organic nature theme', color: 'bg-green-600' },
+        { id: 'terminal', name: 'Terminal', description: 'Bloomberg monochrome', color: 'bg-neutral-800' },
     ] as const;
 
     const handleAddEmail = async () => {

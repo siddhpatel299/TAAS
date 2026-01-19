@@ -130,6 +130,20 @@ import { ForestOutreachPage } from '@/pages/forest/ForestOutreachPage';
 import { ForestContactFinderPage } from '@/pages/forest/ForestContactFinderPage';
 import { ForestTelegramPage } from '@/pages/forest/ForestTelegramPage';
 
+// Terminal Theme imports
+import { TerminalDashboardPage } from '@/pages/terminal/TerminalDashboardPage';
+import { TerminalFilesPage } from '@/pages/terminal/TerminalFilesPage';
+import { TerminalStarredPage } from '@/pages/terminal/TerminalStarredPage';
+import { TerminalTrashPage } from '@/pages/terminal/TerminalTrashPage';
+import { TerminalPluginsPage } from '@/pages/terminal/TerminalPluginsPage';
+import { TerminalTodoPage } from '@/pages/terminal/TerminalTodoPage';
+import { TerminalJobTrackerPage } from '@/pages/terminal/TerminalJobTrackerPage';
+import { TerminalJobApplicationsPage } from '@/pages/terminal/TerminalJobApplicationsPage';
+import { TerminalJobApplicationFormPage } from '@/pages/terminal/TerminalJobApplicationFormPage';
+import { TerminalOutreachPage } from '@/pages/terminal/TerminalOutreachPage';
+import { TerminalContactFinderPage } from '@/pages/terminal/TerminalContactFinderPage';
+import { TerminalTelegramPage } from '@/pages/terminal/TerminalTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -155,6 +169,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ForestJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ForestOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ForestContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Terminal Theme
+  if (version === 'terminal') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><TerminalDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><TerminalFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><TerminalTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><TerminalStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><TerminalTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><TerminalPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><TerminalTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><TerminalJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><TerminalJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><TerminalJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><TerminalOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><TerminalContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
