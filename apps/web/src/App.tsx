@@ -110,6 +110,8 @@ import { WarZoneStarredPage } from '@/pages/war-zone/WarZoneStarredPage';
 import { HUDDashboardPage } from '@/pages/hud/HUDDashboardPage';
 import { HUDFilesPage } from '@/pages/hud/HUDFilesPage';
 import { HUDJobTrackerPage } from '@/pages/hud/HUDJobTrackerPage';
+import { HUDStarredPage } from '@/pages/hud/HUDStarredPage';
+import { HUDPluginsPage } from '@/pages/hud/HUDPluginsPage';
 
 // ... (existing imports remain the same)
 
@@ -127,9 +129,9 @@ function AppContent() {
             <Route path="/" element={<ProtectedRoute><HUDDashboardPage /></ProtectedRoute>} />
             <Route path="/files" element={<ProtectedRoute><HUDFilesPage /></ProtectedRoute>} />
             <Route path="/telegram" element={<ProtectedRoute><TelegramChatsPage /></ProtectedRoute>} />
-            <Route path="/starred" element={<ProtectedRoute><StarredPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><HUDStarredPage /></ProtectedRoute>} />
             <Route path="/trash" element={<ProtectedRoute><TrashPage /></ProtectedRoute>} />
-            <Route path="/plugins" element={<ProtectedRoute><PluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><HUDPluginsPage /></ProtectedRoute>} />
             <Route path="/plugins/todo-lists" element={<ProtectedRoute><TodoPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker" element={<ProtectedRoute><HUDJobTrackerPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><JobApplicationsPage /></ProtectedRoute>} />
