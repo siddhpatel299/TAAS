@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Loader2, Check, X, User, Phone } from 'lucide-react';
+import { Mail, Lock, Loader2, Check, X, User, Phone, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuthStore } from '@/stores/auth.store';
 import { authApi } from '@/lib/api';
+import { useVersion } from '@/contexts/VersionContext';
 
 interface AccountSettingsDialogProps {
     open: boolean;
@@ -20,6 +21,7 @@ interface AccountSettingsDialogProps {
 
 export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDialogProps) {
     const { user, setUser } = useAuthStore();
+    const { version, setVersion } = useVersion();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -30,6 +32,12 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
 
     const hasEmail = !!user?.email;
     const hasTelegram = !!user?.telegramId;
+
+    const themes = [
+        { id: 'standard', name: 'Standard', description: 'Clean light theme', color: 'bg-sky-500' },
+        { id: 'hud', name: 'HUD', description: 'Sci-fi neon theme', color: 'bg-cyan-500' },
+        { id: 'war-zone', name: 'War Zone', description: 'Dark combat theme', color: 'bg-orange-500' },
+    ] as const;
 
     const handleAddEmail = async () => {
         if (!email || !password) {
@@ -76,6 +84,30 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
                 </DialogHeader>
 
                 <div className="space-y-6 py-4">
+                    {/* Theme Selector */}
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                            <Palette className="w-4 h-4" />
+                            Theme
+                        </h3>
+                        <div className="grid grid-cols-3 gap-2">
+                            {themes.map((theme) => (
+                                <button
+                                    key={theme.id}
+                                    onClick={() => setVersion(theme.id)}
+                                    className={`p-3 rounded-xl border-2 transition-all text-left ${version === theme.id
+                                            ? 'border-sky-500 bg-sky-50'
+                                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        }`}
+                                >
+                                    <div className={`w-6 h-6 rounded-lg ${theme.color} mb-2`} />
+                                    <p className="text-sm font-medium">{theme.name}</p>
+                                    <p className="text-xs text-gray-500">{theme.description}</p>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Account Status */}
                     <div className="space-y-3">
                         <h3 className="text-sm font-medium text-gray-700">Login Methods</h3>
