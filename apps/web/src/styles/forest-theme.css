@@ -1,0 +1,439 @@
+/* Forest Theme - Organic, Nature-Inspired Design */
+
+/* ===== Color Tokens ===== */
+:root {
+    /* Primary Forest Colors */
+    --forest-deep: #1a2e1a;
+    --forest-moss: #2d4a2d;
+    --forest-leaf: #4a7c59;
+    --forest-spring: #7cb481;
+    --forest-meadow: #98c9a3;
+
+    /* Warm Accents */
+    --forest-wood: #8b5a2b;
+    --forest-bark: #5d3a1a;
+    --forest-cream: #f5e6d3;
+    --forest-sand: #e8d4b8;
+    --forest-parchment: #faf6f0;
+
+    /* Status Colors */
+    --forest-success: #68b468;
+    --forest-warning: #d4a943;
+    --forest-danger: #c45c5c;
+    --forest-info: #5a9bc4;
+
+    /* Shadows */
+    --forest-shadow-sm: 0 2px 8px rgba(26, 46, 26, 0.1);
+    --forest-shadow-md: 0 4px 16px rgba(26, 46, 26, 0.15);
+    --forest-shadow-lg: 0 8px 32px rgba(26, 46, 26, 0.2);
+
+    /* Gradients */
+    --forest-gradient-bg: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 50%, #d4c4a8 100%);
+    --forest-gradient-card: linear-gradient(145deg, #ffffff 0%, #faf6f0 100%);
+    --forest-gradient-primary: linear-gradient(135deg, #4a7c59 0%, #7cb481 100%);
+}
+
+/* ===== Dark Forest Mode (body class) ===== */
+.forest-mode {
+    background: var(--forest-gradient-bg);
+    min-height: 100vh;
+}
+
+/* ===== Layout Container ===== */
+.forest-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ===== Top Navigation ===== */
+.forest-nav {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 246, 240, 0.9) 100%);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(74, 124, 89, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0.75rem 0;
+}
+
+.forest-nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.forest-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--forest-moss);
+}
+
+.forest-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.forest-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--forest-moss);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.forest-nav-link:hover {
+    background: rgba(74, 124, 89, 0.1);
+    color: var(--forest-leaf);
+}
+
+.forest-nav-link.active {
+    background: var(--forest-gradient-primary);
+    color: white;
+}
+
+/* ===== Cards ===== */
+.forest-card {
+    background: var(--forest-gradient-card);
+    border-radius: 1rem;
+    border: 1px solid rgba(74, 124, 89, 0.1);
+    box-shadow: var(--forest-shadow-sm);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.forest-card:hover {
+    box-shadow: var(--forest-shadow-md);
+    transform: translateY(-2px);
+}
+
+.forest-card-flat {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(74, 124, 89, 0.1);
+    padding: 1.5rem;
+}
+
+/* ===== Buttons ===== */
+.forest-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 2px solid var(--forest-leaf);
+    background: transparent;
+    color: var(--forest-leaf);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.forest-btn:hover:not(:disabled) {
+    background: var(--forest-leaf);
+    color: white;
+}
+
+.forest-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.forest-btn-primary {
+    background: var(--forest-gradient-primary);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(74, 124, 89, 0.3);
+}
+
+.forest-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(74, 124, 89, 0.4);
+}
+
+.forest-btn-wood {
+    background: linear-gradient(135deg, var(--forest-wood) 0%, #a66d35 100%);
+    border: none;
+    color: white;
+}
+
+.forest-btn-icon {
+    padding: 0.625rem;
+    border-radius: 0.75rem;
+}
+
+/* ===== Inputs ===== */
+.forest-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid rgba(74, 124, 89, 0.2);
+    background: white;
+    color: var(--forest-deep);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.forest-input::placeholder {
+    color: rgba(74, 124, 89, 0.5);
+}
+
+.forest-input:focus {
+    outline: none;
+    border-color: var(--forest-leaf);
+    box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.15);
+}
+
+/* ===== Badges ===== */
+.forest-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(74, 124, 89, 0.15);
+    color: var(--forest-leaf);
+}
+
+.forest-badge-success {
+    background: rgba(104, 180, 104, 0.15);
+    color: var(--forest-success);
+}
+
+.forest-badge-warning {
+    background: rgba(212, 169, 67, 0.15);
+    color: var(--forest-warning);
+}
+
+.forest-badge-danger {
+    background: rgba(196, 92, 92, 0.15);
+    color: var(--forest-danger);
+}
+
+.forest-badge-wood {
+    background: rgba(139, 90, 43, 0.15);
+    color: var(--forest-wood);
+}
+
+/* ===== Progress Ring ===== */
+.forest-progress-ring .ring-bg {
+    stroke: rgba(74, 124, 89, 0.15);
+    fill: none;
+}
+
+.forest-progress-ring .ring-fill {
+    stroke: var(--forest-leaf);
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+/* ===== Stat Cards ===== */
+.forest-stat-card {
+    background: var(--forest-gradient-card);
+    border-radius: 1rem;
+    border: 1px solid rgba(74, 124, 89, 0.1);
+    box-shadow: var(--forest-shadow-sm);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.forest-stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    background: rgba(74, 124, 89, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--forest-leaf);
+}
+
+.forest-stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--forest-moss);
+    line-height: 1;
+}
+
+.forest-stat-label {
+    font-size: 0.8rem;
+    color: var(--forest-wood);
+    margin-top: 0.25rem;
+}
+
+/* ===== Headers ===== */
+.forest-page-header {
+    margin-bottom: 2rem;
+}
+
+.forest-page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--forest-moss);
+    margin-bottom: 0.25rem;
+}
+
+.forest-page-subtitle {
+    color: var(--forest-wood);
+    font-size: 0.9rem;
+}
+
+/* ===== Empty States ===== */
+.forest-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.forest-empty-icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    color: var(--forest-leaf);
+    opacity: 0.5;
+}
+
+.forest-empty-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--forest-moss);
+    margin-bottom: 0.25rem;
+}
+
+.forest-empty-text {
+    color: var(--forest-wood);
+    font-size: 0.875rem;
+}
+
+/* ===== Dividers ===== */
+.forest-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(74, 124, 89, 0.2) 50%, transparent 100%);
+    margin: 1.5rem 0;
+}
+
+/* ===== Animations ===== */
+@keyframes forest-breathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+@keyframes forest-sway {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(2deg);
+    }
+
+    75% {
+        transform: rotate(-2deg);
+    }
+}
+
+@keyframes forest-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.forest-animate-breathe {
+    animation: forest-breathe 4s ease-in-out infinite;
+}
+
+.forest-animate-sway {
+    animation: forest-sway 6s ease-in-out infinite;
+}
+
+/* ===== File/Folder Cards ===== */
+.forest-file-card {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(74, 124, 89, 0.1);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.forest-file-card:hover {
+    background: var(--forest-parchment);
+    border-color: var(--forest-leaf);
+}
+
+.forest-file-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    background: rgba(74, 124, 89, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--forest-leaf);
+}
+
+.forest-folder-icon {
+    background: rgba(139, 90, 43, 0.1);
+    color: var(--forest-wood);
+}
+
+/* ===== Utilities ===== */
+.forest-text-primary {
+    color: var(--forest-leaf);
+}
+
+.forest-text-moss {
+    color: var(--forest-moss);
+}
+
+.forest-text-wood {
+    color: var(--forest-wood);
+}
+
+.forest-text-cream {
+    color: var(--forest-cream);
+}
+
+.forest-bg-leaf {
+    background-color: var(--forest-leaf);
+}
+
+.forest-bg-moss {
+    background-color: var(--forest-moss);
+}

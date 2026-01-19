@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type AppVersion = 'standard' | 'hud';
+type AppVersion = 'standard' | 'hud' | 'forest';
 
 interface VersionContextType {
     version: AppVersion;
@@ -24,13 +24,16 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('app_version', v);
 
         // Remove all theme classes first
-        document.documentElement.classList.remove('hud-theme');
-        document.body.classList.remove('hud-mode');
+        document.documentElement.classList.remove('hud-theme', 'forest-theme');
+        document.body.classList.remove('hud-mode', 'forest-mode');
 
         // Apply theme classes based on version
         if (v === 'hud') {
             document.documentElement.classList.add('hud-theme');
             document.body.classList.add('hud-mode');
+        } else if (v === 'forest') {
+            document.documentElement.classList.add('forest-theme');
+            document.body.classList.add('forest-mode');
         }
     };
 
@@ -40,8 +43,11 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
     };
 
     const cycleVersion = () => {
-        // Cycle through themes: standard -> hud -> standard
-        setVersion(version === 'standard' ? 'hud' : 'standard');
+        // Cycle through themes: standard -> hud -> forest -> standard
+        const versions: AppVersion[] = ['standard', 'hud', 'forest'];
+        const currentIndex = versions.indexOf(version);
+        const nextIndex = (currentIndex + 1) % versions.length;
+        setVersion(versions[nextIndex]);
     };
 
     // Sync on mount

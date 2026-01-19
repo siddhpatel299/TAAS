@@ -116,10 +116,54 @@ import { HUDContactFinderPage } from '@/pages/hud/HUDContactFinderPage';
 import { HUDTelegramPage } from '@/pages/hud/HUDTelegramPage';
 import { HUDJobApplicationFormPage } from '@/pages/hud/HUDJobApplicationFormPage';
 
+// Forest Theme imports
+import { ForestDashboardPage } from '@/pages/forest/ForestDashboardPage';
+import { ForestFilesPage } from '@/pages/forest/ForestFilesPage';
+import { ForestStarredPage } from '@/pages/forest/ForestStarredPage';
+import { ForestTrashPage } from '@/pages/forest/ForestTrashPage';
+import { ForestPluginsPage } from '@/pages/forest/ForestPluginsPage';
+import { ForestTodoPage } from '@/pages/forest/ForestTodoPage';
+import { ForestJobTrackerPage } from '@/pages/forest/ForestJobTrackerPage';
+import { ForestJobApplicationsPage } from '@/pages/forest/ForestJobApplicationsPage';
+import { ForestJobApplicationFormPage } from '@/pages/forest/ForestJobApplicationFormPage';
+import { ForestOutreachPage } from '@/pages/forest/ForestOutreachPage';
+import { ForestContactFinderPage } from '@/pages/forest/ForestContactFinderPage';
+import { ForestTelegramPage } from '@/pages/forest/ForestTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
   const { version } = useVersion();
+
+  // Forest Theme
+  if (version === 'forest') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><ForestDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><ForestFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><ForestTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><ForestStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><ForestTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><ForestPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><ForestTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><ForestJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><ForestJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ForestJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ForestOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ForestContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
 
   // HUD Theme
   if (version === 'hud') {
