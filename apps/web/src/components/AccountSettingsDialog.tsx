@@ -36,7 +36,6 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
     const themes = [
         { id: 'standard', name: 'Standard', description: 'Clean light theme', color: 'bg-sky-500' },
         { id: 'hud', name: 'HUD', description: 'Sci-fi neon theme', color: 'bg-cyan-500' },
-        { id: 'war-zone', name: 'War Zone', description: 'Dark combat theme', color: 'bg-orange-500' },
     ] as const;
 
     const handleAddEmail = async () => {
@@ -96,8 +95,8 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
                                     key={theme.id}
                                     onClick={() => setVersion(theme.id)}
                                     className={`p-3 rounded-xl border-2 transition-all text-left ${version === theme.id
-                                            ? 'border-sky-500 bg-sky-50'
-                                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        ? 'border-sky-500 bg-sky-50'
+                                        : 'border-gray-200 hover:border-gray-300 bg-white'
                                         }`}
                                 >
                                     <div className={`w-6 h-6 rounded-lg ${theme.color} mb-2`} />

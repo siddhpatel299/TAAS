@@ -5,16 +5,19 @@ interface HUDPanelProps {
     className?: string;
     glow?: boolean;
     hover?: boolean;
+    onClick?: () => void;
 }
 
-export function HUDPanel({ children, className, glow = false, hover = true }: HUDPanelProps) {
+export function HUDPanel({ children, className, glow = false, hover = true, onClick }: HUDPanelProps) {
     return (
         <div
             className={cn(
                 glow ? "hud-panel-glow" : "hud-panel",
                 hover && "hover:border-[var(--hud-border-bright)] hover:shadow-[var(--hud-glow-sm)]",
+                onClick && "cursor-pointer",
                 className
             )}
+            onClick={onClick}
         >
             {children}
         </div>

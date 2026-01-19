@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type AppVersion = 'standard' | 'war-zone' | 'hud';
+type AppVersion = 'standard' | 'hud';
 
 interface VersionContextType {
     version: AppVersion;
@@ -14,6 +14,8 @@ const VersionContext = createContext<VersionContextType | undefined>(undefined);
 export function VersionProvider({ children }: { children: React.ReactNode }) {
     const [version, setVersionState] = useState<AppVersion>(() => {
         const saved = localStorage.getItem('app_version');
+        // Migrate old war-zone theme to standard
+        if (saved === 'war-zone') return 'standard';
         return (saved as AppVersion) || 'standard';
     });
 
@@ -22,30 +24,24 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('app_version', v);
 
         // Remove all theme classes first
-        document.documentElement.classList.remove('war-zone', 'hud-theme');
-        document.body.classList.remove('war-zone-mode', 'hud-mode');
+        document.documentElement.classList.remove('hud-theme');
+        document.body.classList.remove('hud-mode');
 
         // Apply theme classes based on version
-        if (v === 'war-zone') {
-            document.documentElement.classList.add('war-zone');
-            document.body.classList.add('war-zone-mode');
-        } else if (v === 'hud') {
+        if (v === 'hud') {
             document.documentElement.classList.add('hud-theme');
             document.body.classList.add('hud-mode');
         }
     };
 
     const toggleVersion = () => {
-        // Toggle between standard and war-zone (legacy behavior)
-        setVersion(version === 'standard' ? 'war-zone' : 'standard');
+        // Toggle between standard and hud
+        setVersion(version === 'standard' ? 'hud' : 'standard');
     };
 
     const cycleVersion = () => {
-        // Cycle through all themes: standard -> hud -> war-zone -> standard
-        const versions: AppVersion[] = ['standard', 'hud', 'war-zone'];
-        const currentIndex = versions.indexOf(version);
-        const nextIndex = (currentIndex + 1) % versions.length;
-        setVersion(versions[nextIndex]);
+        // Cycle through themes: standard -> hud -> standard
+        setVersion(version === 'standard' ? 'hud' : 'standard');
     };
 
     // Sync on mount
