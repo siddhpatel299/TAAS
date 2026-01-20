@@ -270,6 +270,20 @@ import { ComicOutreachPage } from '@/pages/comic/ComicOutreachPage';
 import { ComicContactFinderPage } from '@/pages/comic/ComicContactFinderPage';
 import { ComicTelegramPage } from '@/pages/comic/ComicTelegramPage';
 
+// Archival Index Theme imports
+import { ArchiveDashboardPage } from '@/pages/archive/ArchiveDashboardPage';
+import { ArchiveFilesPage } from '@/pages/archive/ArchiveFilesPage';
+import { ArchiveStarredPage } from '@/pages/archive/ArchiveStarredPage';
+import { ArchiveTrashPage } from '@/pages/archive/ArchiveTrashPage';
+import { ArchivePluginsPage } from '@/pages/archive/ArchivePluginsPage';
+import { ArchiveTodoPage } from '@/pages/archive/ArchiveTodoPage';
+import { ArchiveJobTrackerPage } from '@/pages/archive/ArchiveJobTrackerPage';
+import { ArchiveJobApplicationsPage } from '@/pages/archive/ArchiveJobApplicationsPage';
+import { ArchiveJobApplicationFormPage } from '@/pages/archive/ArchiveJobApplicationFormPage';
+import { ArchiveOutreachPage } from '@/pages/archive/ArchiveOutreachPage';
+import { ArchiveContactFinderPage } from '@/pages/archive/ArchiveContactFinderPage';
+import { ArchiveTelegramPage } from '@/pages/archive/ArchiveTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -475,6 +489,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ComicJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ComicOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ComicContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Archival Index Theme
+  if (version === 'archive') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><ArchiveDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><ArchiveFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><ArchiveTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><ArchiveStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><ArchiveTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><ArchivePluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><ArchiveTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><ArchiveJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><ArchiveJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArchiveJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArchiveOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArchiveContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

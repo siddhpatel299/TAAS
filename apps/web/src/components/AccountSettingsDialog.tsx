@@ -47,6 +47,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'artdeco', name: 'Art Deco', description: '1920s elegance', color: 'bg-gradient-to-r from-yellow-600 to-yellow-900' },
         { id: 'canvas', name: 'Canvas', description: 'Infinite canvas', color: 'bg-gradient-to-r from-indigo-600 to-purple-600' },
         { id: 'comic', name: 'Comic', description: 'Panel-based', color: 'bg-yellow-400' },
+        { id: 'archive', name: 'Archive', description: 'Editorial style', color: 'bg-gray-900' },
     ] as const;
 
     const handleAddEmail = async () => {

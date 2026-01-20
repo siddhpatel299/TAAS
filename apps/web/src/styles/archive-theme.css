@@ -1,0 +1,450 @@
+/* Archival Index Theme - Editorial/Magazine Style */
+/* Monochromatic with exaggerated typography hierarchy */
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    /* Monochromatic Palette */
+    --archive-bg: #fafafa;
+    --archive-surface: #ffffff;
+    --archive-text: #0a0a0a;
+    --archive-text-secondary: #525252;
+    --archive-text-muted: #a3a3a3;
+    --archive-border: #e5e5e5;
+    --archive-border-dark: #171717;
+
+    /* Sharp Accent - Cyberpunk Orange */
+    --archive-accent: #f97316;
+    --archive-accent-hover: #ea580c;
+
+    /* Typography */
+    --font-archive-display: 'Libre Baskerville', Georgia, serif;
+    --font-archive-body: 'Inter', -apple-system, sans-serif;
+
+    /* Sizing - Exaggerated Hierarchy */
+    --text-massive: 8rem;
+    --text-headline: 3rem;
+    --text-subhead: 1.5rem;
+    --text-body: 0.9375rem;
+    --text-tiny: 0.6875rem;
+}
+
+/* Base */
+.archive-mode {
+    background: var(--archive-bg);
+    color: var(--archive-text);
+    font-family: var(--font-archive-body);
+    min-height: 100vh;
+}
+
+/* Header - Minimal masthead */
+.archive-header {
+    border-bottom: 1px solid var(--archive-border);
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--archive-surface);
+}
+
+.archive-masthead {
+    font-family: var(--font-archive-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.archive-nav {
+    display: flex;
+    gap: 32px;
+}
+
+.archive-nav-link {
+    font-size: var(--text-tiny);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--archive-text-secondary);
+    text-decoration: none;
+    padding: 4px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.archive-nav-link:hover {
+    color: var(--archive-text);
+}
+
+.archive-nav-link.active {
+    color: var(--archive-text);
+    border-bottom-color: var(--archive-accent);
+}
+
+/* Magazine Column Layout */
+.archive-columns {
+    display: grid;
+    gap: 32px;
+    column-gap: 48px;
+}
+
+.archive-columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.archive-columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.archive-columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Big Number - Background element */
+.archive-big-number {
+    font-family: var(--font-archive-display);
+    font-size: var(--text-massive);
+    font-weight: 700;
+    color: var(--archive-border);
+    line-height: 0.85;
+    position: fixed;
+    bottom: -2rem;
+    right: 2rem;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+}
+
+/* Section */
+.archive-section {
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 1;
+}
+
+.archive-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--archive-border-dark);
+    padding-bottom: 12px;
+}
+
+.archive-section-title {
+    font-family: var(--font-archive-display);
+    font-size: var(--text-subhead);
+    font-weight: 700;
+}
+
+.archive-section-count {
+    font-size: var(--text-tiny);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--archive-text-muted);
+}
+
+/* Card */
+.archive-card {
+    background: var(--archive-surface);
+    border: 1px solid var(--archive-border);
+    padding: 24px;
+    transition: all 0.2s;
+}
+
+.archive-card:hover {
+    border-color: var(--archive-border-dark);
+}
+
+.archive-card-featured {
+    border-width: 2px;
+    border-color: var(--archive-border-dark);
+}
+
+/* Headline Typography */
+.archive-headline {
+    font-family: var(--font-archive-display);
+    font-size: var(--text-headline);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+}
+
+.archive-subhead {
+    font-family: var(--font-archive-body);
+    font-size: var(--text-body);
+    color: var(--archive-text-secondary);
+    line-height: 1.6;
+}
+
+/* Stat */
+.archive-stat {
+    border-left: 3px solid var(--archive-accent);
+    padding-left: 16px;
+}
+
+.archive-stat-value {
+    font-family: var(--font-archive-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.archive-stat-label {
+    font-size: var(--text-tiny);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--archive-text-muted);
+    margin-top: 8px;
+}
+
+/* Button */
+.archive-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-family: var(--font-archive-body);
+    font-size: var(--text-tiny);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: transparent;
+    border: 1px solid var(--archive-border-dark);
+    color: var(--archive-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.archive-btn:hover {
+    background: var(--archive-text);
+    color: var(--archive-surface);
+}
+
+.archive-btn-primary {
+    background: var(--archive-accent);
+    border-color: var(--archive-accent);
+    color: white;
+}
+
+.archive-btn-primary:hover {
+    background: var(--archive-accent-hover);
+    border-color: var(--archive-accent-hover);
+}
+
+.archive-btn-ghost {
+    border-color: transparent;
+}
+
+.archive-btn-ghost:hover {
+    background: var(--archive-border);
+    color: var(--archive-text);
+}
+
+/* Input */
+.archive-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: var(--font-archive-body);
+    font-size: var(--text-body);
+    background: var(--archive-surface);
+    border: 1px solid var(--archive-border);
+    color: var(--archive-text);
+    transition: all 0.2s;
+}
+
+.archive-input:focus {
+    outline: none;
+    border-color: var(--archive-border-dark);
+}
+
+.archive-input::placeholder {
+    color: var(--archive-text-muted);
+}
+
+/* Badge */
+.archive-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: var(--text-tiny);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--archive-border);
+    color: var(--archive-text-secondary);
+}
+
+.archive-badge-accent {
+    background: var(--archive-accent);
+    color: white;
+}
+
+.archive-badge-dark {
+    background: var(--archive-text);
+    color: white;
+}
+
+/* File Row - Index style */
+.archive-file-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--archive-border);
+    transition: all 0.2s;
+}
+
+.archive-file-row:first-child {
+    border-top: 1px solid var(--archive-border);
+}
+
+.archive-file-row:hover {
+    padding-left: 12px;
+    border-left: 3px solid var(--archive-accent);
+    margin-left: -3px;
+}
+
+.archive-file-row-number {
+    font-family: var(--font-archive-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--archive-text-muted);
+    min-width: 40px;
+}
+
+/* Table - Index style */
+.archive-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.archive-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: var(--text-tiny);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--archive-text-secondary);
+    border-bottom: 2px solid var(--archive-border-dark);
+}
+
+.archive-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--archive-border);
+    font-size: var(--text-body);
+}
+
+.archive-table tr:hover td {
+    background: var(--archive-bg);
+}
+
+/* Modal */
+.archive-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.archive-modal {
+    background: var(--archive-surface);
+    border: 2px solid var(--archive-border-dark);
+    width: 100%;
+    max-width: 500px;
+}
+
+.archive-modal-header {
+    border-bottom: 1px solid var(--archive-border);
+    padding: 20px 24px;
+    font-family: var(--font-archive-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.archive-modal-body {
+    padding: 24px;
+}
+
+.archive-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--archive-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Empty */
+.archive-empty {
+    text-align: center;
+    padding: 64px;
+}
+
+.archive-empty-title {
+    font-family: var(--font-archive-display);
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.archive-empty-text {
+    color: var(--archive-text-muted);
+    font-size: var(--text-body);
+}
+
+/* Title */
+.archive-title {
+    font-family: var(--font-archive-display);
+    font-size: var(--text-headline);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+/* Divider */
+.archive-divider {
+    height: 2px;
+    background: var(--archive-border-dark);
+    margin: 32px 0;
+}
+
+/* Scrollbar */
+.archive-mode ::-webkit-scrollbar {
+    width: 4px;
+}
+
+.archive-mode ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.archive-mode ::-webkit-scrollbar-thumb {
+    background: var(--archive-border);
+}
+
+/* Index list */
+.archive-index {
+    column-count: 3;
+    column-gap: 32px;
+}
+
+.archive-index-item {
+    break-inside: avoid;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--archive-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.archive-index-label {
+    font-size: var(--text-body);
+}
+
+.archive-index-value {
+    font-family: var(--font-archive-display);
+    font-weight: 700;
+    font-size: 1.125rem;
+}
