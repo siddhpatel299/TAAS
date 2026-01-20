@@ -233,6 +233,8 @@ router.post('/folders', async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.id;
         const { name, parentId, icon, color } = req.body;
+        console.log('[DEBUG] Create Folder - User:', userId);
+        console.log('[DEBUG] Create Folder - Body:', req.body);
 
         if (!name) {
             return res.status(400).json({ success: false, error: 'Folder name is required' });
@@ -246,8 +248,10 @@ router.post('/folders', async (req: Request, res: Response) => {
             color,
         });
 
+        console.log('[DEBUG] Create Folder - Success:', folder);
         res.status(201).json({ success: true, data: folder });
     } catch (error: any) {
+        console.error('[DEBUG] Create Folder - Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

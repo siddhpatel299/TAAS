@@ -424,14 +424,17 @@ export function NotesPage() {
     }, [searchQuery, filters.search, setFilters]);
 
     const handleNewNote = async () => {
+        // alert('Starting Note Creation... (If you see this, the button works)');
         try {
+            console.log('Creating note with folder:', filters.folderId);
             const note = await createNote({
                 title: 'Untitled',
                 folderId: filters.folderId || undefined,
             });
             navigate(`/plugins/notes/${note.id}`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to create note:', error);
+            alert(error.response?.data?.error || 'Failed to create note');
         }
     };
 

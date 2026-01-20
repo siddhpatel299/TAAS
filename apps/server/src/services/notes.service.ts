@@ -217,6 +217,7 @@ export const notesService = {
     },
 
     async createNote(input: CreateNoteInput) {
+        console.log('[DEBUG] Service createNote input:', input);
         const { userId, title, content, contentJson, contentHtml, folderId, icon, coverImage, color, metadata, tagIds } = input;
 
         const wordCount = calculateWordCount(content);

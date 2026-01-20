@@ -66,8 +66,8 @@ export function CreateFolderDialog({ isOpen, onClose, parentId }: CreateFolderDi
                 icon: selectedIcon || undefined,
             });
             handleClose();
-        } catch (err) {
-            setError('Failed to create folder');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to create folder');
         }
     };
 
@@ -91,7 +91,7 @@ export function CreateFolderDialog({ isOpen, onClose, parentId }: CreateFolderDi
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleClose}
-                        className="fixed inset-0 bg-black/50 z-50"
+                        className="fixed inset-0 bg-black/50 z-[9999]"
                     />
 
                     {/* Dialog */}
@@ -100,7 +100,7 @@ export function CreateFolderDialog({ isOpen, onClose, parentId }: CreateFolderDi
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ duration: 0.15 }}
-                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-md"
                     >
                         <div className="bg-white rounded-2xl shadow-2xl">
                             {/* Header */}
