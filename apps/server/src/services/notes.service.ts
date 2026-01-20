@@ -281,7 +281,7 @@ export const notesService = {
                     noteId,
                     title: existingNote.title,
                     content: existingNote.content,
-                    contentJson: existingNote.contentJson,
+                    contentJson: existingNote.contentJson || undefined,
                     contentHtml: existingNote.contentHtml,
                     version: (latestVersion?.version || 0) + 1,
                 },
@@ -381,17 +381,17 @@ export const notesService = {
                 folderId: original.folderId,
                 title: `${original.title} (Copy)`,
                 content: original.content,
-                contentJson: original.contentJson,
+                contentJson: original.contentJson || undefined,
                 contentHtml: original.contentHtml,
                 icon: original.icon,
                 coverImage: original.coverImage,
                 color: original.color,
-                metadata: original.metadata,
+                metadata: original.metadata || undefined,
                 wordCount: original.wordCount,
                 readingTime: original.readingTime,
                 lastEditedAt: new Date(),
                 noteTags: {
-                    create: original.noteTags.map((nt) => ({ tagId: nt.tagId })),
+                    create: original.noteTags.map((nt: { tagId: string }) => ({ tagId: nt.tagId })),
                 },
             },
             include: {
@@ -406,7 +406,7 @@ export const notesService = {
 
         return {
             ...duplicate,
-            tags: duplicate.noteTags.map((nt) => nt.tag),
+            tags: duplicate.noteTags.map((nt: { tag: any }) => nt.tag),
             noteTags: undefined,
         };
     },
@@ -513,11 +513,11 @@ export const notesService = {
             if (visited.has(currentId)) return false;
             visited.add(currentId);
 
-            const folder = await prisma.noteFolder.findFirst({
+            const foundFolder: { parentId: string | null } | null = await prisma.noteFolder.findFirst({
                 where: { id: currentId, userId },
                 select: { parentId: true },
             });
-            currentId = folder?.parentId || null;
+            currentId = foundFolder?.parentId ?? null;
         }
 
         return false;
@@ -682,7 +682,7 @@ export const notesService = {
                 noteId,
                 title: note.title,
                 content: note.content,
-                contentJson: note.contentJson,
+                contentJson: note.contentJson || undefined,
                 contentHtml: note.contentHtml,
                 version: (latestVersion?.version || 0) + 1,
             },
@@ -694,7 +694,7 @@ export const notesService = {
             data: {
                 title: version.title,
                 content: version.content,
-                contentJson: version.contentJson,
+                contentJson: version.contentJson || undefined,
                 contentHtml: version.contentHtml,
                 lastEditedAt: new Date(),
             },

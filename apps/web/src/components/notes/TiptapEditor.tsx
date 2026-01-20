@@ -22,7 +22,6 @@ import {
     Underline as UnderlineIcon,
     Strikethrough,
     Code,
-    Link as LinkIcon,
     Heading1,
     Heading2,
     Heading3,

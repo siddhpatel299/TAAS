@@ -1,9 +1,9 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, IRouter } from 'express';
 import { notesService } from '../services/notes.service';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { pluginsService } from '../services/plugins.service';
 
-const router = Router();
+const router: IRouter = Router();
 
 // Middleware to check if notes plugin is enabled
 const requireNotesPlugin = async (req: Request, res: Response, next: Function) => {

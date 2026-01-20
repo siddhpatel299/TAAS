@@ -291,10 +291,6 @@ function NoteEditor({ note }: { note: Note }) {
     };
 
     const handleEditorChange = (json: any, html: string, text: string) => {
-        // Calculate word count from plain text
-        const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-        const readingTime = Math.ceil(wordCount / 200);
-
         updateNote(note.id, {
             contentJson: json,
             contentHtml: html,
