@@ -214,6 +214,20 @@ import { CRTOutreachPage } from '@/pages/crt/CRTOutreachPage';
 import { CRTContactFinderPage } from '@/pages/crt/CRTContactFinderPage';
 import { CRTTelegramPage } from '@/pages/crt/CRTTelegramPage';
 
+// Glass Theme imports
+import { GlassDashboardPage } from '@/pages/glass/GlassDashboardPage';
+import { GlassFilesPage } from '@/pages/glass/GlassFilesPage';
+import { GlassStarredPage } from '@/pages/glass/GlassStarredPage';
+import { GlassTrashPage } from '@/pages/glass/GlassTrashPage';
+import { GlassPluginsPage } from '@/pages/glass/GlassPluginsPage';
+import { GlassTodoPage } from '@/pages/glass/GlassTodoPage';
+import { GlassJobTrackerPage } from '@/pages/glass/GlassJobTrackerPage';
+import { GlassJobApplicationsPage } from '@/pages/glass/GlassJobApplicationsPage';
+import { GlassJobApplicationFormPage } from '@/pages/glass/GlassJobApplicationFormPage';
+import { GlassOutreachPage } from '@/pages/glass/GlassOutreachPage';
+import { GlassContactFinderPage } from '@/pages/glass/GlassContactFinderPage';
+import { GlassTelegramPage } from '@/pages/glass/GlassTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -299,6 +313,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CRTJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CRTOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CRTContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Glass Theme
+  if (version === 'glass') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><GlassDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><GlassFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><GlassTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><GlassStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><GlassTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><GlassPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><GlassTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><GlassJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><GlassJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><GlassJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><GlassOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><GlassContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
