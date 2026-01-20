@@ -312,6 +312,20 @@ import { AuroraOutreachPage } from '@/pages/aurora/AuroraOutreachPage';
 import { AuroraContactFinderPage } from '@/pages/aurora/AuroraContactFinderPage';
 import { AuroraTelegramPage } from '@/pages/aurora/AuroraTelegramPage';
 
+// Minimalist Zen Theme imports
+import { ZenDashboardPage } from '@/pages/zen/ZenDashboardPage';
+import { ZenFilesPage } from '@/pages/zen/ZenFilesPage';
+import { ZenStarredPage } from '@/pages/zen/ZenStarredPage';
+import { ZenTrashPage } from '@/pages/zen/ZenTrashPage';
+import { ZenPluginsPage } from '@/pages/zen/ZenPluginsPage';
+import { ZenTodoPage } from '@/pages/zen/ZenTodoPage';
+import { ZenJobTrackerPage } from '@/pages/zen/ZenJobTrackerPage';
+import { ZenJobApplicationsPage } from '@/pages/zen/ZenJobApplicationsPage';
+import { ZenJobApplicationFormPage } from '@/pages/zen/ZenJobApplicationFormPage';
+import { ZenOutreachPage } from '@/pages/zen/ZenOutreachPage';
+import { ZenContactFinderPage } from '@/pages/zen/ZenContactFinderPage';
+import { ZenTelegramPage } from '@/pages/zen/ZenTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -637,6 +651,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><AuroraJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><AuroraOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><AuroraContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Minimalist Zen Theme
+  if (version === 'zen') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><ZenDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><ZenFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><ZenTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><ZenStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><ZenTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><ZenPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><ZenTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><ZenJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><ZenJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ZenJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ZenOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ZenContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

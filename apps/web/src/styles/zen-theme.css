@@ -1,0 +1,367 @@
+/* Minimalist Zen Theme - Breathing Whitespace */
+
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap');
+
+:root {
+    /* Zen Colors - Extremely minimal palette */
+    --zen-bg: #fafafa;
+    --zen-surface: #ffffff;
+    --zen-border: #e0e0e0;
+    --zen-border-light: #f0f0f0;
+
+    /* Text */
+    --zen-text: #1a1a1a;
+    --zen-text-muted: #6b6b6b;
+    --zen-text-light: #9a9a9a;
+
+    /* Accent - Subtle, natural tones */
+    --zen-accent: #0a0a0a;
+    --zen-accent-soft: #3a3a3a;
+    --zen-sage: #7c8c6e;
+    --zen-stone: #a5a5a5;
+    --zen-sand: #c9b99a;
+
+    /* Typography */
+    --font-zen: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* Spacing - Generous, breathing */
+    --zen-space-xs: 8px;
+    --zen-space-sm: 16px;
+    --zen-space-md: 24px;
+    --zen-space-lg: 40px;
+    --zen-space-xl: 64px;
+    --zen-space-2xl: 96px;
+}
+
+/* Base */
+.zen-mode {
+    background: var(--zen-bg);
+    color: var(--zen-text);
+    font-family: var(--font-zen);
+    font-weight: 300;
+    min-height: 100vh;
+    letter-spacing: 0.02em;
+}
+
+/* Header */
+.zen-header {
+    background: var(--zen-surface);
+    border-bottom: 1px solid var(--zen-border-light);
+    padding: var(--zen-space-lg) var(--zen-space-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.zen-logo {
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--zen-text);
+}
+
+.zen-nav {
+    display: flex;
+    gap: var(--zen-space-lg);
+}
+
+.zen-nav-link {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--zen-text-light);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+    padding: 4px 0;
+}
+
+.zen-nav-link:hover {
+    color: var(--zen-text);
+}
+
+.zen-nav-link.active {
+    color: var(--zen-text);
+    border-bottom: 1px solid var(--zen-accent);
+}
+
+/* Card */
+.zen-card {
+    background: var(--zen-surface);
+    border: 1px solid var(--zen-border-light);
+    padding: var(--zen-space-lg);
+}
+
+.zen-card-minimal {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* Button */
+.zen-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-family: var(--font-zen);
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: transparent;
+    border: 1px solid var(--zen-border);
+    color: var(--zen-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.zen-btn:hover {
+    background: var(--zen-accent);
+    border-color: var(--zen-accent);
+    color: var(--zen-surface);
+}
+
+.zen-btn-primary {
+    background: var(--zen-accent);
+    border-color: var(--zen-accent);
+    color: var(--zen-surface);
+}
+
+.zen-btn-primary:hover {
+    background: var(--zen-accent-soft);
+    border-color: var(--zen-accent-soft);
+}
+
+.zen-btn-ghost {
+    border: none;
+}
+
+.zen-btn-ghost:hover {
+    background: var(--zen-border-light);
+    color: var(--zen-text);
+}
+
+/* Input */
+.zen-input {
+    width: 100%;
+    padding: 14px 0;
+    font-family: var(--font-zen);
+    font-size: 1rem;
+    font-weight: 300;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--zen-border);
+    color: var(--zen-text);
+    transition: border-color 0.3s ease;
+}
+
+.zen-input:focus {
+    outline: none;
+    border-color: var(--zen-accent);
+}
+
+.zen-input::placeholder {
+    color: var(--zen-text-light);
+}
+
+/* Stat */
+.zen-stat {
+    text-align: center;
+    padding: var(--zen-space-lg);
+}
+
+.zen-stat-value {
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: var(--zen-text);
+    line-height: 1;
+}
+
+.zen-stat-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--zen-text-light);
+    margin-top: 12px;
+}
+
+/* Badge */
+.zen-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 0.625rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--zen-border-light);
+    color: var(--zen-text-muted);
+}
+
+.zen-badge-accent {
+    background: var(--zen-accent);
+    color: var(--zen-surface);
+}
+
+.zen-badge-sage {
+    background: var(--zen-sage);
+    color: var(--zen-surface);
+}
+
+.zen-badge-sand {
+    background: var(--zen-sand);
+    color: var(--zen-text);
+}
+
+/* File Row */
+.zen-file-row {
+    display: flex;
+    align-items: center;
+    gap: var(--zen-space-md);
+    padding: var(--zen-space-md) 0;
+    border-bottom: 1px solid var(--zen-border-light);
+    transition: background 0.2s ease;
+}
+
+.zen-file-row:last-child {
+    border-bottom: none;
+}
+
+.zen-file-row:hover {
+    background: var(--zen-bg);
+    margin: 0 calc(-1 * var(--zen-space-lg));
+    padding-left: var(--zen-space-lg);
+    padding-right: var(--zen-space-lg);
+}
+
+/* Table */
+.zen-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.zen-table th {
+    text-align: left;
+    padding: var(--zen-space-sm) 0;
+    font-size: 0.625rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--zen-text-light);
+    border-bottom: 1px solid var(--zen-border);
+}
+
+.zen-table td {
+    padding: var(--zen-space-md) 0;
+    border-bottom: 1px solid var(--zen-border-light);
+}
+
+/* Modal */
+.zen-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(250, 250, 250, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.zen-modal {
+    background: var(--zen-surface);
+    border: 1px solid var(--zen-border);
+    width: 100%;
+    max-width: 440px;
+    padding: var(--zen-space-xl);
+}
+
+.zen-modal-header {
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--zen-text-light);
+    margin-bottom: var(--zen-space-lg);
+}
+
+.zen-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--zen-space-sm);
+    margin-top: var(--zen-space-xl);
+}
+
+/* Empty */
+.zen-empty {
+    text-align: center;
+    padding: var(--zen-space-2xl);
+    color: var(--zen-text-light);
+}
+
+/* Title */
+.zen-title {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--zen-space-xs);
+}
+
+.zen-subtitle {
+    font-size: 0.875rem;
+    color: var(--zen-text-light);
+    font-weight: 300;
+}
+
+/* Divider */
+.zen-divider {
+    height: 1px;
+    background: var(--zen-border-light);
+    margin: var(--zen-space-xl) 0;
+}
+
+/* Scrollbar - Invisible until hover */
+.zen-mode ::-webkit-scrollbar {
+    width: 6px;
+}
+
+.zen-mode ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.zen-mode ::-webkit-scrollbar-thumb {
+    background: var(--zen-border);
+    border-radius: 3px;
+}
+
+/* Grid - Generous spacing */
+.zen-grid {
+    display: grid;
+    gap: var(--zen-space-lg);
+}
+
+.zen-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.zen-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.zen-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Section */
+.zen-section {
+    margin-bottom: var(--zen-space-2xl);
+}
+
+.zen-section-header {
+    font-size: 0.6875rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--zen-text-light);
+    margin-bottom: var(--zen-space-lg);
+}
