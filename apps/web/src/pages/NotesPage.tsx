@@ -31,6 +31,8 @@ import { useNotesStore, NotesView } from '@/stores/notes.store';
 import { NoteFolder, Note, NoteTag as NoteTagType } from '@/lib/notes-api';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { CreateFolderDialog } from '@/components/notes/CreateFolderDialog';
+import { DocumentPropertiesPanel } from '@/components/notes/DocumentPropertiesPanel';
 
 // ====================
 // FOLDER TREE COMPONENT
@@ -393,6 +395,8 @@ export function NotesPage() {
     } = useNotesStore();
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [showFolderDialog, setShowFolderDialog] = useState(false);
+    const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
 
     // Initial load
     useEffect(() => {
@@ -511,7 +515,11 @@ export function NotesPage() {
                             <div className="flex-1 overflow-auto border-t border-gray-100">
                                 <div className="sticky top-0 bg-white px-4 py-2 flex items-center justify-between border-b border-gray-100">
                                     <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Folders</span>
-                                    <button className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600">
+                                    <button
+                                        onClick={() => setShowFolderDialog(true)}
+                                        className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600"
+                                        title="Create folder"
+                                    >
                                         <Plus className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
@@ -704,7 +712,25 @@ export function NotesPage() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* Document Properties Panel */}
+                <AnimatePresence>
+                    {showPropertiesPanel && selectedNote && (
+                        <DocumentPropertiesPanel
+                            note={selectedNote}
+                            isOpen={showPropertiesPanel}
+                            onClose={() => setShowPropertiesPanel(false)}
+                        />
+                    )}
+                </AnimatePresence>
             </main>
+
+            {/* Create Folder Dialog */}
+            <CreateFolderDialog
+                isOpen={showFolderDialog}
+                onClose={() => setShowFolderDialog(false)}
+                parentId={filters.folderId || undefined}
+            />
         </div>
     );
 }
