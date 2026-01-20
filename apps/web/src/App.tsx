@@ -172,10 +172,54 @@ import { BlueprintOutreachPage } from '@/pages/blueprint/BlueprintOutreachPage';
 import { BlueprintContactFinderPage } from '@/pages/blueprint/BlueprintContactFinderPage';
 import { BlueprintTelegramPage } from '@/pages/blueprint/BlueprintTelegramPage';
 
+// Newsprint Theme imports
+import { NewsprintDashboardPage } from '@/pages/newsprint/NewsprintDashboardPage';
+import { NewsprintFilesPage } from '@/pages/newsprint/NewsprintFilesPage';
+import { NewsprintStarredPage } from '@/pages/newsprint/NewsprintStarredPage';
+import { NewsprintTrashPage } from '@/pages/newsprint/NewsprintTrashPage';
+import { NewsprintPluginsPage } from '@/pages/newsprint/NewsprintPluginsPage';
+import { NewsprintTodoPage } from '@/pages/newsprint/NewsprintTodoPage';
+import { NewsprintJobTrackerPage } from '@/pages/newsprint/NewsprintJobTrackerPage';
+import { NewsprintJobApplicationsPage } from '@/pages/newsprint/NewsprintJobApplicationsPage';
+import { NewsprintJobApplicationFormPage } from '@/pages/newsprint/NewsprintJobApplicationFormPage';
+import { NewsprintOutreachPage } from '@/pages/newsprint/NewsprintOutreachPage';
+import { NewsprintContactFinderPage } from '@/pages/newsprint/NewsprintContactFinderPage';
+import { NewsprintTelegramPage } from '@/pages/newsprint/NewsprintTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
   const { version } = useVersion();
+
+  // Newsprint Theme
+  if (version === 'newsprint') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><NewsprintDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><NewsprintFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><NewsprintTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><NewsprintStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><NewsprintTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><NewsprintPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><NewsprintTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><NewsprintJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><NewsprintJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><NewsprintJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><NewsprintOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><NewsprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
 
   // Blueprint Theme
   if (version === 'blueprint') {

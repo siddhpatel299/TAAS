@@ -1,0 +1,432 @@
+/* Newsprint Theme - Multi-Column Editorial Layout */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Serif+4:wght@300;400;500;600&family=Oswald:wght@400;500;600&display=swap');
+
+:root {
+    /* Newsprint Colors - Aged paper feel */
+    --newsprint-bg: #f5f1eb;
+    --newsprint-paper: #fffef9;
+    --newsprint-ink: #1a1a1a;
+    --newsprint-ink-light: #333333;
+    --newsprint-ink-muted: #666666;
+    --newsprint-ink-faded: #999999;
+    --newsprint-rule: #2a2a2a;
+    --newsprint-rule-light: #d0ccc4;
+
+    /* Accent */
+    --newsprint-red: #8b0000;
+    --newsprint-blue: #1e3a5f;
+
+    /* Typography Scale */
+    --font-headline: 'Playfair Display', Georgia, serif;
+    --font-body: 'Source Serif 4', Georgia, serif;
+    --font-sans: 'Oswald', 'Arial Narrow', sans-serif;
+}
+
+/* Base Styles */
+.newsprint-mode {
+    background: var(--newsprint-bg);
+    color: var(--newsprint-ink);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* Masthead */
+.newsprint-masthead {
+    text-align: center;
+    padding: 24px 20px;
+    border-bottom: 3px double var(--newsprint-rule);
+    background: var(--newsprint-paper);
+}
+
+.newsprint-masthead-title {
+    font-family: var(--font-headline);
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.newsprint-masthead-tagline {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--newsprint-ink-muted);
+    margin-top: 8px;
+}
+
+.newsprint-masthead-date {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--newsprint-ink-muted);
+    margin-top: 4px;
+}
+
+/* Navigation Bar */
+.newsprint-nav {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--newsprint-rule-light);
+    background: var(--newsprint-paper);
+}
+
+.newsprint-nav-link {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--newsprint-ink-muted);
+    transition: color 0.2s;
+    padding: 4px 0;
+    border-bottom: 2px solid transparent;
+}
+
+.newsprint-nav-link:hover {
+    color: var(--newsprint-ink);
+}
+
+.newsprint-nav-link.active {
+    color: var(--newsprint-ink);
+    border-bottom-color: var(--newsprint-red);
+}
+
+/* Multi-Column Layout */
+.newsprint-columns {
+    column-count: 3;
+    column-gap: 30px;
+    column-rule: 1px solid var(--newsprint-rule-light);
+}
+
+.newsprint-columns-2 {
+    column-count: 2;
+}
+
+.newsprint-columns-4 {
+    column-count: 4;
+}
+
+.newsprint-column-break {
+    break-inside: avoid;
+    margin-bottom: 20px;
+}
+
+/* Article Card */
+.newsprint-article {
+    background: var(--newsprint-paper);
+    padding: 20px;
+    margin-bottom: 20px;
+    break-inside: avoid;
+    border: 1px solid var(--newsprint-rule-light);
+}
+
+.newsprint-article-headline {
+    font-family: var(--font-headline);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 12px 0;
+}
+
+.newsprint-article-headline-large {
+    font-size: 2.5rem;
+}
+
+.newsprint-article-byline {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--newsprint-ink-muted);
+    margin-bottom: 12px;
+}
+
+.newsprint-article-body {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.newsprint-article-body p:first-of-type::first-letter {
+    font-family: var(--font-headline);
+    font-size: 3.5rem;
+    float: left;
+    line-height: 1;
+    padding-right: 8px;
+    padding-top: 4px;
+    font-weight: 700;
+}
+
+/* Pull Quote */
+.newsprint-pullquote {
+    font-family: var(--font-headline);
+    font-size: 1.3rem;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    border-top: 2px solid var(--newsprint-rule);
+    border-bottom: 2px solid var(--newsprint-rule);
+}
+
+/* Section Header */
+.newsprint-section {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--newsprint-red);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--newsprint-rule);
+    margin-bottom: 16px;
+}
+
+/* Stat Box */
+.newsprint-stat-box {
+    background: var(--newsprint-paper);
+    border: 2px solid var(--newsprint-rule);
+    padding: 16px;
+    text-align: center;
+}
+
+.newsprint-stat-value {
+    font-family: var(--font-headline);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.newsprint-stat-label {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--newsprint-ink-muted);
+    margin-top: 8px;
+}
+
+/* Button */
+.newsprint-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--newsprint-rule);
+    background: var(--newsprint-paper);
+    color: var(--newsprint-ink);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.newsprint-btn:hover {
+    background: var(--newsprint-ink);
+    color: var(--newsprint-paper);
+}
+
+.newsprint-btn-primary {
+    background: var(--newsprint-ink);
+    color: var(--newsprint-paper);
+}
+
+.newsprint-btn-primary:hover {
+    background: var(--newsprint-rule);
+}
+
+.newsprint-btn-danger {
+    border-color: var(--newsprint-red);
+    color: var(--newsprint-red);
+}
+
+.newsprint-btn-danger:hover {
+    background: var(--newsprint-red);
+    color: var(--newsprint-paper);
+}
+
+/* Input */
+.newsprint-input {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    border: 1px solid var(--newsprint-rule-light);
+    background: var(--newsprint-paper);
+    color: var(--newsprint-ink);
+}
+
+.newsprint-input:focus {
+    outline: none;
+    border-color: var(--newsprint-ink);
+}
+
+/* File List Item */
+.newsprint-file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--newsprint-rule-light);
+    background: var(--newsprint-paper);
+}
+
+.newsprint-file-item:hover {
+    background: var(--newsprint-bg);
+}
+
+.newsprint-file-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--newsprint-rule-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--newsprint-ink-muted);
+}
+
+.newsprint-file-name {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+}
+
+.newsprint-file-meta {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    color: var(--newsprint-ink-faded);
+    letter-spacing: 0.05em;
+}
+
+/* Badge */
+.newsprint-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+}
+
+.newsprint-badge-default {
+    color: var(--newsprint-ink-muted);
+}
+
+.newsprint-badge-red {
+    color: var(--newsprint-red);
+}
+
+.newsprint-badge-blue {
+    color: var(--newsprint-blue);
+}
+
+/* Table */
+.newsprint-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+}
+
+.newsprint-table th {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--newsprint-rule);
+    color: var(--newsprint-ink-muted);
+}
+
+.newsprint-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--newsprint-rule-light);
+    font-size: 0.9rem;
+}
+
+/* Modal */
+.newsprint-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.newsprint-modal {
+    background: var(--newsprint-paper);
+    border: 2px solid var(--newsprint-rule);
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.newsprint-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--newsprint-rule-light);
+}
+
+.newsprint-modal-title {
+    font-family: var(--font-headline);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.newsprint-modal-body {
+    padding: 20px;
+}
+
+.newsprint-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--newsprint-rule-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Empty State */
+.newsprint-empty {
+    text-align: center;
+    padding: 48px 20px;
+}
+
+.newsprint-empty-text {
+    font-family: var(--font-body);
+    font-style: italic;
+    color: var(--newsprint-ink-muted);
+}
+
+/* Scrollbar */
+.newsprint-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.newsprint-mode ::-webkit-scrollbar-track {
+    background: var(--newsprint-bg);
+}
+
+.newsprint-mode ::-webkit-scrollbar-thumb {
+    background: var(--newsprint-rule-light);
+}
+
+.newsprint-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--newsprint-ink-muted);
+}
