@@ -1,0 +1,40 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Trash2, Save, Loader2 } from 'lucide-react';
+import { ArtDecoLayout } from '@/layouts/ArtDecoLayout';
+import { DecoCard, DecoButton, DecoTitle, DecoDivider } from '@/components/artdeco/ArtDecoComponents';
+import { jobTrackerApi } from '@/lib/plugins-api';
+
+export function ArtDecoJobApplicationFormPage() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [form, setForm] = useState({ company: '', jobTitle: '', status: 'saved', priority: 'medium', jobUrl: '', notes: '' });
+    const load = useCallback(async () => { if (!id || id === 'new') { setLoading(false); return; } setLoading(true); try { const r = await jobTrackerApi.getApplication(id); const a = r.data?.data; if (a) setForm({ company: a.company || '', jobTitle: a.jobTitle || '', status: a.status || 'saved', priority: a.priority || 'medium', jobUrl: a.jobUrl || '', notes: a.notes || '' }); } catch (e) { console.error(e); } finally { setLoading(false); } }, [id]);
+    useEffect(() => { load(); }, [load]);
+    const save = async () => { setSaving(true); try { if (id === 'new') { await jobTrackerApi.createApplication(form); } else { await jobTrackerApi.updateApplication(id!, form); } navigate('/plugins/job-tracker/applications'); } catch (e) { console.error(e); } finally { setSaving(false); } };
+    const del = async () => { if (!id || id === 'new' || !confirm('Delete?')) return; try { await jobTrackerApi.deleteApplication(id); navigate('/plugins/job-tracker/applications'); } catch (e) { console.error(e); } };
+
+    if (loading) return <ArtDecoLayout><div className="flex items-center justify-center py-32"><Loader2 className="w-10 h-10 animate-spin text-[var(--deco-gold)]" /></div></ArtDecoLayout>;
+
+    return (
+        <ArtDecoLayout>
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4"><Link to="/plugins/job-tracker/applications"><DecoButton><ArrowLeft className="w-5 h-5" /></DecoButton></Link><DecoTitle>{id === 'new' ? 'New Application' : 'Edit Application'}</DecoTitle></div>
+                <div className="flex gap-3">{id !== 'new' && <DecoButton variant="danger" onClick={del}><Trash2 className="w-5 h-5" /></DecoButton>}<DecoButton variant="primary" onClick={save} disabled={saving}>{saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save</DecoButton></div>
+            </div>
+            <DecoCard>
+                <DecoDivider text="Details" />
+                <div className="grid grid-cols-2 gap-6">
+                    <div><label className="block text-sm text-[var(--deco-gold)] mb-2 uppercase tracking-wider">Company</label><input type="text" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className="deco-input" /></div>
+                    <div><label className="block text-sm text-[var(--deco-gold)] mb-2 uppercase tracking-wider">Job Title</label><input type="text" value={form.jobTitle} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} className="deco-input" /></div>
+                    <div><label className="block text-sm text-[var(--deco-gold)] mb-2 uppercase tracking-wider">Status</label><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="deco-input"><option value="saved">Saved</option><option value="applied">Applied</option><option value="interviewing">Interviewing</option><option value="offered">Offered</option><option value="rejected">Rejected</option></select></div>
+                    <div><label className="block text-sm text-[var(--deco-gold)] mb-2 uppercase tracking-wider">Priority</label><select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="deco-input"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+                    <div><label className="block text-sm text-[var(--deco-gold)] mb-2 uppercase tracking-wider">Job URL</label><input type="url" value={form.jobUrl} onChange={(e) => setForm({ ...form, jobUrl: e.target.value })} className="deco-input" /></div>
+                    <div className="col-span-2"><label className="block text-sm text-[var(--deco-gold)] mb-2 uppercase tracking-wider">Notes</label><textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={4} className="deco-input" /></div>
+                </div>
+            </DecoCard>
+        </ArtDecoLayout>
+    );
+}

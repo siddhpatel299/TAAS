@@ -1,0 +1,499 @@
+/* Art Deco Theme - 1920s Geometric Elegance */
+
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Josefin+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Art Deco Colors */
+    --deco-bg: #0d0d0d;
+    --deco-surface: #1a1a1a;
+    --deco-gold: #d4af37;
+    --deco-gold-light: #f4d47c;
+    --deco-gold-dark: #a68b28;
+    --deco-cream: #f5f0e6;
+    --deco-sage: #8b9e8b;
+    --deco-rose: #c4877a;
+    --deco-navy: #1e3a5f;
+    --deco-text: #f5f0e6;
+    --deco-text-muted: rgba(245, 240, 230, 0.6);
+
+    /* Typography */
+    --font-deco-display: 'Poiret One', cursive;
+    --font-deco-body: 'Josefin Sans', sans-serif;
+
+    /* Patterns */
+    --deco-border: 2px solid var(--deco-gold);
+    --deco-border-thin: 1px solid var(--deco-gold-dark);
+}
+
+/* Base Styles */
+.deco-mode {
+    background: var(--deco-bg);
+    color: var(--deco-text);
+    font-family: var(--font-deco-body);
+    min-height: 100vh;
+}
+
+/* Geometric Pattern Background */
+.deco-mode::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        linear-gradient(45deg, transparent 48%, rgba(212, 175, 55, 0.03) 49%, rgba(212, 175, 55, 0.03) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(212, 175, 55, 0.03) 49%, rgba(212, 175, 55, 0.03) 51%, transparent 52%);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Header */
+.deco-header {
+    background: var(--deco-surface);
+    border-bottom: var(--deco-border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+}
+
+.deco-header::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 6px;
+    background: var(--deco-gold);
+    clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+}
+
+.deco-logo {
+    font-family: var(--font-deco-display);
+    font-size: 2rem;
+    color: var(--deco-gold);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.deco-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.deco-nav-link {
+    padding: 10px 20px;
+    color: var(--deco-text-muted);
+    text-decoration: none;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.deco-nav-link::before,
+.deco-nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    background: var(--deco-gold);
+    transition: all 0.3s;
+}
+
+.deco-nav-link::before {
+    top: 0;
+    left: 50%;
+}
+
+.deco-nav-link::after {
+    bottom: 0;
+    left: 50%;
+}
+
+.deco-nav-link:hover::before,
+.deco-nav-link:hover::after,
+.deco-nav-link.active::before,
+.deco-nav-link.active::after {
+    width: 100%;
+    left: 0;
+}
+
+.deco-nav-link:hover,
+.deco-nav-link.active {
+    color: var(--deco-gold);
+}
+
+/* Card with geometric frame */
+.deco-card {
+    background: var(--deco-surface);
+    border: var(--deco-border);
+    position: relative;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.deco-card::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: var(--deco-border-thin);
+    pointer-events: none;
+}
+
+/* Decorative corners */
+.deco-corners {
+    position: relative;
+}
+
+.deco-corners::before,
+.deco-corners::after {
+    content: '◆';
+    position: absolute;
+    color: var(--deco-gold);
+    font-size: 12px;
+}
+
+.deco-corners::before {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.deco-corners::after {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Title */
+.deco-title {
+    font-family: var(--font-deco-display);
+    font-size: 2.5rem;
+    color: var(--deco-gold);
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.deco-title::before,
+.deco-title::after {
+    content: '—';
+    margin: 0 20px;
+    color: var(--deco-gold-dark);
+}
+
+.deco-subtitle {
+    font-family: var(--font-deco-display);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--deco-gold-dark);
+    margin-bottom: 16px;
+}
+
+/* Button */
+.deco-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-family: var(--font-deco-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: 1px solid var(--deco-gold);
+    background: transparent;
+    color: var(--deco-gold);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.deco-btn::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--deco-gold-dark);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.deco-btn:hover::before {
+    opacity: 1;
+}
+
+.deco-btn:hover {
+    background: var(--deco-gold);
+    color: var(--deco-bg);
+}
+
+.deco-btn-primary {
+    background: var(--deco-gold);
+    color: var(--deco-bg);
+}
+
+.deco-btn-primary:hover {
+    background: var(--deco-gold-light);
+}
+
+.deco-btn-danger {
+    border-color: var(--deco-rose);
+    color: var(--deco-rose);
+}
+
+.deco-btn-danger:hover {
+    background: var(--deco-rose);
+    color: var(--deco-bg);
+}
+
+/* Input */
+.deco-input {
+    width: 100%;
+    padding: 14px 18px;
+    font-family: var(--font-deco-body);
+    font-size: 1rem;
+    background: transparent;
+    border: 1px solid var(--deco-gold-dark);
+    color: var(--deco-text);
+    transition: all 0.3s;
+}
+
+.deco-input:focus {
+    outline: none;
+    border-color: var(--deco-gold);
+    box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.1);
+}
+
+.deco-input::placeholder {
+    color: var(--deco-text-muted);
+    font-style: italic;
+}
+
+/* Stat */
+.deco-stat {
+    text-align: center;
+    padding: 24px;
+    border: 1px solid var(--deco-gold-dark);
+    position: relative;
+}
+
+.deco-stat::before {
+    content: '◇';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--deco-gold);
+    background: var(--deco-bg);
+    padding: 0 8px;
+}
+
+.deco-stat-value {
+    font-family: var(--font-deco-display);
+    font-size: 3rem;
+    color: var(--deco-gold);
+    line-height: 1;
+}
+
+.deco-stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--deco-text-muted);
+    margin-top: 8px;
+}
+
+/* Badge */
+.deco-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid var(--deco-gold);
+    color: var(--deco-gold);
+}
+
+.deco-badge-sage {
+    border-color: var(--deco-sage);
+    color: var(--deco-sage);
+}
+
+.deco-badge-rose {
+    border-color: var(--deco-rose);
+    color: var(--deco-rose);
+}
+
+.deco-badge-navy {
+    border-color: var(--deco-navy);
+    color: var(--deco-cream);
+    background: var(--deco-navy);
+}
+
+/* File Row */
+.deco-file-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    transition: all 0.3s;
+}
+
+.deco-file-row:hover {
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.deco-file-row:last-child {
+    border-bottom: none;
+}
+
+/* Table */
+.deco-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.deco-table th {
+    text-align: left;
+    padding: 16px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--deco-gold);
+    border-bottom: var(--deco-border);
+}
+
+.deco-table td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.deco-table tr:hover td {
+    background: rgba(212, 175, 55, 0.05);
+}
+
+/* Modal */
+.deco-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.deco-modal {
+    background: var(--deco-surface);
+    border: var(--deco-border);
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+}
+
+.deco-modal::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: var(--deco-border-thin);
+    pointer-events: none;
+}
+
+.deco-modal-header {
+    padding: 20px 24px;
+    border-bottom: var(--deco-border-thin);
+    text-align: center;
+}
+
+.deco-modal-title {
+    font-family: var(--font-deco-display);
+    font-size: 1.5rem;
+    color: var(--deco-gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.deco-modal-body {
+    padding: 24px;
+}
+
+.deco-modal-footer {
+    padding: 16px 24px;
+    border-top: var(--deco-border-thin);
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+/* Empty */
+.deco-empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--deco-text-muted);
+    font-style: italic;
+}
+
+/* Divider */
+.deco-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+    color: var(--deco-gold-dark);
+}
+
+.deco-divider::before,
+.deco-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--deco-gold-dark);
+}
+
+/* Grid */
+.deco-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.deco-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.deco-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.deco-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Scrollbar */
+.deco-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.deco-mode ::-webkit-scrollbar-track {
+    background: var(--deco-bg);
+}
+
+.deco-mode ::-webkit-scrollbar-thumb {
+    background: var(--deco-gold-dark);
+    border: 1px solid var(--deco-gold);
+}

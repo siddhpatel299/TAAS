@@ -228,6 +228,20 @@ import { GlassOutreachPage } from '@/pages/glass/GlassOutreachPage';
 import { GlassContactFinderPage } from '@/pages/glass/GlassContactFinderPage';
 import { GlassTelegramPage } from '@/pages/glass/GlassTelegramPage';
 
+// Art Deco Theme imports
+import { ArtDecoDashboardPage } from '@/pages/artdeco/ArtDecoDashboardPage';
+import { ArtDecoFilesPage } from '@/pages/artdeco/ArtDecoFilesPage';
+import { ArtDecoStarredPage } from '@/pages/artdeco/ArtDecoStarredPage';
+import { ArtDecoTrashPage } from '@/pages/artdeco/ArtDecoTrashPage';
+import { ArtDecoPluginsPage } from '@/pages/artdeco/ArtDecoPluginsPage';
+import { ArtDecoTodoPage } from '@/pages/artdeco/ArtDecoTodoPage';
+import { ArtDecoJobTrackerPage } from '@/pages/artdeco/ArtDecoJobTrackerPage';
+import { ArtDecoJobApplicationsPage } from '@/pages/artdeco/ArtDecoJobApplicationsPage';
+import { ArtDecoJobApplicationFormPage } from '@/pages/artdeco/ArtDecoJobApplicationFormPage';
+import { ArtDecoOutreachPage } from '@/pages/artdeco/ArtDecoOutreachPage';
+import { ArtDecoContactFinderPage } from '@/pages/artdeco/ArtDecoContactFinderPage';
+import { ArtDecoTelegramPage } from '@/pages/artdeco/ArtDecoTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -343,6 +357,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><GlassJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><GlassOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><GlassContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Art Deco Theme
+  if (version === 'artdeco') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><ArtDecoDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><ArtDecoFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><ArtDecoTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><ArtDecoStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><ArtDecoTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><ArtDecoPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><ArtDecoTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><ArtDecoJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><ArtDecoJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArtDecoJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArtDecoOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArtDecoContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

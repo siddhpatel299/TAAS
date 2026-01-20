@@ -44,6 +44,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'brutalist', name: 'Brutalist', description: 'Neo-brutalism bold', color: 'bg-yellow-400' },
         { id: 'crt', name: 'CRT', description: 'Retro terminal', color: 'bg-green-900' },
         { id: 'glass', name: 'Glass', description: 'Frosted glass', color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
+        { id: 'artdeco', name: 'Art Deco', description: '1920s elegance', color: 'bg-gradient-to-r from-yellow-600 to-yellow-900' },
     ] as const;
 
     const handleAddEmail = async () => {
