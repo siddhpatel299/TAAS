@@ -326,6 +326,20 @@ import { ZenOutreachPage } from '@/pages/zen/ZenOutreachPage';
 import { ZenContactFinderPage } from '@/pages/zen/ZenContactFinderPage';
 import { ZenTelegramPage } from '@/pages/zen/ZenTelegramPage';
 
+// Skeuomorphism 2.0 (Tactile Tech) Theme imports
+import { SkeuDashboardPage } from '@/pages/skeu/SkeuDashboardPage';
+import { SkeuFilesPage } from '@/pages/skeu/SkeuFilesPage';
+import { SkeuStarredPage } from '@/pages/skeu/SkeuStarredPage';
+import { SkeuTrashPage } from '@/pages/skeu/SkeuTrashPage';
+import { SkeuPluginsPage } from '@/pages/skeu/SkeuPluginsPage';
+import { SkeuTodoPage } from '@/pages/skeu/SkeuTodoPage';
+import { SkeuJobTrackerPage } from '@/pages/skeu/SkeuJobTrackerPage';
+import { SkeuJobApplicationsPage } from '@/pages/skeu/SkeuJobApplicationsPage';
+import { SkeuJobApplicationFormPage } from '@/pages/skeu/SkeuJobApplicationFormPage';
+import { SkeuOutreachPage } from '@/pages/skeu/SkeuOutreachPage';
+import { SkeuContactFinderPage } from '@/pages/skeu/SkeuContactFinderPage';
+import { SkeuTelegramPage } from '@/pages/skeu/SkeuTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -681,6 +695,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ZenJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ZenOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ZenContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Skeuomorphism 2.0 (Tactile Tech) Theme
+  if (version === 'skeu') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><SkeuDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><SkeuFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><SkeuTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><SkeuStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><SkeuTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><SkeuPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><SkeuTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><SkeuJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><SkeuJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SkeuJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SkeuOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SkeuContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

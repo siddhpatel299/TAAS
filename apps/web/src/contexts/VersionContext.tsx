@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type AppVersion = 'standard' | 'hud' | 'forest' | 'terminal' | 'origami' | 'blueprint' | 'newsprint' | 'brutalist' | 'crt' | 'glass' | 'artdeco' | 'canvas' | 'comic' | 'archive' | 'steam' | 'aurora' | 'zen';
+type AppVersion = 'standard' | 'hud' | 'forest' | 'terminal' | 'origami' | 'blueprint' | 'newsprint' | 'brutalist' | 'crt' | 'glass' | 'artdeco' | 'canvas' | 'comic' | 'archive' | 'steam' | 'aurora' | 'zen' | 'skeu';
 
 interface VersionContextType {
     version: AppVersion;
@@ -24,8 +24,8 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('app_version', v);
 
         // Remove all theme classes first
-        document.documentElement.classList.remove('hud-theme', 'forest-theme', 'terminal-theme', 'origami-theme', 'blueprint-theme', 'newsprint-theme', 'brutalist-theme', 'crt-theme', 'glass-theme', 'deco-theme', 'canvas-theme', 'comic-theme', 'archive-theme', 'steam-theme', 'aurora-theme', 'zen-theme');
-        document.body.classList.remove('hud-mode', 'forest-mode', 'terminal-mode', 'origami-mode', 'blueprint-mode', 'newsprint-mode', 'brutalist-mode', 'crt-mode', 'glass-mode', 'deco-mode', 'canvas-mode', 'comic-mode', 'archive-mode', 'steam-mode', 'aurora-mode', 'zen-mode');
+        document.documentElement.classList.remove('hud-theme', 'forest-theme', 'terminal-theme', 'origami-theme', 'blueprint-theme', 'newsprint-theme', 'brutalist-theme', 'crt-theme', 'glass-theme', 'deco-theme', 'canvas-theme', 'comic-theme', 'archive-theme', 'steam-theme', 'aurora-theme', 'zen-theme', 'skeu-theme');
+        document.body.classList.remove('hud-mode', 'forest-mode', 'terminal-mode', 'origami-mode', 'blueprint-mode', 'newsprint-mode', 'brutalist-mode', 'crt-mode', 'glass-mode', 'deco-mode', 'canvas-mode', 'comic-mode', 'archive-mode', 'steam-mode', 'aurora-mode', 'zen-mode', 'skeu-mode');
 
         // Apply theme classes based on version
         if (v === 'hud') {
@@ -76,6 +76,9 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         } else if (v === 'zen') {
             document.documentElement.classList.add('zen-theme');
             document.body.classList.add('zen-mode');
+        } else if (v === 'skeu') {
+            document.documentElement.classList.add('skeu-theme');
+            document.body.classList.add('skeu-mode');
         }
     };
 
@@ -86,7 +89,7 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
 
     const cycleVersion = () => {
         // Cycle through themes: standard -> hud -> forest -> terminal -> standard
-        const versions: AppVersion[] = ['standard', 'hud', 'forest', 'terminal', 'origami', 'blueprint', 'newsprint', 'brutalist', 'crt', 'glass', 'artdeco', 'canvas', 'comic', 'archive', 'steam', 'aurora', 'zen'];
+        const versions: AppVersion[] = ['standard', 'hud', 'forest', 'terminal', 'origami', 'blueprint', 'newsprint', 'brutalist', 'crt', 'glass', 'artdeco', 'canvas', 'comic', 'archive', 'steam', 'aurora', 'zen', 'skeu'];
         const currentIndex = versions.indexOf(version);
         const nextIndex = (currentIndex + 1) % versions.length;
         setVersion(versions[nextIndex]);

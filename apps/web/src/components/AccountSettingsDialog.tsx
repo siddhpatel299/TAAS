@@ -51,6 +51,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'steam', name: 'Steampunk', description: 'Mechanical', color: 'bg-gradient-to-r from-yellow-700 to-amber-900' },
         { id: 'aurora', name: 'Aurora', description: 'Flowing waves', color: 'bg-gradient-to-r from-purple-500 to-blue-500' },
         { id: 'zen', name: 'Zen', description: 'Minimalist', color: 'bg-gray-100' },
+        { id: 'skeu', name: 'Tactile Tech', description: 'Skeuomorphic', color: 'bg-gradient-to-b from-gray-600 to-gray-800' },
     ] as const;
 
     const handleAddEmail = async () => {

@@ -1,0 +1,495 @@
+/* Skeuomorphism 2.0 - Tactile Tech Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Base colors - brushed aluminum / dark tech */
+    --skeu-bg: #1c1c1e;
+    --skeu-surface: linear-gradient(180deg, #2c2c2e 0%, #1c1c1e 100%);
+    --skeu-surface-raised: linear-gradient(180deg, #3a3a3c 0%, #2c2c2e 100%);
+    --skeu-surface-inset: #121214;
+    --skeu-border: #3a3a3c;
+    --skeu-border-light: #48484a;
+
+    /* Metallic accents */
+    --skeu-metal: linear-gradient(180deg, #a0a0a5 0%, #6e6e72 50%, #48484a 100%);
+    --skeu-metal-shine: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+    --skeu-chrome: linear-gradient(180deg, #e8e8ed 0%, #a0a0a5 50%, #6e6e72 100%);
+
+    /* LED/Glow colors */
+    --skeu-led-green: #32d74b;
+    --skeu-led-blue: #0a84ff;
+    --skeu-led-orange: #ff9f0a;
+    --skeu-led-red: #ff453a;
+    --skeu-led-purple: #bf5af2;
+
+    /* Text */
+    --skeu-text: #f5f5f7;
+    --skeu-text-muted: #98989d;
+    --skeu-text-embossed: #6e6e72;
+
+    /* Typography */
+    --font-skeu: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+/* Base */
+.skeu-mode {
+    background: var(--skeu-bg);
+    color: var(--skeu-text);
+    font-family: var(--font-skeu);
+    min-height: 100vh;
+}
+
+/* Header - raised panel look */
+.skeu-header {
+    background: var(--skeu-surface);
+    border-bottom: 1px solid var(--skeu-border);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.skeu-logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: var(--skeu-chrome);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.skeu-nav {
+    display: flex;
+    gap: 4px;
+    background: var(--skeu-surface-inset);
+    padding: 4px;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.skeu-nav-link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--skeu-text-muted);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.skeu-nav-link:hover {
+    color: var(--skeu-text);
+}
+
+.skeu-nav-link.active {
+    background: var(--skeu-surface-raised);
+    color: var(--skeu-text);
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Card - 3D raised panel */
+.skeu-card {
+    background: var(--skeu-surface);
+    border: 1px solid var(--skeu-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Button - plastic toggle look */
+.skeu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-family: var(--font-skeu);
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--skeu-surface-raised);
+    border: 1px solid var(--skeu-border);
+    color: var(--skeu-text);
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.skeu-btn:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.skeu-btn:active {
+    transform: translateY(1px);
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.skeu-btn-primary {
+    background: linear-gradient(180deg, #0a84ff 0%, #0066cc 100%);
+    border-color: #0066cc;
+}
+
+.skeu-btn-primary::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, var(--skeu-led-blue) 0%, transparent 70%);
+    opacity: 0.15;
+}
+
+.skeu-btn-ghost {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.skeu-btn-ghost::before {
+    display: none;
+}
+
+.skeu-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+    transform: none;
+}
+
+/* Input - recessed field */
+.skeu-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: var(--font-skeu);
+    font-size: 0.9375rem;
+    background: var(--skeu-surface-inset);
+    border: 1px solid var(--skeu-border);
+    color: var(--skeu-text);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+}
+
+.skeu-input:focus {
+    outline: none;
+    border-color: var(--skeu-led-blue);
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        0 0 0 3px rgba(10, 132, 255, 0.2);
+}
+
+.skeu-input::placeholder {
+    color: var(--skeu-text-embossed);
+}
+
+/* Gauge/Meter - physical pressure gauge */
+.skeu-gauge {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 30%, #4a4a4c 0%, #2c2c2e 50%, #1c1c1e 100%);
+    border: 3px solid #48484a;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 -2px 4px rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.skeu-gauge-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--skeu-led-green);
+    text-shadow: 0 0 10px var(--skeu-led-green);
+}
+
+.skeu-gauge-label {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--skeu-text-muted);
+}
+
+/* Battery meter */
+.skeu-battery {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--skeu-surface-inset);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.skeu-battery-bar {
+    flex: 1;
+    height: 24px;
+    background: #1a1a1c;
+    border-radius: 4px;
+    border: 2px solid #3a3a3c;
+    overflow: hidden;
+    position: relative;
+}
+
+.skeu-battery-fill {
+    height: 100%;
+    background: linear-gradient(180deg, var(--skeu-led-green) 0%, #1f7a2e 100%);
+    box-shadow: 0 0 8px var(--skeu-led-green);
+    transition: width 0.5s ease;
+}
+
+/* Badge - LED indicator */
+.skeu-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--skeu-surface-inset);
+    border: 1px solid var(--skeu-border);
+    color: var(--skeu-text);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.skeu-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--skeu-led-green);
+    box-shadow: 0 0 6px var(--skeu-led-green);
+}
+
+.skeu-badge-blue::before {
+    background: var(--skeu-led-blue);
+    box-shadow: 0 0 6px var(--skeu-led-blue);
+}
+
+.skeu-badge-orange::before {
+    background: var(--skeu-led-orange);
+    box-shadow: 0 0 6px var(--skeu-led-orange);
+}
+
+.skeu-badge-red::before {
+    background: var(--skeu-led-red);
+    box-shadow: 0 0 6px var(--skeu-led-red);
+}
+
+.skeu-badge-purple::before {
+    background: var(--skeu-led-purple);
+    box-shadow: 0 0 6px var(--skeu-led-purple);
+}
+
+/* File Row */
+.skeu-file-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    border-bottom: 1px solid var(--skeu-border);
+}
+
+.skeu-file-row:last-child {
+    border-bottom: none;
+}
+
+.skeu-file-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Table */
+.skeu-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.skeu-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--skeu-text-muted);
+    border-bottom: 1px solid var(--skeu-border);
+}
+
+.skeu-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(58, 58, 60, 0.5);
+}
+
+.skeu-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Modal */
+.skeu-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.skeu-modal {
+    background: var(--skeu-surface);
+    border: 1px solid var(--skeu-border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.skeu-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--skeu-border);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.skeu-modal-body {
+    padding: 24px;
+}
+
+.skeu-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--skeu-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Empty */
+.skeu-empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--skeu-text-muted);
+}
+
+/* Title */
+.skeu-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: var(--skeu-chrome);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.skeu-subtitle {
+    color: var(--skeu-text-muted);
+    font-size: 0.9375rem;
+}
+
+/* Toggle Switch */
+.skeu-toggle {
+    width: 52px;
+    height: 28px;
+    background: var(--skeu-surface-inset);
+    border: 2px solid var(--skeu-border);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.skeu-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: var(--skeu-chrome);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.skeu-toggle.active {
+    background: linear-gradient(180deg, var(--skeu-led-green) 0%, #1f7a2e 100%);
+    border-color: #1f7a2e;
+}
+
+.skeu-toggle.active::after {
+    transform: translateX(24px);
+}
+
+/* Scrollbar */
+.skeu-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.skeu-mode ::-webkit-scrollbar-track {
+    background: var(--skeu-surface-inset);
+    border-radius: 4px;
+}
+
+.skeu-mode ::-webkit-scrollbar-thumb {
+    background: var(--skeu-metal);
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Grid */
+.skeu-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.skeu-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.skeu-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.skeu-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
