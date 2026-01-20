@@ -20,6 +20,7 @@ import { OutreachPage } from '@/pages/OutreachPage';
 import { ContactFinderPage } from '@/pages/ContactFinderPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
+import { NotesPage } from '@/pages/NotesPage';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
@@ -1087,6 +1088,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ContactFinderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/notes"
+            element={
+              <ProtectedRoute>
+                <NotesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/notes/:noteId"
+            element={
+              <ProtectedRoute>
+                <NotesPage />
               </ProtectedRoute>
             }
           />

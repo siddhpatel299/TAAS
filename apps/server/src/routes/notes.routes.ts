@@ -1,281 +1,378 @@
-import { Router, Response } from 'express';
-import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
-import { asyncHandler, ApiError } from '../middleware/error.middleware';
+import { Router, Request, Response } from 'express';
 import { notesService } from '../services/notes.service';
+import { authMiddleware } from '../middleware/auth.middleware';
 import { pluginsService } from '../services/plugins.service';
 
-const router: Router = Router();
+const router = Router();
 
 // Middleware to check if notes plugin is enabled
-const requireNotesPlugin = asyncHandler(async (req: AuthRequest, res: Response, next: any) => {
-  const enabled = await pluginsService.isPluginEnabled(req.user!.id, 'notes');
-  if (!enabled) {
-    throw new ApiError('Notes & Documents plugin is not enabled. Please enable it in the Plugins page.', 403);
-  }
-  next();
+const requireNotesPlugin = async (req: Request, res: Response, next: Function) => {
+    try {
+        const userId = (req as any).user?.id;
+        if (!userId) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        const isEnabled = await pluginsService.isPluginEnabled(userId, 'notes-documents');
+        if (!isEnabled) {
+            return res.status(403).json({
+                success: false,
+                error: 'Notes & Documents plugin is not enabled',
+            });
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Apply auth middleware to all routes
+router.use(authMiddleware);
+router.use(requireNotesPlugin);
+
+// ====================
+// DASHBOARD
+// ====================
+
+router.get('/dashboard', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const data = await notesService.getDashboard(userId);
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
-// Apply plugin check to all routes except shared note access
-router.use('/shared/:token', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { password } = req.query;
-  const result = await notesService.getSharedNote(req.params.token, password as string);
-  res.json({ success: true, data: result });
-}));
+// ====================
+// NOTES
+// ====================
 
-router.use(authMiddleware, requireNotesPlugin);
+router.get('/notes', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const {
+            folderId,
+            search,
+            tagIds,
+            isPinned,
+            isFavorite,
+            isArchived,
+            isTrashed,
+            sortBy,
+            sortOrder,
+            page,
+            limit,
+        } = req.query;
 
-// ==================== Dashboard ====================
+        const result = await notesService.getNotes({
+            userId,
+            folderId: folderId === 'null' ? null : (folderId as string),
+            search: search as string,
+            tagIds: tagIds ? (tagIds as string).split(',') : undefined,
+            isPinned: isPinned === 'true' ? true : isPinned === 'false' ? false : undefined,
+            isFavorite: isFavorite === 'true' ? true : isFavorite === 'false' ? false : undefined,
+            isArchived: isArchived === 'true',
+            isTrashed: isTrashed === 'true',
+            sortBy: sortBy as any,
+            sortOrder: sortOrder as 'asc' | 'desc',
+            page: page ? parseInt(page as string) : 1,
+            limit: limit ? parseInt(limit as string) : 50,
+        });
 
-router.get('/dashboard', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const stats = await notesService.getDashboardStats(req.user!.id);
-  res.json({ success: true, data: stats });
-}));
+        res.json({ success: true, ...result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// ==================== Notes ====================
+router.get('/notes/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const note = await notesService.getNote(req.params.id, userId);
 
-// Get all notes with filters
-router.get('/notes', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const {
-    folderId,
-    search,
-    tags,
-    isPinned,
-    isFavorite,
-    isArchived,
-    isTrashed,
-    sortBy,
-    sortOrder,
-    page,
-    limit,
-  } = req.query;
+        if (!note) {
+            return res.status(404).json({ success: false, error: 'Note not found' });
+        }
 
-  const result = await notesService.getNotes({
-    userId: req.user!.id,
-    folderId: folderId as string | undefined,
-    search: search as string | undefined,
-    tags: tags ? (tags as string).split(',') : undefined,
-    isPinned: isPinned === 'true' ? true : isPinned === 'false' ? false : undefined,
-    isFavorite: isFavorite === 'true' ? true : isFavorite === 'false' ? false : undefined,
-    isArchived: isArchived === 'true' ? true : isArchived === 'false' ? false : undefined,
-    isTrashed: isTrashed === 'true' ? true : isTrashed === 'false' ? false : undefined,
-    sortBy: sortBy as any,
-    sortOrder: sortOrder as any,
-    page: page ? parseInt(page as string) : 1,
-    limit: limit ? parseInt(limit as string) : 50,
-  });
+        res.json({ success: true, data: note });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-  res.json({
-    success: true,
-    data: result.notes,
-    meta: {
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      hasMore: result.hasMore,
-    },
-  });
-}));
+router.post('/notes', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { title, content, contentJson, contentHtml, folderId, icon, coverImage, color, metadata, tagIds } = req.body;
 
-// Search notes
-router.get('/search', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { q, folderId, tags, limit } = req.query;
+        if (!title) {
+            return res.status(400).json({ success: false, error: 'Title is required' });
+        }
 
-  if (!q) {
-    throw new ApiError('Search query is required', 400);
-  }
+        const note = await notesService.createNote({
+            userId,
+            title,
+            content,
+            contentJson,
+            contentHtml,
+            folderId,
+            icon,
+            coverImage,
+            color,
+            metadata,
+            tagIds,
+        });
 
-  const results = await notesService.searchNotes(req.user!.id, q as string, {
-    folderId: folderId as string | undefined,
-    tags: tags ? (tags as string).split(',') : undefined,
-    limit: limit ? parseInt(limit as string) : 20,
-  });
+        res.status(201).json({ success: true, data: note });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-  res.json({ success: true, data: results });
-}));
+router.patch('/notes/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const note = await notesService.updateNote(req.params.id, userId, req.body);
+        res.json({ success: true, data: note });
+    } catch (error: any) {
+        if (error.message === 'Note not found') {
+            return res.status(404).json({ success: false, error: error.message });
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Get single note
-router.get('/notes/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const note = await notesService.getNote(req.user!.id, req.params.id);
-  res.json({ success: true, data: note });
-}));
+router.delete('/notes/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const permanent = req.query.permanent === 'true';
+        const result = await notesService.deleteNote(req.params.id, userId, permanent);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        if (error.message === 'Note not found') {
+            return res.status(404).json({ success: false, error: error.message });
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Create new note
-router.post('/notes', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const note = await notesService.createNote({
-    userId: req.user!.id,
-    ...req.body,
-  });
-  res.json({ success: true, data: note });
-}));
+router.post('/notes/:id/restore', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const result = await notesService.restoreNote(req.params.id, userId);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Update note
-router.patch('/notes/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { createVersion = true, ...updateData } = req.body;
-  const note = await notesService.updateNote(
-    req.user!.id,
-    req.params.id,
-    updateData,
-    createVersion
-  );
-  res.json({ success: true, data: note });
-}));
+router.post('/notes/:id/duplicate', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const note = await notesService.duplicateNote(req.params.id, userId);
+        res.json({ success: true, data: note });
+    } catch (error: any) {
+        if (error.message === 'Note not found') {
+            return res.status(404).json({ success: false, error: error.message });
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Delete note (move to trash)
-router.delete('/notes/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { permanent } = req.query;
-  await notesService.deleteNote(req.user!.id, req.params.id, permanent === 'true');
-  res.json({ success: true, data: { deleted: true } });
-}));
+// ====================
+// VERSIONS
+// ====================
 
-// Restore note from trash
-router.post('/notes/:id/restore', asyncHandler(async (req: AuthRequest, res: Response) => {
-  await notesService.restoreNote(req.user!.id, req.params.id);
-  res.json({ success: true, data: { restored: true } });
-}));
+router.get('/notes/:id/versions', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const versions = await notesService.getVersions(req.params.id, userId);
+        res.json({ success: true, data: versions });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Duplicate note
-router.post('/notes/:id/duplicate', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const note = await notesService.duplicateNote(req.user!.id, req.params.id);
-  res.json({ success: true, data: note });
-}));
+router.post('/notes/:noteId/versions/:versionId/restore', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const note = await notesService.restoreVersion(req.params.noteId, req.params.versionId, userId);
+        res.json({ success: true, data: note });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// ==================== Versions ====================
+// ====================
+// FOLDERS
+// ====================
 
-// Get note versions
-router.get('/notes/:id/versions', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const versions = await notesService.getNoteVersions(req.user!.id, req.params.id);
-  res.json({ success: true, data: versions });
-}));
+router.get('/folders', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const parentId = req.query.parentId as string | undefined;
+        const folders = await notesService.getFolders(userId, parentId === 'null' ? null : parentId);
+        res.json({ success: true, data: folders });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Restore version
-router.post('/notes/:id/versions/:versionId/restore', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const note = await notesService.restoreVersion(req.user!.id, req.params.id, req.params.versionId);
-  res.json({ success: true, data: note });
-}));
+router.get('/folders/tree', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const tree = await notesService.getFolderTree(userId);
+        res.json({ success: true, data: tree });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// ==================== Folders ====================
+router.post('/folders', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { name, parentId, icon, color } = req.body;
 
-// Get folders
-router.get('/folders', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { parentId } = req.query;
-  const folders = await notesService.getFolders(req.user!.id, parentId as string | undefined);
-  res.json({ success: true, data: folders });
-}));
+        if (!name) {
+            return res.status(400).json({ success: false, error: 'Folder name is required' });
+        }
 
-// Get folder tree
-router.get('/folders/tree', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const tree = await notesService.getFolderTree(req.user!.id);
-  res.json({ success: true, data: tree });
-}));
+        const folder = await notesService.createFolder({
+            userId,
+            name,
+            parentId,
+            icon,
+            color,
+        });
 
-// Create folder
-router.post('/folders', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const folder = await notesService.createFolder({
-    userId: req.user!.id,
-    ...req.body,
-  });
-  res.json({ success: true, data: folder });
-}));
+        res.status(201).json({ success: true, data: folder });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Update folder
-router.patch('/folders/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const folder = await notesService.updateFolder(req.user!.id, req.params.id, req.body);
-  res.json({ success: true, data: folder });
-}));
+router.patch('/folders/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const folder = await notesService.updateFolder(req.params.id, userId, req.body);
+        res.json({ success: true, data: folder });
+    } catch (error: any) {
+        if (error.message.includes('circular')) {
+            return res.status(400).json({ success: false, error: error.message });
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Delete folder
-router.delete('/folders/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  await notesService.deleteFolder(req.user!.id, req.params.id);
-  res.json({ success: true, data: { deleted: true } });
-}));
+router.delete('/folders/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const result = await notesService.deleteFolder(req.params.id, userId);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// ==================== Templates ====================
+// ====================
+// TAGS
+// ====================
 
-// Get templates
-router.get('/templates', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { category } = req.query;
-  const templates = await notesService.getTemplates(req.user!.id, category as string | undefined);
-  res.json({ success: true, data: templates });
-}));
+router.get('/tags', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const tags = await notesService.getTags(userId);
+        res.json({ success: true, data: tags });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Get single template
-router.get('/templates/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const template = await notesService.getTemplate(req.user!.id, req.params.id);
-  res.json({ success: true, data: template });
-}));
+router.post('/tags', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { name, color } = req.body;
 
-// Create template
-router.post('/templates', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const template = await notesService.createTemplate({
-    userId: req.user!.id,
-    ...req.body,
-  });
-  res.json({ success: true, data: template });
-}));
+        if (!name) {
+            return res.status(400).json({ success: false, error: 'Tag name is required' });
+        }
 
-// Update template
-router.patch('/templates/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const template = await notesService.updateTemplate(req.user!.id, req.params.id, req.body);
-  res.json({ success: true, data: template });
-}));
+        const tag = await notesService.createTag({ userId, name, color });
+        res.status(201).json({ success: true, data: tag });
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ success: false, error: 'Tag already exists' });
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Delete template
-router.delete('/templates/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  await notesService.deleteTemplate(req.user!.id, req.params.id);
-  res.json({ success: true, data: { deleted: true } });
-}));
+router.patch('/tags/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { name, color } = req.body;
+        const tag = await notesService.updateTag(req.params.id, userId, { name, color });
+        res.json({ success: true, data: tag });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Use template to create note
-router.post('/templates/:id/use', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { folderId } = req.body;
-  const note = await notesService.useTemplate(req.user!.id, req.params.id, folderId);
-  res.json({ success: true, data: note });
-}));
+router.delete('/tags/:id', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const result = await notesService.deleteTag(req.params.id, userId);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// ==================== Sharing ====================
+// ====================
+// BULK OPERATIONS
+// ====================
 
-// Create share link
-router.post('/notes/:id/share', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const share = await notesService.createShare(req.user!.id, req.params.id, req.body);
-  res.json({ success: true, data: share });
-}));
+router.post('/trash/empty', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const result = await notesService.emptyTrash(userId);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Delete share link
-router.delete('/shares/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  await notesService.deleteShare(req.user!.id, req.params.id);
-  res.json({ success: true, data: { deleted: true } });
-}));
+router.post('/notes/move', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { noteIds, folderId } = req.body;
 
-// ==================== Bulk Operations ====================
+        if (!noteIds || !Array.isArray(noteIds)) {
+            return res.status(400).json({ success: false, error: 'noteIds array is required' });
+        }
 
-// Empty trash
-router.post('/trash/empty', asyncHandler(async (req: AuthRequest, res: Response) => {
-  await notesService.emptyTrash(req.user!.id);
-  res.json({ success: true, data: { success: true } });
-}));
+        const result = await notesService.moveNotesToFolder(noteIds, userId, folderId);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
-// Move notes to folder
-router.post('/notes/move', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { noteIds, folderId } = req.body;
-  
-  if (!noteIds || !Array.isArray(noteIds)) {
-    throw new ApiError('noteIds array is required', 400);
-  }
-  
-  await notesService.moveNotesToFolder(req.user!.id, noteIds, folderId);
-  res.json({ success: true, data: { success: true } });
-}));
+router.post('/notes/bulk-delete', async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.id;
+        const { noteIds, permanent } = req.body;
 
-// Bulk delete notes
-router.post('/notes/bulk-delete', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { noteIds, permanent } = req.body;
-  
-  if (!noteIds || !Array.isArray(noteIds)) {
-    throw new ApiError('noteIds array is required', 400);
-  }
-  
-  await notesService.bulkDelete(req.user!.id, noteIds, permanent);
-  res.json({ success: true, data: { success: true } });
-}));
+        if (!noteIds || !Array.isArray(noteIds)) {
+            return res.status(400).json({ success: false, error: 'noteIds array is required' });
+        }
+
+        const result = await notesService.bulkDelete(noteIds, userId, permanent);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 export default router;

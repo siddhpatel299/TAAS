@@ -1,0 +1,597 @@
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
+import Typography from '@tiptap/extension-typography';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
+import { useEffect, useCallback, useState } from 'react';
+import {
+    Bold,
+    Italic,
+    Underline as UnderlineIcon,
+    Strikethrough,
+    Code,
+    Link as LinkIcon,
+    Heading1,
+    Heading2,
+    Heading3,
+    List,
+    ListOrdered,
+    CheckSquare,
+    Quote,
+    Minus,
+    Table as TableIcon,
+    Code2,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    Highlighter,
+    Undo,
+    Redo,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const lowlight = createLowlight(common);
+
+// ====================
+// SLASH COMMAND ITEMS
+// ====================
+
+interface CommandItem {
+    title: string;
+    description: string;
+    icon: React.ElementType;
+    command: (editor: any) => void;
+}
+
+const slashCommands: CommandItem[] = [
+    {
+        title: 'Heading 1',
+        description: 'Large section heading',
+        icon: Heading1,
+        command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+    },
+    {
+        title: 'Heading 2',
+        description: 'Medium section heading',
+        icon: Heading2,
+        command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+    },
+    {
+        title: 'Heading 3',
+        description: 'Small section heading',
+        icon: Heading3,
+        command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+    },
+    {
+        title: 'Bullet List',
+        description: 'Create a simple bullet list',
+        icon: List,
+        command: (editor) => editor.chain().focus().toggleBulletList().run(),
+    },
+    {
+        title: 'Numbered List',
+        description: 'Create a numbered list',
+        icon: ListOrdered,
+        command: (editor) => editor.chain().focus().toggleOrderedList().run(),
+    },
+    {
+        title: 'Task List',
+        description: 'Track tasks with checkboxes',
+        icon: CheckSquare,
+        command: (editor) => editor.chain().focus().toggleTaskList().run(),
+    },
+    {
+        title: 'Quote',
+        description: 'Capture a quote',
+        icon: Quote,
+        command: (editor) => editor.chain().focus().toggleBlockquote().run(),
+    },
+    {
+        title: 'Code Block',
+        description: 'Display a code snippet',
+        icon: Code2,
+        command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+    },
+    {
+        title: 'Divider',
+        description: 'Visually divide blocks',
+        icon: Minus,
+        command: (editor) => editor.chain().focus().setHorizontalRule().run(),
+    },
+    {
+        title: 'Table',
+        description: 'Add a table',
+        icon: TableIcon,
+        command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+    },
+];
+
+// ====================
+// TOOLBAR BUTTON
+// ====================
+
+interface ToolbarButtonProps {
+    onClick: () => void;
+    isActive?: boolean;
+    disabled?: boolean;
+    children: React.ReactNode;
+    title?: string;
+}
+
+function ToolbarButton({ onClick, isActive, disabled, children, title }: ToolbarButtonProps) {
+    return (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            title={title}
+            className={cn(
+                'p-1.5 rounded hover:bg-gray-200 transition-colors',
+                isActive && 'bg-gray-200 text-sky-600',
+                disabled && 'opacity-50 cursor-not-allowed'
+            )}
+        >
+            {children}
+        </button>
+    );
+}
+
+// ====================
+// SLASH COMMAND MENU
+// ====================
+
+interface SlashCommandMenuProps {
+    editor: any;
+    items: CommandItem[];
+    onClose: () => void;
+}
+
+function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [search, setSearch] = useState('');
+
+    const filteredItems = items.filter((item) =>
+        item.title.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const handleSelect = useCallback((item: CommandItem) => {
+        item.command(editor);
+        onClose();
+    }, [editor, onClose]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedIndex((prev) => (prev + 1) % filteredItems.length);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (filteredItems[selectedIndex]) {
+                    handleSelect(filteredItems[selectedIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [filteredItems, selectedIndex, handleSelect, onClose]);
+
+    return (
+        <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-72 max-h-80 overflow-y-auto">
+            <div className="p-2 border-b border-gray-100">
+                <input
+                    type="text"
+                    placeholder="Search commands..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    autoFocus
+                />
+            </div>
+            <div className="p-1">
+                {filteredItems.length === 0 ? (
+                    <p className="px-3 py-2 text-sm text-gray-400">No commands found</p>
+                ) : (
+                    filteredItems.map((item, index) => (
+                        <button
+                            key={item.title}
+                            onClick={() => handleSelect(item)}
+                            className={cn(
+                                'w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors',
+                                index === selectedIndex ? 'bg-sky-50 text-sky-700' : 'hover:bg-gray-50'
+                            )}
+                        >
+                            <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center">
+                                <item.icon className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium">{item.title}</p>
+                                <p className="text-xs text-gray-400">{item.description}</p>
+                            </div>
+                        </button>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ====================
+// MAIN EDITOR COMPONENT
+// ====================
+
+interface TiptapEditorProps {
+    content: any; // JSON content
+    onChange: (json: any, html: string, text: string) => void;
+    placeholder?: string;
+    editable?: boolean;
+}
+
+export function TiptapEditor({ content, onChange, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
+    const [showSlashMenu, setShowSlashMenu] = useState(false);
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit.configure({
+                codeBlock: false, // We use CodeBlockLowlight instead
+            }),
+            Placeholder.configure({
+                placeholder,
+                emptyEditorClass: 'is-editor-empty',
+            }),
+            Link.configure({
+                openOnClick: false,
+                HTMLAttributes: {
+                    class: 'text-sky-600 underline cursor-pointer hover:text-sky-700',
+                },
+            }),
+            Image.configure({
+                HTMLAttributes: {
+                    class: 'max-w-full rounded-lg',
+                },
+            }),
+            TaskList,
+            TaskItem.configure({
+                nested: true,
+                HTMLAttributes: {
+                    class: 'flex items-start gap-2',
+                },
+            }),
+            Table.configure({
+                resizable: true,
+                HTMLAttributes: {
+                    class: 'border-collapse table-auto w-full',
+                },
+            }),
+            TableRow,
+            TableCell.configure({
+                HTMLAttributes: {
+                    class: 'border border-gray-300 px-3 py-2',
+                },
+            }),
+            TableHeader.configure({
+                HTMLAttributes: {
+                    class: 'border border-gray-300 px-3 py-2 bg-gray-50 font-semibold',
+                },
+            }),
+            Underline,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            Highlight.configure({
+                multicolor: true,
+            }),
+            Typography,
+            CodeBlockLowlight.configure({
+                lowlight,
+                HTMLAttributes: {
+                    class: 'rounded-lg bg-gray-900 text-gray-100 p-4 text-sm font-mono overflow-x-auto',
+                },
+            }),
+        ],
+        content,
+        editable,
+        editorProps: {
+            attributes: {
+                class: 'prose prose-sm sm:prose max-w-none focus:outline-none min-h-[300px]',
+            },
+            handleKeyDown: (view, event) => {
+                if (event.key === '/') {
+                    // Check if we're at the start of a line or after whitespace
+                    const { state } = view;
+                    const { from } = state.selection;
+                    const textBefore = state.doc.textBetween(Math.max(0, from - 1), from);
+                    if (textBefore === '' || textBefore === ' ' || textBefore === '\n') {
+                        setShowSlashMenu(true);
+                        return false;
+                    }
+                }
+                return false;
+            },
+        },
+        onUpdate: ({ editor }) => {
+            const json = editor.getJSON();
+            const html = editor.getHTML();
+            const text = editor.getText();
+            onChange(json, html, text);
+        },
+    });
+
+    // Close slash menu when clicking outside or pressing escape
+    useEffect(() => {
+        const handleClick = () => setShowSlashMenu(false);
+        if (showSlashMenu) {
+            document.addEventListener('click', handleClick);
+            return () => document.removeEventListener('click', handleClick);
+        }
+    }, [showSlashMenu]);
+
+    // Update content when prop changes
+    useEffect(() => {
+        if (editor && content && editor.getJSON() !== content) {
+            editor.commands.setContent(content);
+        }
+    }, [editor, content]);
+
+    if (!editor) return null;
+
+    return (
+        <div className="tiptap-editor relative">
+            {/* Toolbar */}
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-2 py-1 flex items-center gap-1 flex-wrap">
+                {/* Text Formatting */}
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    isActive={editor.isActive('bold')}
+                    title="Bold"
+                >
+                    <Bold className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    isActive={editor.isActive('italic')}
+                    title="Italic"
+                >
+                    <Italic className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    isActive={editor.isActive('underline')}
+                    title="Underline"
+                >
+                    <UnderlineIcon className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    isActive={editor.isActive('strike')}
+                    title="Strikethrough"
+                >
+                    <Strikethrough className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    isActive={editor.isActive('code')}
+                    title="Inline Code"
+                >
+                    <Code className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    isActive={editor.isActive('highlight')}
+                    title="Highlight"
+                >
+                    <Highlighter className="w-4 h-4" />
+                </ToolbarButton>
+
+                <div className="w-px h-6 bg-gray-200 mx-1" />
+
+                {/* Headings */}
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    isActive={editor.isActive('heading', { level: 1 })}
+                    title="Heading 1"
+                >
+                    <Heading1 className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    isActive={editor.isActive('heading', { level: 2 })}
+                    title="Heading 2"
+                >
+                    <Heading2 className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    isActive={editor.isActive('heading', { level: 3 })}
+                    title="Heading 3"
+                >
+                    <Heading3 className="w-4 h-4" />
+                </ToolbarButton>
+
+                <div className="w-px h-6 bg-gray-200 mx-1" />
+
+                {/* Lists */}
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    isActive={editor.isActive('bulletList')}
+                    title="Bullet List"
+                >
+                    <List className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    isActive={editor.isActive('orderedList')}
+                    title="Numbered List"
+                >
+                    <ListOrdered className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleTaskList().run()}
+                    isActive={editor.isActive('taskList')}
+                    title="Task List"
+                >
+                    <CheckSquare className="w-4 h-4" />
+                </ToolbarButton>
+
+                <div className="w-px h-6 bg-gray-200 mx-1" />
+
+                {/* Alignment */}
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    isActive={editor.isActive({ textAlign: 'left' })}
+                    title="Align Left"
+                >
+                    <AlignLeft className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    isActive={editor.isActive({ textAlign: 'center' })}
+                    title="Align Center"
+                >
+                    <AlignCenter className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    isActive={editor.isActive({ textAlign: 'right' })}
+                    title="Align Right"
+                >
+                    <AlignRight className="w-4 h-4" />
+                </ToolbarButton>
+
+                <div className="w-px h-6 bg-gray-200 mx-1" />
+
+                {/* Blocks */}
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    isActive={editor.isActive('blockquote')}
+                    title="Quote"
+                >
+                    <Quote className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                    isActive={editor.isActive('codeBlock')}
+                    title="Code Block"
+                >
+                    <Code2 className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                    title="Insert Table"
+                >
+                    <TableIcon className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                    title="Divider"
+                >
+                    <Minus className="w-4 h-4" />
+                </ToolbarButton>
+
+                <div className="flex-1" />
+
+                {/* Undo/Redo */}
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().undo().run()}
+                    disabled={!editor.can().undo()}
+                    title="Undo"
+                >
+                    <Undo className="w-4 h-4" />
+                </ToolbarButton>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().redo().run()}
+                    disabled={!editor.can().redo()}
+                    title="Redo"
+                >
+                    <Redo className="w-4 h-4" />
+                </ToolbarButton>
+            </div>
+
+            {/* Slash Command Menu */}
+            {showSlashMenu && (
+                <div className="absolute left-4 top-16 z-50" onClick={(e) => e.stopPropagation()}>
+                    <SlashCommandMenu
+                        editor={editor}
+                        items={slashCommands}
+                        onClose={() => setShowSlashMenu(false)}
+                    />
+                </div>
+            )}
+
+            {/* Editor Content */}
+            <div className="p-4">
+                <EditorContent editor={editor} />
+            </div>
+
+            {/* Editor Styles */}
+            <style>{`
+        .tiptap-editor .ProseMirror {
+          min-height: 300px;
+        }
+        .tiptap-editor .ProseMirror:focus {
+          outline: none;
+        }
+        .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+          color: #adb5bd;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+        }
+        .tiptap-editor .ProseMirror ul[data-type="taskList"] {
+          list-style: none;
+          padding: 0;
+        }
+        .tiptap-editor .ProseMirror ul[data-type="taskList"] li {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+        .tiptap-editor .ProseMirror ul[data-type="taskList"] li > label {
+          flex-shrink: 0;
+          margin-top: 0.25rem;
+        }
+        .tiptap-editor .ProseMirror ul[data-type="taskList"] li > div {
+          flex: 1;
+        }
+        .tiptap-editor .ProseMirror blockquote {
+          border-left: 3px solid #e5e7eb;
+          padding-left: 1rem;
+          color: #6b7280;
+          font-style: italic;
+        }
+        .tiptap-editor .ProseMirror hr {
+          border: none;
+          border-top: 2px solid #e5e7eb;
+          margin: 1.5rem 0;
+        }
+        .tiptap-editor .ProseMirror table {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 1rem 0;
+        }
+        .tiptap-editor .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+        }
+      `}</style>
+        </div>
+    );
+}

@@ -451,27 +451,28 @@ model Note {
   userId       String
   folderId     String?
   title        String
-  content      String?   @db.Text
-  contentJson  Json?
-  contentHtml  String?   @db.Text
-  icon         String?
-  coverImage   String?
-  color        String?
+  content      String?   @db.Text  // Plain text for search indexing
+  contentJson  Json?               // Tiptap JSON document
+  contentHtml  String?   @db.Text  // Rendered HTML for sharing
+  icon         String?             // Emoji or icon identifier
+  coverImage   String?             // URL or Telegram file ID
+  color        String?             // Background color
+  metadata     Json?               // Flexible: { status, priority, dueDate, custom fields }
   isPinned     Boolean   @default(false)
   isFavorite   Boolean   @default(false)
   isArchived   Boolean   @default(false)
   isTrashed    Boolean   @default(false)
   trashedAt    DateTime?
-  tags         String[]
-  wordCount    Int?
-  readingTime  Int?
+  wordCount    Int       @default(0)
+  readingTime  Int       @default(0)  // In minutes
   lastEditedAt DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  folder   NoteFolder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  folder   NoteFolder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
   versions NoteVersion[]
   shares   NoteShare[]
+  noteTags NoteTagsOnNotes[]
 
   @@index([userId])
   @@index([folderId])
@@ -479,6 +480,7 @@ model Note {
   @@index([isFavorite])
   @@index([isArchived])
   @@index([isTrashed])
+  @@index([lastEditedAt])
   @@map("nd_notes")
   @@schema("public")
 }
@@ -563,6 +565,39 @@ model NoteShare {
   @@index([token])
   @@index([noteId])
   @@map("nd_shares")
+  @@schema("public")
+}
+
+// Global Tags for Notes (user-defined, reusable)
+model NoteTag {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  color     String?  // Hex color for tag pill
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notes NoteTagsOnNotes[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("nd_tags")
+  @@schema("public")
+}
+
+// Many-to-Many join table for Notes <-> Tags
+model NoteTagsOnNotes {
+  noteId    String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  note Note    @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  tag  NoteTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, tagId])
+  @@index([noteId])
+  @@index([tagId])
+  @@map("nd_notes_tags")
   @@schema("public")
 }
 
