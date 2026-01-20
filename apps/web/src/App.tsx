@@ -256,6 +256,20 @@ import { CanvasOutreachPage } from '@/pages/canvas/CanvasOutreachPage';
 import { CanvasContactFinderPage } from '@/pages/canvas/CanvasContactFinderPage';
 import { CanvasTelegramPage } from '@/pages/canvas/CanvasTelegramPage';
 
+// Comic Book Theme imports
+import { ComicDashboardPage } from '@/pages/comic/ComicDashboardPage';
+import { ComicFilesPage } from '@/pages/comic/ComicFilesPage';
+import { ComicStarredPage } from '@/pages/comic/ComicStarredPage';
+import { ComicTrashPage } from '@/pages/comic/ComicTrashPage';
+import { ComicPluginsPage } from '@/pages/comic/ComicPluginsPage';
+import { ComicTodoPage } from '@/pages/comic/ComicTodoPage';
+import { ComicJobTrackerPage } from '@/pages/comic/ComicJobTrackerPage';
+import { ComicJobApplicationsPage } from '@/pages/comic/ComicJobApplicationsPage';
+import { ComicJobApplicationFormPage } from '@/pages/comic/ComicJobApplicationFormPage';
+import { ComicOutreachPage } from '@/pages/comic/ComicOutreachPage';
+import { ComicContactFinderPage } from '@/pages/comic/ComicContactFinderPage';
+import { ComicTelegramPage } from '@/pages/comic/ComicTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -431,6 +445,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CanvasJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CanvasOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CanvasContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Comic Book Theme
+  if (version === 'comic') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><ComicDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><ComicFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><ComicTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><ComicStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><ComicTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><ComicPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><ComicTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><ComicJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><ComicJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ComicJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ComicOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ComicContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
