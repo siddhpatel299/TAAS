@@ -108,7 +108,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
                             <Palette className="w-4 h-4" />
                             Theme
                         </h3>
-                        <div className="max-h-48 overflow-y-auto pr-1">
+                        <div className="max-h-52 overflow-y-auto p-2 rounded-lg border border-gray-100 bg-gray-50/50">
                             <div className="grid grid-cols-3 gap-2">
                                 {themes.map((theme) => (
                                     <button
