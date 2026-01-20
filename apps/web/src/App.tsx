@@ -200,6 +200,20 @@ import { BrutalistOutreachPage } from '@/pages/brutalist/BrutalistOutreachPage';
 import { BrutalistContactFinderPage } from '@/pages/brutalist/BrutalistContactFinderPage';
 import { BrutalistTelegramPage } from '@/pages/brutalist/BrutalistTelegramPage';
 
+// CRT Theme imports
+import { CRTDashboardPage } from '@/pages/crt/CRTDashboardPage';
+import { CRTFilesPage } from '@/pages/crt/CRTFilesPage';
+import { CRTStarredPage } from '@/pages/crt/CRTStarredPage';
+import { CRTTrashPage } from '@/pages/crt/CRTTrashPage';
+import { CRTPluginsPage } from '@/pages/crt/CRTPluginsPage';
+import { CRTTodoPage } from '@/pages/crt/CRTTodoPage';
+import { CRTJobTrackerPage } from '@/pages/crt/CRTJobTrackerPage';
+import { CRTJobApplicationsPage } from '@/pages/crt/CRTJobApplicationsPage';
+import { CRTJobApplicationFormPage } from '@/pages/crt/CRTJobApplicationFormPage';
+import { CRTOutreachPage } from '@/pages/crt/CRTOutreachPage';
+import { CRTContactFinderPage } from '@/pages/crt/CRTContactFinderPage';
+import { CRTTelegramPage } from '@/pages/crt/CRTTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -255,6 +269,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BrutalistJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BrutalistOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BrutalistContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // CRT Theme
+  if (version === 'crt') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><CRTDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><CRTFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><CRTTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><CRTStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><CRTTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><CRTPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><CRTTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><CRTJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><CRTJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CRTJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CRTOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CRTContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

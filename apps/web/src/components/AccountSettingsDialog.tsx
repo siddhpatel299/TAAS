@@ -42,6 +42,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'blueprint', name: 'Blueprint', description: 'Technical drawing', color: 'bg-blue-900' },
         { id: 'newsprint', name: 'Newsprint', description: 'Editorial newspaper', color: 'bg-stone-200' },
         { id: 'brutalist', name: 'Brutalist', description: 'Neo-brutalism bold', color: 'bg-yellow-400' },
+        { id: 'crt', name: 'CRT', description: 'Retro terminal', color: 'bg-green-900' },
     ] as const;
 
     const handleAddEmail = async () => {
