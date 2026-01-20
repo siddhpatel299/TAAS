@@ -102,7 +102,7 @@ export function CreateFolderDialog({ isOpen, onClose, parentId }: CreateFolderDi
                         transition={{ duration: 0.15 }}
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
                     >
-                        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                        <div className="bg-white rounded-2xl shadow-2xl">
                             {/* Header */}
                             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
                                 <h2 className="text-lg font-semibold text-gray-900">

@@ -229,7 +229,7 @@ export const notesService = {
                 content,
                 contentJson,
                 contentHtml,
-                folderId,
+                folderId: folderId || null,
                 icon,
                 coverImage,
                 color,
@@ -468,7 +468,7 @@ export const notesService = {
             data: {
                 userId,
                 name,
-                parentId,
+                parentId: parentId || null,
                 icon,
                 color,
                 position: (maxPosition._max.position || 0) + 1,
