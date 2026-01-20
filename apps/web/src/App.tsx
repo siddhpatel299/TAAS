@@ -242,6 +242,20 @@ import { ArtDecoOutreachPage } from '@/pages/artdeco/ArtDecoOutreachPage';
 import { ArtDecoContactFinderPage } from '@/pages/artdeco/ArtDecoContactFinderPage';
 import { ArtDecoTelegramPage } from '@/pages/artdeco/ArtDecoTelegramPage';
 
+// Canvas/Museumcore Theme imports
+import { CanvasDashboardPage } from '@/pages/canvas/CanvasDashboardPage';
+import { CanvasFilesPage } from '@/pages/canvas/CanvasFilesPage';
+import { CanvasStarredPage } from '@/pages/canvas/CanvasStarredPage';
+import { CanvasTrashPage } from '@/pages/canvas/CanvasTrashPage';
+import { CanvasPluginsPage } from '@/pages/canvas/CanvasPluginsPage';
+import { CanvasTodoPage } from '@/pages/canvas/CanvasTodoPage';
+import { CanvasJobTrackerPage } from '@/pages/canvas/CanvasJobTrackerPage';
+import { CanvasJobApplicationsPage } from '@/pages/canvas/CanvasJobApplicationsPage';
+import { CanvasJobApplicationFormPage } from '@/pages/canvas/CanvasJobApplicationFormPage';
+import { CanvasOutreachPage } from '@/pages/canvas/CanvasOutreachPage';
+import { CanvasContactFinderPage } from '@/pages/canvas/CanvasContactFinderPage';
+import { CanvasTelegramPage } from '@/pages/canvas/CanvasTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -387,6 +401,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArtDecoJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArtDecoOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArtDecoContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Canvas/Museumcore Theme
+  if (version === 'canvas') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><CanvasDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><CanvasFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><CanvasTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><CanvasStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><CanvasTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><CanvasPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><CanvasTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><CanvasJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><CanvasJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CanvasJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CanvasOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CanvasContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
