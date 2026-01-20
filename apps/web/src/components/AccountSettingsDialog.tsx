@@ -52,6 +52,9 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'aurora', name: 'Aurora', description: 'Flowing waves', color: 'bg-gradient-to-r from-purple-500 to-blue-500' },
         { id: 'zen', name: 'Zen', description: 'Minimalist', color: 'bg-gray-100' },
         { id: 'skeu', name: 'Tactile Tech', description: 'Skeuomorphic', color: 'bg-gradient-to-b from-gray-600 to-gray-800' },
+        { id: 'paper', name: 'Paper', description: 'Stationery', color: 'bg-amber-100' },
+        { id: 'exec', name: 'Executive', description: 'Luxury', color: 'bg-gradient-to-b from-amber-700 to-amber-900' },
+        { id: 'pixel', name: 'Pixel', description: '8-bit Retro', color: 'bg-indigo-900' },
     ] as const;
 
     const handleAddEmail = async () => {
@@ -105,21 +108,23 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
                             <Palette className="w-4 h-4" />
                             Theme
                         </h3>
-                        <div className="grid grid-cols-3 gap-2">
-                            {themes.map((theme) => (
-                                <button
-                                    key={theme.id}
-                                    onClick={() => setVersion(theme.id)}
-                                    className={`p-3 rounded-xl border-2 transition-all text-left ${version === theme.id
-                                        ? 'border-sky-500 bg-sky-50'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                                        }`}
-                                >
-                                    <div className={`w-6 h-6 rounded-lg ${theme.color} mb-2`} />
-                                    <p className="text-sm font-medium">{theme.name}</p>
-                                    <p className="text-xs text-gray-500">{theme.description}</p>
-                                </button>
-                            ))}
+                        <div className="max-h-48 overflow-y-auto pr-1">
+                            <div className="grid grid-cols-3 gap-2">
+                                {themes.map((theme) => (
+                                    <button
+                                        key={theme.id}
+                                        onClick={() => setVersion(theme.id)}
+                                        className={`p-3 rounded-xl border-2 transition-all text-left ${version === theme.id
+                                            ? 'border-sky-500 bg-sky-50'
+                                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                                            }`}
+                                    >
+                                        <div className={`w-6 h-6 rounded-lg ${theme.color} mb-2`} />
+                                        <p className="text-sm font-medium">{theme.name}</p>
+                                        <p className="text-xs text-gray-500">{theme.description}</p>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

@@ -33,11 +33,11 @@ export function BrutalistContactFinderPage() {
                 <BrutalistTitle>Contact Finder</BrutalistTitle>
             </div>
 
-            <BrutalistCard color="yellow" className="mb-8">
+            <BrutalistCard color="gray" className="mb-8">
                 <p className="mb-4 font-semibold">Find HR and recruiting contacts at your target companies.</p>
                 <div className="flex gap-4">
                     <input type="text" value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} placeholder="Enter company name..." className="brutalist-input flex-1" />
-                    <BrutalistButton color="blue" onClick={handleSearch} disabled={loading}><Search className="w-5 h-5" /> Search</BrutalistButton>
+                    <BrutalistButton variant="primary" onClick={handleSearch} disabled={loading}><Search className="w-5 h-5" /> Search</BrutalistButton>
                 </div>
             </BrutalistCard>
 

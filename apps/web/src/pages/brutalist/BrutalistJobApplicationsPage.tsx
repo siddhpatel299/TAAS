@@ -16,7 +16,6 @@ export function BrutalistJobApplicationsPage() {
     const loadApps = useCallback(async () => { setLoading(true); try { const r = await jobTrackerApi.getApplications(); setApps(r.data?.data || []); } catch (e) { console.error(e); } finally { setLoading(false); } }, []);
     useEffect(() => { loadApps(); }, [loadApps]);
 
-    const statusColors: Record<string, 'yellow' | 'blue' | 'green' | 'red'> = { applied: 'yellow', interviewing: 'blue', offered: 'green', rejected: 'red' };
     const statuses = ['all', 'saved', 'applied', 'interviewing', 'offered', 'rejected'];
     const filteredApps = apps.filter(a => { const ms = !search || a.company.toLowerCase().includes(search.toLowerCase()) || a.jobTitle?.toLowerCase().includes(search.toLowerCase()); const mst = statusFilter === 'all' || a.status === statusFilter; return ms && mst; });
 
@@ -27,11 +26,11 @@ export function BrutalistJobApplicationsPage() {
                     <Link to="/plugins/job-tracker"><BrutalistButton><ArrowLeft className="w-5 h-5" /></BrutalistButton></Link>
                     <BrutalistTitle>Applications</BrutalistTitle>
                 </div>
-                <BrutalistButton color="yellow" onClick={() => navigate('/plugins/job-tracker/applications/new')}><Plus className="w-5 h-5" /> New</BrutalistButton>
+                <BrutalistButton variant="primary" onClick={() => navigate('/plugins/job-tracker/applications/new')}><Plus className="w-5 h-5" /> New</BrutalistButton>
             </div>
 
             <BrutalistCard className="mb-6 flex items-center justify-between">
-                <div className="flex gap-2">{statuses.map(s => (<button key={s} onClick={() => setStatusFilter(s)} className={cn("brutalist-btn !shadow-none", statusFilter === s && "brutalist-btn-yellow")}>{s}</button>))}</div>
+                <div className="flex gap-2">{statuses.map(s => (<button key={s} onClick={() => setStatusFilter(s)} className={cn("brutalist-btn !shadow-none", statusFilter === s && "brutalist-btn-primary")}>{s}</button>))}</div>
                 <div className="relative w-64">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50" />
                     <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." className="brutalist-input !pl-12" />
@@ -42,7 +41,7 @@ export function BrutalistJobApplicationsPage() {
                 filteredApps.length === 0 ? <BrutalistEmpty text={search || statusFilter !== 'all' ? 'No matching apps' : 'No applications yet'} /> :
                     <BrutalistCard className="!p-0">
                         <BrutalistTable headers={['Company', 'Position', 'Status', 'Priority', '']}>
-                            {filteredApps.map((a) => (<tr key={a.id}><td className="font-bold">{a.company}</td><td>{a.jobTitle}</td><td><BrutalistBadge color={statusColors[a.status] || 'yellow'}>{a.status}</BrutalistBadge></td><td><BrutalistBadge color={a.priority === 'high' ? 'red' : 'white'}>{a.priority}</BrutalistBadge></td><td><Link to={`/plugins/job-tracker/applications/${a.id}`}><BrutalistButton>Edit</BrutalistButton></Link></td></tr>))}
+                            {filteredApps.map((a) => (<tr key={a.id}><td className="font-bold">{a.company}</td><td>{a.jobTitle}</td><td><BrutalistBadge variant={a.status === 'offered' || a.status === 'interviewing' ? 'inverted' : 'default'}>{a.status}</BrutalistBadge></td><td><BrutalistBadge variant={a.priority === 'high' ? 'inverted' : 'default'}>{a.priority}</BrutalistBadge></td><td><Link to={`/plugins/job-tracker/applications/${a.id}`}><BrutalistButton>Edit</BrutalistButton></Link></td></tr>))}
                         </BrutalistTable>
                     </BrutalistCard>}
         </BrutalistLayout>

@@ -28,8 +28,8 @@ export function BrutalistJobApplicationFormPage() {
                     <BrutalistTitle>Edit Application</BrutalistTitle>
                 </div>
                 <div className="flex gap-3">
-                    <BrutalistButton color="red" onClick={handleDelete}><Trash2 className="w-5 h-5" /> Delete</BrutalistButton>
-                    <BrutalistButton color="green" onClick={handleSave} disabled={saving}>{saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save</BrutalistButton>
+                    <BrutalistButton onClick={handleDelete}><Trash2 className="w-5 h-5" /> Delete</BrutalistButton>
+                    <BrutalistButton variant="primary" onClick={handleSave} disabled={saving}>{saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save</BrutalistButton>
                 </div>
             </div>
 

@@ -25,10 +25,10 @@ export function BrutalistOutreachPage() {
             </div>
 
             <div className="brutalist-grid brutalist-grid-4 mb-8">
-                <BrutalistStat value={stats.total} label="Total Sent" color="yellow" />
-                <BrutalistStat value={stats.sent} label="Delivered" color="pink" />
-                <BrutalistStat value={stats.opened} label="Opened" color="blue" />
-                <BrutalistStat value={stats.replied} label="Replied" color="green" />
+                <BrutalistStat value={stats.total} label="Total Sent" inverted />
+                <BrutalistStat value={stats.sent} label="Delivered" />
+                <BrutalistStat value={stats.opened} label="Opened" />
+                <BrutalistStat value={stats.replied} label="Replied" />
             </div>
 
             <BrutalistCard className="mb-4 flex items-center justify-between">
@@ -36,14 +36,14 @@ export function BrutalistOutreachPage() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50" />
                     <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search emails..." className="brutalist-input !pl-12" />
                 </div>
-                <BrutalistButton color="yellow" onClick={loadEmails}><RefreshCw className="w-5 h-5" /> Refresh</BrutalistButton>
+                <BrutalistButton variant="primary" onClick={loadEmails}><RefreshCw className="w-5 h-5" /> Refresh</BrutalistButton>
             </BrutalistCard>
 
             {loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-10 h-10 animate-spin" /></div> :
                 filteredEmails.length === 0 ? <BrutalistEmpty text="No emails sent yet" icon={<Mail />} /> :
                     <BrutalistCard className="!p-0">
                         <BrutalistTable headers={['Recipient', 'Subject', 'Status', 'Date']}>
-                            {filteredEmails.map((e) => (<tr key={e.id}><td className="font-bold">{e.recipientEmail}</td><td>{e.subject}</td><td><BrutalistBadge color={e.status === 'replied' ? 'green' : 'yellow'}>{e.status}</BrutalistBadge></td><td>{formatDate(e.createdAt)}</td></tr>))}
+                            {filteredEmails.map((e) => (<tr key={e.id}><td className="font-bold">{e.recipientEmail}</td><td>{e.subject}</td><td><BrutalistBadge variant={e.status === 'replied' ? 'inverted' : 'default'}>{e.status}</BrutalistBadge></td><td>{formatDate(e.createdAt)}</td></tr>))}
                         </BrutalistTable>
                     </BrutalistCard>}
         </BrutalistLayout>

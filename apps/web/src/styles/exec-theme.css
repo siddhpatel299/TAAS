@@ -1,0 +1,399 @@
+/* Corporate Executive Theme - Luxury dark wood, leather textures, gold accents */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Libre+Baskerville:wght@400;700&display=swap');
+
+:root {
+    /* Executive colors */
+    --exec-bg: #0d0c0a;
+    --exec-surface: #1a1714;
+    --exec-wood: linear-gradient(135deg, #2a2520 0%, #1a1714 50%, #252018 100%);
+    --exec-leather: #1c1916;
+
+    /* Gold accents */
+    --exec-gold: #c9a456;
+    --exec-gold-light: #e8d4a0;
+    --exec-gold-dark: #8b7335;
+
+    /* Accent colors */
+    --exec-burgundy: #722f37;
+    --exec-navy: #1a2a4a;
+    --exec-green: #1a4a2a;
+
+    /* Text */
+    --exec-text: #f5f0e8;
+    --exec-text-muted: #a89f92;
+    --exec-text-gold: var(--exec-gold);
+
+    /* Borders */
+    --exec-border: #3a3530;
+    --exec-border-gold: rgba(201, 164, 86, 0.3);
+
+    /* Typography */
+    --font-exec-heading: 'Cormorant Garamond', serif;
+    --font-exec-body: 'Libre Baskerville', serif;
+}
+
+/* Base */
+.exec-mode {
+    background: var(--exec-bg);
+    background-image:
+        radial-gradient(ellipse at top left, rgba(201, 164, 86, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(114, 47, 55, 0.03) 0%, transparent 50%);
+    color: var(--exec-text);
+    font-family: var(--font-exec-body);
+    min-height: 100vh;
+}
+
+/* Header - mahogany bar */
+.exec-header {
+    background: var(--exec-wood);
+    border-bottom: 1px solid var(--exec-border-gold);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.exec-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--exec-gold) 50%, transparent 100%);
+}
+
+.exec-logo {
+    font-family: var(--font-exec-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--exec-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.exec-nav {
+    display: flex;
+    gap: 32px;
+}
+
+.exec-nav-link {
+    font-family: var(--font-exec-heading);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--exec-text-muted);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.3s;
+}
+
+.exec-nav-link:hover {
+    color: var(--exec-text);
+}
+
+.exec-nav-link.active {
+    color: var(--exec-gold);
+}
+
+.exec-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--exec-gold);
+}
+
+/* Card - leather panel */
+.exec-card {
+    background: var(--exec-leather);
+    border: 1px solid var(--exec-border);
+    padding: 32px;
+    position: relative;
+}
+
+.exec-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--exec-border-gold) 50%, transparent 100%);
+}
+
+/* Button - brass finish */
+.exec-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-family: var(--font-exec-heading);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: transparent;
+    border: 1px solid var(--exec-border);
+    color: var(--exec-text);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.exec-btn:hover {
+    border-color: var(--exec-gold);
+    color: var(--exec-gold);
+}
+
+.exec-btn-primary {
+    background: linear-gradient(180deg, var(--exec-gold) 0%, var(--exec-gold-dark) 100%);
+    border: none;
+    color: var(--exec-bg);
+}
+
+.exec-btn-primary:hover {
+    background: linear-gradient(180deg, var(--exec-gold-light) 0%, var(--exec-gold) 100%);
+    color: var(--exec-bg);
+}
+
+.exec-btn-ghost {
+    border: none;
+}
+
+/* Input - inlaid field */
+.exec-input {
+    width: 100%;
+    padding: 14px 20px;
+    font-family: var(--font-exec-body);
+    font-size: 1rem;
+    background: var(--exec-bg);
+    border: 1px solid var(--exec-border);
+    color: var(--exec-text);
+    transition: all 0.3s;
+}
+
+.exec-input:focus {
+    outline: none;
+    border-color: var(--exec-gold);
+}
+
+.exec-input::placeholder {
+    color: var(--exec-text-muted);
+    font-style: italic;
+}
+
+/* Stat - brass numbers */
+.exec-stat {
+    text-align: center;
+    padding: 24px;
+}
+
+.exec-stat-value {
+    font-family: var(--font-exec-heading);
+    font-size: 3rem;
+    font-weight: 600;
+    color: var(--exec-gold);
+}
+
+.exec-stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--exec-text-muted);
+    margin-top: 8px;
+}
+
+/* Badge - gold seal */
+.exec-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    font-family: var(--font-exec-heading);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: transparent;
+    border: 1px solid var(--exec-gold);
+    color: var(--exec-gold);
+}
+
+.exec-badge-burgundy {
+    border-color: var(--exec-burgundy);
+    color: #d4787f;
+}
+
+.exec-badge-navy {
+    border-color: var(--exec-navy);
+    color: #5a7ab4;
+}
+
+.exec-badge-green {
+    border-color: var(--exec-green);
+    color: #5ab47a;
+}
+
+/* File Row */
+.exec-file-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--exec-border);
+}
+
+.exec-file-row:last-child {
+    border-bottom: none;
+}
+
+.exec-file-row:hover {
+    background: rgba(201, 164, 86, 0.02);
+}
+
+/* Table */
+.exec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-exec-body);
+}
+
+.exec-table th {
+    text-align: left;
+    padding: 16px 20px;
+    font-family: var(--font-exec-heading);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--exec-gold);
+    border-bottom: 1px solid var(--exec-border-gold);
+}
+
+.exec-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--exec-border);
+}
+
+.exec-table tr:hover td {
+    background: rgba(201, 164, 86, 0.02);
+}
+
+/* Modal */
+.exec-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 12, 10, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.exec-modal {
+    background: var(--exec-leather);
+    border: 1px solid var(--exec-border);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+}
+
+.exec-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--exec-gold) 50%, transparent 100%);
+}
+
+.exec-modal-header {
+    padding: 24px 32px;
+    font-family: var(--font-exec-heading);
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--exec-gold);
+    border-bottom: 1px solid var(--exec-border);
+}
+
+.exec-modal-body {
+    padding: 32px;
+}
+
+.exec-modal-footer {
+    padding: 20px 32px;
+    border-top: 1px solid var(--exec-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+/* Empty */
+.exec-empty {
+    text-align: center;
+    padding: 64px;
+    color: var(--exec-text-muted);
+    font-style: italic;
+}
+
+/* Title */
+.exec-title {
+    font-family: var(--font-exec-heading);
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: var(--exec-gold);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.exec-subtitle {
+    font-family: var(--font-exec-heading);
+    font-size: 1rem;
+    color: var(--exec-text-muted);
+    font-style: italic;
+}
+
+/* Divider */
+.exec-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--exec-border) 50%, transparent 100%);
+    margin: 32px 0;
+}
+
+/* Scrollbar */
+.exec-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.exec-mode ::-webkit-scrollbar-track {
+    background: var(--exec-bg);
+}
+
+.exec-mode ::-webkit-scrollbar-thumb {
+    background: var(--exec-border);
+}
+
+.exec-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--exec-gold-dark);
+}
+
+/* Grid */
+.exec-grid {
+    display: grid;
+    gap: 32px;
+}
+
+.exec-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.exec-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.exec-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}

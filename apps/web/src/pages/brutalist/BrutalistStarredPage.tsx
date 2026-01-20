@@ -26,7 +26,7 @@ export function BrutalistStarredPage() {
             {loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-10 h-10 animate-spin" /></div> :
                 files.length === 0 ? <BrutalistEmpty text="No starred files yet" icon={<Star />} /> :
                     <BrutalistCard className="!p-0">
-                        {files.map((f) => { const Icon = getFileIcon(f.mimeType); return <BrutalistFileRow key={f.id} icon={<Icon className="w-6 h-6" />} name={f.originalName || f.name} meta={formatFileSize(f.size)} actions={<BrutalistButton color="pink" onClick={() => handleUnstar(f.id)}><Star className="w-4 h-4 fill-current" /> Unstar</BrutalistButton>} />; })}
+                        {files.map((f) => { const Icon = getFileIcon(f.mimeType); return <BrutalistFileRow key={f.id} icon={<Icon className="w-6 h-6" />} name={f.originalName || f.name} meta={formatFileSize(f.size)} actions={<BrutalistButton variant="primary" onClick={() => handleUnstar(f.id)}><Star className="w-4 h-4 fill-current" /> Unstar</BrutalistButton>} />; })}
                     </BrutalistCard>}
         </BrutalistLayout>
     );

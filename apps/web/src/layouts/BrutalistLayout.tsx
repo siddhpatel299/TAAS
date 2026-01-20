@@ -54,7 +54,7 @@ export function BrutalistLayout({ children }: LayoutProps) {
                     <button onClick={() => setSettingsOpen(true)} className="brutalist-btn !p-2">
                         <Settings className="w-5 h-5" />
                     </button>
-                    <button onClick={logout} className="brutalist-btn brutalist-btn-red !p-2">
+                    <button onClick={logout} className="brutalist-btn brutalist-btn-primary !p-2">
                         <LogOut className="w-5 h-5" />
                     </button>
                 </div>

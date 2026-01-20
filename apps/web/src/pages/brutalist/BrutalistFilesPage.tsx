@@ -68,8 +68,8 @@ export function BrutalistFilesPage() {
                     )}
                 </div>
                 <div className="flex items-center gap-3">
-                    <label><input type="file" multiple className="hidden" onChange={handleUpload} /><span className="brutalist-btn brutalist-btn-yellow cursor-pointer"><Upload className="w-5 h-5" /> Upload</span></label>
-                    <BrutalistButton color="pink" onClick={() => setShowNewFolder(true)}><FolderPlus className="w-5 h-5" /> New Folder</BrutalistButton>
+                    <label><input type="file" multiple className="hidden" onChange={handleUpload} /><span className="brutalist-btn brutalist-btn-primary cursor-pointer"><Upload className="w-5 h-5" /> Upload</span></label>
+                    <BrutalistButton variant="primary" onClick={() => setShowNewFolder(true)}><FolderPlus className="w-5 h-5" /> New Folder</BrutalistButton>
                 </div>
             </div>
 
@@ -81,9 +81,9 @@ export function BrutalistFilesPage() {
                 </div>
                 {selected.size > 0 && (
                     <div className="flex items-center gap-3">
-                        <BrutalistBadge color="pink">{selected.size} selected</BrutalistBadge>
+                        <BrutalistBadge variant="inverted">{selected.size} selected</BrutalistBadge>
                         <BrutalistButton onClick={() => { loadAllFolders(); setShowMove(true); }}>Move</BrutalistButton>
-                        <BrutalistButton color="red" onClick={handleBulkDelete}><Trash2 className="w-4 h-4" /></BrutalistButton>
+                        <BrutalistButton variant="primary" onClick={handleBulkDelete}><Trash2 className="w-4 h-4" /></BrutalistButton>
                     </div>
                 )}
             </BrutalistCard>
@@ -93,7 +93,7 @@ export function BrutalistFilesPage() {
                 filteredFolders.length === 0 && filteredFiles.length === 0 ? <BrutalistEmpty text={search ? 'No matching files' : 'This folder is empty'} icon={<Folder />} /> : (
                     <div className="grid grid-cols-4 gap-4 mb-6">
                         {filteredFolders.map((folder) => (
-                            <BrutalistCard key={folder.id} color="yellow" onClick={() => setSearchParams({ folderId: folder.id })} className="flex items-center gap-3">
+                            <BrutalistCard key={folder.id} color="gray" onClick={() => setSearchParams({ folderId: folder.id })} className="flex items-center gap-3">
                                 <Folder className="w-8 h-8" />
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold truncate">{folder.name}</p>
@@ -119,7 +119,7 @@ export function BrutalistFilesPage() {
                                 onClick={() => toggleSelect(file.id)}
                                 actions={
                                     <div className="flex items-center gap-2">
-                                        {file.isStarred && <BrutalistBadge color="yellow">★</BrutalistBadge>}
+                                        {file.isStarred && <BrutalistBadge variant="inverted">★</BrutalistBadge>}
                                         <button onClick={(e) => { e.stopPropagation(); handleStar(file.id); }}><Star className={cn("w-5 h-5", file.isStarred && "fill-current")} /></button>
                                         <button onClick={(e) => { e.stopPropagation(); handleDownload(file); }}><Download className="w-5 h-5" /></button>
                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }} className="text-red-600"><Trash2 className="w-5 h-5" /></button>
@@ -131,14 +131,14 @@ export function BrutalistFilesPage() {
                 </BrutalistCard>
             )}
 
-            <BrutalistModal open={showNewFolder} onClose={() => setShowNewFolder(false)} title="New Folder" footer={<><BrutalistButton onClick={() => setShowNewFolder(false)}>Cancel</BrutalistButton><BrutalistButton color="yellow" onClick={handleCreateFolder}>Create</BrutalistButton></>}>
+            <BrutalistModal open={showNewFolder} onClose={() => setShowNewFolder(false)} title="New Folder" footer={<><BrutalistButton onClick={() => setShowNewFolder(false)}>Cancel</BrutalistButton><BrutalistButton variant="primary" onClick={handleCreateFolder}>Create</BrutalistButton></>}>
                 <BrutalistInput value={newFolderName} onChange={setNewFolderName} placeholder="Folder name" />
             </BrutalistModal>
 
-            <BrutalistModal open={showMove} onClose={() => setShowMove(false)} title="Move Files" footer={<><BrutalistButton onClick={() => setShowMove(false)}>Cancel</BrutalistButton><BrutalistButton color="blue" onClick={handleBulkMove}>Move</BrutalistButton></>}>
+            <BrutalistModal open={showMove} onClose={() => setShowMove(false)} title="Move Files" footer={<><BrutalistButton onClick={() => setShowMove(false)}>Cancel</BrutalistButton><BrutalistButton variant="primary" onClick={handleBulkMove}>Move</BrutalistButton></>}>
                 <div className="max-h-64 overflow-y-auto border-3 border-black">
-                    <button onClick={() => setMoveTarget(null)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", !moveTarget && "bg-[var(--brutalist-yellow)]")}><Folder className="w-5 h-5" /> Root</button>
-                    {allFolders.map((f) => (<button key={f.id} onClick={() => setMoveTarget(f.id)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", moveTarget === f.id && "bg-[var(--brutalist-yellow)]")}><Folder className="w-5 h-5" /> {f.name}</button>))}
+                    <button onClick={() => setMoveTarget(null)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", !moveTarget && "bg-[var(--brutalist-gray)]")}><Folder className="w-5 h-5" /> Root</button>
+                    {allFolders.map((f) => (<button key={f.id} onClick={() => setMoveTarget(f.id)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", moveTarget === f.id && "bg-[var(--brutalist-gray)]")}><Folder className="w-5 h-5" /> {f.name}</button>))}
                 </div>
             </BrutalistModal>
         </BrutalistLayout>

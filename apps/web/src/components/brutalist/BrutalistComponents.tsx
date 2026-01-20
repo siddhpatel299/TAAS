@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface CardProps {
     children: ReactNode;
     className?: string;
-    color?: 'white' | 'yellow' | 'pink' | 'blue' | 'green' | 'purple' | 'orange';
+    color?: 'white' | 'inverted' | 'gray';
     onClick?: () => void;
 }
 
@@ -15,16 +15,16 @@ export function BrutalistCard({ children, className, color = 'white', onClick }:
 
 interface ButtonProps {
     children: ReactNode;
-    color?: 'white' | 'yellow' | 'pink' | 'blue' | 'green' | 'red';
+    variant?: 'default' | 'primary' | 'ghost';
     onClick?: () => void;
     disabled?: boolean;
     className?: string;
     type?: 'button' | 'submit';
 }
 
-export function BrutalistButton({ children, color = 'white', onClick, disabled, className, type = 'button' }: ButtonProps) {
-    const colorClass = color !== 'white' ? `brutalist-btn-${color}` : '';
-    return <button type={type} onClick={onClick} disabled={disabled} className={cn("brutalist-btn", colorClass, className)}>{children}</button>;
+export function BrutalistButton({ children, variant = 'default', onClick, disabled, className, type = 'button' }: ButtonProps) {
+    const variantClass = variant === 'primary' ? 'brutalist-btn-primary' : variant === 'ghost' ? 'brutalist-btn-ghost' : '';
+    return <button type={type} onClick={onClick} disabled={disabled} className={cn("brutalist-btn", variantClass, className)}>{children}</button>;
 }
 
 interface InputProps {
@@ -42,13 +42,12 @@ export function BrutalistInput({ value, onChange, placeholder, className, type =
 interface StatProps {
     value: string | number;
     label: string;
-    color?: 'white' | 'yellow' | 'pink' | 'blue' | 'green';
+    inverted?: boolean;
 }
 
-export function BrutalistStat({ value, label, color = 'white' }: StatProps) {
-    const colorClass = color !== 'white' ? `brutalist-card-${color}` : '';
+export function BrutalistStat({ value, label, inverted }: StatProps) {
     return (
-        <div className={cn("brutalist-card brutalist-stat", colorClass)}>
+        <div className={cn("brutalist-card brutalist-stat", inverted && "brutalist-card-inverted")}>
             <div className="brutalist-stat-value">{value}</div>
             <div className="brutalist-stat-label">{label}</div>
         </div>
@@ -57,12 +56,12 @@ export function BrutalistStat({ value, label, color = 'white' }: StatProps) {
 
 interface BadgeProps {
     children: ReactNode;
-    color?: 'white' | 'yellow' | 'pink' | 'blue' | 'green' | 'red';
+    variant?: 'default' | 'inverted' | 'gray';
 }
 
-export function BrutalistBadge({ children, color = 'white' }: BadgeProps) {
-    const colorClass = color !== 'white' ? `brutalist-badge-${color}` : '';
-    return <span className={cn("brutalist-badge", colorClass)}>{children}</span>;
+export function BrutalistBadge({ children, variant = 'default' }: BadgeProps) {
+    const variantClass = variant === 'inverted' ? 'brutalist-badge-inverted' : variant === 'gray' ? 'brutalist-badge-gray' : '';
+    return <span className={cn("brutalist-badge", variantClass)}>{children}</span>;
 }
 
 interface FileRowProps {
@@ -76,7 +75,7 @@ interface FileRowProps {
 
 export function BrutalistFileRow({ icon, name, meta, actions, onClick, selected }: FileRowProps) {
     return (
-        <div className={cn("brutalist-file-row", selected && "!bg-[var(--brutalist-pink)]")} onClick={onClick}>
+        <div className={cn("brutalist-file-row", selected && "!bg-[var(--brutalist-gray)]")} onClick={onClick}>
             <div className="text-xl">{icon}</div>
             <div className="flex-1 min-w-0">
                 <p className="font-semibold truncate">{name}</p>
@@ -142,4 +141,17 @@ interface TitleProps {
 
 export function BrutalistTitle({ children }: TitleProps) {
     return <h1 className="brutalist-title">{children}</h1>;
+}
+
+interface CheckboxProps {
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+}
+
+export function BrutalistCheckbox({ checked, onChange }: CheckboxProps) {
+    return (
+        <div className={cn("brutalist-checkbox", checked && "checked")} onClick={() => onChange(!checked)}>
+            {checked && <span className="text-sm font-bold">✓</span>}
+        </div>
+    );
 }

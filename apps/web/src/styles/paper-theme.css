@@ -1,0 +1,422 @@
+/* Paper/Stationery Theme - Kraft paper textures, handwritten fonts, sticky notes */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Indie+Flower&display=swap');
+
+:root {
+    /* Paper colors */
+    --paper-kraft: #d4c4a8;
+    --paper-cream: #f5f0e1;
+    --paper-white: #fdfcf7;
+    --paper-aged: #e8dcc8;
+
+    /* Ink colors */
+    --ink-black: #2c2416;
+    --ink-blue: #1a4c7c;
+    --ink-red: #8b3a3a;
+    --ink-green: #3a5f3a;
+
+    /* Sticky note colors */
+    --sticky-yellow: #fff740;
+    --sticky-pink: #ff7eb9;
+    --sticky-blue: #7afcff;
+    --sticky-green: #7cff7c;
+    --sticky-orange: #ffb347;
+
+    /* Accessories */
+    --tape: rgba(255, 255, 200, 0.7);
+    --shadow: rgba(44, 36, 22, 0.15);
+
+    /* Typography */
+    --font-handwritten: 'Caveat', cursive;
+    --font-notes: 'Patrick Hand', cursive;
+    --font-title: 'Indie Flower', cursive;
+}
+
+/* Base */
+.paper-mode {
+    background: var(--paper-kraft);
+    background-image:
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 24px,
+            rgba(139, 69, 19, 0.05) 24px,
+            rgba(139, 69, 19, 0.05) 25px);
+    color: var(--ink-black);
+    font-family: var(--font-notes);
+    min-height: 100vh;
+}
+
+/* Header - torn paper edge */
+.paper-header {
+    background: var(--paper-white);
+    border-bottom: none;
+    box-shadow: 0 4px 8px var(--shadow);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.paper-header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath fill='%23fdfcf7' d='M0 0 Q5 8 10 0 T20 0 T30 0 T40 0 T50 0 T60 0 T70 0 T80 0 T90 0 T100 0 V10 H0 Z'/%3E%3C/svg%3E") repeat-x;
+    background-size: 20px 8px;
+}
+
+.paper-logo {
+    font-family: var(--font-title);
+    font-size: 1.75rem;
+    color: var(--ink-black);
+}
+
+.paper-nav {
+    display: flex;
+    gap: 24px;
+}
+
+.paper-nav-link {
+    font-family: var(--font-handwritten);
+    font-size: 1.25rem;
+    color: var(--ink-blue);
+    text-decoration: none;
+    position: relative;
+}
+
+.paper-nav-link:hover {
+    text-decoration: underline;
+    text-decoration-style: wavy;
+}
+
+.paper-nav-link.active {
+    color: var(--ink-red);
+}
+
+/* Card - paper note */
+.paper-card {
+    background: var(--paper-white);
+    padding: 24px;
+    box-shadow: 3px 3px 8px var(--shadow);
+    position: relative;
+    transform: rotate(-0.5deg);
+}
+
+.paper-card:nth-child(even) {
+    transform: rotate(0.5deg);
+}
+
+/* Tape decoration */
+.paper-card::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    width: 60px;
+    height: 20px;
+    background: var(--tape);
+    border: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+/* Sticky Note */
+.paper-sticky {
+    padding: 20px;
+    box-shadow: 2px 4px 6px var(--shadow);
+    position: relative;
+    font-family: var(--font-handwritten);
+    font-size: 1.125rem;
+}
+
+.paper-sticky-yellow {
+    background: var(--sticky-yellow);
+}
+
+.paper-sticky-pink {
+    background: var(--sticky-pink);
+}
+
+.paper-sticky-blue {
+    background: var(--sticky-blue);
+}
+
+.paper-sticky-green {
+    background: var(--sticky-green);
+}
+
+.paper-sticky-orange {
+    background: var(--sticky-orange);
+}
+
+/* Button - stamp look */
+.paper-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-family: var(--font-notes);
+    font-size: 1rem;
+    background: var(--paper-cream);
+    border: 2px dashed var(--ink-black);
+    color: var(--ink-black);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.paper-btn:hover {
+    background: var(--paper-white);
+    transform: scale(1.02);
+}
+
+.paper-btn-primary {
+    background: var(--ink-blue);
+    border-style: solid;
+    color: var(--paper-white);
+}
+
+.paper-btn-primary:hover {
+    background: #15406a;
+}
+
+.paper-btn-ghost {
+    background: transparent;
+    border: none;
+}
+
+/* Input - lined paper */
+.paper-input {
+    width: 100%;
+    padding: 12px 0;
+    font-family: var(--font-handwritten);
+    font-size: 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--ink-blue);
+    color: var(--ink-black);
+}
+
+.paper-input:focus {
+    outline: none;
+    border-bottom: 2px solid var(--ink-blue);
+}
+
+.paper-input::placeholder {
+    color: rgba(44, 36, 22, 0.4);
+    font-style: italic;
+}
+
+/* Stat - circled number */
+.paper-stat {
+    text-align: center;
+    padding: 16px;
+}
+
+.paper-stat-value {
+    font-family: var(--font-handwritten);
+    font-size: 3rem;
+    color: var(--ink-red);
+    position: relative;
+    display: inline-block;
+}
+
+.paper-stat-value::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border: 2px solid var(--ink-red);
+    border-radius: 50%;
+}
+
+.paper-stat-label {
+    font-family: var(--font-notes);
+    font-size: 0.875rem;
+    color: var(--ink-black);
+    margin-top: 8px;
+}
+
+/* Badge - rubber stamp */
+.paper-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    font-family: var(--font-notes);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    background: transparent;
+    border: 2px solid var(--ink-red);
+    color: var(--ink-red);
+    transform: rotate(-3deg);
+}
+
+.paper-badge-blue {
+    border-color: var(--ink-blue);
+    color: var(--ink-blue);
+}
+
+.paper-badge-green {
+    border-color: var(--ink-green);
+    color: var(--ink-green);
+}
+
+/* File Row */
+.paper-file-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(44, 36, 22, 0.2);
+}
+
+.paper-file-row:last-child {
+    border-bottom: none;
+}
+
+/* Table */
+.paper-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-notes);
+}
+
+.paper-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: var(--ink-blue);
+    border-bottom: 2px solid var(--ink-black);
+}
+
+.paper-table td {
+    padding: 12px 16px;
+    border-bottom: 1px dashed rgba(44, 36, 22, 0.2);
+}
+
+/* Modal */
+.paper-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(212, 196, 168, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.paper-modal {
+    background: var(--paper-white);
+    box-shadow: 4px 4px 12px var(--shadow);
+    width: 100%;
+    max-width: 440px;
+    padding: 32px;
+    position: relative;
+    transform: rotate(-1deg);
+}
+
+.paper-modal::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 30%;
+    width: 80px;
+    height: 20px;
+    background: var(--tape);
+    transform: rotate(-5deg);
+}
+
+.paper-modal-header {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    color: var(--ink-black);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(44, 36, 22, 0.2);
+}
+
+.paper-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* Empty */
+.paper-empty {
+    text-align: center;
+    padding: 48px;
+    font-family: var(--font-handwritten);
+    font-size: 1.5rem;
+    color: var(--ink-blue);
+    font-style: italic;
+}
+
+/* Title */
+.paper-title {
+    font-family: var(--font-title);
+    font-size: 2rem;
+    color: var(--ink-black);
+    margin-bottom: 8px;
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--ink-blue);
+}
+
+.paper-subtitle {
+    font-family: var(--font-handwritten);
+    font-size: 1.25rem;
+    color: var(--ink-blue);
+}
+
+/* Scrollbar */
+.paper-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.paper-mode ::-webkit-scrollbar-track {
+    background: var(--paper-aged);
+}
+
+.paper-mode ::-webkit-scrollbar-thumb {
+    background: var(--ink-black);
+    border-radius: 0;
+}
+
+/* Grid */
+.paper-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.paper-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.paper-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.paper-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Checkbox - hand drawn */
+.paper-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--ink-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--font-handwritten);
+    font-size: 1.25rem;
+}
+
+.paper-checkbox.checked::after {
+    content: '✓';
+    color: var(--ink-blue);
+}

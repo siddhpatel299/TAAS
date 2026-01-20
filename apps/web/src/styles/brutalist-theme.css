@@ -1,21 +1,15 @@
-/* Brutalist Theme - Neo-Brutalism Style */
+/* Brutalist Theme - Pure Black & White Neo-Brutalism */
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-    /* Neo-Brutalism Colors - Bold & Raw */
-    --brutalist-bg: #fef9ef;
+    /* Pure Black & White Palette */
+    --brutalist-bg: #ffffff;
     --brutalist-white: #ffffff;
-    --brutalist-black: #1a1a1a;
-
-    /* Accent Colors */
-    --brutalist-yellow: #ffd939;
-    --brutalist-pink: #ff6b9d;
-    --brutalist-blue: #5271ff;
-    --brutalist-green: #5cdb5c;
-    --brutalist-purple: #a855f7;
-    --brutalist-orange: #ff924f;
-    --brutalist-red: #ff4949;
+    --brutalist-black: #000000;
+    --brutalist-gray-light: #f5f5f5;
+    --brutalist-gray: #e0e0e0;
+    --brutalist-gray-dark: #333333;
 
     /* Shadow - Hard offset shadow is key */
     --brutalist-shadow: 4px 4px 0 var(--brutalist-black);
@@ -53,30 +47,13 @@
     box-shadow: var(--brutalist-shadow-hover);
 }
 
-.brutalist-card-yellow {
-    background: var(--brutalist-yellow);
+.brutalist-card-inverted {
+    background: var(--brutalist-black);
+    color: var(--brutalist-white);
 }
 
-.brutalist-card-pink {
-    background: var(--brutalist-pink);
-}
-
-.brutalist-card-blue {
-    background: var(--brutalist-blue);
-    color: white;
-}
-
-.brutalist-card-green {
-    background: var(--brutalist-green);
-}
-
-.brutalist-card-purple {
-    background: var(--brutalist-purple);
-    color: white;
-}
-
-.brutalist-card-orange {
-    background: var(--brutalist-orange);
+.brutalist-card-gray {
+    background: var(--brutalist-gray-light);
 }
 
 /* Button */
@@ -107,26 +84,18 @@
     box-shadow: 0 0 0 var(--brutalist-black);
 }
 
-.brutalist-btn-yellow {
-    background: var(--brutalist-yellow);
+.brutalist-btn-primary {
+    background: var(--brutalist-black);
+    color: var(--brutalist-white);
 }
 
-.brutalist-btn-pink {
-    background: var(--brutalist-pink);
+.brutalist-btn-ghost {
+    background: transparent;
+    box-shadow: none;
 }
 
-.brutalist-btn-blue {
-    background: var(--brutalist-blue);
-    color: white;
-}
-
-.brutalist-btn-green {
-    background: var(--brutalist-green);
-}
-
-.brutalist-btn-red {
-    background: var(--brutalist-red);
-    color: white;
+.brutalist-btn-ghost:hover {
+    box-shadow: var(--brutalist-shadow);
 }
 
 /* Input */
@@ -149,7 +118,7 @@
 .brutalist-header {
     padding: 16px 24px;
     border-bottom: var(--brutalist-border-thick);
-    background: var(--brutalist-yellow);
+    background: var(--brutalist-white);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -231,7 +200,7 @@
 }
 
 .brutalist-file-row:hover {
-    background: var(--brutalist-yellow);
+    background: var(--brutalist-gray-light);
 }
 
 .brutalist-file-row:last-child {
@@ -249,26 +218,13 @@
     background: var(--brutalist-white);
 }
 
-.brutalist-badge-yellow {
-    background: var(--brutalist-yellow);
+.brutalist-badge-inverted {
+    background: var(--brutalist-black);
+    color: var(--brutalist-white);
 }
 
-.brutalist-badge-pink {
-    background: var(--brutalist-pink);
-}
-
-.brutalist-badge-blue {
-    background: var(--brutalist-blue);
-    color: white;
-}
-
-.brutalist-badge-green {
-    background: var(--brutalist-green);
-}
-
-.brutalist-badge-red {
-    background: var(--brutalist-red);
-    color: white;
+.brutalist-badge-gray {
+    background: var(--brutalist-gray);
 }
 
 /* Table */
@@ -284,7 +240,7 @@
     font-weight: 700;
     text-transform: uppercase;
     border-bottom: var(--brutalist-border);
-    background: var(--brutalist-yellow);
+    background: var(--brutalist-gray-light);
 }
 
 .brutalist-table td {
@@ -293,7 +249,7 @@
 }
 
 .brutalist-table tr:hover td {
-    background: var(--brutalist-yellow);
+    background: var(--brutalist-gray-light);
 }
 
 /* Modal */
@@ -320,7 +276,8 @@
 .brutalist-modal-header {
     padding: 16px 20px;
     border-bottom: var(--brutalist-border);
-    background: var(--brutalist-pink);
+    background: var(--brutalist-black);
+    color: var(--brutalist-white);
 }
 
 .brutalist-modal-title {
@@ -379,6 +336,23 @@
 }
 
 .brutalist-mode ::-webkit-scrollbar-thumb {
-    background: var(--brutalist-yellow);
-    border: 2px solid var(--brutalist-black);
+    background: var(--brutalist-black);
+    border: 2px solid var(--brutalist-white);
+}
+
+/* Checkbox */
+.brutalist-checkbox {
+    width: 24px;
+    height: 24px;
+    border: var(--brutalist-border);
+    background: var(--brutalist-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.brutalist-checkbox.checked {
+    background: var(--brutalist-black);
+    color: var(--brutalist-white);
 }

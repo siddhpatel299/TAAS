@@ -340,6 +340,48 @@ import { SkeuOutreachPage } from '@/pages/skeu/SkeuOutreachPage';
 import { SkeuContactFinderPage } from '@/pages/skeu/SkeuContactFinderPage';
 import { SkeuTelegramPage } from '@/pages/skeu/SkeuTelegramPage';
 
+// Paper/Stationery Theme imports
+import { PaperDashboardPage } from '@/pages/paper/PaperDashboardPage';
+import { PaperFilesPage } from '@/pages/paper/PaperFilesPage';
+import { PaperStarredPage } from '@/pages/paper/PaperStarredPage';
+import { PaperTrashPage } from '@/pages/paper/PaperTrashPage';
+import { PaperPluginsPage } from '@/pages/paper/PaperPluginsPage';
+import { PaperTodoPage } from '@/pages/paper/PaperTodoPage';
+import { PaperJobTrackerPage } from '@/pages/paper/PaperJobTrackerPage';
+import { PaperJobApplicationsPage } from '@/pages/paper/PaperJobApplicationsPage';
+import { PaperJobApplicationFormPage } from '@/pages/paper/PaperJobApplicationFormPage';
+import { PaperOutreachPage } from '@/pages/paper/PaperOutreachPage';
+import { PaperContactFinderPage } from '@/pages/paper/PaperContactFinderPage';
+import { PaperTelegramPage } from '@/pages/paper/PaperTelegramPage';
+
+// Corporate Executive Theme imports
+import { ExecDashboardPage } from '@/pages/exec/ExecDashboardPage';
+import { ExecFilesPage } from '@/pages/exec/ExecFilesPage';
+import { ExecStarredPage } from '@/pages/exec/ExecStarredPage';
+import { ExecTrashPage } from '@/pages/exec/ExecTrashPage';
+import { ExecPluginsPage } from '@/pages/exec/ExecPluginsPage';
+import { ExecTodoPage } from '@/pages/exec/ExecTodoPage';
+import { ExecJobTrackerPage } from '@/pages/exec/ExecJobTrackerPage';
+import { ExecJobApplicationsPage } from '@/pages/exec/ExecJobApplicationsPage';
+import { ExecJobApplicationFormPage } from '@/pages/exec/ExecJobApplicationFormPage';
+import { ExecOutreachPage } from '@/pages/exec/ExecOutreachPage';
+import { ExecContactFinderPage } from '@/pages/exec/ExecContactFinderPage';
+import { ExecTelegramPage } from '@/pages/exec/ExecTelegramPage';
+
+// Pixel Art Theme imports
+import { PixelDashboardPage } from '@/pages/pixel/PixelDashboardPage';
+import { PixelFilesPage } from '@/pages/pixel/PixelFilesPage';
+import { PixelStarredPage } from '@/pages/pixel/PixelStarredPage';
+import { PixelTrashPage } from '@/pages/pixel/PixelTrashPage';
+import { PixelPluginsPage } from '@/pages/pixel/PixelPluginsPage';
+import { PixelTodoPage } from '@/pages/pixel/PixelTodoPage';
+import { PixelJobTrackerPage } from '@/pages/pixel/PixelJobTrackerPage';
+import { PixelJobApplicationsPage } from '@/pages/pixel/PixelJobApplicationsPage';
+import { PixelJobApplicationFormPage } from '@/pages/pixel/PixelJobApplicationFormPage';
+import { PixelOutreachPage } from '@/pages/pixel/PixelOutreachPage';
+import { PixelContactFinderPage } from '@/pages/pixel/PixelContactFinderPage';
+import { PixelTelegramPage } from '@/pages/pixel/PixelTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -725,6 +767,96 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SkeuJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SkeuOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SkeuContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Paper/Stationery Theme
+  if (version === 'paper') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><PaperDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><PaperFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><PaperTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><PaperStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><PaperTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><PaperPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><PaperTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><PaperJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><PaperJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><PaperJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><PaperOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PaperContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Corporate Executive Theme
+  if (version === 'exec') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><ExecDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><ExecFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><ExecTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><ExecStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><ExecTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><ExecPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><ExecTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><ExecJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><ExecJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ExecJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ExecOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ExecContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Pixel Art Theme
+  if (version === 'pixel') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><PixelDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><PixelFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><PixelTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><PixelStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><PixelTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><PixelPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><PixelTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><PixelJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><PixelJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><PixelJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><PixelOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PixelContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

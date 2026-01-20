@@ -48,10 +48,10 @@ export function BrutalistTelegramPage() {
             <div className="grid grid-cols-4 gap-6" style={{ height: 'calc(100vh - 200px)' }}>
                 {/* Chats */}
                 <BrutalistCard className="!p-0 overflow-hidden flex flex-col">
-                    <div className="p-3 border-b-3 border-black bg-[var(--brutalist-yellow)]"><BrutalistButton onClick={loadChats} className="w-full !shadow-none"><RefreshCw className={cn("w-5 h-5", chatsLoading && "animate-spin")} /> Refresh</BrutalistButton></div>
+                    <div className="p-3 border-b-3 border-black bg-[var(--brutalist-gray)]"><BrutalistButton onClick={loadChats} className="w-full !shadow-none"><RefreshCw className={cn("w-5 h-5", chatsLoading && "animate-spin")} /> Refresh</BrutalistButton></div>
                     <div className="flex-1 overflow-y-auto">
                         {chats.map(c => (
-                            <button key={c.id} onClick={() => selectChat(c.id)} className={cn("w-full text-left p-4 border-b-2 border-black flex items-center gap-3 font-semibold", selectedChatId === c.id ? "bg-[var(--brutalist-pink)]" : "hover:bg-[var(--brutalist-yellow)]")}>
+                            <button key={c.id} onClick={() => selectChat(c.id)} className={cn("w-full text-left p-4 border-b-2 border-black flex items-center gap-3 font-semibold", selectedChatId === c.id ? "bg-[var(--brutalist-black)] text-white" : "hover:bg-[var(--brutalist-gray)]")}>
                                 {c.type === 'group' ? <Users className="w-5 h-5" /> : c.type === 'channel' ? <Megaphone className="w-5 h-5" /> : <User className="w-5 h-5" />}
                                 <span className="truncate">{c.title}</span>
                             </button>
@@ -62,9 +62,9 @@ export function BrutalistTelegramPage() {
                 {/* Messages */}
                 <div className="col-span-3 flex flex-col">
                     <BrutalistCard className="flex-1 !p-0 overflow-hidden flex flex-col">
-                        <div className="p-3 border-b-3 border-black bg-[var(--brutalist-pink)] flex items-center justify-between">
+                        <div className="p-3 border-b-3 border-black bg-[var(--brutalist-gray)] flex items-center justify-between">
                             <span className="font-bold uppercase">{selectedChat?.title || 'Select a chat'}</span>
-                            <div className="flex gap-2">{['all', 'video', 'photo', 'document'].map(t => (<button key={t} onClick={() => setFileTypeFilter(t as any)} className={cn("brutalist-btn !p-2 !text-xs !shadow-none", fileTypeFilter === t && "brutalist-btn-yellow")}>{t}</button>))}</div>
+                            <div className="flex gap-2">{['all', 'video', 'photo', 'document'].map(t => (<button key={t} onClick={() => setFileTypeFilter(t as any)} className={cn("brutalist-btn !p-2 !text-xs !shadow-none", fileTypeFilter === t && "brutalist-btn-primary")}>{t}</button>))}</div>
                         </div>
                         <div className="flex-1 overflow-y-auto">
                             {!selectedChatId ? <BrutalistEmpty text="Select a chat to view files" /> :
@@ -77,22 +77,22 @@ export function BrutalistTelegramPage() {
                                                 <div key={msg.id} className="brutalist-file-row">
                                                     <Icon className="w-6 h-6" />
                                                     <div className="flex-1 min-w-0"><p className="font-semibold truncate">{getMessageFileName(msg)}</p>{getMessageFileSize(msg) && <p className="text-sm opacity-70">{formatFileSize(getMessageFileSize(msg)!)}</p>}</div>
-                                                    <BrutalistButton color="green" onClick={() => { setSelectedMessage(msg); setShowImport(true); }}><Download className="w-5 h-5" /></BrutalistButton>
+                                                    <BrutalistButton variant="primary" onClick={() => { setSelectedMessage(msg); setShowImport(true); }}><Download className="w-5 h-5" /></BrutalistButton>
                                                 </div>
                                             );
                                         })}
-                            {hasMoreMessages && <div className="p-4 text-center"><BrutalistButton color="yellow" onClick={() => loadMessages(selectedChatId!, messages[messages.length - 1].id)}><ChevronDown className="w-5 h-5" /> Load More</BrutalistButton></div>}
+                            {hasMoreMessages && <div className="p-4 text-center"><BrutalistButton variant="primary" onClick={() => loadMessages(selectedChatId!, messages[messages.length - 1].id)}><ChevronDown className="w-5 h-5" /> Load More</BrutalistButton></div>}
                         </div>
                     </BrutalistCard>
                 </div>
             </div>
 
-            <BrutalistModal open={showImport} onClose={() => setShowImport(false)} title="Import File" footer={<><BrutalistButton onClick={() => setShowImport(false)}>Cancel</BrutalistButton><BrutalistButton color="green" onClick={handleImport} disabled={importing}>{importing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} Import</BrutalistButton></>}>
+            <BrutalistModal open={showImport} onClose={() => setShowImport(false)} title="Import File" footer={<><BrutalistButton onClick={() => setShowImport(false)}>Cancel</BrutalistButton><BrutalistButton variant="primary" onClick={handleImport} disabled={importing}>{importing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} Import</BrutalistButton></>}>
                 <p className="mb-4 font-semibold">File: {selectedMessage && getMessageFileName(selectedMessage)}</p>
                 <p className="text-sm font-bold uppercase mb-2">Select folder:</p>
                 <div className="max-h-48 overflow-y-auto border-3 border-black">
-                    <button onClick={() => setSelectedFolder(null)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", !selectedFolder && "bg-[var(--brutalist-yellow)]")}><FolderOpen className="w-5 h-5" /> Root</button>
-                    {folders.map((f: Folder) => (<button key={f.id} onClick={() => setSelectedFolder(f.id)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", selectedFolder === f.id && "bg-[var(--brutalist-yellow)]")}><FolderOpen className="w-5 h-5" /> {f.name}</button>))}
+                    <button onClick={() => setSelectedFolder(null)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", !selectedFolder && "bg-[var(--brutalist-gray)]")}><FolderOpen className="w-5 h-5" /> Root</button>
+                    {folders.map((f: Folder) => (<button key={f.id} onClick={() => setSelectedFolder(f.id)} className={cn("w-full text-left p-3 border-b-2 border-black flex items-center gap-3 font-semibold", selectedFolder === f.id && "bg-[var(--brutalist-gray)]")}><FolderOpen className="w-5 h-5" /> {f.name}</button>))}
                 </div>
             </BrutalistModal>
         </BrutalistLayout>

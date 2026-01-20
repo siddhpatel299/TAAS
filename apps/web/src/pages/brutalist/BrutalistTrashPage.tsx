@@ -19,12 +19,12 @@ export function BrutalistTrashPage() {
         <BrutalistLayout>
             <div className="flex items-center justify-between mb-6">
                 <BrutalistTitle>Trash</BrutalistTitle>
-                {files.length > 0 && <BrutalistButton color="red" onClick={handleEmptyTrash}><Trash2 className="w-5 h-5" /> Empty Trash</BrutalistButton>}
+                {files.length > 0 && <BrutalistButton variant="primary" onClick={handleEmptyTrash}><Trash2 className="w-5 h-5" /> Empty Trash</BrutalistButton>}
             </div>
             {loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-10 h-10 animate-spin" /></div> :
                 files.length === 0 ? <BrutalistEmpty text="Trash is empty" icon={<Trash2 />} /> :
                     <BrutalistCard className="!p-0">
-                        {files.map((f) => <BrutalistFileRow key={f.id} icon={<FileText className="w-6 h-6" />} name={f.originalName || f.name} meta={`${formatFileSize(f.size)} • ${formatDate(f.updatedAt)}`} actions={<><BrutalistButton color="green" onClick={() => handleRestore(f.id)}><RotateCcw className="w-4 h-4" /> Restore</BrutalistButton><BrutalistButton color="red" onClick={() => handlePermanentDelete(f.id)}><Trash2 className="w-4 h-4" /></BrutalistButton></>} />)}
+                        {files.map((f) => <BrutalistFileRow key={f.id} icon={<FileText className="w-6 h-6" />} name={f.originalName || f.name} meta={`${formatFileSize(f.size)} • ${formatDate(f.updatedAt)}`} actions={<><BrutalistButton onClick={() => handleRestore(f.id)}><RotateCcw className="w-4 h-4" /> Restore</BrutalistButton><BrutalistButton variant="primary" onClick={() => handlePermanentDelete(f.id)}><Trash2 className="w-4 h-4" /></BrutalistButton></>} />)}
                     </BrutalistCard>}
         </BrutalistLayout>
     );

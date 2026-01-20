@@ -40,17 +40,17 @@ export function BrutalistDashboardPage() {
 
             {/* Stats Grid */}
             <div className="brutalist-grid brutalist-grid-4 mb-8">
-                <BrutalistStat value={stats?.totalFiles || 0} label="Total Files" color="yellow" />
-                <BrutalistStat value={stats?.totalFolders || 0} label="Folders" color="pink" />
-                <BrutalistStat value={formatFileSize(stats?.totalSize || 0)} label="Storage Used" color="blue" />
-                <BrutalistStat value={stats?.starredFiles || 0} label="Starred" color="green" />
+                <BrutalistStat value={stats?.totalFiles || 0} label="Total Files" inverted />
+                <BrutalistStat value={stats?.totalFolders || 0} label="Folders" />
+                <BrutalistStat value={formatFileSize(stats?.totalSize || 0)} label="Storage Used" />
+                <BrutalistStat value={stats?.starredFiles || 0} label="Starred" />
             </div>
 
             {/* Quick Actions */}
             <div className="brutalist-grid brutalist-grid-3 mb-8">
-                <Link to="/files"><BrutalistCard color="yellow" className="flex items-center gap-4"><Upload className="w-8 h-8" /><div><p className="font-bold text-lg uppercase">Upload Files</p><p className="text-sm opacity-70">Add new files to your storage</p></div></BrutalistCard></Link>
-                <Link to="/telegram"><BrutalistCard color="pink" className="flex items-center gap-4"><Inbox className="w-8 h-8" /><div><p className="font-bold text-lg uppercase">Telegram Import</p><p className="text-sm opacity-70">Import from chats</p></div></BrutalistCard></Link>
-                <Link to="/plugins/job-tracker"><BrutalistCard color="blue" className="flex items-center gap-4"><Briefcase className="w-8 h-8" /><div><p className="font-bold text-lg uppercase">Job Tracker</p><p className="text-sm opacity-70">Track applications</p></div></BrutalistCard></Link>
+                <Link to="/files"><BrutalistCard color="inverted" className="flex items-center gap-4"><Upload className="w-8 h-8" /><div><p className="font-bold text-lg uppercase">Upload Files</p><p className="text-sm opacity-70">Add new files to your storage</p></div></BrutalistCard></Link>
+                <Link to="/telegram"><BrutalistCard color="gray" className="flex items-center gap-4"><Inbox className="w-8 h-8" /><div><p className="font-bold text-lg uppercase">Telegram Import</p><p className="text-sm opacity-70">Import from chats</p></div></BrutalistCard></Link>
+                <Link to="/plugins/job-tracker"><BrutalistCard color="gray" className="flex items-center gap-4"><Briefcase className="w-8 h-8" /><div><p className="font-bold text-lg uppercase">Job Tracker</p><p className="text-sm opacity-70">Track applications</p></div></BrutalistCard></Link>
             </div>
 
             {/* Recent Files */}
@@ -68,14 +68,14 @@ export function BrutalistDashboardPage() {
                                     <p className="font-semibold truncate">{file.originalName || file.name}</p>
                                     <p className="text-sm opacity-70">{formatFileSize(file.size)} • {formatDate(file.createdAt)}</p>
                                 </div>
-                                {file.isStarred && <BrutalistBadge color="yellow">★</BrutalistBadge>}
+                                {file.isStarred && <BrutalistBadge variant="inverted">★</BrutalistBadge>}
                             </div>
                         );
                     })}
                 </BrutalistCard>
             )}
             <div className="mt-4 text-right">
-                <Link to="/files"><BrutalistButton color="yellow">View All Files →</BrutalistButton></Link>
+                <Link to="/files"><BrutalistButton variant="primary">View All Files →</BrutalistButton></Link>
             </div>
         </BrutalistLayout>
     );
