@@ -1,0 +1,384 @@
+/* Brutalist Theme - Neo-Brutalism Style */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+    /* Neo-Brutalism Colors - Bold & Raw */
+    --brutalist-bg: #fef9ef;
+    --brutalist-white: #ffffff;
+    --brutalist-black: #1a1a1a;
+
+    /* Accent Colors */
+    --brutalist-yellow: #ffd939;
+    --brutalist-pink: #ff6b9d;
+    --brutalist-blue: #5271ff;
+    --brutalist-green: #5cdb5c;
+    --brutalist-purple: #a855f7;
+    --brutalist-orange: #ff924f;
+    --brutalist-red: #ff4949;
+
+    /* Shadow - Hard offset shadow is key */
+    --brutalist-shadow: 4px 4px 0 var(--brutalist-black);
+    --brutalist-shadow-lg: 6px 6px 0 var(--brutalist-black);
+    --brutalist-shadow-hover: 6px 6px 0 var(--brutalist-black);
+
+    /* Border */
+    --brutalist-border: 3px solid var(--brutalist-black);
+    --brutalist-border-thick: 4px solid var(--brutalist-black);
+
+    /* Typography */
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+}
+
+/* Base Styles */
+.brutalist-mode {
+    background: var(--brutalist-bg);
+    color: var(--brutalist-black);
+    font-family: var(--font-heading);
+    min-height: 100vh;
+}
+
+/* Card - Core Neo-Brutalist Element */
+.brutalist-card {
+    background: var(--brutalist-white);
+    border: var(--brutalist-border);
+    box-shadow: var(--brutalist-shadow);
+    padding: 20px;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.brutalist-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--brutalist-shadow-hover);
+}
+
+.brutalist-card-yellow {
+    background: var(--brutalist-yellow);
+}
+
+.brutalist-card-pink {
+    background: var(--brutalist-pink);
+}
+
+.brutalist-card-blue {
+    background: var(--brutalist-blue);
+    color: white;
+}
+
+.brutalist-card-green {
+    background: var(--brutalist-green);
+}
+
+.brutalist-card-purple {
+    background: var(--brutalist-purple);
+    color: white;
+}
+
+.brutalist-card-orange {
+    background: var(--brutalist-orange);
+}
+
+/* Button */
+.brutalist-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: var(--brutalist-border);
+    background: var(--brutalist-white);
+    color: var(--brutalist-black);
+    box-shadow: var(--brutalist-shadow);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.brutalist-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--brutalist-shadow-hover);
+}
+
+.brutalist-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 var(--brutalist-black);
+}
+
+.brutalist-btn-yellow {
+    background: var(--brutalist-yellow);
+}
+
+.brutalist-btn-pink {
+    background: var(--brutalist-pink);
+}
+
+.brutalist-btn-blue {
+    background: var(--brutalist-blue);
+    color: white;
+}
+
+.brutalist-btn-green {
+    background: var(--brutalist-green);
+}
+
+.brutalist-btn-red {
+    background: var(--brutalist-red);
+    color: white;
+}
+
+/* Input */
+.brutalist-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    border: var(--brutalist-border);
+    background: var(--brutalist-white);
+    box-shadow: var(--brutalist-shadow);
+}
+
+.brutalist-input:focus {
+    outline: none;
+    box-shadow: var(--brutalist-shadow-hover);
+}
+
+/* Header / Nav Bar */
+.brutalist-header {
+    padding: 16px 24px;
+    border-bottom: var(--brutalist-border-thick);
+    background: var(--brutalist-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brutalist-logo {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+}
+
+.brutalist-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.brutalist-nav-link {
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border: var(--brutalist-border);
+    background: var(--brutalist-white);
+    text-decoration: none;
+    color: var(--brutalist-black);
+    transition: transform 0.1s;
+}
+
+.brutalist-nav-link:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--brutalist-black);
+}
+
+.brutalist-nav-link.active {
+    background: var(--brutalist-black);
+    color: var(--brutalist-white);
+}
+
+/* Page Title */
+.brutalist-title {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+}
+
+/* Stat Box */
+.brutalist-stat {
+    text-align: center;
+    padding: 16px;
+}
+
+.brutalist-stat-value {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.brutalist-stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+/* File Row */
+.brutalist-file-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 2px solid var(--brutalist-black);
+    transition: background 0.1s;
+}
+
+.brutalist-file-row:hover {
+    background: var(--brutalist-yellow);
+}
+
+.brutalist-file-row:last-child {
+    border-bottom: none;
+}
+
+/* Badge */
+.brutalist-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 2px solid var(--brutalist-black);
+    background: var(--brutalist-white);
+}
+
+.brutalist-badge-yellow {
+    background: var(--brutalist-yellow);
+}
+
+.brutalist-badge-pink {
+    background: var(--brutalist-pink);
+}
+
+.brutalist-badge-blue {
+    background: var(--brutalist-blue);
+    color: white;
+}
+
+.brutalist-badge-green {
+    background: var(--brutalist-green);
+}
+
+.brutalist-badge-red {
+    background: var(--brutalist-red);
+    color: white;
+}
+
+/* Table */
+.brutalist-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.brutalist-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: var(--brutalist-border);
+    background: var(--brutalist-yellow);
+}
+
+.brutalist-table td {
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--brutalist-black);
+}
+
+.brutalist-table tr:hover td {
+    background: var(--brutalist-yellow);
+}
+
+/* Modal */
+.brutalist-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.brutalist-modal {
+    background: var(--brutalist-white);
+    border: var(--brutalist-border-thick);
+    box-shadow: 8px 8px 0 var(--brutalist-black);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.brutalist-modal-header {
+    padding: 16px 20px;
+    border-bottom: var(--brutalist-border);
+    background: var(--brutalist-pink);
+}
+
+.brutalist-modal-title {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.brutalist-modal-body {
+    padding: 20px;
+}
+
+.brutalist-modal-footer {
+    padding: 16px 20px;
+    border-top: var(--brutalist-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Empty State */
+.brutalist-empty {
+    text-align: center;
+    padding: 48px 20px;
+    border: 3px dashed var(--brutalist-black);
+}
+
+/* Grid Layout */
+.brutalist-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.brutalist-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.brutalist-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.brutalist-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Scrollbar */
+.brutalist-mode ::-webkit-scrollbar {
+    width: 10px;
+}
+
+.brutalist-mode ::-webkit-scrollbar-track {
+    background: var(--brutalist-bg);
+    border-left: var(--brutalist-border);
+}
+
+.brutalist-mode ::-webkit-scrollbar-thumb {
+    background: var(--brutalist-yellow);
+    border: 2px solid var(--brutalist-black);
+}

@@ -186,6 +186,20 @@ import { NewsprintOutreachPage } from '@/pages/newsprint/NewsprintOutreachPage';
 import { NewsprintContactFinderPage } from '@/pages/newsprint/NewsprintContactFinderPage';
 import { NewsprintTelegramPage } from '@/pages/newsprint/NewsprintTelegramPage';
 
+// Brutalist Theme imports
+import { BrutalistDashboardPage } from '@/pages/brutalist/BrutalistDashboardPage';
+import { BrutalistFilesPage } from '@/pages/brutalist/BrutalistFilesPage';
+import { BrutalistStarredPage } from '@/pages/brutalist/BrutalistStarredPage';
+import { BrutalistTrashPage } from '@/pages/brutalist/BrutalistTrashPage';
+import { BrutalistPluginsPage } from '@/pages/brutalist/BrutalistPluginsPage';
+import { BrutalistTodoPage } from '@/pages/brutalist/BrutalistTodoPage';
+import { BrutalistJobTrackerPage } from '@/pages/brutalist/BrutalistJobTrackerPage';
+import { BrutalistJobApplicationsPage } from '@/pages/brutalist/BrutalistJobApplicationsPage';
+import { BrutalistJobApplicationFormPage } from '@/pages/brutalist/BrutalistJobApplicationFormPage';
+import { BrutalistOutreachPage } from '@/pages/brutalist/BrutalistOutreachPage';
+import { BrutalistContactFinderPage } from '@/pages/brutalist/BrutalistContactFinderPage';
+import { BrutalistTelegramPage } from '@/pages/brutalist/BrutalistTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -211,6 +225,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><NewsprintJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><NewsprintOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><NewsprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Brutalist Theme
+  if (version === 'brutalist') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><BrutalistDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><BrutalistFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><BrutalistTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><BrutalistStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><BrutalistTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><BrutalistPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><BrutalistTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><BrutalistJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><BrutalistJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BrutalistJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BrutalistOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BrutalistContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

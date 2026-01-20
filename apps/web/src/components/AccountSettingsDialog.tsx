@@ -41,6 +41,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'origami', name: 'Origami', description: 'Paper-fold minimalism', color: 'bg-amber-100' },
         { id: 'blueprint', name: 'Blueprint', description: 'Technical drawing', color: 'bg-blue-900' },
         { id: 'newsprint', name: 'Newsprint', description: 'Editorial newspaper', color: 'bg-stone-200' },
+        { id: 'brutalist', name: 'Brutalist', description: 'Neo-brutalism bold', color: 'bg-yellow-400' },
     ] as const;
 
     const handleAddEmail = async () => {

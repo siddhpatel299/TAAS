@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type AppVersion = 'standard' | 'hud' | 'forest' | 'terminal' | 'origami' | 'blueprint' | 'newsprint';
+type AppVersion = 'standard' | 'hud' | 'forest' | 'terminal' | 'origami' | 'blueprint' | 'newsprint' | 'brutalist';
 
 interface VersionContextType {
     version: AppVersion;
@@ -24,8 +24,8 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('app_version', v);
 
         // Remove all theme classes first
-        document.documentElement.classList.remove('hud-theme', 'forest-theme', 'terminal-theme', 'origami-theme', 'blueprint-theme', 'newsprint-theme');
-        document.body.classList.remove('hud-mode', 'forest-mode', 'terminal-mode', 'origami-mode', 'blueprint-mode', 'newsprint-mode');
+        document.documentElement.classList.remove('hud-theme', 'forest-theme', 'terminal-theme', 'origami-theme', 'blueprint-theme', 'newsprint-theme', 'brutalist-theme');
+        document.body.classList.remove('hud-mode', 'forest-mode', 'terminal-mode', 'origami-mode', 'blueprint-mode', 'newsprint-mode', 'brutalist-mode');
 
         // Apply theme classes based on version
         if (v === 'hud') {
@@ -46,6 +46,9 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
         } else if (v === 'newsprint') {
             document.documentElement.classList.add('newsprint-theme');
             document.body.classList.add('newsprint-mode');
+        } else if (v === 'brutalist') {
+            document.documentElement.classList.add('brutalist-theme');
+            document.body.classList.add('brutalist-mode');
         }
     };
 
@@ -56,7 +59,7 @@ export function VersionProvider({ children }: { children: React.ReactNode }) {
 
     const cycleVersion = () => {
         // Cycle through themes: standard -> hud -> forest -> terminal -> standard
-        const versions: AppVersion[] = ['standard', 'hud', 'forest', 'terminal', 'origami', 'blueprint', 'newsprint'];
+        const versions: AppVersion[] = ['standard', 'hud', 'forest', 'terminal', 'origami', 'blueprint', 'newsprint', 'brutalist'];
         const currentIndex = versions.indexOf(version);
         const nextIndex = (currentIndex + 1) % versions.length;
         setVersion(versions[nextIndex]);
