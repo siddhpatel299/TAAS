@@ -284,6 +284,20 @@ import { ArchiveOutreachPage } from '@/pages/archive/ArchiveOutreachPage';
 import { ArchiveContactFinderPage } from '@/pages/archive/ArchiveContactFinderPage';
 import { ArchiveTelegramPage } from '@/pages/archive/ArchiveTelegramPage';
 
+// Steampunk Theme imports
+import { SteamDashboardPage } from '@/pages/steam/SteamDashboardPage';
+import { SteamFilesPage } from '@/pages/steam/SteamFilesPage';
+import { SteamStarredPage } from '@/pages/steam/SteamStarredPage';
+import { SteamTrashPage } from '@/pages/steam/SteamTrashPage';
+import { SteamPluginsPage } from '@/pages/steam/SteamPluginsPage';
+import { SteamTodoPage } from '@/pages/steam/SteamTodoPage';
+import { SteamJobTrackerPage } from '@/pages/steam/SteamJobTrackerPage';
+import { SteamJobApplicationsPage } from '@/pages/steam/SteamJobApplicationsPage';
+import { SteamJobApplicationFormPage } from '@/pages/steam/SteamJobApplicationFormPage';
+import { SteamOutreachPage } from '@/pages/steam/SteamOutreachPage';
+import { SteamContactFinderPage } from '@/pages/steam/SteamContactFinderPage';
+import { SteamTelegramPage } from '@/pages/steam/SteamTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -549,6 +563,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BlueprintJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BlueprintOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BlueprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Steampunk Theme
+  if (version === 'steam') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><SteamDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><SteamFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><SteamTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><SteamStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><SteamTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><SteamPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><SteamTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><SteamJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><SteamJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SteamJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SteamOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SteamContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

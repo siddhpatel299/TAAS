@@ -1,0 +1,451 @@
+/* Steampunk Theme - Mechanical Dashboard */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:wght@400;500;600&display=swap');
+
+:root {
+    /* Metal Colors */
+    --steam-bg: #1a1510;
+    --steam-surface: #2a2218;
+    --steam-panel: linear-gradient(135deg, #3d3224 0%, #2a2218 50%, #3d3224 100%);
+    --steam-brass: #b8860b;
+    --steam-brass-light: #d4a84b;
+    --steam-copper: #b87333;
+    --steam-bronze: #cd7f32;
+    --steam-iron: #3d3d3d;
+    --steam-rust: #8b4513;
+
+    /* Text */
+    --steam-text: #e8dcc4;
+    --steam-text-muted: #9c8b6e;
+    --steam-text-accent: #f4d03f;
+
+    /* Typography */
+    --font-steam-display: 'Cinzel', serif;
+    --font-steam-body: 'Lora', serif;
+
+    /* Effects */
+    --steam-glow: 0 0 20px rgba(184, 134, 11, 0.4);
+    --steam-rivet: radial-gradient(circle, #5a4a32 0%, #3d3224 50%, #2a2218 100%);
+}
+
+/* Base */
+.steam-mode {
+    background: var(--steam-bg);
+    color: var(--steam-text);
+    font-family: var(--font-steam-body);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Gear pattern background */
+.steam-mode::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(184, 134, 11, 0.03) 0%, transparent 30%),
+        radial-gradient(circle at 90% 80%, rgba(184, 115, 51, 0.03) 0%, transparent 30%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Header */
+.steam-header {
+    background: var(--steam-panel);
+    border-bottom: 3px solid var(--steam-brass);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+}
+
+.steam-header::before,
+.steam-header::after {
+    content: '⚙';
+    position: absolute;
+    font-size: 1.5rem;
+    color: var(--steam-brass);
+    opacity: 0.5;
+}
+
+.steam-header::before {
+    left: 12px;
+}
+
+.steam-header::after {
+    right: 12px;
+}
+
+.steam-logo {
+    font-family: var(--font-steam-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--steam-brass-light);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.1em;
+}
+
+.steam-nav {
+    display: flex;
+    gap: 24px;
+}
+
+.steam-nav-link {
+    font-family: var(--font-steam-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--steam-text-muted);
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+}
+
+.steam-nav-link:hover {
+    color: var(--steam-brass-light);
+    border-color: var(--steam-brass);
+}
+
+.steam-nav-link.active {
+    color: var(--steam-brass-light);
+    border: 1px solid var(--steam-brass);
+    background: rgba(184, 134, 11, 0.1);
+}
+
+/* Panel */
+.steam-panel {
+    background: var(--steam-panel);
+    border: 2px solid var(--steam-brass);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.steam-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--steam-brass), var(--steam-brass-light), var(--steam-brass));
+}
+
+/* Rivets */
+.steam-panel::after {
+    content: '● ● ● ●';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 6px;
+    letter-spacing: 8px;
+    color: var(--steam-brass);
+    opacity: 0.6;
+}
+
+.steam-panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--steam-brass);
+    font-family: var(--font-steam-display);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--steam-brass-light);
+}
+
+.steam-panel-body {
+    padding: 20px;
+}
+
+/* Button */
+.steam-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-family: var(--font-steam-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--steam-surface);
+    border: 2px solid var(--steam-brass);
+    color: var(--steam-text);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.steam-btn:hover {
+    background: var(--steam-brass);
+    color: var(--steam-bg);
+    box-shadow: var(--steam-glow);
+}
+
+.steam-btn-primary {
+    background: var(--steam-brass);
+    color: var(--steam-bg);
+}
+
+.steam-btn-primary:hover {
+    background: var(--steam-brass-light);
+}
+
+.steam-btn-danger {
+    border-color: var(--steam-rust);
+    color: var(--steam-rust);
+}
+
+.steam-btn-danger:hover {
+    background: var(--steam-rust);
+    color: var(--steam-text);
+}
+
+/* Input */
+.steam-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: var(--font-steam-body);
+    font-size: 0.9375rem;
+    background: var(--steam-bg);
+    border: 2px solid var(--steam-iron);
+    color: var(--steam-text);
+    transition: all 0.3s;
+}
+
+.steam-input:focus {
+    outline: none;
+    border-color: var(--steam-brass);
+    box-shadow: var(--steam-glow);
+}
+
+.steam-input::placeholder {
+    color: var(--steam-text-muted);
+}
+
+/* Gauge / Stat */
+.steam-gauge {
+    text-align: center;
+    padding: 20px;
+    background: var(--steam-panel);
+    border: 2px solid var(--steam-brass);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.steam-gauge::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--steam-brass);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.steam-gauge-value {
+    font-family: var(--font-steam-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--steam-brass-light);
+    text-shadow: 0 0 10px rgba(184, 134, 11, 0.5);
+}
+
+.steam-gauge-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--steam-text-muted);
+    margin-top: 4px;
+}
+
+/* Badge */
+.steam-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-family: var(--font-steam-display);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--steam-iron);
+    border: 1px solid var(--steam-brass);
+    color: var(--steam-text);
+}
+
+.steam-badge-brass {
+    background: var(--steam-brass);
+    color: var(--steam-bg);
+}
+
+.steam-badge-copper {
+    background: var(--steam-copper);
+    color: var(--steam-bg);
+}
+
+.steam-badge-rust {
+    background: var(--steam-rust);
+    color: var(--steam-text);
+}
+
+/* File Row */
+.steam-file-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+    transition: all 0.3s;
+}
+
+.steam-file-row:hover {
+    background: rgba(184, 134, 11, 0.1);
+}
+
+.steam-file-row:last-child {
+    border-bottom: none;
+}
+
+/* Table */
+.steam-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.steam-table th {
+    text-align: left;
+    padding: 14px 16px;
+    font-family: var(--font-steam-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--steam-brass-light);
+    background: rgba(184, 134, 11, 0.1);
+    border-bottom: 2px solid var(--steam-brass);
+}
+
+.steam-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+}
+
+.steam-table tr:hover td {
+    background: rgba(184, 134, 11, 0.05);
+}
+
+/* Modal */
+.steam-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.steam-modal {
+    background: var(--steam-surface);
+    border: 3px solid var(--steam-brass);
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--steam-glow), 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.steam-modal-header {
+    padding: 20px;
+    border-bottom: 2px solid var(--steam-brass);
+    font-family: var(--font-steam-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--steam-brass-light);
+}
+
+.steam-modal-body {
+    padding: 24px;
+}
+
+.steam-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(184, 134, 11, 0.3);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Empty */
+.steam-empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--steam-text-muted);
+}
+
+.steam-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* Title */
+.steam-title {
+    font-family: var(--font-steam-display);
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--steam-brass-light);
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: 24px;
+}
+
+/* Divider */
+.steam-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--steam-brass), transparent);
+    margin: 24px 0;
+}
+
+/* Scrollbar */
+.steam-mode ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.steam-mode ::-webkit-scrollbar-track {
+    background: var(--steam-bg);
+}
+
+.steam-mode ::-webkit-scrollbar-thumb {
+    background: var(--steam-brass);
+    border-radius: 4px;
+}
+
+/* Grid */
+.steam-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.steam-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.steam-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.steam-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
