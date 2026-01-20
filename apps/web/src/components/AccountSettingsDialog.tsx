@@ -49,6 +49,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'comic', name: 'Comic', description: 'Panel-based', color: 'bg-yellow-400' },
         { id: 'archive', name: 'Archive', description: 'Editorial style', color: 'bg-gray-900' },
         { id: 'steam', name: 'Steampunk', description: 'Mechanical', color: 'bg-gradient-to-r from-yellow-700 to-amber-900' },
+        { id: 'aurora', name: 'Aurora', description: 'Flowing waves', color: 'bg-gradient-to-r from-purple-500 to-blue-500' },
     ] as const;
 
     const handleAddEmail = async () => {

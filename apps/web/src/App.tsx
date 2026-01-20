@@ -298,6 +298,20 @@ import { SteamOutreachPage } from '@/pages/steam/SteamOutreachPage';
 import { SteamContactFinderPage } from '@/pages/steam/SteamContactFinderPage';
 import { SteamTelegramPage } from '@/pages/steam/SteamTelegramPage';
 
+// Aurora Theme imports
+import { AuroraDashboardPage } from '@/pages/aurora/AuroraDashboardPage';
+import { AuroraFilesPage } from '@/pages/aurora/AuroraFilesPage';
+import { AuroraStarredPage } from '@/pages/aurora/AuroraStarredPage';
+import { AuroraTrashPage } from '@/pages/aurora/AuroraTrashPage';
+import { AuroraPluginsPage } from '@/pages/aurora/AuroraPluginsPage';
+import { AuroraTodoPage } from '@/pages/aurora/AuroraTodoPage';
+import { AuroraJobTrackerPage } from '@/pages/aurora/AuroraJobTrackerPage';
+import { AuroraJobApplicationsPage } from '@/pages/aurora/AuroraJobApplicationsPage';
+import { AuroraJobApplicationFormPage } from '@/pages/aurora/AuroraJobApplicationFormPage';
+import { AuroraOutreachPage } from '@/pages/aurora/AuroraOutreachPage';
+import { AuroraContactFinderPage } from '@/pages/aurora/AuroraContactFinderPage';
+import { AuroraTelegramPage } from '@/pages/aurora/AuroraTelegramPage';
+
 // ... (existing imports remain the same)
 
 function AppContent() {
@@ -593,6 +607,36 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SteamJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SteamOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SteamContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
+  // Aurora Theme
+  if (version === 'aurora') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><AuroraDashboardPage /></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><AuroraFilesPage /></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><AuroraTelegramPage /></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><AuroraStarredPage /></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><AuroraTrashPage /></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><AuroraPluginsPage /></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><AuroraTodoPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><AuroraJobTrackerPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><AuroraJobApplicationsPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><AuroraJobApplicationFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><AuroraOutreachPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><AuroraContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
