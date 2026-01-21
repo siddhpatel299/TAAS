@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
@@ -242,6 +242,143 @@ function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
                             </div>
                         </button>
                     ))
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ====================
+// BUBBLE MENU TOOLBAR (Floating Selection Menu)
+// ====================
+
+const BUBBLE_HIGHLIGHT_COLORS = [
+    { name: 'Yellow', value: '#fef08a' },
+    { name: 'Green', value: '#bbf7d0' },
+    { name: 'Blue', value: '#bfdbfe' },
+    { name: 'Pink', value: '#fbcfe8' },
+    { name: 'Orange', value: '#fed7aa' },
+];
+
+function BubbleMenuToolbar({ editor }: { editor: any }) {
+    const [showColorPicker, setShowColorPicker] = useState(false);
+
+    if (!editor) return null;
+
+    return (
+        <div className="flex items-center gap-0.5 px-1.5 py-1 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-2xl border border-gray-700">
+            {/* Basic formatting */}
+            <button
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={cn(
+                    'p-1.5 rounded transition-colors',
+                    editor.isActive('bold') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+                title="Bold"
+            >
+                <Bold className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={cn(
+                    'p-1.5 rounded transition-colors',
+                    editor.isActive('italic') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+                title="Italic"
+            >
+                <Italic className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                className={cn(
+                    'p-1.5 rounded transition-colors',
+                    editor.isActive('underline') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+                title="Underline"
+            >
+                <UnderlineIcon className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => editor.chain().focus().toggleStrike().run()}
+                className={cn(
+                    'p-1.5 rounded transition-colors',
+                    editor.isActive('strike') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+                title="Strikethrough"
+            >
+                <Strikethrough className="w-4 h-4" />
+            </button>
+
+            <div className="w-px h-5 bg-gray-600 mx-1" />
+
+            {/* Link */}
+            <button
+                onClick={() => {
+                    const url = window.prompt('Enter URL:');
+                    if (url) {
+                        editor.chain().focus().setLink({ href: url }).run();
+                    }
+                }}
+                className={cn(
+                    'p-1.5 rounded transition-colors',
+                    editor.isActive('link') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+                title="Add Link"
+            >
+                <LinkIcon className="w-4 h-4" />
+            </button>
+
+            {/* Inline Code */}
+            <button
+                onClick={() => editor.chain().focus().toggleCode().run()}
+                className={cn(
+                    'p-1.5 rounded transition-colors',
+                    editor.isActive('code') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+                title="Inline Code"
+            >
+                <Code className="w-4 h-4" />
+            </button>
+
+            <div className="w-px h-5 bg-gray-600 mx-1" />
+
+            {/* Highlight Color Picker */}
+            <div className="relative">
+                <button
+                    onClick={() => setShowColorPicker(!showColorPicker)}
+                    className={cn(
+                        'p-1.5 rounded transition-colors',
+                        editor.isActive('highlight') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    )}
+                    title="Highlight"
+                >
+                    <Highlighter className="w-4 h-4" />
+                </button>
+                {showColorPicker && (
+                    <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-200 flex gap-1 z-50">
+                        {BUBBLE_HIGHLIGHT_COLORS.map((color) => (
+                            <button
+                                key={color.value}
+                                onClick={() => {
+                                    editor.chain().focus().toggleHighlight({ color: color.value }).run();
+                                    setShowColorPicker(false);
+                                }}
+                                className="w-6 h-6 rounded border-2 border-transparent hover:border-gray-400 transition-all"
+                                style={{ backgroundColor: color.value }}
+                                title={color.name}
+                            />
+                        ))}
+                        <button
+                            onClick={() => {
+                                editor.chain().focus().unsetHighlight().run();
+                                setShowColorPicker(false);
+                            }}
+                            className="w-6 h-6 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center"
+                            title="Remove"
+                        >
+                            <Minus className="w-3 h-3 text-gray-400" />
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
@@ -580,6 +717,19 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
                 </ToolbarButton>
             </div>
 
+            {/* Floating Bubble Menu - appears on text selection */}
+            <BubbleMenu
+                editor={editor}
+                tippyOptions={{ duration: 150, placement: 'top' }}
+                shouldShow={({ editor, state }) => {
+                    // Only show when there's a text selection (not just cursor)
+                    const { from, to } = state.selection;
+                    return from !== to && !editor.isActive('codeBlock');
+                }}
+            >
+                <BubbleMenuToolbar editor={editor} />
+            </BubbleMenu>
+
             {/* Slash Command Menu */}
             {showSlashMenu && (
                 <div className="absolute left-4 top-16 z-50" onClick={(e) => e.stopPropagation()}>
@@ -693,6 +843,48 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
         .tiptap-editor .ProseMirror a[href^="#note:"]:hover {
           background-color: #e0f2fe;
           text-decoration: underline;
+        }
+        
+        /* Block Handles - Notion-style */
+        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak) {
+          position: relative;
+          padding-left: 1.5rem;
+          margin-left: -1.5rem;
+        }
+        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak)::before {
+          content: '⋮⋮';
+          position: absolute;
+          left: 0;
+          top: 0.25rem;
+          opacity: 0;
+          color: #9ca3af;
+          font-size: 12px;
+          letter-spacing: -2px;
+          cursor: grab;
+          user-select: none;
+          transition: opacity 0.15s ease;
+          padding: 2px 4px;
+          border-radius: 3px;
+        }
+        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak):hover::before {
+          opacity: 1;
+        }
+        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak):hover {
+          background-color: rgba(0, 0, 0, 0.02);
+          border-radius: 4px;
+        }
+        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak)::before:hover {
+          background-color: #f3f4f6;
+        }
+        /* Hide handles on headings line height */
+        .tiptap-editor .ProseMirror > h1::before {
+          top: 0.5rem;
+        }
+        .tiptap-editor .ProseMirror > h2::before {
+          top: 0.4rem;
+        }
+        .tiptap-editor .ProseMirror > h3::before {
+          top: 0.35rem;
         }
       `}</style>
         </div>
