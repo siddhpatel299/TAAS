@@ -43,18 +43,25 @@ interface FolderTreeItemProps {
     folder: NoteFolder;
     level: number;
     selectedFolderId?: string;
-    onSelect: (folderId: string) => void;
+    selectedNoteId?: string;
+    notes?: Note[];
+    onSelectFolder: (folderId: string) => void;
+    onSelectNote?: (note: Note) => void;
 }
 
-function FolderTreeItem({ folder, level, selectedFolderId, onSelect }: FolderTreeItemProps) {
+function FolderTreeItem({ folder, level, selectedFolderId, selectedNoteId, notes = [], onSelectFolder, onSelectNote }: FolderTreeItemProps) {
     const [isOpen, setIsOpen] = useState(false);
     const hasChildren = folder.children && folder.children.length > 0;
     const isSelected = selectedFolderId === folder.id;
 
+    // Filter notes that belong to this folder
+    const folderNotes = notes.filter(n => n.folderId === folder.id && !n.isTrashed);
+    const hasContent = hasChildren || folderNotes.length > 0;
+
     return (
         <div>
             <button
-                onClick={() => onSelect(folder.id)}
+                onClick={() => onSelectFolder(folder.id)}
                 className={cn(
                     'w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors',
                     'hover:bg-gray-100',
@@ -62,7 +69,7 @@ function FolderTreeItem({ folder, level, selectedFolderId, onSelect }: FolderTre
                 )}
                 style={{ paddingLeft: `${12 + level * 16}px` }}
             >
-                {hasChildren ? (
+                {hasContent ? (
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -87,21 +94,50 @@ function FolderTreeItem({ folder, level, selectedFolderId, onSelect }: FolderTre
             </button>
 
             <AnimatePresence>
-                {isOpen && hasChildren && (
+                {isOpen && hasContent && (
                     <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.15 }}
+                        className="overflow-hidden"
                     >
-                        {folder.children!.map((child) => (
+                        {/* Child Folders */}
+                        {hasChildren && folder.children!.map((child) => (
                             <FolderTreeItem
                                 key={child.id}
                                 folder={child}
                                 level={level + 1}
                                 selectedFolderId={selectedFolderId}
-                                onSelect={onSelect}
+                                selectedNoteId={selectedNoteId}
+                                notes={notes}
+                                onSelectFolder={onSelectFolder}
+                                onSelectNote={onSelectNote}
                             />
+                        ))}
+
+                        {/* Notes in this folder */}
+                        {folderNotes.map((note) => (
+                            <button
+                                key={note.id}
+                                onClick={() => onSelectNote?.(note)}
+                                className={cn(
+                                    'w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors',
+                                    'hover:bg-gray-100',
+                                    selectedNoteId === note.id && 'bg-sky-50 text-sky-700'
+                                )}
+                                style={{ paddingLeft: `${28 + (level + 1) * 16}px` }}
+                            >
+                                {note.icon ? (
+                                    <span className="text-sm">{note.icon}</span>
+                                ) : (
+                                    <FileText className="w-3.5 h-3.5 text-gray-400" />
+                                )}
+                                <span className="flex-1 truncate text-left text-gray-600">{note.title || 'Untitled'}</span>
+                                {note._count?.childNotes && note._count.childNotes > 0 && (
+                                    <span className="text-xs text-sky-500">{note._count.childNotes}</span>
+                                )}
+                            </button>
                         ))}
                     </motion.div>
                 )}
@@ -109,6 +145,7 @@ function FolderTreeItem({ folder, level, selectedFolderId, onSelect }: FolderTre
         </div>
     );
 }
+
 
 // ====================
 // TAG PILL COMPONENT
@@ -635,7 +672,10 @@ export function NotesPage() {
                                                 folder={folder}
                                                 level={0}
                                                 selectedFolderId={filters.folderId || undefined}
-                                                onSelect={(folderId) => setFilters({ folderId, view: 'all' })}
+                                                selectedNoteId={selectedNote?.id}
+                                                notes={notes}
+                                                onSelectFolder={(folderId) => setFilters({ folderId, view: 'all' })}
+                                                onSelectNote={(note) => handleSelectNote(note)}
                                             />
                                         ))
                                     )}
