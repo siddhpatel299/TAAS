@@ -176,9 +176,9 @@ export function CreateFolderDialog({ isOpen, onClose, parentId }: CreateFolderDi
 
                                         {showColorPicker && (
                                             <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
+                                                initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="absolute top-full mt-2 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 z-10"
+                                                className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 z-10"
                                             >
                                                 <div className="grid grid-cols-4 gap-2">
                                                     {FOLDER_COLORS.map((c) => (
@@ -226,9 +226,9 @@ export function CreateFolderDialog({ isOpen, onClose, parentId }: CreateFolderDi
 
                                         {showIconPicker && (
                                             <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
+                                                initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="absolute top-full mt-2 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 z-10"
+                                                className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 z-10"
                                             >
                                                 <div className="grid grid-cols-6 gap-1">
                                                     {FOLDER_ICONS.map((icon) => (

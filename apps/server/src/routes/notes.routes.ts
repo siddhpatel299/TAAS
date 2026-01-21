@@ -13,7 +13,7 @@ const requireNotesPlugin = async (req: Request, res: Response, next: Function) =
             return res.status(401).json({ success: false, error: 'Unauthorized' });
         }
 
-        const isEnabled = await pluginsService.isPluginEnabled(userId, 'notes-documents');
+        const isEnabled = await pluginsService.isPluginEnabled(userId, 'notes');
         if (!isEnabled) {
             return res.status(403).json({
                 success: false,
