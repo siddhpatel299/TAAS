@@ -116,6 +116,7 @@ import { HUDOutreachPage } from '@/pages/hud/HUDOutreachPage';
 import { HUDContactFinderPage } from '@/pages/hud/HUDContactFinderPage';
 import { HUDTelegramPage } from '@/pages/hud/HUDTelegramPage';
 import { HUDJobApplicationFormPage } from '@/pages/hud/HUDJobApplicationFormPage';
+import { HUDNotesPage } from '@/pages/hud/HUDNotesPage';
 
 // Forest Theme imports
 import { ForestDashboardPage } from '@/pages/forest/ForestDashboardPage';
@@ -144,6 +145,7 @@ import { TerminalJobApplicationFormPage } from '@/pages/terminal/TerminalJobAppl
 import { TerminalOutreachPage } from '@/pages/terminal/TerminalOutreachPage';
 import { TerminalContactFinderPage } from '@/pages/terminal/TerminalContactFinderPage';
 import { TerminalTelegramPage } from '@/pages/terminal/TerminalTelegramPage';
+import { TerminalNotesPage } from '@/pages/terminal/TerminalNotesPage';
 
 // Origami Theme imports
 import { OrigamiDashboardPage } from '@/pages/origami/OrigamiDashboardPage';
@@ -172,6 +174,7 @@ import { BlueprintJobApplicationFormPage } from '@/pages/blueprint/BlueprintJobA
 import { BlueprintOutreachPage } from '@/pages/blueprint/BlueprintOutreachPage';
 import { BlueprintContactFinderPage } from '@/pages/blueprint/BlueprintContactFinderPage';
 import { BlueprintTelegramPage } from '@/pages/blueprint/BlueprintTelegramPage';
+import { BlueprintNotesPage } from '@/pages/blueprint/BlueprintNotesPage';
 
 // Newsprint Theme imports
 import { NewsprintDashboardPage } from '@/pages/newsprint/NewsprintDashboardPage';
@@ -648,6 +651,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BlueprintJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BlueprintOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BlueprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -948,6 +953,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><TerminalJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><TerminalOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><TerminalContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><TerminalNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><TerminalNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -978,6 +985,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><HUDJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><HUDOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><HUDContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
