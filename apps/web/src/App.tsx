@@ -131,6 +131,7 @@ import { ForestJobApplicationFormPage } from '@/pages/forest/ForestJobApplicatio
 import { ForestOutreachPage } from '@/pages/forest/ForestOutreachPage';
 import { ForestContactFinderPage } from '@/pages/forest/ForestContactFinderPage';
 import { ForestTelegramPage } from '@/pages/forest/ForestTelegramPage';
+import { ForestNotesPage } from '@/pages/forest/ForestNotesPage';
 
 // Terminal Theme imports
 import { TerminalDashboardPage } from '@/pages/terminal/TerminalDashboardPage';
@@ -160,6 +161,7 @@ import { OrigamiJobApplicationFormPage } from '@/pages/origami/OrigamiJobApplica
 import { OrigamiOutreachPage } from '@/pages/origami/OrigamiOutreachPage';
 import { OrigamiContactFinderPage } from '@/pages/origami/OrigamiContactFinderPage';
 import { OrigamiTelegramPage } from '@/pages/origami/OrigamiTelegramPage';
+import { OrigamiNotesPage } from '@/pages/origami/OrigamiNotesPage';
 
 // Blueprint Theme imports
 import { BlueprintDashboardPage } from '@/pages/blueprint/BlueprintDashboardPage';
@@ -385,6 +387,7 @@ import { PixelJobApplicationFormPage } from '@/pages/pixel/PixelJobApplicationFo
 import { PixelOutreachPage } from '@/pages/pixel/PixelOutreachPage';
 import { PixelContactFinderPage } from '@/pages/pixel/PixelContactFinderPage';
 import { PixelTelegramPage } from '@/pages/pixel/PixelTelegramPage';
+import { PixelNotesPage } from '@/pages/pixel/PixelNotesPage';
 
 // ... (existing imports remain the same)
 
@@ -863,6 +866,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><PixelJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><PixelOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PixelContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -893,6 +898,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><OrigamiJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OrigamiOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><OrigamiContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><OrigamiNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><OrigamiNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -923,6 +930,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ForestJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ForestOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ForestContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><ForestNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ForestNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

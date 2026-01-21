@@ -56070,8 +56070,8 @@ function requireTelegram() {
 var telegramExports = requireTelegram();
 var sessionsExports = requireSessions();
 var uploadsExports = requireUploads();
-const API_ID = parseInt("15640209");
-const API_HASH = "718401118aab164b69fa784f41f52c53";
+const API_ID = parseInt(process.env.TELEGRAM_API_ID || "0");
+const API_HASH = process.env.TELEGRAM_API_HASH || "";
 class TelegramService {
   client = null;
   storeService;
