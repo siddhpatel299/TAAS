@@ -1,51 +1,36 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Puzzle, Briefcase, CheckSquare, ArrowRight, Leaf, Loader2 } from 'lucide-react';
+import { Puzzle, Briefcase, CheckSquare, FileText, ArrowRight, Leaf, Loader2 } from 'lucide-react';
 import { ForestLayout } from '@/layouts/ForestLayout';
 import { ForestCard, ForestPageHeader, ForestBadge, ForestButton } from '@/components/forest/ForestComponents';
-import { api } from '@/lib/api';
+import { pluginsApi, Plugin } from '@/lib/plugins-api';
 
-interface PluginInfo {
-    id: string;
-    name: string;
-    description: string;
-    icon: any;
-    path: string;
-    features: string[];
-}
+const PLUGIN_ICONS: Record<string, any> = {
+    'job-tracker': Briefcase,
+    'todo-lists': CheckSquare,
+    'notes': FileText
+};
 
-const allPlugins: PluginInfo[] = [
-    {
-        id: 'job-tracker',
-        name: 'Job Tracker',
-        description: 'Track job applications and your career journey',
-        icon: Briefcase,
-        path: '/plugins/job-tracker',
-        features: ['Applications', 'Contacts', 'Outreach'],
-    },
-    {
-        id: 'todo-lists',
-        name: 'Todo Lists',
-        description: 'Organize tasks and stay productive',
-        icon: CheckSquare,
-        path: '/plugins/todo-lists',
-        features: ['Lists', 'Tasks', 'Progress'],
-    },
-];
+const PLUGIN_PATHS: Record<string, string> = {
+    'job-tracker': '/plugins/job-tracker',
+    'todo-lists': '/plugins/todo-lists',
+    'notes': '/plugins/notes'
+};
 
 export function ForestPluginsPage() {
-    const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
+    const [plugins, setPlugins] = useState<Plugin[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const loadPlugins = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await api.get('/users/plugins');
-            setEnabledPlugins(response.data?.data?.enabledPlugins || ['job-tracker', 'todo-lists']);
+            const response = await pluginsApi.getAvailable();
+            // We only show the ones we supported in forest
+            const supportedIds = ['job-tracker', 'todo-lists', 'notes'];
+            setPlugins(response.data.data.filter(p => supportedIds.includes(p.id)));
         } catch (error) {
-            // Default to all plugins enabled if fetch fails
-            setEnabledPlugins(['job-tracker', 'todo-lists']);
+            console.error('Failed to load plugins:', error);
         } finally {
             setIsLoading(false);
         }
@@ -55,14 +40,14 @@ export function ForestPluginsPage() {
         loadPlugins();
     }, [loadPlugins]);
 
-    const togglePlugin = async (pluginId: string) => {
+    const togglePlugin = async (pluginId: string, currentlyEnabled: boolean) => {
         try {
-            await api.post(`/users/plugins/${pluginId}/toggle`);
-            if (enabledPlugins.includes(pluginId)) {
-                setEnabledPlugins(enabledPlugins.filter(id => id !== pluginId));
+            if (currentlyEnabled) {
+                await pluginsApi.disable(pluginId);
             } else {
-                setEnabledPlugins([...enabledPlugins, pluginId]);
+                await pluginsApi.enable(pluginId);
             }
+            await loadPlugins();
         } catch (error) {
             console.error('Failed to toggle plugin:', error);
         }
@@ -82,9 +67,10 @@ export function ForestPluginsPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {allPlugins.map((plugin, index) => {
-                        const Icon = plugin.icon;
-                        const isEnabled = enabledPlugins.includes(plugin.id);
+                    {plugins.map((plugin, index) => {
+                        const Icon = PLUGIN_ICONS[plugin.id] || Briefcase;
+                        const isEnabled = plugin.enabled;
+                        const path = PLUGIN_PATHS[plugin.id];
 
                         return (
                             <motion.div
@@ -113,20 +99,22 @@ export function ForestPluginsPage() {
                                             </div>
                                             <p className="text-sm text-[var(--forest-wood)] mb-3">{plugin.description}</p>
                                             <div className="flex flex-wrap gap-2 mb-4">
-                                                {plugin.features.map((feature) => (
+                                                {plugin.features?.slice(0, 3).map((feature) => (
                                                     <ForestBadge key={feature} variant="wood">{feature}</ForestBadge>
                                                 ))}
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {isEnabled ? (
                                                     <>
-                                                        <Link to={plugin.path}>
-                                                            <ForestButton variant="primary">Open <ArrowRight className="w-4 h-4 ml-1" /></ForestButton>
-                                                        </Link>
-                                                        <ForestButton onClick={() => togglePlugin(plugin.id)}>Disable</ForestButton>
+                                                        {path && (
+                                                            <Link to={path}>
+                                                                <ForestButton variant="primary">Open <ArrowRight className="w-4 h-4 ml-1" /></ForestButton>
+                                                            </Link>
+                                                        )}
+                                                        <ForestButton onClick={() => togglePlugin(plugin.id, true)}>Disable</ForestButton>
                                                     </>
                                                 ) : (
-                                                    <ForestButton variant="primary" onClick={() => togglePlugin(plugin.id)}>Enable Plugin</ForestButton>
+                                                    <ForestButton variant="primary" onClick={() => togglePlugin(plugin.id, false)}>Enable Plugin</ForestButton>
                                                 )}
                                             </div>
                                         </div>

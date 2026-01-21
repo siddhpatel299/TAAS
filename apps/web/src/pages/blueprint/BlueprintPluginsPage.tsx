@@ -1,13 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, CheckSquare, ArrowRight, Loader2 } from 'lucide-react';
+import { Briefcase, CheckSquare, FileText, ArrowRight, Loader2 } from 'lucide-react';
 import { BlueprintLayout } from '@/layouts/BlueprintLayout';
 import { BlueprintCard, BlueprintHeader, BlueprintBadge } from '@/components/blueprint/BlueprintComponents';
-import { api } from '@/lib/api';
+import { pluginsApi, Plugin } from '@/lib/plugins-api';
 
-interface Plugin { id: string; name: string; description: string; enabled: boolean; }
-const PLUGIN_ICONS: Record<string, any> = { 'job-tracker': Briefcase, 'todo-lists': CheckSquare };
-const PLUGIN_PATHS: Record<string, string> = { 'job-tracker': '/plugins/job-tracker', 'todo-lists': '/plugins/todo-lists' };
+const PLUGIN_ICONS: Record<string, any> = {
+    'job-tracker': Briefcase,
+    'todo-lists': CheckSquare,
+    'notes': FileText
+};
+const PLUGIN_PATHS: Record<string, string> = {
+    'job-tracker': '/plugins/job-tracker',
+    'todo-lists': '/plugins/todo-lists',
+    'notes': '/plugins/notes'
+};
 
 export function BlueprintPluginsPage() {
     const [plugins, setPlugins] = useState<Plugin[]>([]);
@@ -15,13 +22,27 @@ export function BlueprintPluginsPage() {
 
     const loadPlugins = useCallback(async () => {
         setLoading(true);
-        try { const r = await api.get('/plugins'); setPlugins(r.data?.data || []); }
+        try {
+            const response = await pluginsApi.getAvailable();
+            // We only show the ones we have icons for/want to support in blueprint
+            const supportedIds = ['job-tracker', 'todo-lists', 'notes'];
+            setPlugins(response.data.data.filter(p => supportedIds.includes(p.id)));
+        }
         catch (e) { console.error(e); }
         finally { setLoading(false); }
     }, []);
 
     useEffect(() => { loadPlugins(); }, [loadPlugins]);
-    const togglePlugin = async (id: string, enabled: boolean) => { await api.patch(`/plugins/${id}`, { enabled }); loadPlugins(); };
+    const togglePlugin = async (id: string, enabled: boolean) => {
+        try {
+            if (enabled) {
+                await pluginsApi.enable(id);
+            } else {
+                await pluginsApi.disable(id);
+            }
+            await loadPlugins();
+        } catch (e) { console.error(e); }
+    };
 
     if (loading) return <BlueprintLayout><div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-[var(--blueprint-cyan)] animate-spin" /></div></BlueprintLayout>;
 

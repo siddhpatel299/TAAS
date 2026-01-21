@@ -58,7 +58,7 @@ const plugins: Plugin[] = [
         color: 'purple',
         glowColor: 'rgba(128, 0, 255, 0.5)',
         route: '/plugins/notes',
-        status: 'coming-soon',
+        status: 'active',
     },
     {
         id: 'chat',
