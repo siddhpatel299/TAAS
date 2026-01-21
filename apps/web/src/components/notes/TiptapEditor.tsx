@@ -15,7 +15,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import {
     Bold,
     Italic,
@@ -244,6 +244,7 @@ interface TiptapEditorProps {
 
 export function TiptapEditor({ content, onChange, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
     const [showSlashMenu, setShowSlashMenu] = useState(false);
+    const isInitialized = useRef(false);
 
     const editor = useEditor({
         extensions: [
@@ -341,10 +342,12 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
         }
     }, [showSlashMenu]);
 
-    // Update content when prop changes
+    // Initialize content ONLY once when editor first becomes available
+    // This prevents constant re-renders and cursor jumping
     useEffect(() => {
-        if (editor && content && editor.getJSON() !== content) {
+        if (editor && content && !isInitialized.current) {
             editor.commands.setContent(content);
+            isInitialized.current = true;
         }
     }, [editor, content]);
 
