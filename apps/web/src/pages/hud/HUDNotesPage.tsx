@@ -7,25 +7,16 @@ import {
     Search,
     ChevronRight,
     ChevronDown,
-    Star,
     Pin,
     Trash2,
     MoreHorizontal,
     Copy,
     FolderOpen,
-    Tag,
-    Clock,
-    Loader2,
-    Smile,
     ImagePlus,
-    Share2,
-    Maximize2,
-    FilePlus,
     RotateCcw,
-    X,
 } from 'lucide-react';
 import { HUDLayout } from '@/layouts/HUDLayout';
-import { HUDPanel, HUDButton } from '@/components/hud/HUDComponents';
+import { HUDPanel } from '@/components/hud/HUDComponents';
 import { useNotesStore } from '@/stores/notes.store';
 import { NoteFolder, Note, NoteTag as NoteTagType } from '@/lib/notes-api';
 import { cn } from '@/lib/utils';
@@ -59,10 +50,10 @@ function HUDFolderTreeItem({ folder, level, selectedFolderId, selectedNoteId, no
 
     return (
         <div>
-            <button
+            <div
                 onClick={() => onSelectFolder(folder.id)}
                 className={cn(
-                    'w-full flex items-center gap-2 px-3 py-2 text-sm transition-all border-l-2',
+                    'w-full flex items-center gap-2 px-3 py-2 text-sm transition-all border-l-2 cursor-pointer',
                     'hover:bg-cyan-950/30 hover:text-cyan-400',
                     isSelected
                         ? 'border-cyan-500 bg-cyan-950/50 text-cyan-400 shadow-[0_0_10px_rgba(0,255,255,0.2)]'
@@ -94,7 +85,7 @@ function HUDFolderTreeItem({ folder, level, selectedFolderId, selectedNoteId, no
                         {folder._count.notes}
                     </span>
                 )}
-            </button>
+            </div>
 
             <AnimatePresence>
                 {isOpen && hasContent && (
@@ -121,11 +112,11 @@ function HUDFolderTreeItem({ folder, level, selectedFolderId, selectedNoteId, no
 
                         {/* Notes in this folder */}
                         {folderNotes.map((note) => (
-                            <button
+                            <div
                                 key={note.id}
                                 onClick={() => onSelectNote?.(note)}
                                 className={cn(
-                                    'w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all border-l-2',
+                                    'w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all border-l-2 cursor-pointer',
                                     'hover:bg-cyan-950/30 hover:text-cyan-300',
                                     selectedNoteId === note.id
                                         ? 'border-cyan-400 bg-cyan-900/30 text-cyan-300'
@@ -139,7 +130,7 @@ function HUDFolderTreeItem({ folder, level, selectedFolderId, selectedNoteId, no
                                     <FileText className="w-3.5 h-3.5 opacity-50" />
                                 )}
                                 <span className="flex-1 truncate text-left font-mono text-xs">{note.title || 'Untitled'}</span>
-                            </button>
+                            </div>
                         ))}
                     </motion.div>
                 )}
@@ -157,14 +148,13 @@ interface HUDNoteCardProps {
     isSelected: boolean;
     onSelect: () => void;
     onPin: () => void;
-    onFavorite: () => void;
     onDelete: () => void;
     onDuplicate: () => void;
     onRestore?: () => void;
     onDeletePermanently?: () => void;
 }
 
-function HUDNoteCard({ note, isSelected, onSelect, onPin, onFavorite, onDelete, onDuplicate, onRestore, onDeletePermanently }: HUDNoteCardProps) {
+function HUDNoteCard({ note, isSelected, onSelect, onPin, onDelete, onDuplicate, onRestore, onDeletePermanently }: HUDNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
 
     // Extract simple preview
@@ -424,15 +414,12 @@ export function HUDNotesPage() {
         notes,
         selectedNote,
         folderTree,
-        isLoading,
         fetchNotes,
         fetchNote,
         fetchFolderTree,
         createNote,
         deleteNote,
-        restoreNote,
         togglePin,
-        toggleFavorite,
         duplicateNote,
         setSelectedNote,
     } = useNotesStore();
@@ -457,23 +444,23 @@ export function HUDNotesPage() {
     const handleCreateNote = async () => {
         try {
             const newNote = await createNote({ title: '', content: '' });
-            navigate(\`/hud/notes/\${newNote.id}\`);
+            navigate(`/hud/notes/${newNote.id}`);
         } catch (error) {
             console.error('Failed to create note:', error);
         }
     };
 
-    const filteredNotes = notes.filter(n => 
-        !n.isTrashed && 
-        (n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-         n.content?.toLowerCase().includes(searchQuery.toLowerCase()))
+    const filteredNotes = notes.filter(n =>
+        !n.isTrashed &&
+        (n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (n.content && n.content.toLowerCase().includes(searchQuery.toLowerCase())))
     );
 
     return (
         <HUDLayout>
             <div className="h-[calc(100vh-140px)] flex gap-4 overflow-hidden relative">
                 {/* Left Panel: Folders & List */}
-                <HUDPanel 
+                <HUDPanel
                     className={cn(
                         "flex flex-col transition-all duration-300 relative z-20",
                         isSidebarCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-80"
@@ -483,12 +470,20 @@ export function HUDNotesPage() {
                     <div className="p-4 border-b border-cyan-900/50 flex items-center justify-between">
                         <h2 className="text-cyan-400 font-bold tracking-widest text-sm">ARCHIVES</h2>
                         <div className="flex gap-1">
-                            <HUDButton size="sm" onClick={() => setCreateFolderOpen(true)} title="New Folder">
-                                <FolderPlus className="w-4 h-4" />
-                            </HUDButton>
-                            <HUDButton size="sm" onClick={handleCreateNote} title="New Note">
+                            <button
+                                onClick={() => setCreateFolderOpen(true)}
+                                title="New Folder"
+                                className="hud-btn p-2"
+                            >
                                 <Plus className="w-4 h-4" />
-                            </HUDButton>
+                            </button>
+                            <button
+                                onClick={handleCreateNote}
+                                title="New Note"
+                                className="hud-btn p-2"
+                            >
+                                <Plus className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
 
@@ -517,8 +512,8 @@ export function HUDNotesPage() {
                                     level={0}
                                     selectedNoteId={noteId}
                                     notes={notes}
-                                    onSelectFolder={() => {}} 
-                                    onSelectNote={(note) => navigate(\`/hud/notes/\${note.id}\`)}
+                                    onSelectFolder={() => { }}
+                                    onSelectNote={(note) => navigate(`/hud/notes/${note.id}`)}
                                 />
                             ))}
                         </div>
@@ -526,19 +521,18 @@ export function HUDNotesPage() {
                         {/* Root Notes / All Notes List */}
                         <div className="space-y-1">
                             {filteredNotes
-                                .filter(n => !n.folderId) // Show only root notes or all if searching? Simplified for now.
+                                .filter(n => !n.folderId)
                                 .map(note => (
-                                <HUDNoteCard
-                                    key={note.id}
-                                    note={note}
-                                    isSelected={note.id === noteId}
-                                    onSelect={() => navigate(\`/hud/notes/\${note.id}\`)}
-                                    onPin={() => togglePin(note.id)}
-                                    onFavorite={() => toggleFavorite(note.id)}
-                                    onDelete={() => deleteNote(note.id)}
-                                    onDuplicate={() => duplicateNote(note.id)}
-                                />
-                            ))}
+                                    <HUDNoteCard
+                                        key={note.id}
+                                        note={note}
+                                        isSelected={note.id === noteId}
+                                        onSelect={() => navigate(`/hud/notes/${note.id}`)}
+                                        onPin={() => togglePin(note.id)}
+                                        onDelete={() => deleteNote(note.id)}
+                                        onDuplicate={() => duplicateNote(note.id)}
+                                    />
+                                ))}
                         </div>
                     </div>
                 </HUDPanel>
@@ -567,9 +561,9 @@ export function HUDNotesPage() {
             </div>
 
             <CreateFolderDialog
-                open={createFolderOpen}
-                onOpenChange={setCreateFolderOpen}
-                parentId={null}
+                isOpen={createFolderOpen}
+                onClose={() => setCreateFolderOpen(false)}
+                parentId={undefined}
             />
         </HUDLayout>
     );

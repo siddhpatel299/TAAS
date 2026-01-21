@@ -1,20 +1,13 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     FileText,
     Plus,
-    Search,
     ChevronRight,
     ChevronDown,
-    Star,
     Trash2,
     Folder,
-    FolderOpen,
     PenTool,
-    Save,
-    Share2,
-    Maximize2,
-    MoreHorizontal,
     Copy,
     Pin
 } from 'lucide-react';
@@ -25,7 +18,6 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { TiptapEditor } from '@/components/notes/TiptapEditor';
 import { CreateFolderDialog } from '@/components/notes/CreateFolderDialog';
-import { PageLinkPicker } from '@/components/notes/PageLinkPicker';
 
 // ====================
 // BLUEPRINT FOLDER ITEM
@@ -204,8 +196,6 @@ export function BlueprintNotesPage() {
         duplicateNote,
     } = useNotesStore();
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [editorInstance, setEditorInstance] = useState<any>(null);
     const [createFolderOpen, setCreateFolderOpen] = useState(false);
 
     useEffect(() => {
@@ -342,7 +332,7 @@ export function BlueprintNotesPage() {
                                     <TiptapEditor
                                         content={selectedNote.contentJson || null}
                                         onChange={handleEditorChange}
-                                        onEditorReady={setEditorInstance}
+                                        onEditorReady={() => { }}
                                         placeholder="Initialize schematic data..."
                                     />
                                 </div>
@@ -361,9 +351,9 @@ export function BlueprintNotesPage() {
             </div>
 
             <CreateFolderDialog
-                open={createFolderOpen}
-                onOpenChange={setCreateFolderOpen}
-                parentId={null}
+                isOpen={createFolderOpen}
+                onClose={() => setCreateFolderOpen(false)}
+                parentId={undefined}
             />
         </BlueprintLayout>
     );

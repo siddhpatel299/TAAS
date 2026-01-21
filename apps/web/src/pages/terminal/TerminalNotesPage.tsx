@@ -1,17 +1,11 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     FileText,
-    Plus,
-    Search,
-    ChevronRight,
-    ChevronDown,
     Star,
-    Trash2,
     Folder,
     FolderOpen,
     Terminal,
-    Save,
     CornerDownRight
 } from 'lucide-react';
 import { TerminalLayout } from '@/layouts/TerminalLayout';
@@ -21,7 +15,6 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { TiptapEditor } from '@/components/notes/TiptapEditor';
 import { CreateFolderDialog } from '@/components/notes/CreateFolderDialog';
-import { PageLinkPicker } from '@/components/notes/PageLinkPicker';
 
 // ====================
 // TERMINAL FOLDER ITEM
@@ -121,9 +114,6 @@ export function TerminalNotesPage() {
     } = useNotesStore();
 
     const [createFolderOpen, setCreateFolderOpen] = useState(false);
-    // Removed unused state
-    // const [searchQuery, setSearchQuery] = useState('');
-    // const [editorInstance, setEditorInstance] = useState<any>(null);
 
     useEffect(() => {
         fetchNotes();
@@ -266,7 +256,7 @@ export function TerminalNotesPage() {
                                 <TiptapEditor
                                     content={selectedNote.contentJson || null}
                                     onChange={handleEditorChange}
-                                    onEditorReady={() => { }} // Remove unused setter
+                                    onEditorReady={() => { }}
                                     placeholder="-- INSERT MODE --"
                                 />
                             </div>
@@ -287,9 +277,9 @@ export function TerminalNotesPage() {
             </div>
 
             <CreateFolderDialog
-                open={createFolderOpen}
-                onOpenChange={setCreateFolderOpen}
-                parentId={null}
+                isOpen={createFolderOpen}
+                onClose={() => setCreateFolderOpen(false)}
+                parentId={undefined}
             />
         </TerminalLayout>
     );
