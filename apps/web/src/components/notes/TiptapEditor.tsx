@@ -38,6 +38,7 @@ import {
     Highlighter,
     Undo,
     Redo,
+    Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -318,9 +319,15 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
                     const { from } = state.selection;
                     const textBefore = state.doc.textBetween(Math.max(0, from - 1), from);
                     if (textBefore === '' || textBefore === ' ' || textBefore === '\n') {
+                        // Prevent the "/" from being typed into the editor
+                        event.preventDefault();
                         setShowSlashMenu(true);
-                        return false;
+                        return true; // Prevent default behavior
                     }
+                }
+                // Close slash menu on any other key press if it's open
+                if (showSlashMenu && event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter' && event.key !== 'Escape') {
+                    setShowSlashMenu(false);
                 }
                 return false;
             },
@@ -505,6 +512,27 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
                 >
                     <Minus className="w-4 h-4" />
                 </ToolbarButton>
+
+                {/* Delete current block (table or code block) */}
+                {editor.isActive('table') && (
+                    <ToolbarButton
+                        onClick={() => editor.chain().focus().deleteTable().run()}
+                        title="Delete Table"
+                    >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                    </ToolbarButton>
+                )}
+                {editor.isActive('codeBlock') && (
+                    <ToolbarButton
+                        onClick={() => {
+                            // Get current selection and delete the node
+                            editor.chain().focus().clearNodes().run();
+                        }}
+                        title="Remove Code Block"
+                    >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                    </ToolbarButton>
+                )}
 
                 <div className="flex-1" />
 
