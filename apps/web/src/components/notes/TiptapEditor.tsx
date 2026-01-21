@@ -251,6 +251,9 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
         extensions: [
             StarterKit.configure({
                 codeBlock: false, // We use CodeBlockLowlight instead
+                heading: {
+                    levels: [1, 2, 3, 4, 5, 6],
+                },
             }),
             Placeholder.configure({
                 placeholder,

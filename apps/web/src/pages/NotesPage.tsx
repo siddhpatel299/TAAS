@@ -720,11 +720,11 @@ export function NotesPage() {
                 <AnimatePresence>
                     {editorPanelOpen && selectedNote && (
                         <motion.div
-                            initial={{ width: 0, opacity: 0 }}
-                            animate={{ width: '50%', opacity: 1 }}
-                            exit={{ width: 0, opacity: 0 }}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
                             transition={{ duration: 0.2 }}
-                            className="h-full bg-white flex flex-col overflow-hidden min-w-[400px]"
+                            className="flex-1 h-full bg-white flex flex-col overflow-hidden min-w-[400px]"
                         >
                             {/* Close button */}
                             <button
