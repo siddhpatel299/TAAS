@@ -450,6 +450,7 @@ model Note {
   id           String    @id @default(cuid())
   userId       String
   folderId     String?
+  parentNoteId String?   // For nested pages - parent note reference
   title        String
   content      String?   @db.Text  // Plain text for search indexing
   contentJson  Json?               // Tiptap JSON document
@@ -469,13 +470,16 @@ model Note {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  folder   NoteFolder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  versions NoteVersion[]
-  shares   NoteShare[]
-  noteTags NoteTagsOnNotes[]
+  folder     NoteFolder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  parentNote Note?            @relation("NoteToNote", fields: [parentNoteId], references: [id], onDelete: Cascade)
+  childNotes Note[]           @relation("NoteToNote")
+  versions   NoteVersion[]
+  shares     NoteShare[]
+  noteTags   NoteTagsOnNotes[]
 
   @@index([userId])
   @@index([folderId])
+  @@index([parentNoteId])
   @@index([isPinned])
   @@index([isFavorite])
   @@index([isArchived])

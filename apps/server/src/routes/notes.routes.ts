@@ -53,6 +53,7 @@ router.get('/notes', async (req: Request, res: Response) => {
         const userId = (req as any).user.id;
         const {
             folderId,
+            parentNoteId,
             search,
             tagIds,
             isPinned,
@@ -68,6 +69,7 @@ router.get('/notes', async (req: Request, res: Response) => {
         const result = await notesService.getNotes({
             userId,
             folderId: folderId === 'null' ? null : (folderId as string),
+            parentNoteId: parentNoteId === 'null' ? null : (parentNoteId as string),
             search: search as string,
             tagIds: tagIds ? (tagIds as string).split(',') : undefined,
             isPinned: isPinned === 'true' ? true : isPinned === 'false' ? false : undefined,
@@ -104,7 +106,7 @@ router.get('/notes/:id', async (req: Request, res: Response) => {
 router.post('/notes', async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.id;
-        const { title, content, contentJson, contentHtml, folderId, icon, coverImage, color, metadata, tagIds } = req.body;
+        const { title, content, contentJson, contentHtml, folderId, parentNoteId, icon, coverImage, color, metadata, tagIds } = req.body;
 
         if (!title) {
             return res.status(400).json({ success: false, error: 'Title is required' });
@@ -117,6 +119,7 @@ router.post('/notes', async (req: Request, res: Response) => {
             contentJson,
             contentHtml,
             folderId,
+            parentNoteId,
             icon,
             coverImage,
             color,

@@ -12,6 +12,7 @@ export interface CreateNoteInput {
     contentJson?: Prisma.InputJsonValue;
     contentHtml?: string;
     folderId?: string;
+    parentNoteId?: string; // For nested pages
     icon?: string;
     coverImage?: string;
     color?: string;
@@ -39,6 +40,7 @@ export interface UpdateNoteInput {
 export interface GetNotesParams {
     userId: string;
     folderId?: string | null;
+    parentNoteId?: string | null; // For nested pages - null means root notes
     search?: string;
     tagIds?: string[];
     isPinned?: boolean;
@@ -98,6 +100,7 @@ export const notesService = {
         const {
             userId,
             folderId,
+            parentNoteId,
             search,
             tagIds,
             isPinned,
@@ -119,6 +122,11 @@ export const notesService = {
         // Folder filter (null means root level only)
         if (folderId !== undefined) {
             where.folderId = folderId;
+        }
+
+        // Parent note filter for nested pages (null means root notes only)
+        if (parentNoteId !== undefined) {
+            where.parentNoteId = parentNoteId;
         }
 
         if (isPinned !== undefined) where.isPinned = isPinned;
@@ -154,13 +162,16 @@ export const notesService = {
                     folder: {
                         select: { id: true, name: true, icon: true, color: true },
                     },
+                    parentNote: {
+                        select: { id: true, title: true, icon: true },
+                    },
                     noteTags: {
                         include: {
                             tag: true,
                         },
                     },
                     _count: {
-                        select: { versions: true, shares: true },
+                        select: { versions: true, shares: true, childNotes: true },
                     },
                 },
             }),
@@ -218,7 +229,7 @@ export const notesService = {
 
     async createNote(input: CreateNoteInput) {
         console.log('[DEBUG] Service createNote input:', input);
-        const { userId, title, content, contentJson, contentHtml, folderId, icon, coverImage, color, metadata, tagIds } = input;
+        const { userId, title, content, contentJson, contentHtml, folderId, parentNoteId, icon, coverImage, color, metadata, tagIds } = input;
 
         const wordCount = calculateWordCount(content);
         const readingTime = calculateReadingTime(wordCount);
@@ -231,6 +242,7 @@ export const notesService = {
                 contentJson,
                 contentHtml,
                 folderId: folderId || null,
+                parentNoteId: parentNoteId || null,
                 icon,
                 coverImage,
                 color,

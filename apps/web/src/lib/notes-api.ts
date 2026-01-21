@@ -63,6 +63,7 @@ export interface Note {
     id: string;
     userId: string;
     folderId?: string;
+    parentNoteId?: string; // For nested pages
     title: string;
     content?: string;
     contentJson?: any;
@@ -92,12 +93,18 @@ export interface Note {
         icon?: string;
         color?: string;
     };
+    parentNote?: {
+        id: string;
+        title: string;
+        icon?: string;
+    };
     tags?: NoteTag[];
     versions?: NoteVersion[];
     shares?: NoteShare[];
     _count?: {
         versions: number;
         shares: number;
+        childNotes: number;
     };
 }
 
@@ -114,6 +121,7 @@ export interface NotesDashboard {
 
 export interface GetNotesParams {
     folderId?: string | null;
+    parentNoteId?: string | null; // For nested pages
     search?: string;
     tagIds?: string[];
     isPinned?: boolean;
@@ -132,6 +140,7 @@ export interface CreateNoteInput {
     contentJson?: any;
     contentHtml?: string;
     folderId?: string;
+    parentNoteId?: string; // For nested pages
     icon?: string;
     coverImage?: string;
     color?: string;
