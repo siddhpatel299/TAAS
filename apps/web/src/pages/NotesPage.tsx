@@ -25,6 +25,7 @@ import {
     SortDesc,
     X,
     Home,
+    RotateCcw,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore, NotesView } from '@/stores/notes.store';
@@ -147,9 +148,11 @@ interface NoteCardProps {
     onFavorite: () => void;
     onDelete: () => void;
     onDuplicate: () => void;
+    onRestore?: () => void;
+    onDeletePermanently?: () => void;
 }
 
-function NoteCard({ note, isSelected, onSelect, onPin, onFavorite, onDelete, onDuplicate }: NoteCardProps) {
+function NoteCard({ note, isSelected, onSelect, onPin, onFavorite, onDelete, onDuplicate, onRestore, onDeletePermanently }: NoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
 
     return (
@@ -196,19 +199,42 @@ function NoteCard({ note, isSelected, onSelect, onPin, onFavorite, onDelete, onD
                     {showMenu && (
                         <>
                             <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                            <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); onDuplicate(); setShowMenu(false); }}
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                >
-                                    <Copy className="w-4 h-4" /> Duplicate
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); onDelete(); setShowMenu(false); }}
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                                >
-                                    <Trash2 className="w-4 h-4" /> Delete
-                                </button>
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+                                {note.isTrashed ? (
+                                    <>
+                                        {onRestore && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onRestore(); setShowMenu(false); }}
+                                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-green-600 hover:bg-green-50"
+                                            >
+                                                <RotateCcw className="w-4 h-4" /> Restore
+                                            </button>
+                                        )}
+                                        {onDeletePermanently && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onDeletePermanently(); setShowMenu(false); }}
+                                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> Delete Permanently
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onDuplicate(); setShowMenu(false); }}
+                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                        >
+                                            <Copy className="w-4 h-4" /> Duplicate
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onDelete(); setShowMenu(false); }}
+                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                        >
+                                            <Trash2 className="w-4 h-4" /> Move to Trash
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </>
                     )}
@@ -382,6 +408,7 @@ export function NotesPage() {
         fetchDashboard,
         createNote,
         deleteNote,
+        restoreNote,
         togglePin,
         toggleFavorite,
         duplicateNote,
@@ -679,6 +706,8 @@ export function NotesPage() {
                                             onFavorite={() => toggleFavorite(note.id)}
                                             onDelete={() => deleteNote(note.id)}
                                             onDuplicate={() => duplicateNote(note.id)}
+                                            onRestore={() => restoreNote(note.id)}
+                                            onDeletePermanently={() => deleteNote(note.id, true)}
                                         />
                                     ))}
                                 </AnimatePresence>

@@ -423,7 +423,10 @@ export const notesService = {
             orderBy: [{ position: 'asc' }, { name: 'asc' }],
             include: {
                 _count: {
-                    select: { notes: true, children: true },
+                    select: {
+                        notes: { where: { isTrashed: false } },
+                        children: true,
+                    },
                 },
             },
         });
@@ -435,7 +438,10 @@ export const notesService = {
             orderBy: [{ position: 'asc' }, { name: 'asc' }],
             include: {
                 _count: {
-                    select: { notes: true, children: true },
+                    select: {
+                        notes: { where: { isTrashed: false } },
+                        children: true,
+                    },
                 },
             },
         });
