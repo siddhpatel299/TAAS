@@ -516,6 +516,8 @@ interface TiptapEditorProps {
 
 export function TiptapEditor({ content, onChange, onEditorReady, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
     const [showSlashMenu, setShowSlashMenu] = useState(false);
+    const [showBubbleMenu, setShowBubbleMenu] = useState(false);
+    const [bubbleMenuPosition, setBubbleMenuPosition] = useState({ top: 0, left: 0 });
     const isInitialized = useRef(false);
 
     const editor = useEditor({
@@ -638,6 +640,39 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
             onEditorReady(editor);
         }
     }, [editor, onEditorReady]);
+
+    // Track selection changes for bubble menu
+    useEffect(() => {
+        if (!editor) return;
+
+        const updateBubbleMenu = () => {
+            const { from, to } = editor.state.selection;
+            const hasSelection = from !== to;
+            const isCodeBlock = editor.isActive('codeBlock');
+
+            if (hasSelection && !isCodeBlock) {
+                // Get selection position from browser
+                const selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    setBubbleMenuPosition({
+                        top: rect.top + window.scrollY,
+                        left: rect.left + rect.width / 2 + window.scrollX,
+                    });
+                    setShowBubbleMenu(true);
+                }
+            } else {
+                setShowBubbleMenu(false);
+            }
+        };
+
+        editor.on('selectionUpdate', updateBubbleMenu);
+
+        return () => {
+            editor.off('selectionUpdate', updateBubbleMenu);
+        };
+    }, [editor]);
 
     if (!editor) return null;
 
@@ -834,16 +869,16 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
                 </ToolbarButton>
             </div>
 
-            {/* Custom Floating Selection Toolbar */}
-            {editor && !editor.state.selection.empty && !editor.isActive('codeBlock') && (
+            {/* Floating Selection Toolbar */}
+            {showBubbleMenu && (
                 <div
-                    className="fixed z-50"
+                    className="fixed z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
                     style={{
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        display: 'none', // Hidden - would need proper positioning logic
+                        top: bubbleMenuPosition.top - 50,
+                        left: bubbleMenuPosition.left,
+                        transform: 'translateX(-50%)',
                     }}
+                    onMouseDown={(e) => e.preventDefault()}
                 >
                     <BubbleMenuToolbar editor={editor} />
                 </div>

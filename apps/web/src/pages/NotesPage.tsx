@@ -29,6 +29,8 @@ import {
     ImagePlus,
     Share2,
     Maximize2,
+    PanelRightClose,
+    PanelRight,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore, NotesView } from '@/stores/notes.store';
@@ -773,6 +775,7 @@ export function NotesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [showFolderDialog, setShowFolderDialog] = useState(false);
     const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
+    const [notesListCollapsed, setNotesListCollapsed] = useState(false);
 
     // Initial load
     useEffect(() => {
@@ -963,8 +966,9 @@ export function NotesPage() {
 
                 {/* MIDDLE - Notes List */}
                 <div className={cn(
-                    'flex-1 flex flex-col h-full min-w-0 border-r border-gray-200 bg-white',
-                    editorPanelOpen && 'max-w-xs'
+                    'flex flex-col h-full border-r border-gray-200 bg-white transition-all duration-200',
+                    notesListCollapsed && editorPanelOpen ? 'w-0 overflow-hidden' : 'flex-1 min-w-0',
+                    editorPanelOpen && !notesListCollapsed && 'max-w-xs'
                 )}>
                     {/* Header */}
                     <div className="p-4 border-b border-gray-200">
@@ -1008,6 +1012,20 @@ export function NotesPage() {
                             >
                                 {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
                             </button>
+
+                            {/* Collapse Notes List Toggle */}
+                            {selectedNote && (
+                                <button
+                                    onClick={() => setNotesListCollapsed(!notesListCollapsed)}
+                                    className={cn(
+                                        'p-2 rounded-lg transition-colors',
+                                        notesListCollapsed ? 'bg-sky-100 text-sky-600' : 'hover:bg-gray-100 text-gray-500'
+                                    )}
+                                    title={notesListCollapsed ? 'Show notes list' : 'Hide notes list'}
+                                >
+                                    {notesListCollapsed ? <PanelRight className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
+                                </button>
+                            )}
                         </div>
 
                         {/* Enhanced Breadcrumb Navigation */}
