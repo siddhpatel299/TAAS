@@ -788,7 +788,7 @@ export function NotesPage() {
                 {/* MIDDLE - Notes List */}
                 <div className={cn(
                     'flex-1 flex flex-col h-full min-w-0 border-r border-gray-200 bg-white',
-                    editorPanelOpen && 'max-w-md'
+                    editorPanelOpen && 'max-w-xs'
                 )}>
                     {/* Header */}
                     <div className="p-4 border-b border-gray-200">
@@ -913,7 +913,7 @@ export function NotesPage() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 20 }}
                             transition={{ duration: 0.2 }}
-                            className="flex-1 h-full bg-white flex flex-col overflow-hidden min-w-[400px]"
+                            className="flex-[2] h-full bg-white flex flex-col overflow-hidden min-w-[500px]"
                         >
                             {/* Close button */}
                             <button
