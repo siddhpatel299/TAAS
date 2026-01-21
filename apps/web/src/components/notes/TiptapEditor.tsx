@@ -646,31 +646,48 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
         if (!editor) return;
 
         const updateBubbleMenu = () => {
-            const { from, to } = editor.state.selection;
-            const hasSelection = from !== to;
-            const isCodeBlock = editor.isActive('codeBlock');
-
-            if (hasSelection && !isCodeBlock) {
-                // Get selection position from browser
+            // Small delay to ensure selection is finalized
+            setTimeout(() => {
+                const { from, to } = editor.state.selection;
+                const hasSelection = from !== to;
+                const isCodeBlock = editor.isActive('codeBlock');
                 const selection = window.getSelection();
-                if (selection && selection.rangeCount > 0) {
-                    const range = selection.getRangeAt(0);
-                    const rect = range.getBoundingClientRect();
-                    setBubbleMenuPosition({
-                        top: rect.top + window.scrollY,
-                        left: rect.left + rect.width / 2 + window.scrollX,
-                    });
-                    setShowBubbleMenu(true);
+                const hasTextSelected = selection && selection.toString().trim().length > 0;
+
+                if (hasSelection && !isCodeBlock && hasTextSelected) {
+                    // Get selection position from browser (use viewport coordinates for fixed positioning)
+                    if (selection && selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
+                        // Ensure rect has valid dimensions
+                        if (rect.width > 0 && rect.height > 0) {
+                            // Use viewport coordinates directly since bubble menu is position: fixed
+                            setBubbleMenuPosition({
+                                top: rect.top, // Viewport-relative Y
+                                left: rect.left + rect.width / 2, // Center horizontally
+                            });
+                            setShowBubbleMenu(true);
+                        }
+                    }
+                } else {
+                    setShowBubbleMenu(false);
                 }
-            } else {
-                setShowBubbleMenu(false);
-            }
+            }, 10);
         };
 
+        // Listen to both selection update and mouseup for better detection
         editor.on('selectionUpdate', updateBubbleMenu);
+
+        // Also listen to mouseup to catch drag selections
+        const handleMouseUp = () => {
+            updateBubbleMenu();
+        };
+
+        document.addEventListener('mouseup', handleMouseUp);
 
         return () => {
             editor.off('selectionUpdate', updateBubbleMenu);
+            document.removeEventListener('mouseup', handleMouseUp);
         };
     }, [editor]);
 
