@@ -24,7 +24,6 @@ import {
     SortAsc,
     SortDesc,
     X,
-    Home,
     RotateCcw,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
@@ -34,6 +33,9 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { CreateFolderDialog } from '@/components/notes/CreateFolderDialog';
 import { DocumentPropertiesPanel } from '@/components/notes/DocumentPropertiesPanel';
+import { NoteBreadcrumbs } from '@/components/notes/NoteBreadcrumbs';
+import { TableOfContents } from '@/components/notes/TableOfContents';
+import { FormatPanel } from '@/components/notes/FormatPanel';
 
 // ====================
 // FOLDER TREE COMPONENT
@@ -400,10 +402,18 @@ function NoteCard({ note, isSelected, viewMode = 'list', onSelect, onPin, onFavo
 
 import { TiptapEditor } from '@/components/notes/TiptapEditor';
 
-function NoteEditor({ note }: { note: Note }) {
+interface NoteEditorProps {
+    note: Note;
+}
+
+function NoteEditor({ note }: NoteEditorProps) {
     const { updateNote, isSaving } = useNotesStore();
     const [title, setTitle] = useState(note.title);
     const [hasChanges, setHasChanges] = useState(false);
+    const [showToc, setShowToc] = useState(true);
+    const [showFormatPanel, setShowFormatPanel] = useState(true);
+    const [editor, _setEditor] = useState<any>(null);
+    const [contentJson, setContentJson] = useState(note.contentJson);
 
     // Debounced title save
     useEffect(() => {
@@ -419,8 +429,9 @@ function NoteEditor({ note }: { note: Note }) {
     // Sync title when note changes
     useEffect(() => {
         setTitle(note.title);
+        setContentJson(note.contentJson);
         setHasChanges(false);
-    }, [note.id, note.title]);
+    }, [note.id, note.title, note.contentJson]);
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
@@ -428,6 +439,7 @@ function NoteEditor({ note }: { note: Note }) {
     };
 
     const handleEditorChange = (json: any, html: string, text: string) => {
+        setContentJson(json);
         updateNote(note.id, {
             contentJson: json,
             contentHtml: html,
@@ -436,57 +448,103 @@ function NoteEditor({ note }: { note: Note }) {
         });
     };
 
+    const handleHeadingClick = (_headingId: string, position: number) => {
+        // Scroll to the heading position in the editor
+        if (editor) {
+            try {
+                const { state } = editor;
+                let pos = 0;
+                let nodeIndex = 0;
+
+                state.doc.descendants((_node: any, nodePos: number) => {
+                    if (nodeIndex === position) {
+                        pos = nodePos;
+                        return false;
+                    }
+                    nodeIndex++;
+                    return true;
+                });
+
+                if (pos > 0) {
+                    editor.chain().focus().setTextSelection(pos).scrollIntoView().run();
+                }
+            } catch (e) {
+                console.error('Failed to scroll to heading:', e);
+            }
+        }
+    };
+
     return (
-        <div className="flex flex-col h-full">
-            {/* Editor Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                <div className="flex items-center gap-3 flex-1">
-                    {note.icon && <span className="text-2xl">{note.icon}</span>}
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={handleTitleChange}
-                        placeholder="Untitled"
-                        className="text-2xl font-bold text-gray-900 bg-transparent border-none outline-none placeholder-gray-300 w-full"
+        <div className="flex h-full">
+            {/* Left - Table of Contents */}
+            <TableOfContents
+                contentJson={contentJson}
+                onHeadingClick={handleHeadingClick}
+                isCollapsed={!showToc}
+                onToggleCollapse={() => setShowToc(!showToc)}
+            />
+
+            {/* Center - Main Editor */}
+            <div className="flex-1 flex flex-col h-full min-w-0 bg-white">
+                {/* Editor Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center gap-3 flex-1">
+                        {note.icon && <span className="text-2xl">{note.icon}</span>}
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={handleTitleChange}
+                            placeholder="Untitled"
+                            className="text-2xl font-bold text-gray-900 bg-transparent border-none outline-none placeholder-gray-300 w-full"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {isSaving && (
+                            <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                                <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+                            </span>
+                        )}
+                        {note.isFavorite && <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />}
+                        {note.isPinned && <Pin className="w-4 h-4 text-amber-500" fill="currentColor" />}
+                    </div>
+                </div>
+
+                {/* Tags Bar */}
+                {note.tags && note.tags.length > 0 && (
+                    <div className="flex items-center gap-2 px-6 py-2 border-b border-gray-100">
+                        {note.tags.map((tag) => (
+                            <TagPill key={tag.id} tag={tag} />
+                        ))}
+                    </div>
+                )}
+
+                {/* Tiptap Editor */}
+                <div className="flex-1 overflow-auto">
+                    <TiptapEditor
+                        content={note.contentJson || null}
+                        onChange={handleEditorChange}
+                        placeholder="Start writing your note... Type '/' for commands"
                     />
                 </div>
-                <div className="flex items-center gap-2">
-                    {isSaving && (
-                        <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                            <Loader2 className="w-3 h-3 animate-spin" /> Saving...
-                        </span>
-                    )}
-                    {note.isFavorite && <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />}
-                    {note.isPinned && <Pin className="w-4 h-4 text-amber-500" fill="currentColor" />}
+
+                {/* Footer */}
+                <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 text-xs text-gray-400">
+                    <span>{note.wordCount} words • {note.readingTime} min read</span>
+                    <span>Last edited {formatDistanceToNow(new Date(note.lastEditedAt || note.updatedAt), { addSuffix: true })}</span>
                 </div>
             </div>
 
-            {/* Tags Bar */}
-            {note.tags && note.tags.length > 0 && (
-                <div className="flex items-center gap-2 px-6 py-2 border-b border-gray-100">
-                    {note.tags.map((tag) => (
-                        <TagPill key={tag.id} tag={tag} />
-                    ))}
-                </div>
-            )}
-
-            {/* Tiptap Editor */}
-            <div className="flex-1 overflow-auto">
-                <TiptapEditor
-                    content={note.contentJson || null}
-                    onChange={handleEditorChange}
-                    placeholder="Start writing your note... Type '/' for commands"
-                />
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 text-xs text-gray-400">
-                <span>{note.wordCount} words • {note.readingTime} min read</span>
-                <span>Last edited {formatDistanceToNow(new Date(note.lastEditedAt || note.updatedAt), { addSuffix: true })}</span>
-            </div>
+            {/* Right - Format Panel */}
+            <FormatPanel
+                editor={editor}
+                note={note}
+                isCollapsed={!showFormatPanel}
+                onToggleCollapse={() => setShowFormatPanel(!showFormatPanel)}
+            />
         </div>
     );
 }
+
 
 // ====================
 // MAIN PAGE COMPONENT
@@ -770,18 +828,30 @@ export function NotesPage() {
                             </button>
                         </div>
 
-                        {/* Breadcrumb / Current View */}
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <button onClick={() => setFilters({ folderId: undefined, view: 'all' })} className="hover:text-gray-700">
-                                <Home className="w-4 h-4" />
-                            </button>
-                            <ChevronRight className="w-3 h-3" />
-                            <span className="font-medium text-gray-700">
-                                {filters.folderId
-                                    ? folderTree.find((f) => f.id === filters.folderId)?.name || 'Folder'
-                                    : viewOptions.find((v) => v.view === filters.view)?.label || 'All Notes'}
-                            </span>
-                        </div>
+                        {/* Enhanced Breadcrumb Navigation */}
+                        <NoteBreadcrumbs
+                            selectedNote={selectedNote}
+                            selectedFolderId={filters.folderId}
+                            folderTree={folderTree}
+                            currentView={filters.view}
+                            onNavigateHome={() => {
+                                setFilters({ folderId: undefined, view: 'all' });
+                                setSelectedNote(null);
+                                navigate('/plugins/notes');
+                            }}
+                            onNavigateFolder={(folderId) => {
+                                setFilters({ folderId, view: 'all' });
+                                setSelectedNote(null);
+                                navigate('/plugins/notes');
+                            }}
+                            onNavigateNote={(noteId) => {
+                                const note = notes.find(n => n.id === noteId);
+                                if (note) {
+                                    setSelectedNote(note);
+                                    navigate(`/plugins/notes/${noteId}`);
+                                }
+                            }}
+                        />
                     </div>
 
                     {/* Notes List */}
