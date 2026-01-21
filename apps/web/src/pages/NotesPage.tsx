@@ -31,6 +31,7 @@ import {
     Maximize2,
     PanelRightClose,
     PanelRight,
+    FilePlus,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore, NotesView } from '@/stores/notes.store';
@@ -42,6 +43,7 @@ import { DocumentPropertiesPanel } from '@/components/notes/DocumentPropertiesPa
 import { NoteBreadcrumbs } from '@/components/notes/NoteBreadcrumbs';
 import { TableOfContents } from '@/components/notes/TableOfContents';
 import { FormatPanel } from '@/components/notes/FormatPanel';
+import { PageLinkPicker } from '@/components/notes/PageLinkPicker';
 
 // ====================
 // FOLDER TREE COMPONENT
@@ -410,9 +412,10 @@ import { TiptapEditor } from '@/components/notes/TiptapEditor';
 
 interface NoteEditorProps {
     note: Note;
+    onCreateSubpage?: () => void;
 }
 
-function NoteEditor({ note }: NoteEditorProps) {
+function NoteEditor({ note, onCreateSubpage }: NoteEditorProps) {
     const { updateNote, isSaving } = useNotesStore();
     const [title, setTitle] = useState(note.title);
     const [hasChanges, setHasChanges] = useState(false);
@@ -424,6 +427,7 @@ function NoteEditor({ note }: NoteEditorProps) {
     const [coverImage, setCoverImage] = useState<string | null>(note.coverImage || null);
     const [focusMode, setFocusMode] = useState(false);
     const [showShareMenu, setShowShareMenu] = useState(false);
+    const [showPageLinkPicker, setShowPageLinkPicker] = useState(false);
 
     // Common emojis for quick selection
     const commonEmojis = ['📝', '📚', '💡', '🎯', '🚀', '⭐', '💻', '📊', '🎨', '✨', '🔥', '💪', '📌', '🏆', '💼', '🌟'];
@@ -633,6 +637,17 @@ function NoteEditor({ note }: NoteEditorProps) {
                         />
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* New Sub-page Button */}
+                        {onCreateSubpage && (
+                            <button
+                                onClick={onCreateSubpage}
+                                className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                                title="Add sub-page"
+                            >
+                                <FilePlus className="w-4 h-4" />
+                            </button>
+                        )}
+
                         {/* Focus Mode Button */}
                         <button
                             onClick={() => setFocusMode(!focusMode)}
@@ -705,9 +720,27 @@ function NoteEditor({ note }: NoteEditorProps) {
                         content={note.contentJson || null}
                         onChange={handleEditorChange}
                         onEditorReady={handleEditorReady}
+                        onOpenPageLink={() => setShowPageLinkPicker(true)}
                         placeholder="Start writing your note... Type '/' for commands"
                     />
                 </div>
+
+                {/* Page Link Picker */}
+                <PageLinkPicker
+                    isOpen={showPageLinkPicker}
+                    onClose={() => setShowPageLinkPicker(false)}
+                    excludeNoteId={note.id}
+                    onSelect={(selectedNote) => {
+                        if (editor) {
+                            editor.chain().focus().insertContent({
+                                type: 'text',
+                                marks: [{ type: 'link', attrs: { href: `/plugins/notes/${selectedNote.id}` } }],
+                                text: selectedNote.title || 'Untitled',
+                            }).run();
+                        }
+                        setShowPageLinkPicker(false);
+                    }}
+                />
 
                 {/* Footer */}
                 <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 text-xs text-gray-400">
@@ -815,6 +848,22 @@ export function NotesPage() {
         } catch (error: any) {
             console.error('Failed to create note:', error);
             alert(error.response?.data?.error || 'Failed to create note');
+        }
+    };
+
+    const handleNewSubpage = async () => {
+        if (!selectedNote) return;
+        try {
+            console.log('Creating sub-page for note:', selectedNote.id);
+            const subpage = await createNote({
+                title: 'Untitled',
+                parentNoteId: selectedNote.id,
+                folderId: selectedNote.folderId || undefined,
+            });
+            navigate(`/plugins/notes/${subpage.id}`);
+        } catch (error: any) {
+            console.error('Failed to create sub-page:', error);
+            alert(error.response?.data?.error || 'Failed to create sub-page');
         }
     };
 
@@ -1137,7 +1186,7 @@ export function NotesPage() {
                                     <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
                                 </div>
                             ) : (
-                                <NoteEditor note={selectedNote} />
+                                <NoteEditor note={selectedNote} onCreateSubpage={handleNewSubpage} />
                             )}
                         </motion.div>
                     )}

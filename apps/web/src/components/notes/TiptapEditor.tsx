@@ -55,7 +55,7 @@ interface CommandItem {
     description: string;
     icon: React.ElementType;
     category: 'basic' | 'lists' | 'blocks' | 'media';
-    command: (editor: any) => void;
+    command: (editor: any, callbacks?: { onOpenPageLink?: () => void }) => void;
 }
 
 const slashCommands: CommandItem[] = [
@@ -186,14 +186,20 @@ const slashCommands: CommandItem[] = [
         description: 'Link to another note',
         icon: LinkIcon,
         category: 'media',
-        command: (editor) => {
-            const noteTitle = window.prompt('Enter note title to link:');
-            if (noteTitle) {
-                editor.chain().focus().insertContent({
-                    type: 'text',
-                    marks: [{ type: 'link', attrs: { href: `#note:${noteTitle}` } }],
-                    text: noteTitle,
-                }).run();
+        command: (_editor, callbacks) => {
+            // Trigger page link picker via callback
+            if (callbacks?.onOpenPageLink) {
+                callbacks.onOpenPageLink();
+            } else {
+                // Fallback to prompt if callback not available
+                const noteTitle = window.prompt('Enter note title to link:');
+                if (noteTitle) {
+                    _editor.chain().focus().insertContent({
+                        type: 'text',
+                        marks: [{ type: 'link', attrs: { href: `#note:${noteTitle}` } }],
+                        text: noteTitle,
+                    }).run();
+                }
             }
         },
     },
@@ -255,9 +261,10 @@ interface SlashCommandMenuProps {
     editor: any;
     items: CommandItem[];
     onClose: () => void;
+    callbacks?: { onOpenPageLink?: () => void };
 }
 
-function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
+function SlashCommandMenu({ editor, items, onClose, callbacks }: SlashCommandMenuProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [search, setSearch] = useState('');
 
@@ -275,9 +282,9 @@ function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
     ];
 
     const handleSelect = useCallback((item: CommandItem) => {
-        item.command(editor);
+        item.command(editor, callbacks);
         onClose();
-    }, [editor, onClose]);
+    }, [editor, onClose, callbacks]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -510,11 +517,12 @@ interface TiptapEditorProps {
     content: any; // JSON content
     onChange: (json: any, html: string, text: string) => void;
     onEditorReady?: (editor: any) => void; // Callback to expose editor instance
+    onOpenPageLink?: () => void; // Callback to open page link picker
     placeholder?: string;
     editable?: boolean;
 }
 
-export function TiptapEditor({ content, onChange, onEditorReady, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
     const [showSlashMenu, setShowSlashMenu] = useState(false);
     const [showBubbleMenu, setShowBubbleMenu] = useState(false);
     const [bubbleMenuPosition, setBubbleMenuPosition] = useState({ top: 0, left: 0 });
@@ -908,6 +916,7 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
                         editor={editor}
                         items={slashCommands}
                         onClose={() => setShowSlashMenu(false)}
+                        callbacks={{ onOpenPageLink }}
                     />
                 </div>
             )}
