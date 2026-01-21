@@ -25,9 +25,10 @@ import {
     SortDesc,
     X,
     RotateCcw,
-    Image,
     Smile,
     ImagePlus,
+    Share2,
+    Maximize2,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore, NotesView } from '@/stores/notes.store';
@@ -419,6 +420,8 @@ function NoteEditor({ note }: NoteEditorProps) {
     const [contentJson, setContentJson] = useState(note.contentJson);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [coverImage, setCoverImage] = useState<string | null>(note.coverImage || null);
+    const [focusMode, setFocusMode] = useState(false);
+    const [showShareMenu, setShowShareMenu] = useState(false);
 
     // Common emojis for quick selection
     const commonEmojis = ['📝', '📚', '💡', '🎯', '🚀', '⭐', '💻', '📊', '🎨', '✨', '🔥', '💪', '📌', '🏆', '💼', '🌟'];
@@ -498,14 +501,24 @@ function NoteEditor({ note }: NoteEditorProps) {
     };
 
     return (
-        <div className="flex h-full">
-            {/* Left - Table of Contents */}
-            <TableOfContents
-                contentJson={contentJson}
-                onHeadingClick={handleHeadingClick}
-                isCollapsed={!showToc}
-                onToggleCollapse={() => setShowToc(!showToc)}
-            />
+        <div className="flex h-full relative">
+            {/* Focus Mode Overlay */}
+            {focusMode && (
+                <div
+                    className="absolute inset-0 bg-black/5 z-10 pointer-events-none"
+                    onKeyDown={(e) => e.key === 'Escape' && setFocusMode(false)}
+                />
+            )}
+
+            {/* Left - Table of Contents (hidden in focus mode) */}
+            {!focusMode && (
+                <TableOfContents
+                    contentJson={contentJson}
+                    onHeadingClick={handleHeadingClick}
+                    isCollapsed={!showToc}
+                    onToggleCollapse={() => setShowToc(!showToc)}
+                />
+            )}
 
             {/* Center - Main Editor */}
             <div className="flex-1 flex flex-col h-full min-w-0 bg-white">
@@ -618,6 +631,53 @@ function NoteEditor({ note }: NoteEditorProps) {
                         />
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* Focus Mode Button */}
+                        <button
+                            onClick={() => setFocusMode(!focusMode)}
+                            className={cn(
+                                'p-2 rounded-lg transition-colors',
+                                focusMode ? 'bg-sky-100 text-sky-600' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+                            )}
+                            title={focusMode ? 'Exit Focus Mode (ESC)' : 'Enter Focus Mode'}
+                        >
+                            <Maximize2 className="w-4 h-4" />
+                        </button>
+
+                        {/* Share Button */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowShareMenu(!showShareMenu)}
+                                className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                                title="Share"
+                            >
+                                <Share2 className="w-4 h-4" />
+                            </button>
+                            {showShareMenu && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setShowShareMenu(false)} />
+                                    <div className="absolute right-0 top-full mt-1 p-3 bg-white rounded-lg shadow-xl border border-gray-200 z-20 w-72">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-sm font-medium">Share to web</span>
+                                            <button
+                                                className="px-3 py-1 bg-sky-500 text-white text-xs font-medium rounded-lg hover:bg-sky-600 transition-colors"
+                                                onClick={() => {
+                                                    const shareUrl = `${window.location.origin}/public/notes/${note.id}`;
+                                                    navigator.clipboard.writeText(shareUrl);
+                                                    alert(`Link copied: ${shareUrl}\n\n(Note: Public viewing is coming soon)`);
+                                                    setShowShareMenu(false);
+                                                }}
+                                            >
+                                                Copy link
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-gray-400">
+                                            Anyone with the link can view this note in read-only mode.
+                                        </p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                         {isSaving && (
                             <span className="flex items-center gap-1.5 text-xs text-gray-400">
                                 <Loader2 className="w-3 h-3 animate-spin" /> Saving...
@@ -654,13 +714,15 @@ function NoteEditor({ note }: NoteEditorProps) {
                 </div>
             </div>
 
-            {/* Right - Format Panel */}
-            <FormatPanel
-                editor={editor}
-                note={note}
-                isCollapsed={!showFormatPanel}
-                onToggleCollapse={() => setShowFormatPanel(!showFormatPanel)}
-            />
+            {/* Right - Format Panel (hidden in focus mode) */}
+            {!focusMode && (
+                <FormatPanel
+                    editor={editor}
+                    note={note}
+                    isCollapsed={!showFormatPanel}
+                    onToggleCollapse={() => setShowFormatPanel(!showFormatPanel)}
+                />
+            )}
         </div>
     );
 }

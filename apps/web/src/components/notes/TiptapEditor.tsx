@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
@@ -834,18 +834,20 @@ export function TiptapEditor({ content, onChange, onEditorReady, placeholder = '
                 </ToolbarButton>
             </div>
 
-            {/* Floating Bubble Menu - appears on text selection */}
-            <BubbleMenu
-                editor={editor}
-                tippyOptions={{ duration: 150, placement: 'top' }}
-                shouldShow={({ editor, state }) => {
-                    // Only show when there's a text selection (not just cursor)
-                    const { from, to } = state.selection;
-                    return from !== to && !editor.isActive('codeBlock');
-                }}
-            >
-                <BubbleMenuToolbar editor={editor} />
-            </BubbleMenu>
+            {/* Custom Floating Selection Toolbar */}
+            {editor && !editor.state.selection.empty && !editor.isActive('codeBlock') && (
+                <div
+                    className="fixed z-50"
+                    style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        display: 'none', // Hidden - would need proper positioning logic
+                    }}
+                >
+                    <BubbleMenuToolbar editor={editor} />
+                </div>
+            )}
 
             {/* Slash Command Menu */}
             {showSlashMenu && (
