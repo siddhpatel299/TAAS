@@ -16,8 +16,10 @@ import {
     RotateCcw,
     Star,
     Archive,
-    Edit2,
     Move,
+    List,
+    PanelRightClose,
+    Edit2,
 } from 'lucide-react';
 import { HUDLayout } from '@/layouts/HUDLayout';
 import { HUDPanel } from '@/components/hud/HUDComponents';
@@ -29,6 +31,7 @@ import { TiptapEditor } from '@/components/notes/TiptapEditor';
 import { CreateFolderDialog } from '@/components/notes/CreateFolderDialog';
 import { MoveToFolderDialog } from '@/components/notes/MoveToFolderDialog';
 import { PageLinkPicker } from '@/components/notes/PageLinkPicker';
+import { TableOfContents } from '@/components/notes/TableOfContents';
 
 // ====================
 // HUD FOLDER TREE ITEM
@@ -101,6 +104,9 @@ function HUDFolderTreeItem({ folder, level, selectedFolderId, selectedNoteId, no
                     <>
                         <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setShowMenu(false); }} />
                         <div className="absolute right-0 top-full mt-1 w-40 bg-black border border-cyan-700/50 rounded shadow-[0_0_20px_rgba(0,255,255,0.2)] z-50 py-1 font-mono text-xs">
+                            <button onClick={(e) => { e.stopPropagation(); onAction?.('create_note', folder); setShowMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-cyan-200 hover:bg-cyan-900/30">
+                                <FileText className="w-3 h-3" /> New Note
+                            </button>
                             <button onClick={(e) => { e.stopPropagation(); onAction?.('create_sub', folder); setShowMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-cyan-200 hover:bg-cyan-900/30">
                                 <Plus className="w-3 h-3" /> New Subfolder
                             </button>
@@ -402,12 +408,47 @@ function HUDNoteEditor({ note }: HUDNoteEditorProps) {
                         text-decoration: none;
                         border-bottom: 1px dashed #00ffff;
                     }
-                     .hud-editor-wrapper .is-editor-empty:first-child::before {
                         color: rgba(34, 211, 238, 0.3) !important;
                         content: attr(data-placeholder);
                         float: left;
                         pointer-events: none;
                         height: 0;
+                    }
+
+                    /* Override Tiptap Toolbar for HUD */
+                    .hud-theme .tiptap-editor .sticky {
+                        background-color: rgba(0, 0, 0, 0.6) !important;
+                        border-bottom: 1px solid rgba(34, 211, 238, 0.2) !important;
+                        backdrop-filter: blur(4px);
+                    }
+                    .hud-theme .tiptap-editor button {
+                        color: #64748b !important;
+                    }
+                    .hud-theme .tiptap-editor button:hover,
+                    .hud-theme .tiptap-editor button[data-active="true"],
+                    .hud-theme .tiptap-editor button[data-state="on"] {
+                        color: #22d3ee !important;
+                        background-color: rgba(34, 211, 238, 0.1) !important;
+                    }
+                    .hud-theme .tiptap-editor .w-px {
+                        background-color: rgba(34, 211, 238, 0.2) !important;
+                    }
+
+                    /* Override TOC Styles */
+                    .hud-toc-wrapper > div {
+                        background-color: transparent !important;
+                        border-right: none !important;
+                        color: #94a3b8;
+                    }
+                    .hud-toc-wrapper button {
+                         color: #94a3b8;
+                    }
+                    .hud-toc-wrapper button:hover {
+                        background-color: rgba(34, 211, 238, 0.1) !important;
+                        color: #22d3ee !important;
+                    }
+                    .hud-toc-wrapper .font-medium {
+                        color: #e2e8f0 !important;
                     }
                 `}</style>
                 <TiptapEditor
@@ -466,6 +507,7 @@ export function HUDNotesPage() {
     } = useNotesStore();
 
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isTOCCollapsed, setIsTOCCollapsed] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [createFolderOpen, setCreateFolderOpen] = useState(false);
     const [moveToFolderOpen, setMoveToFolderOpen] = useState(false);
@@ -500,7 +542,13 @@ export function HUDNotesPage() {
     };
 
     const handleFolderAction = (action: string, folder: NoteFolder) => {
-        if (action === 'create_sub') {
+        if (action === 'create_note') {
+            createNote({
+                title: '',
+                content: '',
+                folderId: folder.id
+            }).then(note => navigate(`/plugins/notes/${note.id}`));
+        } else if (action === 'create_sub') {
             setParentFolderId(folder.id);
             setCreateFolderOpen(true);
         } else if (action === 'delete') {
@@ -663,23 +711,67 @@ export function HUDNotesPage() {
                     {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
                 </button>
 
-                {/* Main Editor Panel */}
-                <HUDPanel className="flex-1 overflow-hidden flex flex-col relative" glow>
-                    {selectedNote ? (
-                        <HUDNoteEditor note={selectedNote} />
-                    ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-cyan-800 opacity-50 bg-[url('/grid.png')]">
-                            <div className="w-32 h-32 mb-6 relative">
-                                <div className="absolute inset-0 border-2 border-cyan-800 rounded-full animate-ping opacity-20" />
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <FileText className="w-12 h-12 text-cyan-600" />
+                {/* Main Editor Area */}
+                <div className="flex-1 flex gap-4 overflow-hidden min-w-0">
+                    <HUDPanel className="flex-1 overflow-hidden flex flex-col relative" glow>
+                        {selectedNote ? (
+                            <HUDNoteEditor note={selectedNote} />
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center text-cyan-800 opacity-50 bg-[url('/grid.png')]">
+                                <div className="w-32 h-32 mb-6 relative">
+                                    <div className="absolute inset-0 border-2 border-cyan-800 rounded-full animate-ping opacity-20" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <FileText className="w-12 h-12 text-cyan-600" />
+                                    </div>
                                 </div>
+                                <h2 className="text-2xl font-mono tracking-widest text-cyan-500 mb-2">SYSTEM_IDLE</h2>
+                                <p className="text-xs font-mono text-cyan-700">SELECT A DATA FILE TO INITIATE SEQUENCE</p>
                             </div>
-                            <h2 className="text-2xl font-mono tracking-widest text-cyan-500 mb-2">SYSTEM_IDLE</h2>
-                            <p className="text-xs font-mono text-cyan-700">SELECT A DATA FILE TO INITIATE SEQUENCE</p>
+                        )}
+                    </HUDPanel>
+
+                    {/* Table of Contents Panel */}
+                    {selectedNote && (
+                        <HUDPanel
+                            className={cn(
+                                "flex flex-col transition-all duration-300 relative z-20 overflow-hidden",
+                                isTOCCollapsed ? "w-0 opacity-0 border-0 p-0" : "w-60"
+                            )}
+                            glow
+                        >
+                            <div className="h-full hud-toc-wrapper">
+                                <TableOfContents
+                                    contentJson={selectedNote.contentJson}
+                                    onHeadingClick={(_id) => {
+                                        // TODO: Implement scrolling logic for Tiptap
+                                    }}
+                                    isCollapsed={false} // Managed by parent panel visibility
+                                />
+                            </div>
+
+                            {/* Floating Toggle for TOC */}
+                            <button
+                                onClick={() => setIsTOCCollapsed(!isTOCCollapsed)}
+                                className="absolute top-2 right-full mr-2 z-30 bg-cyan-950 border border-cyan-500 rounded p-1 text-cyan-400 hover:text-white"
+                                title="Toggle Table of Contents"
+                            >
+                                {isTOCCollapsed ? <List className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
+                            </button>
+                        </HUDPanel>
+                    )}
+
+                    {/* Toggle Button if TOC is hidden but note is selected */}
+                    {selectedNote && isTOCCollapsed && (
+                        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30">
+                            <button
+                                onClick={() => setIsTOCCollapsed(false)}
+                                className="bg-cyan-950 border border-cyan-500 rounded-l p-1 text-cyan-400 hover:text-white shadow-[0_0_10px_rgba(0,255,255,0.2)]"
+                            >
+                                <List className="w-4 h-4" />
+                            </button>
                         </div>
                     )}
-                </HUDPanel>
+                </div>
             </div>
 
             {/* Dialogs */}
