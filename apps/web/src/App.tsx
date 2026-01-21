@@ -21,6 +21,7 @@ import { ContactFinderPage } from '@/pages/ContactFinderPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { NotesPage } from '@/pages/NotesPage';
+import { NotesDashboardPage } from '@/pages/NotesDashboardPage';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
@@ -1093,6 +1094,14 @@ function AppContent() {
           />
           <Route
             path="/plugins/notes"
+            element={
+              <ProtectedRoute>
+                <NotesDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/notes/list"
             element={
               <ProtectedRoute>
                 <NotesPage />
