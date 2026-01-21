@@ -611,7 +611,7 @@ export function HUDNotesPage() {
                                         selectedNoteId={noteId}
                                         notes={notes} // Pass all notes to calculate counts correctly
                                         onSelectFolder={(id) => setFilters({ folderId: id, view: 'all' })}
-                                        onSelectNote={(note) => navigate(`/hud/notes/${note.id}`)}
+                                        onSelectNote={(note) => navigate(`/plugins/notes/${note.id}`)}
                                         onAction={handleFolderAction}
                                     />
                                 ))}
@@ -640,7 +640,7 @@ export function HUDNotesPage() {
                                         key={note.id}
                                         note={note}
                                         isSelected={note.id === noteId}
-                                        onSelect={() => navigate(`/hud/notes/${note.id}`)}
+                                        onSelect={() => navigate(`/plugins/notes/${note.id}`)}
                                         onPin={() => togglePin(note.id)}
                                         onDelete={() => deleteNote(note.id)}
                                         onDuplicate={() => duplicateNote(note.id)}
