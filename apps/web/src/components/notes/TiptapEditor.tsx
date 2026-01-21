@@ -27,6 +27,7 @@ import {
     Heading3,
     List,
     ListOrdered,
+    Link as LinkIcon,
     CheckSquare,
     Quote,
     Minus,
@@ -115,6 +116,21 @@ const slashCommands: CommandItem[] = [
         description: 'Add a table',
         icon: TableIcon,
         command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+    },
+    {
+        title: 'Page Link',
+        description: 'Link to another note',
+        icon: LinkIcon,
+        command: (editor) => {
+            const noteTitle = window.prompt('Enter note title to link:');
+            if (noteTitle) {
+                editor.chain().focus().insertContent({
+                    type: 'text',
+                    marks: [{ type: 'link', attrs: { href: `#note:${noteTitle}` } }],
+                    text: noteTitle,
+                }).run();
+            }
+        },
     },
 ];
 
@@ -239,11 +255,12 @@ function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
 interface TiptapEditorProps {
     content: any; // JSON content
     onChange: (json: any, html: string, text: string) => void;
+    onEditorReady?: (editor: any) => void; // Callback to expose editor instance
     placeholder?: string;
     editable?: boolean;
 }
 
-export function TiptapEditor({ content, onChange, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, onEditorReady, placeholder = 'Start writing...', editable = true }: TiptapEditorProps) {
     const [showSlashMenu, setShowSlashMenu] = useState(false);
     const isInitialized = useRef(false);
 
@@ -360,6 +377,13 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
             isInitialized.current = true;
         }
     }, [editor, content]);
+
+    // Expose editor instance to parent component
+    useEffect(() => {
+        if (editor && onEditorReady) {
+            onEditorReady(editor);
+        }
+    }, [editor, onEditorReady]);
 
     if (!editor) return null;
 
@@ -587,6 +611,39 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
           height: 0;
           pointer-events: none;
         }
+        /* Heading Styles - Bold and properly sized */
+        .tiptap-editor .ProseMirror h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          line-height: 1.2;
+          margin-top: 1.5rem;
+          margin-bottom: 0.75rem;
+          color: #111827;
+        }
+        .tiptap-editor .ProseMirror h2 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          line-height: 1.3;
+          margin-top: 1.25rem;
+          margin-bottom: 0.5rem;
+          color: #1f2937;
+        }
+        .tiptap-editor .ProseMirror h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+          color: #374151;
+        }
+        .tiptap-editor .ProseMirror h4 {
+          font-size: 1.125rem;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+          color: #4b5563;
+        }
         .tiptap-editor .ProseMirror ul[data-type="taskList"] {
           list-style: none;
           padding: 0;
@@ -623,6 +680,19 @@ export function TiptapEditor({ content, onChange, placeholder = 'Start writing..
           max-width: 100%;
           height: auto;
           border-radius: 0.5rem;
+        }
+        /* Internal note links */
+        .tiptap-editor .ProseMirror a[href^="#note:"] {
+          color: #0ea5e9;
+          text-decoration: none;
+          background-color: #f0f9ff;
+          padding: 0.125rem 0.375rem;
+          border-radius: 0.25rem;
+          font-weight: 500;
+        }
+        .tiptap-editor .ProseMirror a[href^="#note:"]:hover {
+          background-color: #e0f2fe;
+          text-decoration: underline;
         }
       `}</style>
         </div>

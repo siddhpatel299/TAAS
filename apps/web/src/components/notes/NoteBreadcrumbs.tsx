@@ -105,7 +105,7 @@ export function NoteBreadcrumbs({
     items.push({
         type: 'home',
         label: 'All Notes',
-        icon: <Home className="w-4 h-4" />,
+        icon: <Home className="w-3 h-3" />,
     });
 
     // 2. Add folder path if a folder is selected or note is in a folder
@@ -117,7 +117,7 @@ export function NoteBreadcrumbs({
                 type: 'folder',
                 id: folder.id,
                 label: folder.name,
-                icon: folder.icon || <FolderOpen className="w-3.5 h-3.5" />,
+                icon: folder.icon || <FolderOpen className="w-3 h-3" />,
             });
         }
     }
@@ -130,7 +130,7 @@ export function NoteBreadcrumbs({
                 type: 'note',
                 id: note.id,
                 label: note.title,
-                icon: note.icon || <FileText className="w-3.5 h-3.5" />,
+                icon: note.icon || <FileText className="w-3 h-3" />,
             });
         }
     }
@@ -147,22 +147,22 @@ export function NoteBreadcrumbs({
     };
 
     return (
-        <nav className="flex items-center gap-1 text-sm overflow-x-auto scrollbar-hide">
+        <nav className="flex items-center gap-0.5 text-xs overflow-x-auto scrollbar-hide">
             {items.map((item, index) => {
                 const isLast = index === items.length - 1;
                 const isClickable = !isLast || items.length === 1;
 
                 return (
-                    <div key={`${item.type}-${item.id || index}`} className="flex items-center gap-1 flex-shrink-0">
+                    <div key={`${item.type}-${item.id || index}`} className="flex items-center gap-0.5 flex-shrink-0">
                         {index > 0 && (
-                            <ChevronRight className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
+                            <ChevronRight className="w-3 h-3 text-gray-300 flex-shrink-0" />
                         )}
                         <button
                             onClick={() => isClickable && handleClick(item)}
                             disabled={!isClickable}
                             className={cn(
-                                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all',
-                                'max-w-[200px]',
+                                'flex items-center gap-1 px-1.5 py-0.5 rounded transition-all',
+                                'max-w-[100px]',
                                 isLast
                                     ? 'bg-gray-100 text-gray-900 font-medium cursor-default'
                                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 cursor-pointer',
@@ -171,7 +171,7 @@ export function NoteBreadcrumbs({
                             {/* Icon */}
                             <span className="flex-shrink-0 text-gray-400">
                                 {typeof item.icon === 'string' ? (
-                                    <span className="text-sm">{item.icon}</span>
+                                    <span className="text-xs">{item.icon}</span>
                                 ) : (
                                     item.icon
                                 )}

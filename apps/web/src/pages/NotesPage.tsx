@@ -412,7 +412,7 @@ function NoteEditor({ note }: NoteEditorProps) {
     const [hasChanges, setHasChanges] = useState(false);
     const [showToc, setShowToc] = useState(true);
     const [showFormatPanel, setShowFormatPanel] = useState(true);
-    const [editor, _setEditor] = useState<any>(null);
+    const [editor, setEditor] = useState<any>(null);
     const [contentJson, setContentJson] = useState(note.contentJson);
 
     // Debounced title save
@@ -446,6 +446,11 @@ function NoteEditor({ note }: NoteEditorProps) {
             content: text,
             createVersion: true,
         });
+    };
+
+    // Callback when editor is ready - store the instance for TOC and FormatPanel
+    const handleEditorReady = (editorInstance: any) => {
+        setEditor(editorInstance);
     };
 
     const handleHeadingClick = (_headingId: string, position: number) => {
@@ -523,6 +528,7 @@ function NoteEditor({ note }: NoteEditorProps) {
                     <TiptapEditor
                         content={note.contentJson || null}
                         onChange={handleEditorChange}
+                        onEditorReady={handleEditorReady}
                         placeholder="Start writing your note... Type '/' for commands"
                     />
                 </div>
