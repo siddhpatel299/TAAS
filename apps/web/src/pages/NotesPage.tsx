@@ -25,6 +25,9 @@ import {
     SortDesc,
     X,
     RotateCcw,
+    Image,
+    Smile,
+    ImagePlus,
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore, NotesView } from '@/stores/notes.store';
@@ -414,6 +417,21 @@ function NoteEditor({ note }: NoteEditorProps) {
     const [showFormatPanel, setShowFormatPanel] = useState(true);
     const [editor, setEditor] = useState<any>(null);
     const [contentJson, setContentJson] = useState(note.contentJson);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [coverImage, setCoverImage] = useState<string | null>(note.coverImage || null);
+
+    // Common emojis for quick selection
+    const commonEmojis = ['📝', '📚', '💡', '🎯', '🚀', '⭐', '💻', '📊', '🎨', '✨', '🔥', '💪', '📌', '🏆', '💼', '🌟'];
+
+    // Unsplash-style cover images (gradients as fallback)
+    const coverGradients = [
+        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    ];
 
     // Debounced title save
     useEffect(() => {
@@ -491,10 +509,106 @@ function NoteEditor({ note }: NoteEditorProps) {
 
             {/* Center - Main Editor */}
             <div className="flex-1 flex flex-col h-full min-w-0 bg-white">
-                {/* Editor Header */}
+                {/* Cover Image Section */}
+                <div className="relative group">
+                    {coverImage ? (
+                        <div
+                            className="h-48 w-full bg-cover bg-center relative"
+                            style={{
+                                backgroundImage: coverImage.startsWith('linear-gradient')
+                                    ? coverImage
+                                    : `url(${coverImage})`
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-black/20" />
+                            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => {
+                                        const url = window.prompt('Enter image URL (or leave empty for gradient)');
+                                        if (url) {
+                                            setCoverImage(url);
+                                            updateNote(note.id, { coverImage: url, createVersion: false });
+                                        } else {
+                                            const randomGradient = coverGradients[Math.floor(Math.random() * coverGradients.length)];
+                                            setCoverImage(randomGradient);
+                                            updateNote(note.id, { coverImage: randomGradient, createVersion: false });
+                                        }
+                                    }}
+                                    className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-lg hover:bg-white transition-colors"
+                                >
+                                    Change cover
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setCoverImage(null);
+                                        updateNote(note.id, { coverImage: null, createVersion: false });
+                                    }}
+                                    className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-red-600 text-xs font-medium rounded-lg hover:bg-white transition-colors"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="h-16 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50">
+                            <button
+                                onClick={() => {
+                                    const randomGradient = coverGradients[Math.floor(Math.random() * coverGradients.length)];
+                                    setCoverImage(randomGradient);
+                                    updateNote(note.id, { coverImage: randomGradient, createVersion: false });
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <ImagePlus className="w-4 h-4" />
+                                Add cover
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Editor Header with Icon Picker */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                     <div className="flex items-center gap-3 flex-1">
-                        {note.icon && <span className="text-2xl">{note.icon}</span>}
+                        {/* Emoji Icon Picker */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                className="text-2xl hover:bg-gray-100 p-1 rounded-lg transition-colors"
+                                title="Change icon"
+                            >
+                                {note.icon || <Smile className="w-6 h-6 text-gray-400" />}
+                            </button>
+                            {showEmojiPicker && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setShowEmojiPicker(false)} />
+                                    <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-xl border border-gray-200 z-20 grid grid-cols-8 gap-1 w-64">
+                                        {commonEmojis.map((emoji) => (
+                                            <button
+                                                key={emoji}
+                                                onClick={() => {
+                                                    updateNote(note.id, { icon: emoji, createVersion: false });
+                                                    setShowEmojiPicker(false);
+                                                }}
+                                                className="text-xl p-1.5 hover:bg-gray-100 rounded transition-colors"
+                                            >
+                                                {emoji}
+                                            </button>
+                                        ))}
+                                        {note.icon && (
+                                            <button
+                                                onClick={() => {
+                                                    updateNote(note.id, { icon: null, createVersion: false });
+                                                    setShowEmojiPicker(false);
+                                                }}
+                                                className="col-span-8 mt-1 pt-1 border-t border-gray-100 text-xs text-red-500 hover:bg-red-50 rounded py-2 transition-colors"
+                                            >
+                                                Remove icon
+                                            </button>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                         <input
                             type="text"
                             value={title}

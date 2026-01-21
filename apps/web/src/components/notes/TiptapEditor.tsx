@@ -42,6 +42,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AlertCircle, AlertTriangle, Lightbulb, ChevronRight as ChevronRightIcon, Youtube } from 'lucide-react';
 
 const lowlight = createLowlight(common);
 
@@ -53,74 +54,138 @@ interface CommandItem {
     title: string;
     description: string;
     icon: React.ElementType;
+    category: 'basic' | 'lists' | 'blocks' | 'media';
     command: (editor: any) => void;
 }
 
 const slashCommands: CommandItem[] = [
+    // Basic
     {
         title: 'Heading 1',
         description: 'Large section heading',
         icon: Heading1,
+        category: 'basic',
         command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     },
     {
         title: 'Heading 2',
         description: 'Medium section heading',
         icon: Heading2,
+        category: 'basic',
         command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
     },
     {
         title: 'Heading 3',
         description: 'Small section heading',
         icon: Heading3,
+        category: 'basic',
         command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
     },
+    // Lists
     {
         title: 'Bullet List',
         description: 'Create a simple bullet list',
         icon: List,
+        category: 'lists',
         command: (editor) => editor.chain().focus().toggleBulletList().run(),
     },
     {
         title: 'Numbered List',
         description: 'Create a numbered list',
         icon: ListOrdered,
+        category: 'lists',
         command: (editor) => editor.chain().focus().toggleOrderedList().run(),
     },
     {
         title: 'Task List',
         description: 'Track tasks with checkboxes',
         icon: CheckSquare,
+        category: 'lists',
         command: (editor) => editor.chain().focus().toggleTaskList().run(),
     },
+    // Blocks
     {
         title: 'Quote',
         description: 'Capture a quote',
         icon: Quote,
+        category: 'blocks',
         command: (editor) => editor.chain().focus().toggleBlockquote().run(),
     },
     {
         title: 'Code Block',
         description: 'Display a code snippet',
         icon: Code2,
+        category: 'blocks',
         command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+    },
+    {
+        title: 'Info Callout',
+        description: 'Highlighted info box',
+        icon: AlertCircle,
+        category: 'blocks',
+        command: (editor) => {
+            editor.chain().focus().insertContent({
+                type: 'blockquote',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'ℹ️ Info: Type your message here...' }] }]
+            }).run();
+        },
+    },
+    {
+        title: 'Warning Callout',
+        description: 'Highlighted warning box',
+        icon: AlertTriangle,
+        category: 'blocks',
+        command: (editor) => {
+            editor.chain().focus().insertContent({
+                type: 'blockquote',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: '⚠️ Warning: Type your message here...' }] }]
+            }).run();
+        },
+    },
+    {
+        title: 'Tip Callout',
+        description: 'Highlighted tip box',
+        icon: Lightbulb,
+        category: 'blocks',
+        command: (editor) => {
+            editor.chain().focus().insertContent({
+                type: 'blockquote',
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: '💡 Tip: Type your message here...' }] }]
+            }).run();
+        },
+    },
+    {
+        title: 'Toggle Section',
+        description: 'Collapsible content section',
+        icon: ChevronRightIcon,
+        category: 'blocks',
+        command: (editor) => {
+            editor.chain().focus().insertContent({
+                type: 'paragraph',
+                content: [{ type: 'text', text: '▶ Toggle: Click to expand/collapse content below...' }]
+            }).run();
+        },
     },
     {
         title: 'Divider',
         description: 'Visually divide blocks',
         icon: Minus,
+        category: 'blocks',
         command: (editor) => editor.chain().focus().setHorizontalRule().run(),
     },
     {
         title: 'Table',
         description: 'Add a table',
         icon: TableIcon,
+        category: 'blocks',
         command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
     },
+    // Media
     {
         title: 'Page Link',
         description: 'Link to another note',
         icon: LinkIcon,
+        category: 'media',
         command: (editor) => {
             const noteTitle = window.prompt('Enter note title to link:');
             if (noteTitle) {
@@ -129,6 +194,25 @@ const slashCommands: CommandItem[] = [
                     marks: [{ type: 'link', attrs: { href: `#note:${noteTitle}` } }],
                     text: noteTitle,
                 }).run();
+            }
+        },
+    },
+    {
+        title: 'YouTube Video',
+        description: 'Embed a YouTube video',
+        icon: Youtube,
+        category: 'media',
+        command: (editor) => {
+            const url = window.prompt('Enter YouTube URL:');
+            if (url) {
+                // Extract video ID and create embed
+                const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+                if (videoId) {
+                    editor.chain().focus().insertContent({
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: `[YouTube: ${url}]` }]
+                    }).run();
+                }
             }
         },
     },
@@ -178,8 +262,17 @@ function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
     const [search, setSearch] = useState('');
 
     const filteredItems = items.filter((item) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.description.toLowerCase().includes(search.toLowerCase())
     );
+
+    // Group items by category
+    const categories = [
+        { key: 'basic', label: 'Basic' },
+        { key: 'lists', label: 'Lists' },
+        { key: 'blocks', label: 'Blocks' },
+        { key: 'media', label: 'Media' },
+    ];
 
     const handleSelect = useCallback((item: CommandItem) => {
         item.command(editor);
@@ -208,40 +301,64 @@ function SlashCommandMenu({ editor, items, onClose }: SlashCommandMenuProps) {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [filteredItems, selectedIndex, handleSelect, onClose]);
 
+    // Calculate the actual index in filtered list for selection
+    let itemIndex = -1;
+
     return (
-        <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-72 max-h-80 overflow-y-auto">
-            <div className="p-2 border-b border-gray-100">
+        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-80 max-h-96 overflow-hidden">
+            <div className="p-3 border-b border-gray-100 bg-gray-50/50">
                 <input
                     type="text"
                     placeholder="Search commands..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                     autoFocus
                 />
             </div>
-            <div className="p-1">
+            <div className="max-h-72 overflow-y-auto">
                 {filteredItems.length === 0 ? (
-                    <p className="px-3 py-2 text-sm text-gray-400">No commands found</p>
+                    <p className="px-4 py-6 text-sm text-gray-400 text-center">No commands found</p>
                 ) : (
-                    filteredItems.map((item, index) => (
-                        <button
-                            key={item.title}
-                            onClick={() => handleSelect(item)}
-                            className={cn(
-                                'w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors',
-                                index === selectedIndex ? 'bg-sky-50 text-sky-700' : 'hover:bg-gray-50'
-                            )}
-                        >
-                            <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center">
-                                <item.icon className="w-4 h-4 text-gray-600" />
+                    categories.map(({ key, label }) => {
+                        const categoryItems = filteredItems.filter(item => item.category === key);
+                        if (categoryItems.length === 0) return null;
+
+                        return (
+                            <div key={key}>
+                                <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50/80 border-y border-gray-100">
+                                    {label}
+                                </div>
+                                <div className="p-1">
+                                    {categoryItems.map((item) => {
+                                        itemIndex++;
+                                        const currentIndex = itemIndex;
+                                        return (
+                                            <button
+                                                key={item.title}
+                                                onClick={() => handleSelect(item)}
+                                                className={cn(
+                                                    'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors',
+                                                    currentIndex === selectedIndex ? 'bg-sky-50 text-sky-700' : 'hover:bg-gray-50'
+                                                )}
+                                            >
+                                                <div className={cn(
+                                                    'w-9 h-9 rounded-lg flex items-center justify-center',
+                                                    currentIndex === selectedIndex ? 'bg-sky-100' : 'bg-gray-100'
+                                                )}>
+                                                    <item.icon className="w-4 h-4" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium truncate">{item.title}</p>
+                                                    <p className="text-xs text-gray-400 truncate">{item.description}</p>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm font-medium">{item.title}</p>
-                                <p className="text-xs text-gray-400">{item.description}</p>
-                            </div>
-                        </button>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>
