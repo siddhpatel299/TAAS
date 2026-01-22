@@ -304,6 +304,20 @@ export const AVAILABLE_PLUGINS = [
       'Cron Jobs (Recurring Workflows)',
     ],
   },
+  {
+    id: 'insight',
+    name: 'Insight',
+    description: 'Personal BI & Analytics command center to visualize data from all your plugins.',
+    icon: 'bar-chart',
+    category: 'productivity',
+    features: [
+      'Visual Dashboard Builder',
+      'Cross-Domain Queries',
+      'Data Connectors (Finance, Jobs, Outreach)',
+      'Goals & KPI Tracking',
+      'Drag-and-drop Widget Layout',
+    ],
+  },
 ];
 
 export const pluginsService = {

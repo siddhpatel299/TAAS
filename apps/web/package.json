@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/update-version.js",
+    "changelog": "node scripts/fetch-changelog.js",
+    "prebuild": "node scripts/update-version.js && node scripts/fetch-changelog.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
