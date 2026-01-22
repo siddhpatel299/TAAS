@@ -497,6 +497,524 @@ export const origamiNotesTheme: NotesThemeConfig = {
 };
 
 // ====================
+// GLASS THEME
+// ====================
+
+export const glassNotesTheme: NotesThemeConfig = {
+    id: 'glass',
+    name: 'Glass',
+    layoutComponent: 'GlassLayout',
+    panelClass: 'glass-panel',
+    panelGlow: false,
+    colors: {
+        primary: 'text-white',
+        primaryHover: 'hover:text-sky-200',
+        accent: 'text-sky-300',
+        bg: 'bg-white/5',
+        bgSecondary: 'bg-white/10',
+        bgTertiary: 'bg-white/15',
+        border: 'border-white/20',
+        borderActive: 'border-sky-400',
+        text: 'text-white',
+        textSecondary: 'text-white/70',
+        textMuted: 'text-white/40',
+        danger: 'text-red-400',
+        warning: 'text-amber-400',
+        success: 'text-emerald-400',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'Select a Note',
+    emptyStateSubtitle: 'Choose a document to view or edit.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: white !important; }`,
+    toolbarCSS: `.notes-toolbar { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); }`,
+    tocCSS: `.notes-toc { background: rgba(255,255,255,0.05) !important; }`,
+};
+
+// ====================
+// CRT THEME
+// ====================
+
+export const crtNotesTheme: NotesThemeConfig = {
+    id: 'crt',
+    name: 'CRT',
+    layoutComponent: 'CRTLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-[#33ff33]',
+        primaryHover: 'hover:text-[#66ff66]',
+        accent: 'text-[#22cc22]',
+        bg: 'bg-[#0a0a0a]',
+        bgSecondary: 'bg-[#111]',
+        bgTertiary: 'bg-[#1a1a1a]',
+        border: 'border-[#33ff33]/30',
+        borderActive: 'border-[#33ff33]',
+        text: 'text-[#33ff33]',
+        textSecondary: 'text-[#33ff33]/70',
+        textMuted: 'text-[#33ff33]/40',
+        danger: 'text-[#ff3333]',
+        warning: 'text-[#ffff33]',
+        success: 'text-[#33ff33]',
+    },
+    fontFamily: 'font-mono',
+    fontMono: true,
+    folderStyle: 'ascii',
+    emptyStateTitle: 'NO SIGNAL',
+    emptyStateSubtitle: 'Tune to a frequency to display document.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #33ff33 !important; font-family: monospace !important; text-shadow: 0 0 5px #33ff33; }`,
+    toolbarCSS: `.notes-toolbar { background: #0a0a0a !important; border-bottom: 2px solid #33ff33 !important; }`,
+    tocCSS: `.notes-toc { background: #0a0a0a !important; }`,
+};
+
+// ====================
+// BRUTALIST THEME
+// ====================
+
+export const brutalistNotesTheme: NotesThemeConfig = {
+    id: 'brutalist',
+    name: 'Brutalist',
+    layoutComponent: 'BrutalistLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-black',
+        primaryHover: 'hover:text-gray-800',
+        accent: 'text-black',
+        bg: 'bg-white',
+        bgSecondary: 'bg-gray-100',
+        bgTertiary: 'bg-gray-200',
+        border: 'border-black',
+        borderActive: 'border-black',
+        text: 'text-black',
+        textSecondary: 'text-gray-700',
+        textMuted: 'text-gray-500',
+        danger: 'text-red-600',
+        warning: 'text-yellow-600',
+        success: 'text-green-600',
+    },
+    fontFamily: 'font-mono',
+    fontMono: true,
+    folderStyle: 'modern',
+    emptyStateTitle: 'NO DOCUMENT',
+    emptyStateSubtitle: 'Select a file.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: black !important; font-family: monospace !important; }`,
+    toolbarCSS: `.notes-toolbar { background: white !important; border-bottom: 4px solid black !important; }`,
+    tocCSS: `.notes-toc { background: #f5f5f5 !important; border-left: 4px solid black !important; }`,
+};
+
+// ====================
+// NEWSPRINT THEME
+// ====================
+
+export const newsprintNotesTheme: NotesThemeConfig = {
+    id: 'newsprint',
+    name: 'Newsprint',
+    layoutComponent: 'NewsprintLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-stone-900',
+        primaryHover: 'hover:text-stone-700',
+        accent: 'text-stone-600',
+        bg: 'bg-[#f5f0e6]',
+        bgSecondary: 'bg-[#ebe6dc]',
+        bgTertiary: 'bg-[#e0dbd1]',
+        border: 'border-stone-300',
+        borderActive: 'border-stone-600',
+        text: 'text-stone-900',
+        textSecondary: 'text-stone-600',
+        textMuted: 'text-stone-400',
+        danger: 'text-red-700',
+        warning: 'text-amber-700',
+        success: 'text-green-700',
+    },
+    fontFamily: 'font-serif',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'No Article Selected',
+    emptyStateSubtitle: 'Choose a story from the archives.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #1c1917 !important; font-family: Georgia, serif !important; }`,
+    toolbarCSS: `.notes-toolbar { background: #f5f0e6 !important; border-bottom: 2px solid #78716c !important; }`,
+    tocCSS: `.notes-toc { background: #ebe6dc !important; }`,
+};
+
+// ====================
+// ART DECO THEME
+// ====================
+
+export const artDecoNotesTheme: NotesThemeConfig = {
+    id: 'artdeco',
+    name: 'Art Deco',
+    layoutComponent: 'ArtDecoLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-[#d4af37]',
+        primaryHover: 'hover:text-[#f0c850]',
+        accent: 'text-[#c9a227]',
+        bg: 'bg-[#1a1a2e]',
+        bgSecondary: 'bg-[#16213e]',
+        bgTertiary: 'bg-[#1f2a4a]',
+        border: 'border-[#d4af37]/30',
+        borderActive: 'border-[#d4af37]',
+        text: 'text-[#f5f5dc]',
+        textSecondary: 'text-[#f5f5dc]/70',
+        textMuted: 'text-[#f5f5dc]/40',
+        danger: 'text-[#c94040]',
+        warning: 'text-[#d4af37]',
+        success: 'text-[#50c878]',
+    },
+    fontFamily: 'font-serif',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'Select a Document',
+    emptyStateSubtitle: 'Choose from the collection.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #f5f5dc !important; }`,
+    toolbarCSS: `.notes-toolbar { background: #16213e !important; border-bottom: 2px solid #d4af37 !important; }`,
+    tocCSS: `.notes-toc { background: #1a1a2e !important; border-left: 2px solid #d4af37 !important; }`,
+};
+
+// ====================
+// CANVAS THEME
+// ====================
+
+export const canvasNotesTheme: NotesThemeConfig = {
+    id: 'canvas',
+    name: 'Canvas',
+    layoutComponent: 'CanvasLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-amber-800',
+        primaryHover: 'hover:text-amber-700',
+        accent: 'text-amber-600',
+        bg: 'bg-[#faf8f5]',
+        bgSecondary: 'bg-[#f5f2ed]',
+        bgTertiary: 'bg-[#ebe7e0]',
+        border: 'border-amber-200',
+        borderActive: 'border-amber-500',
+        text: 'text-stone-800',
+        textSecondary: 'text-stone-600',
+        textMuted: 'text-stone-400',
+        danger: 'text-red-600',
+        warning: 'text-amber-600',
+        success: 'text-green-600',
+    },
+    fontFamily: 'font-serif',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'Gallery Empty',
+    emptyStateSubtitle: 'Select a piece from the collection.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #44403c !important; font-family: Georgia, serif !important; }`,
+    toolbarCSS: `.notes-toolbar { background: #faf8f5 !important; border-bottom: 1px solid #d6cfc4 !important; }`,
+    tocCSS: `.notes-toc { background: #f5f2ed !important; }`,
+};
+
+// ====================
+// ARCHIVE THEME
+// ====================
+
+export const archiveNotesTheme: NotesThemeConfig = {
+    id: 'archive',
+    name: 'Archive',
+    layoutComponent: 'ArchiveLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-amber-700',
+        primaryHover: 'hover:text-amber-600',
+        accent: 'text-amber-500',
+        bg: 'bg-[#2a2520]',
+        bgSecondary: 'bg-[#352f28]',
+        bgTertiary: 'bg-[#403830]',
+        border: 'border-amber-900/50',
+        borderActive: 'border-amber-600',
+        text: 'text-amber-100',
+        textSecondary: 'text-amber-200/70',
+        textMuted: 'text-amber-300/40',
+        danger: 'text-red-400',
+        warning: 'text-amber-400',
+        success: 'text-green-400',
+    },
+    fontFamily: 'font-serif',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'No Document Open',
+    emptyStateSubtitle: 'Select a file from the archive.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #fef3c7 !important; font-family: Georgia, serif !important; }`,
+    toolbarCSS: `.notes-toolbar { background: #352f28 !important; border-bottom: 1px solid rgba(217,119,6,0.3) !important; }`,
+    tocCSS: `.notes-toc { background: #2a2520 !important; }`,
+};
+
+// ====================
+// PAPER THEME
+// ====================
+
+export const paperNotesTheme: NotesThemeConfig = {
+    id: 'paper',
+    name: 'Paper',
+    layoutComponent: 'PaperLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-gray-800',
+        primaryHover: 'hover:text-gray-600',
+        accent: 'text-blue-600',
+        bg: 'bg-white',
+        bgSecondary: 'bg-gray-50',
+        bgTertiary: 'bg-gray-100',
+        border: 'border-gray-200',
+        borderActive: 'border-blue-500',
+        text: 'text-gray-800',
+        textSecondary: 'text-gray-600',
+        textMuted: 'text-gray-400',
+        danger: 'text-red-500',
+        warning: 'text-amber-500',
+        success: 'text-green-500',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'No Document Selected',
+    emptyStateSubtitle: 'Choose a note to begin editing.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #1f2937 !important; }`,
+    toolbarCSS: `.notes-toolbar { background: white !important; border-bottom: 1px solid #e5e7eb !important; }`,
+    tocCSS: `.notes-toc { background: #f9fafb !important; }`,
+};
+
+// ====================
+// STEAM THEME
+// ====================
+
+export const steamNotesTheme: NotesThemeConfig = {
+    id: 'steam',
+    name: 'Steam',
+    layoutComponent: 'SteamLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-[#c9a227]',
+        primaryHover: 'hover:text-[#ddb82a]',
+        accent: 'text-[#8b6914]',
+        bg: 'bg-[#2d2215]',
+        bgSecondary: 'bg-[#3d2e1a]',
+        bgTertiary: 'bg-[#4a3820]',
+        border: 'border-[#c9a227]/30',
+        borderActive: 'border-[#c9a227]',
+        text: 'text-[#e8d5b3]',
+        textSecondary: 'text-[#c9b896]',
+        textMuted: 'text-[#8a7a5a]',
+        danger: 'text-[#c94040]',
+        warning: 'text-[#c9a227]',
+        success: 'text-[#4a8c4a]',
+    },
+    fontFamily: 'font-serif',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'Engine Idle',
+    emptyStateSubtitle: 'Engage a document to start.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #e8d5b3 !important; }`,
+    toolbarCSS: `.notes-toolbar { background: #3d2e1a !important; border-bottom: 2px solid #c9a227 !important; }`,
+    tocCSS: `.notes-toc { background: #2d2215 !important; }`,
+};
+
+// ====================
+// SKEU THEME
+// ====================
+
+export const skeuNotesTheme: NotesThemeConfig = {
+    id: 'skeu',
+    name: 'Skeu',
+    layoutComponent: 'SkeuLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-blue-600',
+        primaryHover: 'hover:text-blue-500',
+        accent: 'text-blue-500',
+        bg: 'bg-gradient-to-b from-gray-100 to-gray-200',
+        bgSecondary: 'bg-white',
+        bgTertiary: 'bg-gray-50',
+        border: 'border-gray-300',
+        borderActive: 'border-blue-500',
+        text: 'text-gray-800',
+        textSecondary: 'text-gray-600',
+        textMuted: 'text-gray-400',
+        danger: 'text-red-500',
+        warning: 'text-amber-500',
+        success: 'text-green-500',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'No Document Open',
+    emptyStateSubtitle: 'Double-click a file to open.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #1f2937 !important; }`,
+    toolbarCSS: `.notes-toolbar { background: linear-gradient(to bottom, #f3f4f6, #e5e7eb) !important; border-bottom: 1px solid #d1d5db !important; }`,
+    tocCSS: `.notes-toc { background: #f9fafb !important; }`,
+};
+
+// ====================
+// ZEN THEME
+// ====================
+
+export const zenNotesTheme: NotesThemeConfig = {
+    id: 'zen',
+    name: 'Zen',
+    layoutComponent: 'ZenLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-stone-600',
+        primaryHover: 'hover:text-stone-500',
+        accent: 'text-stone-500',
+        bg: 'bg-[#f8f5f0]',
+        bgSecondary: 'bg-[#f0ebe3]',
+        bgTertiary: 'bg-[#e8e2d8]',
+        border: 'border-stone-200',
+        borderActive: 'border-stone-500',
+        text: 'text-stone-700',
+        textSecondary: 'text-stone-500',
+        textMuted: 'text-stone-400',
+        danger: 'text-red-500',
+        warning: 'text-amber-500',
+        success: 'text-green-500',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: '空 Empty',
+    emptyStateSubtitle: 'Select a note to begin your practice.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #44403c !important; line-height: 2 !important; }`,
+    toolbarCSS: `.notes-toolbar { background: #f8f5f0 !important; border-bottom: 1px solid #d6d3d1 !important; }`,
+    tocCSS: `.notes-toc { background: #f0ebe3 !important; }`,
+};
+
+// ====================
+// AURORA THEME
+// ====================
+
+export const auroraNotesTheme: NotesThemeConfig = {
+    id: 'aurora',
+    name: 'Aurora',
+    layoutComponent: 'AuroraLayout',
+    panelClass: '',
+    panelGlow: true,
+    colors: {
+        primary: 'text-purple-400',
+        primaryHover: 'hover:text-purple-300',
+        accent: 'text-pink-400',
+        bg: 'bg-[#0f0a1a]',
+        bgSecondary: 'bg-[#1a1025]',
+        bgTertiary: 'bg-[#251530]',
+        border: 'border-purple-500/30',
+        borderActive: 'border-purple-400',
+        text: 'text-purple-100',
+        textSecondary: 'text-purple-200/70',
+        textMuted: 'text-purple-300/40',
+        danger: 'text-red-400',
+        warning: 'text-amber-400',
+        success: 'text-emerald-400',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'Awaiting Light',
+    emptyStateSubtitle: 'Select a note to illuminate.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #e9d5ff !important; }`,
+    toolbarCSS: `.notes-toolbar { background: rgba(26, 16, 37, 0.8) !important; backdrop-filter: blur(8px); border-bottom: 1px solid rgba(168, 85, 247, 0.3) !important; }`,
+    tocCSS: `.notes-toc { background: rgba(15, 10, 26, 0.8) !important; }`,
+};
+
+// ====================
+// COMIC THEME
+// ====================
+
+export const comicNotesTheme: NotesThemeConfig = {
+    id: 'comic',
+    name: 'Comic',
+    layoutComponent: 'ComicLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-[#ff3366]',
+        primaryHover: 'hover:text-[#ff5588]',
+        accent: 'text-[#ffcc00]',
+        bg: 'bg-[#fffef0]',
+        bgSecondary: 'bg-white',
+        bgTertiary: 'bg-yellow-50',
+        border: 'border-black',
+        borderActive: 'border-[#ff3366]',
+        text: 'text-black',
+        textSecondary: 'text-gray-700',
+        textMuted: 'text-gray-400',
+        danger: 'text-red-600',
+        warning: 'text-[#ffcc00]',
+        success: 'text-green-600',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'POW! No Page!',
+    emptyStateSubtitle: 'Select a panel to read.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: black !important; font-family: 'Comic Sans MS', cursive !important; }`,
+    toolbarCSS: `.notes-toolbar { background: white !important; border-bottom: 3px solid black !important; }`,
+    tocCSS: `.notes-toc { background: #fffef0 !important; border-left: 3px solid black !important; }`,
+};
+
+// ====================
+// EXEC THEME
+// ====================
+
+export const execNotesTheme: NotesThemeConfig = {
+    id: 'exec',
+    name: 'Exec',
+    layoutComponent: 'ExecLayout',
+    panelClass: '',
+    panelGlow: false,
+    colors: {
+        primary: 'text-slate-800',
+        primaryHover: 'hover:text-slate-600',
+        accent: 'text-blue-700',
+        bg: 'bg-slate-50',
+        bgSecondary: 'bg-white',
+        bgTertiary: 'bg-slate-100',
+        border: 'border-slate-200',
+        borderActive: 'border-blue-600',
+        text: 'text-slate-800',
+        textSecondary: 'text-slate-600',
+        textMuted: 'text-slate-400',
+        danger: 'text-red-600',
+        warning: 'text-amber-600',
+        success: 'text-green-600',
+    },
+    fontFamily: 'font-sans',
+    fontMono: false,
+    folderStyle: 'modern',
+    emptyStateTitle: 'No Document Selected',
+    emptyStateSubtitle: 'Choose a briefing to review.',
+    routePrefix: '/plugins/notes',
+    editorCSS: `.notes-editor-wrapper .ProseMirror { color: #1e293b !important; }`,
+    toolbarCSS: `.notes-toolbar { background: white !important; border-bottom: 1px solid #e2e8f0 !important; }`,
+    tocCSS: `.notes-toc { background: #f8fafc !important; }`,
+};
+
+// ====================
 // THEME REGISTRY
 // ====================
 
@@ -507,6 +1025,20 @@ export const notesThemeRegistry: Record<string, NotesThemeConfig> = {
     forest: forestNotesTheme,
     pixel: pixelNotesTheme,
     origami: origamiNotesTheme,
+    glass: glassNotesTheme,
+    crt: crtNotesTheme,
+    brutalist: brutalistNotesTheme,
+    newsprint: newsprintNotesTheme,
+    artdeco: artDecoNotesTheme,
+    canvas: canvasNotesTheme,
+    archive: archiveNotesTheme,
+    paper: paperNotesTheme,
+    steam: steamNotesTheme,
+    skeu: skeuNotesTheme,
+    zen: zenNotesTheme,
+    aurora: auroraNotesTheme,
+    comic: comicNotesTheme,
+    exec: execNotesTheme,
 };
 
 export function getNotesTheme(themeId: string): NotesThemeConfig {

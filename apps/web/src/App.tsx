@@ -191,6 +191,7 @@ import { NewsprintJobApplicationFormPage } from '@/pages/newsprint/NewsprintJobA
 import { NewsprintOutreachPage } from '@/pages/newsprint/NewsprintOutreachPage';
 import { NewsprintContactFinderPage } from '@/pages/newsprint/NewsprintContactFinderPage';
 import { NewsprintTelegramPage } from '@/pages/newsprint/NewsprintTelegramPage';
+import { NewsprintNotesPage } from '@/pages/newsprint/NewsprintNotesPage';
 
 // Brutalist Theme imports
 import { BrutalistDashboardPage } from '@/pages/brutalist/BrutalistDashboardPage';
@@ -205,6 +206,7 @@ import { BrutalistJobApplicationFormPage } from '@/pages/brutalist/BrutalistJobA
 import { BrutalistOutreachPage } from '@/pages/brutalist/BrutalistOutreachPage';
 import { BrutalistContactFinderPage } from '@/pages/brutalist/BrutalistContactFinderPage';
 import { BrutalistTelegramPage } from '@/pages/brutalist/BrutalistTelegramPage';
+import { BrutalistNotesPage } from '@/pages/brutalist/BrutalistNotesPage';
 
 // CRT Theme imports
 import { CRTDashboardPage } from '@/pages/crt/CRTDashboardPage';
@@ -219,6 +221,7 @@ import { CRTJobApplicationFormPage } from '@/pages/crt/CRTJobApplicationFormPage
 import { CRTOutreachPage } from '@/pages/crt/CRTOutreachPage';
 import { CRTContactFinderPage } from '@/pages/crt/CRTContactFinderPage';
 import { CRTTelegramPage } from '@/pages/crt/CRTTelegramPage';
+import { CRTNotesPage } from '@/pages/crt/CRTNotesPage';
 
 // Glass Theme imports
 import { GlassDashboardPage } from '@/pages/glass/GlassDashboardPage';
@@ -233,6 +236,7 @@ import { GlassJobApplicationFormPage } from '@/pages/glass/GlassJobApplicationFo
 import { GlassOutreachPage } from '@/pages/glass/GlassOutreachPage';
 import { GlassContactFinderPage } from '@/pages/glass/GlassContactFinderPage';
 import { GlassTelegramPage } from '@/pages/glass/GlassTelegramPage';
+import { GlassNotesPage } from '@/pages/glass/GlassNotesPage';
 
 // Art Deco Theme imports
 import { ArtDecoDashboardPage } from '@/pages/artdeco/ArtDecoDashboardPage';
@@ -247,6 +251,7 @@ import { ArtDecoJobApplicationFormPage } from '@/pages/artdeco/ArtDecoJobApplica
 import { ArtDecoOutreachPage } from '@/pages/artdeco/ArtDecoOutreachPage';
 import { ArtDecoContactFinderPage } from '@/pages/artdeco/ArtDecoContactFinderPage';
 import { ArtDecoTelegramPage } from '@/pages/artdeco/ArtDecoTelegramPage';
+import { ArtDecoNotesPage } from '@/pages/artdeco/ArtDecoNotesPage';
 
 // Canvas/Museumcore Theme imports
 import { CanvasDashboardPage } from '@/pages/canvas/CanvasDashboardPage';
@@ -261,6 +266,7 @@ import { CanvasJobApplicationFormPage } from '@/pages/canvas/CanvasJobApplicatio
 import { CanvasOutreachPage } from '@/pages/canvas/CanvasOutreachPage';
 import { CanvasContactFinderPage } from '@/pages/canvas/CanvasContactFinderPage';
 import { CanvasTelegramPage } from '@/pages/canvas/CanvasTelegramPage';
+import { CanvasNotesPage } from '@/pages/canvas/CanvasNotesPage';
 
 // Comic Book Theme imports
 import { ComicDashboardPage } from '@/pages/comic/ComicDashboardPage';
@@ -275,6 +281,7 @@ import { ComicJobApplicationFormPage } from '@/pages/comic/ComicJobApplicationFo
 import { ComicOutreachPage } from '@/pages/comic/ComicOutreachPage';
 import { ComicContactFinderPage } from '@/pages/comic/ComicContactFinderPage';
 import { ComicTelegramPage } from '@/pages/comic/ComicTelegramPage';
+import { ComicNotesPage } from '@/pages/comic/ComicNotesPage';
 
 // Archival Index Theme imports
 import { ArchiveDashboardPage } from '@/pages/archive/ArchiveDashboardPage';
@@ -289,6 +296,7 @@ import { ArchiveJobApplicationFormPage } from '@/pages/archive/ArchiveJobApplica
 import { ArchiveOutreachPage } from '@/pages/archive/ArchiveOutreachPage';
 import { ArchiveContactFinderPage } from '@/pages/archive/ArchiveContactFinderPage';
 import { ArchiveTelegramPage } from '@/pages/archive/ArchiveTelegramPage';
+import { ArchiveNotesPage } from '@/pages/archive/ArchiveNotesPage';
 
 // Steampunk Theme imports
 import { SteamDashboardPage } from '@/pages/steam/SteamDashboardPage';
@@ -303,6 +311,7 @@ import { SteamJobApplicationFormPage } from '@/pages/steam/SteamJobApplicationFo
 import { SteamOutreachPage } from '@/pages/steam/SteamOutreachPage';
 import { SteamContactFinderPage } from '@/pages/steam/SteamContactFinderPage';
 import { SteamTelegramPage } from '@/pages/steam/SteamTelegramPage';
+import { SteamNotesPage } from '@/pages/steam/SteamNotesPage';
 
 // Aurora Theme imports
 import { AuroraDashboardPage } from '@/pages/aurora/AuroraDashboardPage';
@@ -317,6 +326,7 @@ import { AuroraJobApplicationFormPage } from '@/pages/aurora/AuroraJobApplicatio
 import { AuroraOutreachPage } from '@/pages/aurora/AuroraOutreachPage';
 import { AuroraContactFinderPage } from '@/pages/aurora/AuroraContactFinderPage';
 import { AuroraTelegramPage } from '@/pages/aurora/AuroraTelegramPage';
+import { AuroraNotesPage } from '@/pages/aurora/AuroraNotesPage';
 
 // Minimalist Zen Theme imports
 import { ZenDashboardPage } from '@/pages/zen/ZenDashboardPage';
@@ -331,6 +341,7 @@ import { ZenJobApplicationFormPage } from '@/pages/zen/ZenJobApplicationFormPage
 import { ZenOutreachPage } from '@/pages/zen/ZenOutreachPage';
 import { ZenContactFinderPage } from '@/pages/zen/ZenContactFinderPage';
 import { ZenTelegramPage } from '@/pages/zen/ZenTelegramPage';
+import { ZenNotesPage } from '@/pages/zen/ZenNotesPage';
 
 // Skeuomorphism 2.0 (Tactile Tech) Theme imports
 import { SkeuDashboardPage } from '@/pages/skeu/SkeuDashboardPage';
@@ -345,6 +356,7 @@ import { SkeuJobApplicationFormPage } from '@/pages/skeu/SkeuJobApplicationFormP
 import { SkeuOutreachPage } from '@/pages/skeu/SkeuOutreachPage';
 import { SkeuContactFinderPage } from '@/pages/skeu/SkeuContactFinderPage';
 import { SkeuTelegramPage } from '@/pages/skeu/SkeuTelegramPage';
+import { SkeuNotesPage } from '@/pages/skeu/SkeuNotesPage';
 
 // Paper/Stationery Theme imports
 import { PaperDashboardPage } from '@/pages/paper/PaperDashboardPage';
@@ -359,6 +371,7 @@ import { PaperJobApplicationFormPage } from '@/pages/paper/PaperJobApplicationFo
 import { PaperOutreachPage } from '@/pages/paper/PaperOutreachPage';
 import { PaperContactFinderPage } from '@/pages/paper/PaperContactFinderPage';
 import { PaperTelegramPage } from '@/pages/paper/PaperTelegramPage';
+import { PaperNotesPage } from '@/pages/paper/PaperNotesPage';
 
 // Corporate Executive Theme imports
 import { ExecDashboardPage } from '@/pages/exec/ExecDashboardPage';
@@ -373,6 +386,7 @@ import { ExecJobApplicationFormPage } from '@/pages/exec/ExecJobApplicationFormP
 import { ExecOutreachPage } from '@/pages/exec/ExecOutreachPage';
 import { ExecContactFinderPage } from '@/pages/exec/ExecContactFinderPage';
 import { ExecTelegramPage } from '@/pages/exec/ExecTelegramPage';
+import { ExecNotesPage } from '@/pages/exec/ExecNotesPage';
 
 // Pixel Art Theme imports
 import { PixelDashboardPage } from '@/pages/pixel/PixelDashboardPage';
@@ -414,6 +428,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><NewsprintJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><NewsprintOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><NewsprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -444,6 +460,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BrutalistJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BrutalistOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BrutalistContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -474,6 +492,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CRTJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CRTOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CRTContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><CRTNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CRTNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -504,6 +524,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><GlassJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><GlassOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><GlassContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -534,6 +556,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArtDecoJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArtDecoOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArtDecoContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -564,6 +588,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CanvasJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CanvasOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CanvasContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -594,6 +620,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ComicJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ComicOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ComicContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -624,6 +652,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArchiveJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArchiveOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArchiveContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -686,6 +716,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SteamJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SteamOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SteamContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -716,6 +748,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><AuroraJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><AuroraOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><AuroraContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -746,6 +780,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ZenJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ZenOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ZenContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -776,6 +812,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SkeuJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SkeuOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SkeuContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><SkeuNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SkeuNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -806,6 +844,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><PaperJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><PaperOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PaperContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><PaperNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PaperNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -836,6 +876,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ExecJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ExecOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ExecContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><ExecNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ExecNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
