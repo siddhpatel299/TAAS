@@ -1,8 +1,8 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { flowService } from '../services/flow.service';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // List Workflows
 router.get('/workflows', authMiddleware, async (req, res) => {

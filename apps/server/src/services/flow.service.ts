@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export const flowService = {
     // Active Cron Jobs
-    activeJobs: new Map<string, cron.ScheduledTask>(),
+    activeJobs: new Map<string, any>(),
 
     async initScheduler() {
         console.log('Initializing Flow Scheduler...');
