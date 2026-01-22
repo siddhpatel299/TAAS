@@ -67,6 +67,37 @@ export interface NexusLabel {
     color: string;
 }
 
+export interface NexusComment {
+    id: string;
+    taskId: string;
+    userId: string;
+    content: string;
+    createdAt: string;
+    user: {
+        id: string;
+        firstName: string | null;
+        lastName: string | null;
+        email: string | null;
+        avatarUrl: string | null;
+    };
+}
+
+export interface NexusActivity {
+    id: string;
+    taskId: string;
+    userId: string;
+    type: string;
+    content: string;
+    createdAt: string;
+    user: {
+        id: string;
+        firstName: string | null;
+        lastName: string | null;
+        email: string | null;
+        avatarUrl: string | null;
+    };
+}
+
 export const nexusApi = {
     // Projects
     getProjects: () =>
@@ -90,4 +121,43 @@ export const nexusApi = {
 
     deleteTask: (taskId: string) =>
         api.delete(`/nexus/tasks/${taskId}`),
+
+    // Epics
+    getEpics: (projectId: string) =>
+        api.get<{ success: boolean; data: NexusEpic[] }>(`/nexus/projects/${projectId}/epics`),
+
+    createEpic: (projectId: string, data: Partial<NexusEpic>) =>
+        api.post<{ success: boolean; data: NexusEpic }>(`/nexus/projects/${projectId}/epics`, data),
+
+    updateEpic: (epicId: string, data: Partial<NexusEpic>) =>
+        api.patch<{ success: boolean; data: NexusEpic }>(`/nexus/epics/${epicId}`, data),
+
+    deleteEpic: (epicId: string) =>
+        api.delete(`/nexus/epics/${epicId}`),
+
+    // Sprints
+    getSprints: (projectId: string) =>
+        api.get<{ success: boolean; data: NexusSprint[] }>(`/nexus/projects/${projectId}/sprints`),
+
+    createSprint: (projectId: string, data: Partial<NexusSprint>) =>
+        api.post<{ success: boolean; data: NexusSprint }>(`/nexus/projects/${projectId}/sprints`, data),
+
+    updateSprint: (sprintId: string, data: Partial<NexusSprint>) =>
+        api.patch<{ success: boolean; data: NexusSprint }>(`/nexus/sprints/${sprintId}`, data),
+
+    deleteSprint: (sprintId: string) =>
+        api.delete(`/nexus/sprints/${sprintId}`),
+
+    // Comments & Activity
+    getComments: (taskId: string) =>
+        api.get<{ success: boolean; data: NexusComment[] }>(`/nexus/tasks/${taskId}/comments`),
+
+    createComment: (taskId: string, content: string) =>
+        api.post<{ success: boolean; data: NexusComment }>(`/nexus/tasks/${taskId}/comments`, { content }),
+
+    deleteComment: (commentId: string) =>
+        api.delete(`/nexus/comments/${commentId}`),
+
+    getActivity: (taskId: string) =>
+        api.get<{ success: boolean; data: NexusActivity[] }>(`/nexus/tasks/${taskId}/activity`),
 };

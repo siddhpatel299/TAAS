@@ -5,9 +5,10 @@ import { NexusSidebar } from '@/components/nexus/NexusSidebar';
 import { NexusKanbanBoard } from '@/components/nexus/NexusKanbanBoard';
 import { NexusListView } from '@/components/nexus/NexusListView';
 import { NexusTimelineView } from '@/components/nexus/NexusTimelineView';
+import { NexusBacklogView } from '@/components/nexus/NexusBacklogView';
 import { NexusTaskModal } from '@/components/nexus/NexusTaskModal';
 import { useNexusStore } from '@/stores/nexus.store';
-import { Settings, Filter, Users, Plus } from 'lucide-react';
+import { Settings, Filter, Users, Plus, Layout, List, Calendar as CalendarIcon, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function NexusProjectPage() {
@@ -55,32 +56,44 @@ export function NexusProjectPage() {
                             <button
                                 onClick={() => setViewMode('kanban')}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-                                    viewMode === 'kanban' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                                    viewMode === 'kanban' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
                                 )}
                             >
-                                Kanban
+                                <Layout className="w-4 h-4" />
+                                Board
                             </button>
                             <button
                                 onClick={() => setViewMode('list')}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-                                    viewMode === 'list' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                                    viewMode === 'list' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
                                 )}
                             >
+                                <List className="w-4 h-4" />
                                 List
                             </button>
                             <button
                                 onClick={() => setViewMode('timeline')}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
-                                    viewMode === 'timeline' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                                    viewMode === 'timeline' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
                                 )}
                             >
+                                <CalendarIcon className="w-4 h-4" />
                                 Timeline
                             </button>
+                            <button
+                                onClick={() => setViewMode('backlog')}
+                                className={cn(
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                                    viewMode === 'backlog' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                                )}
+                            >
+                                <Layers className="w-4 h-4" />
+                                Backlog
+                            </button>
                         </div>
-
                         <div className="h-6 w-px bg-slate-200 mx-1" />
 
                         <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
@@ -115,9 +128,13 @@ export function NexusProjectPage() {
                     {viewMode === 'timeline' && (
                         <NexusTimelineView tasks={tasks} />
                     )}
+
+                    {viewMode === 'backlog' && (
+                        <NexusBacklogView tasks={tasks} projectId={currentProject.id} />
+                    )}
                 </div>
             </main>
             <NexusTaskModal />
-        </div>
+        </div >
     );
 }

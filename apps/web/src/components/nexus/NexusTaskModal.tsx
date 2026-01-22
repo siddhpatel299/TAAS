@@ -7,14 +7,25 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 export function NexusTaskModal() {
-    const { activeTask, setActiveTask, updateTask, deleteTask, newTaskInput, createTask, closeCreateTask } = useNexusStore();
+    const {
+        activeTask, setActiveTask, updateTask, deleteTask, newTaskInput, createTask, closeCreateTask,
+        activeTaskComments, activeTaskActivity, createComment
+    } = useNexusStore();
 
     // Local state
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [activeTab, setActiveTab] = useState<'details' | 'activity'>('details');
+    const [newComment, setNewComment] = useState('');
     const [points, setPoints] = useState<number | undefined>(undefined);
     const [priority, setPriority] = useState<NexusTask['priority']>('medium');
     const [status, setStatus] = useState<NexusTask['status']>('todo');
+    const [epicId, setEpicId] = useState<string | null>(null);
+    const [sprintId, setSprintId] = useState<string | null>(null);
+
+    const { currentProject } = useNexusStore();
+    const epics = currentProject?.epics || [];
+    const sprints = currentProject?.sprints || [];
 
     // Determine mode
     const isEditing = !!activeTask;
@@ -28,12 +39,17 @@ export function NexusTaskModal() {
             setPoints(activeTask.points);
             setPriority(activeTask.priority);
             setStatus(activeTask.status);
+            setEpicId(activeTask.epicId || null);
+            setSprintId(activeTask.sprintId || null);
+            setActiveTab('details');
         } else if (newTaskInput) {
             setTitle('');
             setDescription('');
             setPoints(undefined);
             setPriority('medium');
             setStatus(newTaskInput.status as NexusTask['status']);
+            setEpicId(null);
+            setSprintId(null); // Could pre-fill if created from Sprint Board
         }
     }, [activeTask, newTaskInput]);
 
@@ -53,7 +69,9 @@ export function NexusTaskModal() {
                 description,
                 points,
                 priority: priority as any,
-                status: status as any
+                status: status as any,
+                epicId: epicId || undefined,
+                sprintId: sprintId || undefined
             });
             handleClose();
         } else if (isCreating && newTaskInput) {
@@ -62,7 +80,9 @@ export function NexusTaskModal() {
                 description,
                 points,
                 priority,
-                status
+                status,
+                epicId: epicId || undefined,
+                sprintId: sprintId || undefined
             });
             handleClose();
         }
@@ -72,6 +92,12 @@ export function NexusTaskModal() {
         if (!isEditing || !activeTask || !confirm('Are you sure you want to delete this task?')) return;
         await deleteTask(activeTask.id);
         handleClose();
+    };
+
+    const handleSendComment = async () => {
+        if (!newComment.trim() || !activeTask) return;
+        await createComment(activeTask.id, newComment);
+        setNewComment('');
     };
 
     const priorities = [
@@ -145,22 +171,126 @@ export function NexusTaskModal() {
                         <div className="flex flex-col md:flex-row gap-8">
                             {/* Main Content */}
                             <div className="flex-1 space-y-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
-                                    <textarea
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        rows={6}
-                                        className="w-full text-sm text-slate-600 border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-                                        placeholder="Add more details to this task..."
-                                    />
-                                </div>
-
+                                {/* Tabs */}
                                 {isEditing && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">Activity</label>
-                                        <div className="text-sm text-slate-500 italic">
-                                            Created {format(new Date(activeTask.createdAt), 'PPT')}
+                                    <div className="flex items-center gap-6 border-b border-slate-200">
+                                        <button
+                                            onClick={() => setActiveTab('details')}
+                                            className={cn(
+                                                "pb-3 text-sm font-medium transition-colors relative",
+                                                activeTab === 'details' ? "text-indigo-600" : "text-slate-500 hover:text-slate-700"
+                                            )}
+                                        >
+                                            Details
+                                            {activeTab === 'details' && (
+                                                <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-full" />
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => setActiveTab('activity')}
+                                            className={cn(
+                                                "pb-3 text-sm font-medium transition-colors relative",
+                                                activeTab === 'activity' ? "text-indigo-600" : "text-slate-500 hover:text-slate-700"
+                                            )}
+                                        >
+                                            Activity
+                                            {activeTab === 'activity' && (
+                                                <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-full" />
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
+
+                                {activeTab === 'details' ? (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
+                                            <textarea
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
+                                                rows={6}
+                                                className="w-full text-sm text-slate-600 border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                                placeholder="Add more details to this task..."
+                                            />
+                                        </div>
+
+                                        {isEditing && activeTask && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-2">Metadata</label>
+                                                <div className="text-sm text-slate-500 flex gap-4">
+                                                    <span>Created {format(new Date(activeTask.createdAt), 'PPP')}</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {/* New Comment */}
+                                        <div className="flex gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold">
+                                                ME
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <textarea
+                                                    value={newComment}
+                                                    onChange={(e) => setNewComment(e.target.value)}
+                                                    placeholder="Leave a comment..."
+                                                    rows={3}
+                                                    className="w-full text-sm border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                                            e.preventDefault();
+                                                            handleSendComment();
+                                                        }
+                                                    }}
+                                                />
+                                                <div className="flex justify-end">
+                                                    <button
+                                                        onClick={handleSendComment}
+                                                        disabled={!newComment.trim()}
+                                                        className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                                                    >
+                                                        Comment
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Activity List */}
+                                        <div className="space-y-4">
+                                            {/* Combine comments and activity sorted by date if needed. For now just listing. */}
+                                            {[...activeTaskComments, ...activeTaskActivity]
+                                                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                                                .map((item: any) => (
+                                                    <div key={item.id} className="flex gap-3 text-sm">
+                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden text-xs">
+                                                            {item.user?.avatarUrl ? (
+                                                                <img src={item.user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <span className="font-medium text-slate-500">{(item.user?.firstName?.[0] || 'U')}</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 space-y-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-medium text-slate-900">
+                                                                    {item.user?.firstName || 'Unknown'} {item.user?.lastName || ''}
+                                                                </span>
+                                                                <span className="text-slate-400 text-xs">
+                                                                    {format(new Date(item.createdAt), 'MMM d, h:mm a')}
+                                                                </span>
+                                                            </div>
+                                                            {'type' in item ? (
+                                                                <div className="text-slate-500 italic">
+                                                                    {item.content}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="text-slate-700 whitespace-pre-wrap">
+                                                                    {item.content}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                         </div>
                                     </div>
                                 )}
@@ -225,6 +355,45 @@ export function NexusTaskModal() {
                                         className="w-full text-sm border-slate-200 rounded-lg focus:ring-indigo-500"
                                         placeholder="Points..."
                                     />
+                                </div>
+
+                                {/* Epic & Sprint */}
+                                <div className="space-y-4 pt-4 border-t border-slate-200">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Sprint</label>
+                                        <select
+                                            value={sprintId || ''}
+                                            onChange={(e) => {
+                                                const val = e.target.value || null;
+                                                setSprintId(val);
+                                                if (isEditing) updateTask(activeTask.id, { sprintId: val || undefined });
+                                            }}
+                                            className="w-full text-sm border-slate-200 rounded-lg focus:ring-indigo-500"
+                                        >
+                                            <option value="">No Sprint</option>
+                                            {sprints.map(s => (
+                                                <option key={s.id} value={s.id}>{s.name} ({s.status})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Epic</label>
+                                        <select
+                                            value={epicId || ''}
+                                            onChange={(e) => {
+                                                const val = e.target.value || null;
+                                                setEpicId(val);
+                                                if (isEditing) updateTask(activeTask.id, { epicId: val || undefined });
+                                            }}
+                                            className="w-full text-sm border-slate-200 rounded-lg focus:ring-indigo-500"
+                                        >
+                                            <option value="">No Epic</option>
+                                            {epics.map(e => (
+                                                <option key={e.id} value={e.id}>{e.title}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
                                 {/* Dates */}

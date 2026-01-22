@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { nexusApi, NexusProject, NexusTask, NexusEpic, NexusSprint } from '@/lib/nexus-api';
+import { nexusApi, NexusProject, NexusTask, NexusEpic, NexusSprint, NexusComment, NexusActivity } from '@/lib/nexus-api';
 
 interface NexusState {
     // Data
@@ -7,10 +7,12 @@ interface NexusState {
     currentProject: (NexusProject & { epics: NexusEpic[]; sprints: NexusSprint[] }) | null;
     tasks: NexusTask[];
     activeTask: NexusTask | null;
+    activeTaskComments: NexusComment[];
+    activeTaskActivity: NexusActivity[];
     newTaskInput: { status: string; projectId: string } | null;
 
     // UI State
-    viewMode: 'kanban' | 'list' | 'timeline';
+    viewMode: 'kanban' | 'list' | 'timeline' | 'backlog';
     isLoading: boolean;
     error: string | null;
 
@@ -25,7 +27,22 @@ interface NexusState {
     moveTask: (taskId: string, status: string, newIndex: number) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
 
-    setViewMode: (mode: 'kanban' | 'list' | 'timeline') => void;
+    fetchEpics: (projectId: string) => Promise<void>;
+    createEpic: (projectId: string, data: Partial<NexusEpic>) => Promise<void>;
+    updateEpic: (epicId: string, data: Partial<NexusEpic>) => Promise<void>;
+    deleteEpic: (epicId: string) => Promise<void>;
+
+    fetchSprints: (projectId: string) => Promise<void>;
+    createSprint: (projectId: string, data: Partial<NexusSprint>) => Promise<void>;
+    updateSprint: (sprintId: string, data: Partial<NexusSprint>) => Promise<void>;
+    deleteSprint: (sprintId: string) => Promise<void>;
+
+    fetchComments: (taskId: string) => Promise<void>;
+    createComment: (taskId: string, content: string) => Promise<void>;
+    deleteComment: (commentId: string) => Promise<void>;
+    fetchActivity: (taskId: string) => Promise<void>;
+
+    setViewMode: (mode: 'kanban' | 'list' | 'timeline' | 'backlog') => void;
     setActiveTask: (task: NexusTask | null) => void;
     openCreateTask: (status: string) => void;
     closeCreateTask: () => void;
@@ -37,6 +54,8 @@ export const useNexusStore = create<NexusState>((set, get) => ({
     currentProject: null,
     tasks: [],
     activeTask: null,
+    activeTaskComments: [],
+    activeTaskActivity: [],
     newTaskInput: null,
     viewMode: 'kanban',
     isLoading: false,
@@ -163,8 +182,168 @@ export const useNexusStore = create<NexusState>((set, get) => ({
         }
     },
 
+    fetchEpics: async (projectId) => {
+        try {
+            const response = await nexusApi.getEpics(projectId);
+            set(state => ({
+                currentProject: state.currentProject ? { ...state.currentProject, epics: response.data.data } : null
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    createEpic: async (projectId, data) => {
+        try {
+            const response = await nexusApi.createEpic(projectId, data);
+            const epic = response.data.data;
+            set(state => ({
+                currentProject: state.currentProject ? {
+                    ...state.currentProject,
+                    epics: [...state.currentProject.epics, epic]
+                } : null
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+            throw error;
+        }
+    },
+
+    updateEpic: async (epicId, data) => {
+        try {
+            await nexusApi.updateEpic(epicId, data);
+            const currentProject = get().currentProject;
+            if (currentProject) await get().fetchEpics(currentProject.id);
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    deleteEpic: async (epicId) => {
+        try {
+            await nexusApi.deleteEpic(epicId);
+            set(state => ({
+                currentProject: state.currentProject ? {
+                    ...state.currentProject,
+                    epics: state.currentProject.epics.filter(e => e.id !== epicId)
+                } : null
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    fetchSprints: async (projectId) => {
+        try {
+            const response = await nexusApi.getSprints(projectId);
+            set(state => ({
+                currentProject: state.currentProject ? { ...state.currentProject, sprints: response.data.data } : null
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    createSprint: async (projectId, data) => {
+        try {
+            const response = await nexusApi.createSprint(projectId, data);
+            const sprint = response.data.data;
+            set(state => ({
+                currentProject: state.currentProject ? {
+                    ...state.currentProject,
+                    sprints: [...state.currentProject.sprints, sprint]
+                } : null
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+            throw error;
+        }
+    },
+
+    updateSprint: async (sprintId, data) => {
+        try {
+            await nexusApi.updateSprint(sprintId, data);
+            const currentProject = get().currentProject;
+            if (currentProject) await get().fetchSprints(currentProject.id);
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    deleteSprint: async (sprintId) => {
+        try {
+            await nexusApi.deleteSprint(sprintId);
+            set(state => ({
+                currentProject: state.currentProject ? {
+                    ...state.currentProject,
+                    sprints: state.currentProject.sprints.filter(s => s.id !== sprintId)
+                } : null
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    fetchComments: async (taskId) => {
+        try {
+            const response = await nexusApi.getComments(taskId);
+            set({ activeTaskComments: response.data.data });
+        } catch (error: any) {
+            console.error('Failed to fetch comments', error);
+        }
+    },
+
+    createComment: async (taskId, content) => {
+        try {
+            const response = await nexusApi.createComment(taskId, content);
+            set(state => ({
+                activeTaskComments: [...state.activeTaskComments, response.data.data],
+                // Optimistically add activity
+                activeTaskActivity: [{
+                    id: 'temp-' + Date.now(),
+                    taskId,
+                    userId: 'me', // placeholder
+                    type: 'comment',
+                    content: 'commented on this task',
+                    createdAt: new Date().toISOString(),
+                    user: response.data.data.user
+                } as NexusActivity, ...state.activeTaskActivity]
+            }));
+            // Refresh activity to get real data
+            get().fetchActivity(taskId);
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    deleteComment: async (commentId) => {
+        try {
+            await nexusApi.deleteComment(commentId);
+            set(state => ({
+                activeTaskComments: state.activeTaskComments.filter(c => c.id !== commentId)
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        }
+    },
+
+    fetchActivity: async (taskId) => {
+        try {
+            const response = await nexusApi.getActivity(taskId);
+            set({ activeTaskActivity: response.data.data });
+        } catch (error: any) {
+            console.error('Failed to fetch activity', error);
+        }
+    },
+
     setViewMode: (mode) => set({ viewMode: mode }),
-    setActiveTask: (task) => set({ activeTask: task, newTaskInput: null }),
+    setActiveTask: (task) => {
+        set({ activeTask: task, newTaskInput: null, activeTaskComments: [], activeTaskActivity: [] });
+        if (task) {
+            get().fetchComments(task.id);
+            get().fetchActivity(task.id);
+        }
+    },
     openCreateTask: (status) => {
         const currentProject = get().currentProject;
         if (currentProject) {

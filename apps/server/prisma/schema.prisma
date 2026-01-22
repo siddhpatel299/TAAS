@@ -34,6 +34,9 @@ model User {
   folders         Folder[]
   storageChannels StorageChannel[]
   sharedLinks     SharedLink[]
+  
+  nexusComments   NexusComment[]
+  nexusActivity   NexusActivity[]
 
   @@map("users")
   @@schema("public")
@@ -1060,6 +1063,8 @@ model NexusTask {
   subtasks NexusTask[] @relation("NexusSubtasks")
   
   labels  NexusTaskLabel[]
+  comments NexusComment[]
+  activity NexusActivity[]
 
   @@index([projectId])
   @@index([epicId])
@@ -1097,5 +1102,39 @@ model NexusTaskLabel {
   @@index([taskId])
   @@index([labelId])
   @@map("nexus_task_labels")
+  @@schema("public")
+}
+
+model NexusComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task NexusTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@map("nexus_comments")
+  @@schema("public")
+}
+
+model NexusActivity {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  type      String   // 'status', 'priority', 'assignment', 'comment', 'create'
+  content   String   // "changed status to Done"
+  createdAt DateTime @default(now())
+
+  task NexusTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@map("nexus_activity")
   @@schema("public")
 }
