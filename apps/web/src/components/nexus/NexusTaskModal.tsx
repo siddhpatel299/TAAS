@@ -2,52 +2,91 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useNexusStore } from '@/stores/nexus.store';
+import { NexusTask } from '@/lib/nexus-api';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 export function NexusTaskModal() {
-    const { activeTask, setActiveTask, updateTask, deleteTask } = useNexusStore();
+    const { activeTask, setActiveTask, updateTask, deleteTask, newTaskInput, createTask, closeCreateTask } = useNexusStore();
+
+    // Local state
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [points, setPoints] = useState<number | undefined>(undefined);
+    const [priority, setPriority] = useState<NexusTask['priority']>('medium');
+    const [status, setStatus] = useState<NexusTask['status']>('todo');
+
+    // Determine mode
+    const isEditing = !!activeTask;
+    const isCreating = !!newTaskInput;
+    const isOpen = isEditing || isCreating;
 
     useEffect(() => {
         if (activeTask) {
             setTitle(activeTask.title);
             setDescription(activeTask.description || '');
             setPoints(activeTask.points);
+            setPriority(activeTask.priority);
+            setStatus(activeTask.status);
+        } else if (newTaskInput) {
+            setTitle('');
+            setDescription('');
+            setPoints(undefined);
+            setPriority('medium');
+            setStatus(newTaskInput.status as NexusTask['status']);
         }
-    }, [activeTask]);
+    }, [activeTask, newTaskInput]);
 
-    if (!activeTask) return null;
+    if (!isOpen) return null;
+
+    const handleClose = () => {
+        if (isEditing) setActiveTask(null);
+        if (isCreating) closeCreateTask();
+    };
 
     const handleSave = async () => {
-        if (!activeTask) return;
-        await updateTask(activeTask.id, {
-            title,
-            description,
-            points
-        });
-        setActiveTask(null);
+        if (!title.trim()) return;
+
+        if (isEditing && activeTask) {
+            await updateTask(activeTask.id, {
+                title,
+                description,
+                points,
+                priority: priority as any,
+                status: status as any
+            });
+            handleClose();
+        } else if (isCreating && newTaskInput) {
+            await createTask(newTaskInput.projectId, {
+                title,
+                description,
+                points,
+                priority,
+                status
+            });
+            handleClose();
+        }
     };
 
     const handleDelete = async () => {
-        if (!activeTask || !confirm('Are you sure you want to delete this task?')) return;
+        if (!isEditing || !activeTask || !confirm('Are you sure you want to delete this task?')) return;
         await deleteTask(activeTask.id);
-        setActiveTask(null);
+        handleClose();
     };
 
     const priorities = [
         { value: 'low', label: 'Low', color: 'bg-slate-100 text-slate-700' },
         { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-700' },
         { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-700' },
-        { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-700' }
+        { value: 'critical', label: 'Critical', color: 'bg-red-100 text-red-700' }
     ];
 
     const statuses = [
         { value: 'todo', label: 'To Do', icon: AlertCircle },
         { value: 'in_progress', label: 'In Progress', icon: CheckCircle2 },
-        { value: 'done', label: 'Done', icon: CheckCircle2 }
+        { value: 'done', label: 'Done', icon: CheckCircle2 },
+        { value: 'blocked', label: 'Blocked', icon: AlertCircle },
+        { value: 'backlog', label: 'Backlog', icon: AlertCircle }
     ];
 
     return (
@@ -57,7 +96,7 @@ export function NexusTaskModal() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={() => setActiveTask(null)}
+                    onClick={handleClose}
                     className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                 />
 
@@ -70,14 +109,20 @@ export function NexusTaskModal() {
                     {/* Header */}
                     <div className="sticky top-0 z-10 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm text-slate-500 font-mono">
-                            <span className="bg-slate-100 px-2 py-0.5 rounded">
-                                {activeTask.sprintId ? 'SPRINT-' + activeTask.sprintId.substring(0, 4) : 'BACKLOG'}
-                            </span>
-                            <span>/</span>
-                            <span>TASK-{activeTask.id.substring(activeTask.id.length - 4)}</span>
+                            {isEditing ? (
+                                <>
+                                    <span className="bg-slate-100 px-2 py-0.5 rounded">
+                                        {activeTask.sprintId ? 'SPRINT-' + activeTask.sprintId.substring(0, 4) : 'BACKLOG'}
+                                    </span>
+                                    <span>/</span>
+                                    <span>TASK-{activeTask.id.substring(activeTask.id.length - 4)}</span>
+                                </>
+                            ) : (
+                                <span className="font-semibold text-indigo-600">New Task</span>
+                            )}
                         </div>
                         <button
-                            onClick={() => setActiveTask(null)}
+                            onClick={handleClose}
                             className="p-1 hover:bg-slate-100 rounded-full transition-colors"
                         >
                             <X className="w-5 h-5 text-slate-400" />
@@ -93,6 +138,7 @@ export function NexusTaskModal() {
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="w-full text-2xl font-bold text-slate-900 border-none focus:ring-0 p-0 placeholder:text-slate-300"
                                 placeholder="Task title"
+                                autoFocus={isCreating}
                             />
                         </div>
 
@@ -110,12 +156,14 @@ export function NexusTaskModal() {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">Activity</label>
-                                    <div className="text-sm text-slate-500 italic">
-                                        Created {format(new Date(activeTask.createdAt), 'PPT')}
+                                {isEditing && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-2">Activity</label>
+                                        <div className="text-sm text-slate-500 italic">
+                                            Created {format(new Date(activeTask.createdAt), 'PPT')}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
 
                             {/* Sidebar Options */}
@@ -124,12 +172,15 @@ export function NexusTaskModal() {
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Status</label>
                                     <select
-                                        value={activeTask.status}
-                                        onChange={(e) => updateTask(activeTask.id, { status: e.target.value as any })}
+                                        value={status}
+                                        onChange={(e) => {
+                                            setStatus(e.target.value as NexusTask['status']);
+                                            if (isEditing) updateTask(activeTask.id, { status: e.target.value as any });
+                                        }}
                                         className="w-full text-sm border-slate-200 rounded-lg focus:ring-indigo-500"
                                     >
-                                        {statuses.map(status => (
-                                            <option key={status.value} value={status.value}>{status.label}</option>
+                                        {statuses.map(s => (
+                                            <option key={s.value} value={s.value}>{s.label}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -141,10 +192,13 @@ export function NexusTaskModal() {
                                         {priorities.map(p => (
                                             <button
                                                 key={p.value}
-                                                onClick={() => updateTask(activeTask.id, { priority: p.value as any })}
+                                                onClick={() => {
+                                                    setPriority(p.value as NexusTask['priority']);
+                                                    if (isEditing) updateTask(activeTask.id, { priority: p.value as any });
+                                                }}
                                                 className={cn(
                                                     "px-3 py-1.5 text-xs font-medium rounded-md border transition-all",
-                                                    activeTask.priority === p.value
+                                                    priority === p.value
                                                         ? p.color + " border-transparent ring-2 ring-offset-1 ring-indigo-500"
                                                         : "bg-white border-slate-200 text-slate-600 hover:border-indigo-300"
                                                 )}
@@ -165,14 +219,16 @@ export function NexusTaskModal() {
                                             const val = parseInt(e.target.value);
                                             setPoints(isNaN(val) ? undefined : val);
                                         }}
-                                        onBlur={() => updateTask(activeTask.id, { points })}
+                                        onBlur={() => {
+                                            if (isEditing) updateTask(activeTask.id, { points });
+                                        }}
                                         className="w-full text-sm border-slate-200 rounded-lg focus:ring-indigo-500"
                                         placeholder="Points..."
                                     />
                                 </div>
 
                                 {/* Dates */}
-                                {activeTask.dueDate && (
+                                {isEditing && activeTask.dueDate && (
                                     <div>
                                         <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Due Date</label>
                                         <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
@@ -187,25 +243,30 @@ export function NexusTaskModal() {
 
                     {/* Footer */}
                     <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
-                        <button
-                            onClick={handleDelete}
-                            className="flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                            Delete Task
-                        </button>
+                        {isEditing ? (
+                            <button
+                                onClick={handleDelete}
+                                className="flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Task
+                            </button>
+                        ) : (
+                            <div /> // Spacer
+                        )}
                         <div className="flex gap-3">
                             <button
-                                onClick={() => setActiveTask(null)}
+                                onClick={handleClose}
                                 className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSave}
-                                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm"
+                                disabled={!title.trim()}
+                                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm disabled:opacity-50"
                             >
-                                Save Changes
+                                {isCreating ? 'Create Task' : 'Save Changes'}
                             </button>
                         </div>
                     </div>

@@ -7,6 +7,7 @@ interface NexusState {
     currentProject: (NexusProject & { epics: NexusEpic[]; sprints: NexusSprint[] }) | null;
     tasks: NexusTask[];
     activeTask: NexusTask | null;
+    newTaskInput: { status: string; projectId: string } | null;
 
     // UI State
     viewMode: 'kanban' | 'list' | 'timeline';
@@ -26,6 +27,8 @@ interface NexusState {
 
     setViewMode: (mode: 'kanban' | 'list' | 'timeline') => void;
     setActiveTask: (task: NexusTask | null) => void;
+    openCreateTask: (status: string) => void;
+    closeCreateTask: () => void;
     clearError: () => void;
 }
 
@@ -34,6 +37,7 @@ export const useNexusStore = create<NexusState>((set, get) => ({
     currentProject: null,
     tasks: [],
     activeTask: null,
+    newTaskInput: null,
     viewMode: 'kanban',
     isLoading: false,
     error: null,
@@ -160,6 +164,13 @@ export const useNexusStore = create<NexusState>((set, get) => ({
     },
 
     setViewMode: (mode) => set({ viewMode: mode }),
-    setActiveTask: (task) => set({ activeTask: task }),
+    setActiveTask: (task) => set({ activeTask: task, newTaskInput: null }),
+    openCreateTask: (status) => {
+        const currentProject = get().currentProject;
+        if (currentProject) {
+            set({ newTaskInput: { status, projectId: currentProject.id }, activeTask: null });
+        }
+    },
+    closeCreateTask: () => set({ newTaskInput: null }),
     clearError: () => set({ error: null })
 }));

@@ -16,8 +16,8 @@ const COLUMNS = [
     { id: 'done', title: 'Done' }
 ];
 
-export function NexusKanbanBoard({ tasks, projectId }: NexusKanbanBoardProps) {
-    const { moveTask, createTask } = useNexusStore();
+export function NexusKanbanBoard({ tasks }: Omit<NexusKanbanBoardProps, 'projectId'>) {
+    const { moveTask } = useNexusStore();
     const [activeTask, setActiveTask] = useState<NexusTask | null>(null);
 
     // Group tasks by status
@@ -89,10 +89,7 @@ export function NexusKanbanBoard({ tasks, projectId }: NexusKanbanBoardProps) {
 
     // Quick Add Task
     const handleQuickAdd = async (status: string) => {
-        const title = prompt("Task title:");
-        if (title) {
-            await createTask(projectId, { title, status: status as any });
-        }
+        useNexusStore.getState().openCreateTask(status);
     }
 
     return (

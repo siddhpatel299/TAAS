@@ -3,14 +3,16 @@ import { useParams } from 'react-router-dom';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { NexusSidebar } from '@/components/nexus/NexusSidebar';
 import { NexusKanbanBoard } from '@/components/nexus/NexusKanbanBoard';
+import { NexusListView } from '@/components/nexus/NexusListView';
+import { NexusTimelineView } from '@/components/nexus/NexusTimelineView';
 import { NexusTaskModal } from '@/components/nexus/NexusTaskModal';
 import { useNexusStore } from '@/stores/nexus.store';
-import { Settings, Filter, Users, Calendar } from 'lucide-react';
+import { Settings, Filter, Users, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function NexusProjectPage() {
     const { projectId } = useParams<{ projectId: string }>();
-    const { currentProject, tasks, setCurrentProject, viewMode, setViewMode } = useNexusStore();
+    const { currentProject, tasks, setCurrentProject, viewMode, setViewMode, openCreateTask } = useNexusStore();
 
     useEffect(() => {
         if (projectId) {
@@ -90,31 +92,28 @@ export function NexusProjectPage() {
                         <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
                             <Settings className="w-4 h-4" />
                         </button>
+                        <button
+                            onClick={() => openCreateTask('todo')}
+                            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>New Task</span>
+                        </button>
                     </div>
                 </header>
 
                 {/* Content */}
                 <div className="flex-1 overflow-hidden bg-slate-50 p-6">
                     {viewMode === 'kanban' && (
-                        <NexusKanbanBoard tasks={tasks} projectId={currentProject.id} />
+                        <NexusKanbanBoard tasks={tasks} />
                     )}
 
                     {viewMode === 'list' && (
-                        <div className="flex items-center justify-center h-full text-slate-400 flex-col">
-                            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                                <Filter className="w-6 h-6 text-slate-300" />
-                            </div>
-                            List view under construction
-                        </div>
+                        <NexusListView tasks={tasks} />
                     )}
 
                     {viewMode === 'timeline' && (
-                        <div className="flex items-center justify-center h-full text-slate-400 flex-col">
-                            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                                <Calendar className="w-6 h-6 text-slate-300" />
-                            </div>
-                            Timeline view under construction
-                        </div>
+                        <NexusTimelineView tasks={tasks} />
                     )}
                 </div>
             </main>
