@@ -272,6 +272,23 @@ export const AVAILABLE_PLUGINS = [
       'Bill calendar view',
     ],
   },
+  {
+    id: 'nexus',
+    name: 'Nexus',
+    description: 'Enterprise-grade Project Management with Kanban boards, Sprints, and Epics.',
+    icon: 'layers',
+    category: 'productivity',
+    features: [
+      'Kanban Board & List Views',
+      'Sprint Planning & Cycles',
+      'Epics & User Stories',
+      'Task Sub-tasks & Dependencies',
+      'Custom Workflows',
+      'Velocity Tracking',
+      'Gantt Chart Timeline',
+      'Project-level Analytics',
+    ],
+  },
 ];
 
 export const pluginsService = {

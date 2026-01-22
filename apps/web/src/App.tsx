@@ -14,6 +14,8 @@ import { TrashPage } from '@/pages/TrashPage';
 import { SharePage } from '@/pages/SharePage';
 import { PluginsPage } from '@/pages/PluginsPage';
 import { JobTrackerDashboardPage } from '@/pages/JobTrackerDashboardPage';
+import { NexusDashboardPage } from '@/pages/nexus/NexusDashboardPage';
+import { NexusProjectPage } from '@/pages/nexus/NexusProjectPage';
 import { JobApplicationsPage } from '@/pages/JobApplicationsPage';
 import { JobApplicationFormPage } from '@/pages/JobApplicationFormPage';
 import { OutreachPage } from '@/pages/OutreachPage';
@@ -219,7 +221,6 @@ import { CRTJobTrackerPage } from '@/pages/crt/CRTJobTrackerPage';
 import { CRTJobApplicationsPage } from '@/pages/crt/CRTJobApplicationsPage';
 import { CRTJobApplicationFormPage } from '@/pages/crt/CRTJobApplicationFormPage';
 import { CRTOutreachPage } from '@/pages/crt/CRTOutreachPage';
-import { CRTContactFinderPage } from '@/pages/crt/CRTContactFinderPage';
 import { CRTTelegramPage } from '@/pages/crt/CRTTelegramPage';
 import { CRTNotesPage } from '@/pages/crt/CRTNotesPage';
 
@@ -428,6 +429,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><NewsprintJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><NewsprintOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><NewsprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -460,6 +463,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BrutalistJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BrutalistOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BrutalistContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -491,8 +496,10 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><CRTJobApplicationsPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CRTJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CRTOutreachPage /></ProtectedRoute>} />
-            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CRTContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><CRTNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CRTNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
@@ -524,6 +531,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><GlassJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><GlassOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><GlassContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -556,6 +565,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArtDecoJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArtDecoOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArtDecoContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -588,6 +599,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><CanvasJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><CanvasOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CanvasContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -620,6 +633,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ComicJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ComicOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ComicContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -652,6 +667,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ArchiveJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ArchiveOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArchiveContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -684,6 +701,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><BlueprintJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><BlueprintOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BlueprintContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -716,6 +735,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SteamJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SteamOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SteamContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -748,6 +769,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><AuroraJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><AuroraOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><AuroraContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -780,6 +803,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ZenJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ZenOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ZenContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -908,6 +933,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><PixelJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><PixelOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PixelContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -1036,6 +1063,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><HUDJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><HUDOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><HUDContactFinderPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
             <Route path="/plugins/notes" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
@@ -1148,6 +1177,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ContactFinderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/nexus"
+            element={
+              <ProtectedRoute>
+                <NexusDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/nexus/projects/:projectId"
+            element={
+              <ProtectedRoute>
+                <NexusProjectPage />
               </ProtectedRoute>
             }
           />

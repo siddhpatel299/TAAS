@@ -967,3 +967,135 @@ model InvestmentClient {
   @@schema("public")
 }
 
+
+// =====================================
+// NEXUS (PROJECT MANAGEMENT) PLUGIN
+// =====================================
+
+model NexusProject {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?  @db.Text
+  key         String   // e.g., "OS" for Personal OS
+  icon        String?
+  color       String?
+  status      String   @default("active") // active, archived
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  epics    NexusEpic[]
+  sprints  NexusSprint[]
+  tasks    NexusTask[]
+  labels   NexusLabel[]
+
+  @@unique([userId, key])
+  @@index([userId])
+  @@map("nexus_projects")
+  @@schema("public")
+}
+
+model NexusEpic {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String?  @db.Text
+  status      String   @default("todo") // todo, in_progress, done
+  startDate   DateTime?
+  endDate     DateTime?
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   NexusTask[]
+
+  @@index([projectId])
+  @@map("nexus_epics")
+  @@schema("public")
+}
+
+model NexusSprint {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  goal        String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("planned") // planned, active, completed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   NexusTask[]
+
+  @@index([projectId])
+  @@map("nexus_sprints")
+  @@schema("public")
+}
+
+model NexusTask {
+  id          String   @id @default(cuid())
+  projectId   String
+  epicId      String?
+  sprintId    String?
+  title       String
+  description String?  @db.Text
+  status      String   @default("todo") // todo, in_progress, done, blocked, backlog
+  priority    String   @default("medium") // low, medium, high, critical
+  points      Int?     // Story points
+  position    Int      @default(0)
+  parentId    String?  // For subtasks
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  epic    NexusEpic?   @relation(fields: [epicId], references: [id], onDelete: SetNull)
+  sprint  NexusSprint? @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  
+  parent  NexusTask?   @relation("NexusSubtasks", fields: [parentId], references: [id], onDelete: SetNull)
+  subtasks NexusTask[] @relation("NexusSubtasks")
+  
+  labels  NexusTaskLabel[]
+
+  @@index([projectId])
+  @@index([epicId])
+  @@index([sprintId])
+  @@index([status])
+  @@index([parentId])
+  @@map("nexus_tasks")
+  @@schema("public")
+}
+
+model NexusLabel {
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  color     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   NexusTaskLabel[]
+
+  @@index([projectId])
+  @@map("nexus_labels")
+  @@schema("public")
+}
+
+model NexusTaskLabel {
+  taskId  String
+  labelId String
+
+  task  NexusTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label NexusLabel @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@index([taskId])
+  @@index([labelId])
+  @@map("nexus_task_labels")
+  @@schema("public")
+}

@@ -14,6 +14,7 @@ import pluginsRoutes from './routes/plugins.routes';
 import jobTrackerRoutes from './routes/job-tracker.routes';
 import todoRoutes from './routes/todo.routes';
 import notesRoutes from './routes/notes.routes';
+import { nexusRouter } from './routes/nexus.routes';
 
 const app: Application = express();
 
@@ -95,6 +96,7 @@ app.use('/api/plugins', apiLimiter, pluginsRoutes);
 app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
 app.use('/api/todo', apiLimiter, todoRoutes);
 app.use('/api/notes', apiLimiter, notesRoutes);
+app.use('/api/nexus', apiLimiter, nexusRouter);
 
 // Error handling
 app.use(notFoundHandler);
