@@ -41,7 +41,7 @@ interface InsightState {
 
 export const useInsightStore = create<InsightState>()(
     persist(
-        (set, get) => ({
+        (set, _get) => ({
             widgets: [
                 {
                     id: 'default-finance',
