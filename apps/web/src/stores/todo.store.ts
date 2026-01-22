@@ -25,8 +25,11 @@ interface TodoState {
   updateStatus: (id: string, status: TodoTask['status']) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 
+  viewMode: 'list' | 'board';
   setSelectedList: (listId: string | null) => void;
   setFilters: (filters: Partial<TodoState['filters']>) => void;
+  setViewMode: (mode: 'list' | 'board') => void;
+  togglePinTask: (id: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -35,6 +38,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   tasks: [],
   stats: null,
   selectedListId: null,
+  viewMode: 'list',
   filters: {},
   isLoading: false,
   error: null,
@@ -132,7 +136,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }
   },
 
-  updateStatus: async (id, status) => {
+  updateStatus: async (id: string, status: TodoTask['status']) => {
     set({ error: null });
     try {
       await todoApi.updateStatus(id, status);
@@ -144,7 +148,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }
   },
 
-  deleteTask: async (id) => {
+  deleteTask: async (id: string) => {
     set({ error: null });
     try {
       await todoApi.deleteTask(id);
@@ -165,6 +169,19 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   setFilters: (filters) => {
     set((state) => ({ filters: { ...state.filters, ...filters } }));
     get().fetchTasks();
+  },
+
+  setViewMode: (viewMode) => set({ viewMode }),
+
+  togglePinTask: async (id) => {
+    const task = get().tasks.find((t) => t.id === id);
+    if (!task) return;
+    try {
+      await todoApi.updateTask(id, { isPinned: !task.isPinned });
+      await get().fetchTasks();
+    } catch (error: any) {
+      set({ error: error.message });
+    }
   },
 
   clearError: () => set({ error: null }),
