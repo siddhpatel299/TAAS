@@ -1,0 +1,56 @@
+[
+    {
+        "version": "v260122",
+        "date": "January 22, 2026",
+        "title": "Changelog & Update System",
+        "description": "Implemented a new system to keep you up to date with the latest improvements.",
+        "changes": [
+            {
+                "type": "new",
+                "title": "Changelog Page",
+                "description": "View a history of all updates and improvements made to the application."
+            },
+            {
+                "type": "new",
+                "title": "Update Notifications",
+                "description": "Receive instant notifications when a new version of the app is available, with a quick refresh option."
+            }
+        ]
+    },
+    {
+        "version": "v260121",
+        "date": "January 21, 2026",
+        "title": "Evaluation System Enhancements",
+        "description": "Improved the evaluation workflow with better notifications and filtering.",
+        "changes": [
+            {
+                "type": "new",
+                "title": "Acknowledgment Notifications",
+                "description": "Evaluators now receive notifications when their evaluation is acknowledged."
+            },
+            {
+                "type": "new",
+                "title": "Evaluation Filtering & Search",
+                "description": "Filter evaluations by type, status, and search by subject name."
+            },
+            {
+                "type": "new",
+                "title": "Performance Trends Chart",
+                "description": "Visual line chart showing evaluation rating history over time."
+            }
+        ]
+    },
+    {
+        "version": "v260118",
+        "date": "January 18, 2026",
+        "title": "Efficiency Metrics & Stakeholder UX",
+        "description": "Enhanced project efficiency calculations and stakeholder user experience.",
+        "changes": [
+            {
+                "type": "enhanced",
+                "title": "Comprehensive Efficiency Score",
+                "description": "Project efficiency now calculated using three key metrics: Productivity Gain, Delivery Efficiency, and Time Efficiency."
+            }
+        ]
+    }
+]

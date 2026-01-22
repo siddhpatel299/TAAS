@@ -29,6 +29,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
 import { Send } from 'lucide-react';
+import { ChangelogPage } from '@/pages/ChangelogPage';
+import { UpdateNotification } from '@/components/UpdateNotification';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -437,6 +439,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -471,6 +474,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -505,6 +509,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -539,6 +544,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -573,6 +579,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -607,6 +614,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -641,6 +649,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -675,6 +684,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -709,6 +719,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -743,6 +754,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -777,6 +789,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -811,6 +824,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -843,6 +857,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -875,6 +890,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -907,6 +923,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -941,6 +958,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -973,6 +991,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -1005,6 +1024,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -1037,6 +1057,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -1071,6 +1092,7 @@ function AppContent() {
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DirectUploadProvider>
@@ -1078,6 +1100,7 @@ function AppContent() {
     );
   }
 
+  // Standard Theme (Default)
   return (
     <AuthCheck>
       <DirectUploadProvider>
@@ -1242,7 +1265,9 @@ function AppContent() {
             }
           />
           <Route path="/share/:token" element={<SharePage />} />
+          <Route path="/share/:token" element={<SharePage />} />
           <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </DirectUploadProvider>
@@ -1256,6 +1281,7 @@ export default function App() {
       <TooltipProvider>
         <VersionProvider>
           <BrowserRouter>
+            <UpdateNotification />
             <AppContent />
           </BrowserRouter>
         </VersionProvider>
