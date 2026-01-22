@@ -289,6 +289,21 @@ export const AVAILABLE_PLUGINS = [
       'Project-level Analytics',
     ],
   },
+  {
+    id: 'flow',
+    name: 'Flow Automation',
+    description: 'Visual workflow builder to automate tasks, move files, and connect your plugins.',
+    icon: 'zap',
+    category: 'productivity',
+    features: [
+      'Visual Node Editor',
+      'Event Triggers (Task Completed, File Uploaded)',
+      'Automated Actions',
+      'Execution History & Logs',
+      'Drag-and-drop Builder',
+      'Cron Jobs (Recurring Workflows)',
+    ],
+  },
 ];
 
 export const pluginsService = {

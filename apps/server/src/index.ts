@@ -15,6 +15,8 @@ import jobTrackerRoutes from './routes/job-tracker.routes';
 import todoRoutes from './routes/todo.routes';
 import notesRoutes from './routes/notes.routes';
 import { nexusRouter } from './routes/nexus.routes';
+import flowRoutes from './routes/flow.routes';
+import { flowService } from './services/flow.service';
 
 const app: Application = express();
 
@@ -97,10 +99,14 @@ app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
 app.use('/api/todo', apiLimiter, todoRoutes);
 app.use('/api/notes', apiLimiter, notesRoutes);
 app.use('/api/nexus', apiLimiter, nexusRouter);
+app.use('/api/flow', apiLimiter, flowRoutes);
 
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
+
+// Initialize Flow Scheduler
+flowService.initScheduler().catch(err => console.error('Failed to init Flow Scheduler:', err));
 
 // Start server
 const server = app.listen(config.port, () => {

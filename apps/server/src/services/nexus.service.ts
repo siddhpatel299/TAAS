@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { NexusProject, NexusEpic, NexusSprint, NexusTask } from '@prisma/client';
+import { flowService } from './flow.service';
 
 export const nexusService = {
     // ==================== PROJECTS ====================
@@ -117,7 +118,7 @@ export const nexusService = {
         });
         const position = (lastTask?.position || 0) + 1000;
 
-        return prisma.nexusTask.create({
+        const task = await prisma.nexusTask.create({
             data: {
                 projectId,
                 ...data,
@@ -129,6 +130,11 @@ export const nexusService = {
                 labels: { include: { label: true } }
             }
         });
+
+        // Emit Event
+        flowService.emitEvent('NEXUS_TASK_CREATED', task, userId).catch(console.error);
+
+        return task;
     },
 
     async updateTask(userId: string, taskId: string, data: Partial<NexusTask>) {
@@ -137,7 +143,7 @@ export const nexusService = {
         });
         if (!task) throw new Error('Task not found');
 
-        return prisma.nexusTask.update({
+        const updatedTask = await prisma.nexusTask.update({
             where: { id: taskId },
             data,
             include: {
@@ -146,6 +152,13 @@ export const nexusService = {
                 labels: { include: { label: true } }
             }
         });
+
+        // Emit Event if status changed to done
+        if (data.status === 'done' && task.status !== 'done') {
+            flowService.emitEvent('NEXUS_TASK_COMPLETED', updatedTask, userId).catch(console.error);
+        }
+
+        return updatedTask;
     },
 
     async moveTask(userId: string, taskId: string, status: string, newIndex: number) {

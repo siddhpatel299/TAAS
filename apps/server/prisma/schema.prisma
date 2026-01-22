@@ -37,6 +37,7 @@ model User {
   
   nexusComments   NexusComment[]
   nexusActivity   NexusActivity[]
+  workflows       Workflow[]
 
   @@map("users")
   @@schema("public")
@@ -1133,8 +1134,76 @@ model NexusActivity {
   task NexusTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([taskId])
   @@index([userId])
   @@map("nexus_activity")
+  @@schema("public")
+}
+
+// ==================== FLOW (AUTOMATION) SCHEMA ====================
+
+model Workflow {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  isActive    Boolean  @default(false)
+  triggerType String   // e.g. "NEXUS_TASK_COMPLETED", "STORAGE_FILE_UPLOADED"
+  
+  nodes       WorkflowNode[]
+  edges       WorkflowEdge[]
+  runs        WorkflowRun[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("workflows")
+  @@schema("public")
+}
+
+model WorkflowNode {
+  id          String   @id @default(cuid())
+  workflowId  String
+  type        String   // "trigger", "action", "condition"
+  label       String
+  config      Json     // { "targetStatus": "done", "excludePaths": ["/trash"] }
+  positionX   Float
+  positionY   Float
+  
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  
+  @@index([workflowId])
+  @@map("workflow_nodes")
+  @@schema("public")
+}
+
+model WorkflowEdge {
+  id          String   @id @default(cuid())
+  workflowId  String
+  sourceId    String   // ID of source WorkflowNode
+  targetId    String   // ID of target WorkflowNode
+  
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  
+  @@index([workflowId])
+  @@map("workflow_edges")
+  @@schema("public")
+}
+
+model WorkflowRun {
+  id          String   @id @default(cuid())
+  workflowId  String
+  status      String   // "success", "failed", "running"
+  triggerData Json?    // Snapshot of the data that triggered this run
+  logs        Json?    // Array of execution steps/errors
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  
+  @@index([workflowId])
+  @@map("workflow_runs")
   @@schema("public")
 }

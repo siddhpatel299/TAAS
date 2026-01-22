@@ -62,6 +62,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-router-dom": "^6.21.0",
+    "reactflow": "^11.11.4",
     "tailwind-merge": "^2.2.0",
     "telegram": "^2.26.22",
     "zustand": "^4.4.0"

@@ -3,6 +3,7 @@ import { telegramService } from './telegram.service';
 import { chunkService } from './chunk.service';
 import { botUploadService } from './bot-upload.service';
 import { Prisma } from '@prisma/client';
+import { flowService } from './flow.service';
 
 interface FileUploadParams {
   userId: string;
@@ -87,14 +88,18 @@ export class StorageService {
       },
       data: {
         usedBytes: { increment: BigInt(size) },
-        fileCount: { increment: 1 },
       },
     });
 
-    return {
+    const fileResult = {
       ...savedFile,
       size: Number(savedFile.size),
     };
+
+    // Emit Event
+    flowService.emitEvent('STORAGE_FILE_UPLOADED', fileResult, userId).catch(console.error);
+
+    return fileResult;
   }
 
   // Save upload result from streaming upload
@@ -151,14 +156,18 @@ export class StorageService {
       },
       data: {
         usedBytes: { increment: BigInt(size) },
-        fileCount: { increment: 1 },
       },
     });
 
-    return {
+    const result = {
       ...savedFile,
       size: Number(savedFile.size),
     };
+
+    // Emit Event
+    flowService.emitEvent('STORAGE_FILE_UPLOADED', result, userId).catch(console.error);
+
+    return result;
   }
 
   // Download a file - uses Bot API first to avoid AUTH_KEY_DUPLICATED

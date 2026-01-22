@@ -24,6 +24,7 @@ import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
 import { NotesPage } from '@/pages/NotesPage';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
+import { FlowPage } from '@/pages/flow/FlowPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
@@ -1217,6 +1218,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <NotesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/flow"
+            element={
+              <ProtectedRoute>
+                <FlowPage />
               </ProtectedRoute>
             }
           />
