@@ -70,14 +70,22 @@ router.post('/test-call', authMiddleware, asyncHandler(async (req: AuthRequest, 
     }
 
     try {
-        // Make a test call
-        const callSid = await twilioService.makeCall(
-            user.phoneNumber,
-            'Test Subscription', // subscription name
-            '$9.99', // fake amount
-            'tomorrow', // fake date
-            `${process.env.TWILIO_WEBHOOK_URL || ''}`
+        // Generate a test message
+        const testMessage = twilioService.generateReminderMessage(
+            'Test Subscription',
+            9.99,
+            'USD',
+            1 // tomorrow
         );
+
+        // Make a test call
+        const result = await twilioService.makeCall(user.phoneNumber, testMessage);
+
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to make call');
+        }
+
+        const callSid = result.callSid;
 
         res.json({
             success: true,
