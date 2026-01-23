@@ -53,9 +53,9 @@ export const twilioService = {
             // Add a pause to give the user time to answer
             twiml.pause({ length: 1 });
 
-            // Speak the message
+            // Speak the message using standard Twilio voice (works on all accounts)
             twiml.say({
-                voice: 'Polly.Joanna', // Amazon Polly voice - sounds natural
+                voice: 'alice', // Standard Twilio voice - works on all accounts
                 language: 'en-US',
             }, message);
 
@@ -65,13 +65,13 @@ export const twilioService = {
                 timeout: 5,
             });
             gather.say({
-                voice: 'Polly.Joanna',
+                voice: 'alice',
                 language: 'en-US',
             }, 'Press any key to acknowledge.');
 
-            // If no input, repeat the message once
+            // If no input, say goodbye
             twiml.say({
-                voice: 'Polly.Joanna',
+                voice: 'alice',
                 language: 'en-US',
             }, 'Thank you for your attention. Goodbye.');
 
@@ -83,7 +83,6 @@ export const twilioService = {
                 statusCallback: TWILIO_WEBHOOK_URL,
                 statusCallbackEvent: ['answered', 'completed'],
                 statusCallbackMethod: 'POST',
-                machineDetection: 'Enable', // Detect if answered by voicemail
             });
 
             return {
