@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Search, Briefcase, Filter } from 'lucide-react';
+import { useState } from 'react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -95,7 +95,6 @@ export function JobsSearchTab({ onSearch }: JobsSearchTabProps) {
     const [customRole, setCustomRole] = useState("Security Analyst");
 
     const [experience, setExperience] = useState("Any");
-    const [freshness, setFreshness] = useState("Anytime");
     const [location, setLocation] = useState("");
     const [atsChoice, setAtsChoice] = useState("All Platforms (ATS + LinkedIn)");
 
@@ -195,13 +194,7 @@ export function JobsSearchTab({ onSearch }: JobsSearchTabProps) {
         // Wait, I am defining the interface here.
         // I will change it to `onSearch(query: string, options?: any)`
 
-        const dateMap: Record<string, string | undefined> = {
-            "24 Hours": "d1",
-            "3 Days": "d3",
-            "Past Week": "w1",
-            "Month": "m1",
-            "Anytime": undefined
-        };
+
 
         onSearch(search_query); // We need to fix freshness passing.
         // I'll add a comment to fix this in the parent integration.
@@ -216,7 +209,7 @@ export function JobsSearchTab({ onSearch }: JobsSearchTabProps) {
                 <div className="md:col-span-1 space-y-4">
                     <div className="space-y-2">
                         <Label>Field</Label>
-                        <Select value={jobField} onValueChange={(v) => { setJobField(v); setSelectedTitles([]); }}>
+                        <Select value={jobField} onValueChange={(v: string) => { setJobField(v); setSelectedTitles([]); }}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
                                 {Object.keys(JOB_FIELDS).map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}

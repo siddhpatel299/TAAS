@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, MapPin, Building, Briefcase, GraduationCap, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Search, MapPin, Building, GraduationCap, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
