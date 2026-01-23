@@ -63,9 +63,9 @@ const categories = [
 
 export function PluginsPage() {
   const navigate = useNavigate();
-  const { 
-    availablePlugins, 
-    isLoading, 
+  const {
+    availablePlugins,
+    isLoading,
     error,
     fetchAvailablePlugins,
     enablePlugin,
@@ -84,7 +84,7 @@ export function PluginsPage() {
   // Filter plugins
   const filteredPlugins = availablePlugins.filter(plugin => {
     const matchesCategory = selectedCategory === 'all' || plugin.category === selectedCategory;
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       plugin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       plugin.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -113,7 +113,7 @@ export function PluginsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <ModernSidebar />
-      
+
       <main className="ml-20 p-8">
         {/* Header */}
         <div className="mb-8">
@@ -155,8 +155,8 @@ export function PluginsPage() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">How Plugins Work</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Plugins add new features to TAAS without requiring external storage. 
-                All files are stored in your Telegram account through TAAS's secure upload system. 
+                Plugins add new features to TAAS without requiring external storage.
+                All files are stored in your Telegram account through TAAS's secure upload system.
                 Plugins only store references (IDs) to your files, never the files themselves.
               </p>
             </div>
@@ -225,13 +225,13 @@ export function PluginsPage() {
                     <div className="flex items-start justify-between mb-4">
                       <div className={cn(
                         "w-12 h-12 rounded-xl flex items-center justify-center",
-                        isEnabled 
-                          ? "bg-gradient-to-br from-green-500 to-emerald-600" 
+                        isEnabled
+                          ? "bg-gradient-to-br from-green-500 to-emerald-600"
                           : `bg-gradient-to-br ${categoryStyle.gradient}`
                       )}>
                         <IconComponent className="w-6 h-6 text-white" />
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <span className={cn(
                           "px-2 py-0.5 text-xs font-medium rounded-full capitalize",
@@ -316,6 +316,65 @@ export function PluginsPage() {
                 </motion.div>
               );
             })}
+
+            {/* Subscription Tracker - Always visible */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -2, boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
+              className="bg-white rounded-2xl border border-green-200 ring-2 ring-green-100 overflow-hidden transition-all"
+            >
+              <div className="p-6 pb-4">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 text-xs font-medium rounded-full capitalize bg-green-100 text-green-700">
+                      finance
+                    </span>
+                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      Enabled
+                    </span>
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Subscription Tracker
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed mb-4">
+                  Track all your subscriptions with phone call reminders before renewals. Never get charged unexpectedly again.
+                </p>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span>📞 Phone call reminders</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span>Track all subscriptions</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span>Cost analytics & insights</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={() => navigate('/plugins/subscription-tracker')}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2"
+                >
+                  Open
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+
 
             {/* Suggest Plugin Card - only show when not filtering */}
             {selectedCategory === 'all' && !searchQuery && (
