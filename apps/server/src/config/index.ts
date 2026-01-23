@@ -14,6 +14,8 @@ const envSchema = z.object({
   // Optional: Bot for parallel uploads
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_BOT_USERNAME: z.string().optional(),
+  GOOGLE_API_KEY: z.string().optional(),
+  GOOGLE_CX: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -37,4 +39,6 @@ export const config = {
   // Bot for parallel uploads (optional)
   telegramBotToken: parsed.data.TELEGRAM_BOT_TOKEN || null,
   telegramBotUsername: parsed.data.TELEGRAM_BOT_USERNAME || null,
+  googleApiKey: parsed.data.GOOGLE_API_KEY || null,
+  googleCx: parsed.data.GOOGLE_CX || null,
 };

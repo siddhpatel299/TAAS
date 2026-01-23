@@ -16,6 +16,7 @@ import todoRoutes from './routes/todo.routes';
 import notesRoutes from './routes/notes.routes';
 import { nexusRouter } from './routes/nexus.routes';
 import flowRoutes from './routes/flow.routes';
+import searchRoutes from './routes/search.routes';
 import { flowService } from './services/flow.service';
 
 const app: Application = express();
@@ -100,6 +101,7 @@ app.use('/api/todo', apiLimiter, todoRoutes);
 app.use('/api/notes', apiLimiter, notesRoutes);
 app.use('/api/nexus', apiLimiter, nexusRouter);
 app.use('/api/flow', apiLimiter, flowRoutes);
+app.use('/api/search', apiLimiter, searchRoutes);
 
 // Error handling
 app.use(notFoundHandler);

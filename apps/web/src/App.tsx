@@ -26,6 +26,7 @@ import { NotesPage } from '@/pages/NotesPage';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { FlowPage } from '@/pages/flow/FlowPage';
 import { InsightPage } from '@/pages/InsightPage';
+import { ATSSearchPage } from '@/pages/ATSSearchPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
@@ -438,6 +439,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -474,6 +476,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -510,6 +513,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CRTNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -546,6 +550,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -582,6 +587,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -618,6 +624,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -654,6 +661,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -690,6 +698,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -726,6 +735,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -762,6 +772,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -798,6 +809,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -834,6 +846,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -868,6 +881,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><SkeuNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SkeuNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -902,6 +916,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><PaperNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PaperNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -936,6 +951,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><ExecNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ExecNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -972,6 +988,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1006,6 +1023,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><OrigamiNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><OrigamiNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1040,6 +1058,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><ForestNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ForestNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1074,6 +1093,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><TerminalNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><TerminalNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1110,6 +1130,7 @@ function AppContent() {
             <Route path="/plugins/notes" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

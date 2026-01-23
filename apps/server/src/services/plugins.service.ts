@@ -318,6 +318,20 @@ export const AVAILABLE_PLUGINS = [
       'Drag-and-drop Widget Layout',
     ],
   },
+  {
+    id: 'ats-search',
+    name: 'ATS X-Ray Search',
+    description: 'Find top talent and hidden jobs using advanced boolean search techniques across multiple platforms.',
+    icon: 'search',
+    category: 'productivity',
+    features: [
+      'X-Ray Search for LinkedIn Profiles',
+      'Targeted Job Search across major ATS',
+      'Company Research & Intelligence',
+      'Boolean Query Builder',
+      'Save & Export Searches',
+    ],
+  },
 ];
 
 export const pluginsService = {
