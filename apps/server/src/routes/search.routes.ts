@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { googleSearchService } from '../services/google-search.service';
 
-export const searchRoutes = Router();
+export const searchRoutes: Router = Router();
 
 // Proxy search requests
 searchRoutes.get('/', async (req, res, next) => {

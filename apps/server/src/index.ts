@@ -16,7 +16,7 @@ import todoRoutes from './routes/todo.routes';
 import notesRoutes from './routes/notes.routes';
 import { nexusRouter } from './routes/nexus.routes';
 import flowRoutes from './routes/flow.routes';
-import searchRoutes from './routes/search.routes';
+import { searchRoutes } from './routes/search.routes';
 import { flowService } from './services/flow.service';
 
 const app: Application = express();
