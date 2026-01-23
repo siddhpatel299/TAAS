@@ -1337,6 +1337,14 @@ function AppContent() {
             }
           />
           <Route
+            path="/plugins/subscription-tracker"
+            element={
+              <ProtectedRoute>
+                <SubscriptionDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/plugins/:pluginId"
             element={
               <ProtectedRoute>
