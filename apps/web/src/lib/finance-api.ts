@@ -108,6 +108,8 @@ export interface Subscription {
   status: 'active' | 'paused' | 'cancelled' | 'trial';
   autoRenew: boolean;
   reminderDays: number;
+  reminderEnabled?: boolean;
+  reminderTime?: string;
   website?: string;
   notes?: string;
   color?: string;
@@ -127,6 +129,26 @@ export interface SubscriptionDashboard {
   yearlyTotal: number;
   upcomingRenewals: Subscription[];
   categorySpending: Record<string, number>;
+}
+
+export interface CallReminder {
+  id: string;
+  userId: string;
+  subscriptionId: string;
+  phoneNumber: string;
+  scheduledFor: string;
+  status: 'pending' | 'calling' | 'completed' | 'failed' | 'no_answer';
+  attempts: number;
+  maxAttempts: number;
+  lastAttemptAt?: string;
+  nextRetryAt?: string;
+  callSid?: string;
+  callDuration?: number;
+  callAnswered: boolean;
+  message?: string;
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ==================== INVESTMENT PORTFOLIO TYPES ====================
@@ -393,6 +415,10 @@ export const subscriptionApi = {
 
   getPaymentHistory: (id: string) =>
     api.get<{ success: boolean; data: SubscriptionPayment[] }>(`/subscriptions/${id}/payments`),
+
+  // Call Reminders
+  getCallHistory: (subscriptionId: string) =>
+    api.get<{ success: boolean; data: CallReminder[] }>(`/call-reminders/subscription/${subscriptionId}`),
 };
 
 // ==================== INVESTMENT API ====================

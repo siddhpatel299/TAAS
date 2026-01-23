@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { Prisma } from '@prisma/client';
+import { callReminderService } from './call-reminder.service';
 
 export const subscriptionService = {
   // Dashboard
@@ -101,7 +102,7 @@ export const subscriptionService = {
     sortOrder?: string;
   }) {
     const where: Prisma.SubscriptionWhereInput = { userId };
-    
+
     if (params?.status) where.status = params.status;
     if (params?.category) where.category = params.category;
     if (params?.search) {
@@ -149,6 +150,8 @@ export const subscriptionService = {
     status?: string;
     autoRenew?: boolean;
     reminderDays?: number;
+    reminderEnabled?: boolean;
+    reminderTime?: string;
     website?: string;
     notes?: string;
     color?: string;
@@ -163,7 +166,7 @@ export const subscriptionService = {
       );
     }
 
-    return prisma.subscription.create({
+    const subscription = await prisma.subscription.create({
       data: {
         userId,
         name: data.name,
@@ -177,18 +180,32 @@ export const subscriptionService = {
         status: data.status || 'active',
         autoRenew: data.autoRenew ?? true,
         reminderDays: data.reminderDays ?? 3,
+        reminderEnabled: data.reminderEnabled ?? false,
+        reminderTime: data.reminderTime,
         website: data.website,
         notes: data.notes,
         color: data.color,
         icon: data.icon,
       },
     });
+
+    // Create call reminder if enabled
+    if (data.reminderEnabled && subscription.status === 'active') {
+      try {
+        await callReminderService.createReminder(subscription.id, userId);
+      } catch (error) {
+        console.error('Failed to create call reminder:', error);
+        // Don't fail subscription creation if reminder fails
+      }
+    }
+
+    return subscription;
   },
 
   calculateNextBillingDate(fromDate: Date, billingCycle: string): Date {
     const date = new Date(fromDate);
     const now = new Date();
-    
+
     while (date <= now) {
       switch (billingCycle) {
         case 'weekly':
@@ -221,15 +238,28 @@ export const subscriptionService = {
     status: string;
     autoRenew: boolean;
     reminderDays: number;
+    reminderEnabled: boolean;
+    reminderTime: string;
     website: string;
     notes: string;
     color: string;
     icon: string;
   }>) {
-    return prisma.subscription.updateMany({
+    const result = await prisma.subscription.updateMany({
       where: { id: subscriptionId, userId },
       data,
     });
+
+    // Update call reminders if reminder settings changed
+    if ('reminderEnabled' in data || 'reminderDays' in data || 'reminderTime' in data || 'nextBillingDate' in data) {
+      try {
+        await callReminderService.updateRemindersForSubscription(subscriptionId, userId);
+      } catch (error) {
+        console.error('Failed to update call reminders:', error);
+      }
+    }
+
+    return result;
   },
 
   async deleteSubscription(userId: string, subscriptionId: string) {
@@ -239,6 +269,13 @@ export const subscriptionService = {
   },
 
   async cancelSubscription(userId: string, subscriptionId: string) {
+    // Cancel any pending call reminders
+    try {
+      await callReminderService.cancelReminders(subscriptionId);
+    } catch (error) {
+      console.error('Failed to cancel reminders:', error);
+    }
+
     return prisma.subscription.updateMany({
       where: { id: subscriptionId, userId },
       data: {
@@ -250,6 +287,13 @@ export const subscriptionService = {
   },
 
   async pauseSubscription(userId: string, subscriptionId: string) {
+    // Cancel any pending call reminders
+    try {
+      await callReminderService.cancelReminders(subscriptionId);
+    } catch (error) {
+      console.error('Failed to cancel reminders:', error);
+    }
+
     return prisma.subscription.updateMany({
       where: { id: subscriptionId, userId },
       data: { status: 'paused' },

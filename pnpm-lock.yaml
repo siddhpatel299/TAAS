@@ -156,6 +156,9 @@ importers:
       telegram:
         specifier: ^2.22.0
         version: 2.26.22
+      twilio:
+        specifier: ^5.12.0
+        version: 5.12.0
       zod:
         specifier: ^3.22.0
         version: 3.25.76
@@ -3483,7 +3486,6 @@ packages:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
@@ -4473,6 +4475,10 @@ packages:
 
   /date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+    dev: false
+
+  /dayjs@1.11.19:
+    resolution: {integrity: sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw==}
     dev: false
 
   /debounce-fn@4.0.0:
@@ -5691,7 +5697,6 @@ packages:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
@@ -7398,6 +7403,11 @@ packages:
     dependencies:
       loose-envify: 1.4.0
 
+  /scmp@2.1.0:
+    resolution: {integrity: sha512-o/mRQGk9Rcer/jEEw/yw4mwo3EU/NvYvp577/Btqrym9Qy5/MdWGBqipbALgd2lrdWTJ5/gqDusxfnQBxOxT2Q==}
+    deprecated: Just use Node.js's crypto.timingSafeEqual()
+    dev: false
+
   /semver-compare@1.0.0:
     resolution: {integrity: sha512-YM3/ITh2MJ5MtzaM429anh+x2jiLVjqILF4m4oyQB18W7Ggea7BfqdH/wGMK7dDiMghv/6WG7znWMwUDzJiXow==}
     requiresBuild: true
@@ -7946,6 +7956,22 @@ packages:
       turbo-windows-arm64: 2.7.2
     dev: true
 
+  /twilio@5.12.0:
+    resolution: {integrity: sha512-ZAKnDKcWvJSb90xQS13QB5KQOeMJPzsRPHxZqju8i5ALg3D4hNwAF9bpytVTxTJV99BL4Rn6Un+ZtXjGeMpjvQ==}
+    engines: {node: '>=14.0'}
+    dependencies:
+      axios: 1.13.2
+      dayjs: 1.11.19
+      https-proxy-agent: 5.0.1
+      jsonwebtoken: 9.0.3
+      qs: 6.14.1
+      scmp: 2.1.0
+      xmlbuilder: 13.0.2
+    transitivePeerDependencies:
+      - debug
+      - supports-color
+    dev: false
+
   /type-fest@0.13.1:
     resolution: {integrity: sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg==}
     engines: {node: '>=10'}
@@ -8264,6 +8290,11 @@ packages:
       graceful-fs: 4.2.11
       imurmurhash: 0.1.4
       slide: 1.1.6
+    dev: false
+
+  /xmlbuilder@13.0.2:
+    resolution: {integrity: sha512-Eux0i2QdDYKbdbA6AM6xE4m6ZTZr4G4xF9kahI2ukSEMCzwce2eX9WlTI5J3s+NU7hpasFsr8hWIONae7LluAQ==}
+    engines: {node: '>=6.0'}
     dev: false
 
   /xmlbuilder@15.1.1:

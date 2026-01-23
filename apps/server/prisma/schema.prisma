@@ -10,41 +10,41 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  telegramId  String?  @unique  // Optional - for Telegram login
-  email       String?  @unique  // For email/password login
-  passwordHash String?          // Bcrypt hashed password
-  username    String?
-  firstName   String?
-  lastName    String?
-  phoneNumber String?
-  avatarUrl   String?
-  sessionData String?  @db.Text // Encrypted Telegram session
-  
+  id           String  @id @default(cuid())
+  telegramId   String? @unique // Optional - for Telegram login
+  email        String? @unique // For email/password login
+  passwordHash String? // Bcrypt hashed password
+  username     String?
+  firstName    String?
+  lastName     String?
+  phoneNumber  String?
+  avatarUrl    String?
+  sessionData  String? @db.Text // Encrypted Telegram session
+
   // Client-side encryption - key derivation data
   // The passphrase itself is NEVER stored - only salted hash for verification
-  encryptionSalt             String?  @db.Text // Base64 encoded salt for PBKDF2
-  encryptionVerificationHash String?  @db.Text // Salted hash for passphrase verification
-  encryptionInitialized      Boolean  @default(false)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  encryptionSalt             String? @db.Text // Base64 encoded salt for PBKDF2
+  encryptionVerificationHash String? @db.Text // Salted hash for passphrase verification
+  encryptionInitialized      Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   files           File[]
   folders         Folder[]
   storageChannels StorageChannel[]
   sharedLinks     SharedLink[]
-  
-  nexusComments   NexusComment[]
-  nexusActivity   NexusActivity[]
-  workflows       Workflow[]
+
+  nexusComments NexusComment[]
+  nexusActivity NexusActivity[]
+  workflows     Workflow[]
 
   @@map("users")
   @@schema("public")
 }
 
 model File {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   name              String
   originalName      String
   mimeType          String
@@ -54,13 +54,13 @@ model File {
   channelId         String
   folderId          String?
   userId            String
-  isStarred         Boolean  @default(false)
-  isTrashed         Boolean  @default(false)
+  isStarred         Boolean   @default(false)
+  isTrashed         Boolean   @default(false)
   trashedAt         DateTime?
-  isChunked         Boolean  @default(false)
+  isChunked         Boolean   @default(false)
   checksum          String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   folder      Folder?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
@@ -84,7 +84,7 @@ model FileChunk {
   telegramMessageId Int
   channelId         String
   size              BigInt
-  hash              String?  // SHA-256 hash for integrity verification
+  hash              String? // SHA-256 hash for integrity verification
   createdAt         DateTime @default(now())
 
   file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
@@ -102,7 +102,7 @@ model FileEncryption {
   fileId           String   @unique
   encryptedFileKey String   @db.Text // File key encrypted with user's master key (Base64)
   fileKeyIv        String   @db.Text // IV used to encrypt the file key (Base64)
-  originalHash     String   // SHA-256 hash of original unencrypted file
+  originalHash     String // SHA-256 hash of original unencrypted file
   createdAt        DateTime @default(now())
 
   @@index([fileId])
@@ -128,16 +128,16 @@ model FileVersion {
 }
 
 model SharedLink {
-  id          String    @id @default(cuid())
-  token       String    @unique @default(cuid())
-  fileId      String
-  userId      String
-  expiresAt   DateTime?
-  password    String?
-  maxDownloads Int?
-  downloadCount Int     @default(0)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(cuid())
+  token         String    @unique @default(cuid())
+  fileId        String
+  userId        String
+  expiresAt     DateTime?
+  password      String?
+  maxDownloads  Int?
+  downloadCount Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
 
   file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -194,9 +194,9 @@ model StorageChannel {
 model EnabledPlugin {
   id        String   @id @default(cuid())
   userId    String
-  pluginId  String   // e.g., "job-tracker", "expense-tracker"
+  pluginId  String // e.g., "job-tracker", "expense-tracker"
   enabled   Boolean  @default(true)
-  settings  Json?    // Plugin-specific settings
+  settings  Json? // Plugin-specific settings
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -211,14 +211,14 @@ model EnabledPlugin {
 // =====================================
 
 model TodoList {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
   name      String
   color     String?
   icon      String?
-  position  Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   tasks TodoTask[]
 
@@ -228,20 +228,20 @@ model TodoList {
 }
 
 model TodoTask {
-  id           String    @id @default(cuid())
-  userId       String
-  listId       String?
-  title        String
-  description  String?   @db.Text
-  status       String    @default("todo") // todo, in_progress, done
-  priority     String    @default("medium") // low, medium, high, critical
-  dueDate      DateTime?
-  labels       String[]
-  isPinned     Boolean   @default(false)
-  position     Int       @default(0)
-  completedAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  userId      String
+  listId      String?
+  title       String
+  description String?   @db.Text
+  status      String    @default("todo") // todo, in_progress, done
+  priority    String    @default("medium") // low, medium, high, critical
+  dueDate     DateTime?
+  labels      String[]
+  isPinned    Boolean   @default(false)
+  position    Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   list TodoList? @relation(fields: [listId], references: [id], onDelete: SetNull)
 
@@ -264,7 +264,7 @@ model JobApplication {
   company        String
   jobTitle       String
   location       String?
-  employmentType String?   // full-time, part-time, contract, internship, remote
+  employmentType String? // full-time, part-time, contract, internship, remote
   salaryMin      Int?
   salaryMax      Int?
   salaryCurrency String?   @default("USD")
@@ -273,11 +273,11 @@ model JobApplication {
   jobDescription String?   @db.Text
   status         String    @default("wishlist") // wishlist, applied, interview, offer, rejected, accepted, withdrawn
   priority       String    @default("medium") // low, medium, high
-  rating         Int?      // 1-5 stars
+  rating         Int? // 1-5 stars
   appliedDate    DateTime?
   notes          String?   @db.Text
-  source         String?   // linkedin, indeed, company website, referral, etc.
-  sourceUrl      String?   // Job posting URL
+  source         String? // linkedin, indeed, company website, referral, etc.
+  sourceUrl      String? // Job posting URL
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -298,9 +298,9 @@ model JobApplication {
 model JobDocument {
   id               String   @id @default(cuid())
   jobApplicationId String
-  fileId           String   // Reference to TAAS File.id
-  documentType     String   // resume, cover_letter, job_description, offer_letter, contract, other
-  label            String?  // Custom label
+  fileId           String // Reference to TAAS File.id
+  documentType     String // resume, cover_letter, job_description, offer_letter, contract, other
+  label            String? // Custom label
   createdAt        DateTime @default(now())
 
   jobApplication JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
@@ -334,7 +334,7 @@ model JobTask {
 
 model JobReferral {
   id               String    @id @default(cuid())
-  jobApplicationId String?   // Optional - can be general referral
+  jobApplicationId String? // Optional - can be general referral
   userId           String
   name             String
   role             String?
@@ -362,9 +362,9 @@ model JobReferral {
 model JobActivity {
   id               String   @id @default(cuid())
   jobApplicationId String
-  action           String   // created, status_changed, document_added, task_completed, etc.
+  action           String // created, status_changed, document_added, task_completed, etc.
   description      String
-  metadata         Json?    // Additional data like old/new status
+  metadata         Json? // Additional data like old/new status
   createdAt        DateTime @default(now())
 
   jobApplication JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
@@ -380,14 +380,14 @@ model JobActivity {
 // =====================================
 
 model EmailPatternCache {
-  id         String   @id @default(cuid())
-  domain     String   @unique // Company domain (e.g., google.com)
-  pattern    String   // Email pattern (e.g., {first}.{last}@{domain})
-  confidence Float    // Confidence score (0-100)
+  id          String   @id @default(cuid())
+  domain      String   @unique // Company domain (e.g., google.com)
+  pattern     String // Email pattern (e.g., {first}.{last}@{domain})
+  confidence  Float // Confidence score (0-100)
   sampleEmail String? // Example email that confirmed the pattern
-  hitCount   Int      @default(1) // Number of times this cache was used
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  hitCount    Int      @default(1) // Number of times this cache was used
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([domain])
   @@map("email_pattern_cache")
@@ -399,39 +399,39 @@ model EmailPatternCache {
 // =====================================
 
 model SentEmail {
-  id               String    @id @default(cuid())
+  id               String  @id @default(cuid())
   userId           String
-  jobApplicationId String?   // Optional - link to job application
-  
+  jobApplicationId String? // Optional - link to job application
+
   // Recipient info
-  recipientName    String
-  recipientEmail   String
+  recipientName     String
+  recipientEmail    String
   recipientPosition String?
-  company          String
-  
+  company           String
+
   // Email content
-  subject          String
-  body             String    @db.Text
-  
+  subject String
+  body    String @db.Text
+
   // Status tracking (manual - no tracking pixels)
-  status           String    @default("sent") // sent, replied, meeting_scheduled, not_interested, no_response
-  
+  status String @default("sent") // sent, replied, meeting_scheduled, not_interested, no_response
+
   // Gmail reference (for potential future Gmail API integration)
-  gmailMessageId   String?
-  gmailThreadId    String?
-  
+  gmailMessageId String?
+  gmailThreadId  String?
+
   // Follow-up tracking
-  followUpDate     DateTime?
-  followedUp       Boolean   @default(false)
-  followUpCount    Int       @default(0)
-  lastFollowUpAt   DateTime?
-  
+  followUpDate   DateTime?
+  followedUp     Boolean   @default(false)
+  followUpCount  Int       @default(0)
+  lastFollowUpAt DateTime?
+
   // Notes
-  notes            String?   @db.Text
-  
-  sentAt           DateTime  @default(now())
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  notes String? @db.Text
+
+  sentAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   jobApplication JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: SetNull)
 
@@ -454,29 +454,29 @@ model Note {
   id           String    @id @default(cuid())
   userId       String
   folderId     String?
-  parentNoteId String?   // For nested pages - parent note reference
+  parentNoteId String? // For nested pages - parent note reference
   title        String
-  content      String?   @db.Text  // Plain text for search indexing
-  contentJson  Json?               // Tiptap JSON document
-  contentHtml  String?   @db.Text  // Rendered HTML for sharing
-  icon         String?             // Emoji or icon identifier
-  coverImage   String?             // URL or Telegram file ID
-  color        String?             // Background color
-  metadata     Json?               // Flexible: { status, priority, dueDate, custom fields }
+  content      String?   @db.Text // Plain text for search indexing
+  contentJson  Json? // Tiptap JSON document
+  contentHtml  String?   @db.Text // Rendered HTML for sharing
+  icon         String? // Emoji or icon identifier
+  coverImage   String? // URL or Telegram file ID
+  color        String? // Background color
+  metadata     Json? // Flexible: { status, priority, dueDate, custom fields }
   isPinned     Boolean   @default(false)
   isFavorite   Boolean   @default(false)
   isArchived   Boolean   @default(false)
   isTrashed    Boolean   @default(false)
   trashedAt    DateTime?
   wordCount    Int       @default(0)
-  readingTime  Int       @default(0)  // In minutes
+  readingTime  Int       @default(0) // In minutes
   lastEditedAt DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  folder     NoteFolder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  parentNote Note?            @relation("NoteToNote", fields: [parentNoteId], references: [id], onDelete: Cascade)
-  childNotes Note[]           @relation("NoteToNote")
+  folder     NoteFolder?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  parentNote Note?             @relation("NoteToNote", fields: [parentNoteId], references: [id], onDelete: Cascade)
+  childNotes Note[]            @relation("NoteToNote")
   versions   NoteVersion[]
   shares     NoteShare[]
   noteTags   NoteTagsOnNotes[]
@@ -554,18 +554,18 @@ model NoteTemplate {
 }
 
 model NoteShare {
-  id         String    @id @default(cuid())
-  userId     String
-  noteId     String
-  token      String    @unique @default(cuid())
-  password   String?
-  expiresAt  DateTime?
-  canEdit    Boolean   @default(false)
-  allowEdit  Boolean   @default(false)
-  isPublic   Boolean   @default(false)
-  viewCount  Int       @default(0)
-  isActive   Boolean   @default(true)
-  createdAt  DateTime  @default(now())
+  id        String    @id @default(cuid())
+  userId    String
+  noteId    String
+  token     String    @unique @default(cuid())
+  password  String?
+  expiresAt DateTime?
+  canEdit   Boolean   @default(false)
+  allowEdit Boolean   @default(false)
+  isPublic  Boolean   @default(false)
+  viewCount Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
 
   note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
 
@@ -581,7 +581,7 @@ model NoteTag {
   id        String   @id @default(cuid())
   userId    String
   name      String
-  color     String?  // Hex color for tag pill
+  color     String? // Hex color for tag pill
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -722,7 +722,7 @@ model PasswordEntry {
   tags             String[]
   customFields     Json?
   isFavorite       Boolean   @default(false)
-  passwordStrength String?   // weak, fair, good, strong
+  passwordStrength String? // weak, fair, good, strong
   lastUsedAt       DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -752,7 +752,7 @@ model PasswordCategory {
 model PasswordSecurityEvent {
   id        String   @id @default(cuid())
   userId    String
-  eventType String   // login_attempt, password_viewed, password_changed, etc.
+  eventType String // login_attempt, password_viewed, password_changed, etc.
   entryId   String?
   ipAddress String?
   userAgent String?
@@ -786,6 +786,8 @@ model Subscription {
   endDate         DateTime?
   nextBillingDate DateTime?
   reminderDays    Int       @default(3)
+  reminderEnabled Boolean   @default(false) // Enable phone call reminders
+  reminderTime    String? // Time of day to call (HH:MM format, e.g., "10:00")
   isActive        Boolean   @default(true)
   autoRenew       Boolean   @default(true)
   website         String?
@@ -793,7 +795,8 @@ model Subscription {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  payments SubscriptionPayment[]
+  payments      SubscriptionPayment[]
+  callReminders CallReminder[]
 
   @@index([userId])
   @@index([status])
@@ -821,6 +824,36 @@ model SubscriptionPayment {
   @@schema("public")
 }
 
+model CallReminder {
+  id             String    @id @default(cuid())
+  userId         String
+  subscriptionId String
+  phoneNumber    String // User's phone number to call
+  scheduledFor   DateTime // Exact time to make the call
+  status         String    @default("pending") // pending, calling, completed, failed, no_answer
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(3)
+  lastAttemptAt  DateTime?
+  nextRetryAt    DateTime?
+  callSid        String? // Twilio call SID for tracking
+  callDuration   Int? // Duration in seconds
+  callAnswered   Boolean   @default(false)
+  message        String?   @db.Text // Generated TTS message
+  errorMessage   String? // Error details if call failed
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([subscriptionId])
+  @@index([scheduledFor])
+  @@index([status])
+  @@index([nextRetryAt])
+  @@map("call_reminders")
+  @@schema("public")
+}
+
 // =====================================
 // BILL TRACKER PLUGIN
 // =====================================
@@ -842,7 +875,7 @@ model Bill {
   isPaid          Boolean   @default(false)
   paidAt          DateTime?
   isRecurring     Boolean   @default(false)
-  recurringPeriod String?   // monthly, yearly, weekly
+  recurringPeriod String? // monthly, yearly, weekly
   autopay         Boolean   @default(false)
   website         String?
   reminderDays    Int       @default(3)
@@ -884,24 +917,24 @@ model BillPayment {
 // =====================================
 
 model Investment {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   userId        String
   clientId      String?
   name          String
-  type          String    // stocks, bonds, mutual_funds, crypto, real_estate, etc.
+  type          String // stocks, bonds, mutual_funds, crypto, real_estate, etc.
   symbol        String?
   sector        String?
   exchange      String?
-  currency      String    @default("USD")
-  quantity      Float     @default(0)
+  currency      String   @default("USD")
+  quantity      Float    @default(0)
   purchasePrice Float?
   currentPrice  Float?
   avgCostBasis  Float?
-  purchaseDate  DateTime  @default(now())
-  isWatchlist   Boolean   @default(false)
-  notes         String?   @db.Text
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  purchaseDate  DateTime @default(now())
+  isWatchlist   Boolean  @default(false)
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   client       InvestmentClient?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
   transactions InvestmentTransaction[]
@@ -919,7 +952,7 @@ model Investment {
 model InvestmentTransaction {
   id           String   @id @default(cuid())
   investmentId String
-  type         String   // buy, sell
+  type         String // buy, sell
   quantity     Float
   price        Float?
   pricePerUnit Float?
@@ -971,7 +1004,6 @@ model InvestmentClient {
   @@schema("public")
 }
 
-
 // =====================================
 // NEXUS (PROJECT MANAGEMENT) PLUGIN
 // =====================================
@@ -981,7 +1013,7 @@ model NexusProject {
   userId      String
   name        String
   description String?  @db.Text
-  key         String   // e.g., "OS" for Personal OS
+  key         String // e.g., "OS" for Personal OS
   icon        String?
   color       String?
   status      String   @default("active") // active, archived
@@ -989,10 +1021,10 @@ model NexusProject {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  epics    NexusEpic[]
-  sprints  NexusSprint[]
-  tasks    NexusTask[]
-  labels   NexusLabel[]
+  epics   NexusEpic[]
+  sprints NexusSprint[]
+  tasks   NexusTask[]
+  labels  NexusLabel[]
 
   @@unique([userId, key])
   @@index([userId])
@@ -1001,16 +1033,16 @@ model NexusProject {
 }
 
 model NexusEpic {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   projectId   String
   title       String
-  description String?  @db.Text
-  status      String   @default("todo") // todo, in_progress, done
+  description String?   @db.Text
+  status      String    @default("todo") // todo, in_progress, done
   startDate   DateTime?
   endDate     DateTime?
-  position    Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  position    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks   NexusTask[]
@@ -1021,15 +1053,15 @@ model NexusEpic {
 }
 
 model NexusSprint {
-  id          String   @id @default(cuid())
-  projectId   String
-  name        String
-  goal        String?
-  startDate   DateTime
-  endDate     DateTime
-  status      String   @default("planned") // planned, active, completed
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  goal      String?
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("planned") // planned, active, completed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks   NexusTask[]
@@ -1040,30 +1072,30 @@ model NexusSprint {
 }
 
 model NexusTask {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   projectId   String
   epicId      String?
   sprintId    String?
   title       String
-  description String?  @db.Text
-  status      String   @default("todo") // todo, in_progress, done, blocked, backlog
-  priority    String   @default("medium") // low, medium, high, critical
-  points      Int?     // Story points
-  position    Int      @default(0)
-  parentId    String?  // For subtasks
+  description String?   @db.Text
+  status      String    @default("todo") // todo, in_progress, done, blocked, backlog
+  priority    String    @default("medium") // low, medium, high, critical
+  points      Int? // Story points
+  position    Int       @default(0)
+  parentId    String? // For subtasks
   dueDate     DateTime?
   completedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
   epic    NexusEpic?   @relation(fields: [epicId], references: [id], onDelete: SetNull)
   sprint  NexusSprint? @relation(fields: [sprintId], references: [id], onDelete: SetNull)
-  
-  parent  NexusTask?   @relation("NexusSubtasks", fields: [parentId], references: [id], onDelete: SetNull)
+
+  parent   NexusTask?  @relation("NexusSubtasks", fields: [parentId], references: [id], onDelete: SetNull)
   subtasks NexusTask[] @relation("NexusSubtasks")
-  
-  labels  NexusTaskLabel[]
+
+  labels   NexusTaskLabel[]
   comments NexusComment[]
   activity NexusActivity[]
 
@@ -1084,7 +1116,7 @@ model NexusLabel {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  project NexusProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project NexusProject     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks   NexusTaskLabel[]
 
   @@index([projectId])
@@ -1127,8 +1159,8 @@ model NexusActivity {
   id        String   @id @default(cuid())
   taskId    String
   userId    String
-  type      String   // 'status', 'priority', 'assignment', 'comment', 'create'
-  content   String   // "changed status to Done"
+  type      String // 'status', 'priority', 'assignment', 'comment', 'create'
+  content   String // "changed status to Done"
   createdAt DateTime @default(now())
 
   task NexusTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -1142,21 +1174,21 @@ model NexusActivity {
 // ==================== FLOW (AUTOMATION) SCHEMA ====================
 
 model Workflow {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   userId      String
   name        String
   description String?
-  isActive    Boolean  @default(false)
-  triggerType String   // e.g. "NEXUS_TASK_COMPLETED", "STORAGE_FILE_UPLOADED"
-  
-  nodes       WorkflowNode[]
-  edges       WorkflowEdge[]
-  runs        WorkflowRun[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive    Boolean @default(false)
+  triggerType String // e.g. "NEXUS_TASK_COMPLETED", "STORAGE_FILE_UPLOADED"
+
+  nodes WorkflowNode[]
+  edges WorkflowEdge[]
+  runs  WorkflowRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("workflows")
@@ -1164,45 +1196,45 @@ model Workflow {
 }
 
 model WorkflowNode {
-  id          String   @id @default(cuid())
-  workflowId  String
-  type        String   // "trigger", "action", "condition"
-  label       String
-  config      Json     // { "targetStatus": "done", "excludePaths": ["/trash"] }
-  positionX   Float
-  positionY   Float
-  
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  
+  id         String @id @default(cuid())
+  workflowId String
+  type       String // "trigger", "action", "condition"
+  label      String
+  config     Json // { "targetStatus": "done", "excludePaths": ["/trash"] }
+  positionX  Float
+  positionY  Float
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
   @@index([workflowId])
   @@map("workflow_nodes")
   @@schema("public")
 }
 
 model WorkflowEdge {
-  id          String   @id @default(cuid())
-  workflowId  String
-  sourceId    String   // ID of source WorkflowNode
-  targetId    String   // ID of target WorkflowNode
-  
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  
+  id         String @id @default(cuid())
+  workflowId String
+  sourceId   String // ID of source WorkflowNode
+  targetId   String // ID of target WorkflowNode
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
   @@index([workflowId])
   @@map("workflow_edges")
   @@schema("public")
 }
 
 model WorkflowRun {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workflowId  String
-  status      String   // "success", "failed", "running"
-  triggerData Json?    // Snapshot of the data that triggered this run
-  logs        Json?    // Array of execution steps/errors
-  startedAt   DateTime @default(now())
+  status      String // "success", "failed", "running"
+  triggerData Json? // Snapshot of the data that triggered this run
+  logs        Json? // Array of execution steps/errors
+  startedAt   DateTime  @default(now())
   completedAt DateTime?
-  
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
   @@index([workflowId])
   @@map("workflow_runs")
   @@schema("public")

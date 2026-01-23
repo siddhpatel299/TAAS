@@ -17,7 +17,10 @@ import notesRoutes from './routes/notes.routes';
 import { nexusRouter } from './routes/nexus.routes';
 import flowRoutes from './routes/flow.routes';
 import { searchRoutes } from './routes/search.routes';
+import callReminderRoutes from './routes/call-reminder.routes';
+import subscriptionRoutes from './routes/subscription.routes';
 import { flowService } from './services/flow.service';
+import { callScheduler } from './jobs/call-scheduler';
 
 const app: Application = express();
 
@@ -102,6 +105,8 @@ app.use('/api/notes', apiLimiter, notesRoutes);
 app.use('/api/nexus', apiLimiter, nexusRouter);
 app.use('/api/flow', apiLimiter, flowRoutes);
 app.use('/api/search', apiLimiter, searchRoutes);
+app.use('/api/subscriptions', apiLimiter, subscriptionRoutes);
+app.use('/api/call-reminders', apiLimiter, callReminderRoutes);
 
 // Error handling
 app.use(notFoundHandler);
@@ -109,6 +114,9 @@ app.use(errorHandler);
 
 // Initialize Flow Scheduler
 flowService.initScheduler().catch(err => console.error('Failed to init Flow Scheduler:', err));
+
+// Initialize Call Reminder Scheduler
+callScheduler.start();
 
 // Start server
 const server = app.listen(config.port, () => {
