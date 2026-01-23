@@ -383,6 +383,8 @@ export const subscriptionApi = {
     status?: string;
     autoRenew?: boolean;
     reminderDays?: number;
+    reminderEnabled?: boolean;
+    reminderTime?: string;
     website?: string;
     notes?: string;
     color?: string;
