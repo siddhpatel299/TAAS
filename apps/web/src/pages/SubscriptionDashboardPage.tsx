@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
+import { Settings } from 'lucide-react';
+import { SettingsModal } from '@/components/SettingsModal';
+import { authApi } from '@/lib/api';
 import {
   subscriptionApi,
   Subscription,
@@ -85,6 +88,8 @@ export function SubscriptionDashboardPage() {
     reminderDays: 3,
     reminderTime: '10:00',
   });
+  const [showSettings, setShowSettings] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // Calculate category breakdown for chart
   const categoryBreakdown = useMemo(() => {
@@ -127,12 +132,14 @@ export function SubscriptionDashboardPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [dashboardRes, subsRes] = await Promise.all([
+      const [dashboardRes, subsRes, profileRes] = await Promise.all([
         subscriptionApi.getDashboard(),
         subscriptionApi.getSubscriptions(),
+        authApi.getMe(),
       ]);
       setDashboard(dashboardRes.data.data);
       setSubscriptions(subsRes.data.data);
+      setUserProfile(profileRes.data.data);
     } catch (error) {
       console.error('Failed to load subscription data:', error);
     } finally {
@@ -271,13 +278,22 @@ export function SubscriptionDashboardPage() {
             </div>
             <p className="text-gray-500">Monitor and manage your recurring subscriptions</p>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Subscription
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="px-4 py-2 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Settings
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Subscription
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -716,6 +732,23 @@ export function SubscriptionDashboardPage() {
               </div>
             </motion.div>
           </div>
+        )}
+
+        {/* Settings Modal */}
+        {showSettings && (
+          <SettingsModal
+            onClose={() => setShowSettings(false)}
+            currentSettings={{
+              phoneNumber: userProfile?.phoneNumber,
+              timezone: userProfile?.timezone,
+              defaultReminderDays: userProfile?.defaultReminderDays,
+              defaultReminderTime: userProfile?.defaultReminderTime,
+            }}
+            onSave={async () => {
+              const res = await authApi.getMe();
+              setUserProfile(res.data.data);
+            }}
+          />
         )}
       </main>
     </div>
