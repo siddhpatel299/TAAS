@@ -1307,6 +1307,14 @@ function AppContent() {
             }
           />
           <Route
+            path="/plugins/ats-search"
+            element={
+              <ProtectedRoute>
+                <ATSSearchPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/plugins/:pluginId"
             element={
               <ProtectedRoute>
