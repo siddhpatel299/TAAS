@@ -18,8 +18,13 @@ model User {
   firstName    String?
   lastName     String?
   phoneNumber  String?
+  timezone     String? @default("America/New_York") // IANA timezone for call scheduling
   avatarUrl    String?
   sessionData  String? @db.Text // Encrypted Telegram session
+
+  // Default reminder preferences
+  defaultReminderDays Int? @default(3)
+  defaultReminderTime String? @default("10:00")
 
   // Client-side encryption - key derivation data
   // The passphrase itself is NEVER stored - only salted hash for verification

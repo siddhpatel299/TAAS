@@ -85,6 +85,8 @@ export function SubscriptionDashboardPage() {
     reminderDays: 3,
     reminderTime: '10:00',
   });
+  const [showSettings, setShowSettings] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // Calculate category breakdown for chart
   const categoryBreakdown = useMemo(() => {
