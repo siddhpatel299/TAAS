@@ -176,6 +176,10 @@ router.get('/me', authMiddleware, asyncHandler(async (req: AuthRequest, res: Res
       firstName: true,
       lastName: true,
       avatarUrl: true,
+      phoneNumber: true,
+      timezone: true,
+      defaultReminderDays: true,
+      defaultReminderTime: true,
       createdAt: true,
     },
   });
@@ -187,6 +191,59 @@ router.get('/me', authMiddleware, asyncHandler(async (req: AuthRequest, res: Res
   res.json({
     success: true,
     data: user,
+  });
+}));
+
+// Update user profile (phone number, timezone, reminder settings)
+router.patch('/profile', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { phoneNumber, timezone, defaultReminderDays, defaultReminderTime } = req.body;
+
+  // Validate phone number format if provided
+  if (phoneNumber) {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    const cleanPhone = phoneNumber.replace(/[-()\s]/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      throw new ApiError('Invalid phone number format. Please use E.164 format (e.g., +1234567890)', 400);
+    }
+  }
+
+  // Validate timezone if provided
+  const validTimezones = [
+    'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+    'America/Phoenix', 'America/Anchorage', 'Pacific/Honolulu', 'Europe/London',
+    'Europe/Paris', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Australia/Sydney'
+  ];
+  if (timezone && !validTimezones.includes(timezone)) {
+    throw new ApiError('Invalid timezone', 400);
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.user!.id },
+    data: {
+      ...(phoneNumber !== undefined && { phoneNumber }),
+      ...(timezone !== undefined && { timezone }),
+      ...(defaultReminderDays !== undefined && { defaultReminderDays }),
+      ...(defaultReminderTime !== undefined && { defaultReminderTime }),
+    },
+    select: {
+      id: true,
+      telegramId: true,
+      username: true,
+      firstName: true,
+      lastName: true,
+      avatarUrl: true,
+      phoneNumber: true,
+      timezone: true,
+      defaultReminderDays: true,
+      defaultReminderTime: true,
+      createdAt: true,
+    },
+  });
+
+  res.json({
+    success: true,
+    data: user,
+    message: 'Profile updated successfully',
   });
 }));
 
