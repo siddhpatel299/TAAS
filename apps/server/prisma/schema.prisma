@@ -795,6 +795,9 @@ model Subscription {
   reminderTime    String? // Time of day to call (HH:MM format, e.g., "10:00")
   isActive        Boolean   @default(true)
   autoRenew       Boolean   @default(true)
+  isTrial         Boolean   @default(false)    // Mark as free trial subscription
+  trialEndDate    DateTime?                    // When trial ends (separate from nextBillingDate)
+  trialReminderSent Boolean @default(false)   // Track if trial reminder was sent
   website         String?
   notes           String?   @db.Text
   createdAt       DateTime  @default(now())

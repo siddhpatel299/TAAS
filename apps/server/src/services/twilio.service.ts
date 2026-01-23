@@ -49,6 +49,46 @@ export const twilioService = {
     },
 
     /**
+     * Generate an URGENT spoken message for trial expiry
+     */
+    generateTrialExpiryMessage(subscriptionName: string, amount: number, currency: string, daysUntilExpiry: number): string {
+        const formattedAmount = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency || 'USD',
+        }).format(amount);
+
+        if (daysUntilExpiry === 0) {
+            return `URGENT! This is an important reminder from your subscription tracker. 
+            Your FREE TRIAL for ${subscriptionName} ENDS TODAY! 
+            If you don't cancel now, you will be charged ${formattedAmount}. 
+            Log in immediately to cancel if you don't want to be charged. 
+            Press any key to acknowledge. This is your final warning!`;
+        }
+
+        return `Important reminder from your subscription tracker. 
+        Your FREE TRIAL for ${subscriptionName} ends in ${daysUntilExpiry} day${daysUntilExpiry > 1 ? 's' : ''}. 
+        After the trial, you will be charged ${formattedAmount}. 
+        If you want to cancel before being charged, log in to your account and cancel now. 
+        Press any key to acknowledge this reminder.`;
+    },
+
+    /**
+     * Generate an URGENT SMS message for trial expiry
+     */
+    generateTrialExpirySMS(subscriptionName: string, amount: number, currency: string, daysUntilExpiry: number): string {
+        const formattedAmount = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency || 'USD',
+        }).format(amount);
+
+        if (daysUntilExpiry === 0) {
+            return `🚨 URGENT: ${subscriptionName} FREE TRIAL ENDS TODAY!\n\nYou will be charged ${formattedAmount} if you don't cancel NOW.\n\nLog in immediately to cancel!`;
+        }
+
+        return `⚠️ Trial Ending Soon!\n\n${subscriptionName} free trial ends in ${daysUntilExpiry} day${daysUntilExpiry > 1 ? 's' : ''}.\n\nAfter trial: ${formattedAmount}/billing cycle.\n\nCancel now if you don't want to be charged.`;
+    },
+
+    /**
      * Send an SMS message
      */
     async sendSMS(phoneNumber: string, message: string): Promise<{

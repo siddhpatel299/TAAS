@@ -389,6 +389,8 @@ export const subscriptionApi = {
     notes?: string;
     color?: string;
     icon?: string;
+    isTrial?: boolean;
+    trialEndDate?: string;
   }) =>
     api.post<{ success: boolean; data: Subscription }>('/subscriptions', data),
 

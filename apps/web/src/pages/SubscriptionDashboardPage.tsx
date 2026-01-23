@@ -87,6 +87,8 @@ export function SubscriptionDashboardPage() {
     reminderEnabled: false,
     reminderDays: 3,
     reminderTime: '10:00',
+    isTrial: false,
+    trialEndDate: '',
   });
   const [showSettings, setShowSettings] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -160,6 +162,8 @@ export function SubscriptionDashboardPage() {
         reminderEnabled: newSub.reminderEnabled,
         reminderDays: newSub.reminderDays,
         reminderTime: newSub.reminderTime,
+        isTrial: newSub.isTrial,
+        trialEndDate: newSub.isTrial && newSub.trialEndDate ? newSub.trialEndDate : undefined,
       });
       setShowAddModal(false);
       setNewSub({
@@ -174,6 +178,8 @@ export function SubscriptionDashboardPage() {
         reminderEnabled: false,
         reminderDays: 3,
         reminderTime: '10:00',
+        isTrial: false,
+        trialEndDate: '',
       });
       loadData();
     } catch (error) {
@@ -665,6 +671,46 @@ export function SubscriptionDashboardPage() {
                 </div>
 
                 {/* Call Reminder Settings */}
+                {/* Free Trial Section */}
+                <div className="border-t border-gray-200 pt-4 mt-2">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-900">🎁 Free Trial</label>
+                      <p className="text-xs text-gray-500 mt-0.5">Track free trial expiration dates</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNewSub({ ...newSub, isTrial: !newSub.isTrial })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${newSub.isTrial ? 'bg-orange-500' : 'bg-gray-200'
+                        }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${newSub.isTrial ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                      />
+                    </button>
+                  </div>
+
+                  {newSub.isTrial && (
+                    <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <label className="block text-xs font-medium text-orange-800 mb-1">
+                        ⏰ Trial Ends On
+                      </label>
+                      <input
+                        type="date"
+                        value={newSub.trialEndDate}
+                        onChange={(e) => setNewSub({ ...newSub, trialEndDate: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                      <p className="text-xs text-orange-600 mt-2">
+                        ⚠️ You'll receive urgent reminders before this date to avoid charges!
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Phone Call Reminders Section */}
                 <div className="border-t border-gray-200 pt-4 mt-2">
                   <div className="flex items-center justify-between mb-3">
                     <div>
