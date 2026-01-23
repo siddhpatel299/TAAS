@@ -703,9 +703,11 @@ export function SubscriptionDashboardPage() {
                         className="w-full px-3 py-2 text-sm border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
                         min={new Date().toISOString().split('T')[0]}
                       />
-                      <p className="text-xs text-orange-600 mt-2">
-                        ⚠️ You'll receive urgent reminders before this date to avoid charges!
-                      </p>
+                      <div className="mt-2 text-xs text-orange-700 bg-orange-100 p-2 rounded">
+                        <p className="font-medium">📅 Reminder Schedule:</p>
+                        <p>• 3 days before trial ends</p>
+                        <p>• Same day (URGENT final warning!)</p>
+                      </div>
                     </div>
                   )}
                 </div>
