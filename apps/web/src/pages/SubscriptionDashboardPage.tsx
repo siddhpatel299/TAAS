@@ -81,13 +81,16 @@ export function SubscriptionDashboardPage() {
     website: '',
     color: '#8B5CF6',
     notes: '',
+    reminderEnabled: false,
+    reminderDays: 3,
+    reminderTime: '10:00',
   });
 
   // Calculate category breakdown for chart
   const categoryBreakdown = useMemo(() => {
     const breakdown: { category: string; amount: number; count: number; color: string }[] = [];
     const categoryMap = new Map<string, { amount: number; count: number }>();
-    
+
     subscriptions
       .filter(s => s.status === 'active')
       .forEach(sub => {
@@ -98,13 +101,13 @@ export function SubscriptionDashboardPage() {
         if (sub.billingCycle === 'yearly') monthlyAmount /= 12;
         else if (sub.billingCycle === 'quarterly') monthlyAmount /= 3;
         else if (sub.billingCycle === 'weekly') monthlyAmount *= 4.33;
-        
+
         categoryMap.set(cat, {
           amount: existing.amount + monthlyAmount,
           count: existing.count + 1,
         });
       });
-    
+
     categoryMap.forEach((value, key) => {
       breakdown.push({
         category: key,
@@ -113,7 +116,7 @@ export function SubscriptionDashboardPage() {
         color: CATEGORY_COLORS[key] || '#6B7280',
       });
     });
-    
+
     return breakdown.sort((a, b) => b.amount - a.amount);
   }, [subscriptions]);
 
@@ -147,6 +150,9 @@ export function SubscriptionDashboardPage() {
         category: newSub.category || undefined,
         startDate: newSub.startDate,
         website: newSub.website || undefined,
+        reminderEnabled: newSub.reminderEnabled,
+        reminderDays: newSub.reminderDays,
+        reminderTime: newSub.reminderTime,
       });
       setShowAddModal(false);
       setNewSub({
@@ -158,6 +164,9 @@ export function SubscriptionDashboardPage() {
         website: '',
         color: '#8B5CF6',
         notes: '',
+        reminderEnabled: false,
+        reminderDays: 3,
+        reminderTime: '10:00',
       });
       loadData();
     } catch (error) {
@@ -206,7 +215,7 @@ export function SubscriptionDashboardPage() {
   const filteredSubscriptions = subscriptions.filter(sub => {
     const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
     const matchesCategory = categoryFilter === 'all' || sub.category === categoryFilter;
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       sub.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesCategory && matchesSearch;
   });
@@ -249,7 +258,7 @@ export function SubscriptionDashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <ModernSidebar />
-      
+
       <main className="ml-20 p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -353,7 +362,7 @@ export function SubscriptionDashboardPage() {
                 const percentage = totalMonthly > 0 ? (cat.amount / totalMonthly) * 100 : 0;
                 return (
                   <div key={cat.category} className="flex items-center gap-4">
-                    <div 
+                    <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
                       style={{ backgroundColor: cat.color }}
                     >
@@ -466,7 +475,7 @@ export function SubscriptionDashboardPage() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg"
                       style={{ backgroundColor: sub.color || '#8B5CF6' }}
                     >
@@ -637,6 +646,56 @@ export function SubscriptionDashboardPage() {
                     placeholder="https://..."
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
+                </div>
+
+                {/* Call Reminder Settings */}
+                <div className="border-t border-gray-200 pt-4 mt-2">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-900">📞 Phone Call Reminders</label>
+                      <p className="text-xs text-gray-500 mt-0.5">Get a call before renewal to avoid unwanted charges</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNewSub({ ...newSub, reminderEnabled: !newSub.reminderEnabled })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${newSub.reminderEnabled ? 'bg-purple-600' : 'bg-gray-200'
+                        }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${newSub.reminderEnabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                      />
+                    </button>
+                  </div>
+
+                  {newSub.reminderEnabled && (
+                    <div className="grid grid-cols-2 gap-3 mt-3 p-3 bg-purple-50 rounded-lg">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Days Before</label>
+                        <select
+                          value={newSub.reminderDays}
+                          onChange={(e) => setNewSub({ ...newSub, reminderDays: parseInt(e.target.value) })}
+                          className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                          <option value="0">Same day</option>
+                          <option value="1">1 day before</option>
+                          <option value="2">2 days before</option>
+                          <option value="3">3 days before</option>
+                          <option value="5">5 days before</option>
+                          <option value="7">7 days before</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Call Time</label>
+                        <input
+                          type="time"
+                          value={newSub.reminderTime}
+                          onChange={(e) => setNewSub({ ...newSub, reminderTime: e.target.value })}
+                          className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
