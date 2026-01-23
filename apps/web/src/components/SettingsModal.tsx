@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Phone, Globe, Clock, Calendar } from 'lucide-react';
+import { X, Phone, Globe, Clock, Calendar, PhoneCall } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface SettingsModalProps {
@@ -36,11 +36,12 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
     const [defaultReminderDays, setDefaultReminderDays] = useState(currentSettings.defaultReminderDays || 3);
     const [defaultReminderTime, setDefaultReminderTime] = useState(currentSettings.defaultReminderTime || '10:00');
     const [isSaving, setIsSaving] = useState(false);
+    const [isTesting, setIsTesting] = useState(false);
     const [error, setError] = useState('');
+    const [testMessage, setTestMessage] = useState('');
 
     const handleSave = async () => {
-        // Validate phone number format
-        const phoneRegex = /^\+?[1-9]\d{1,14}$/; // E.164 format
+        const phoneRegex = /^\+?[1-9]\d{1,14}$/;
         if (phoneNumber && !phoneRegex.test(phoneNumber.replace(/[-()\s]/g, ''))) {
             setError('Please enter a valid phone number (e.g., +1234567890)');
             return;
@@ -66,6 +67,36 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
         }
     };
 
+    const handleTestCall = async () => {
+        if (!phoneNumber) {
+            setError('Please enter a phone number first');
+            return;
+        }
+
+        // First save the phone number
+        setIsTesting(true);
+        setError('');
+        setTestMessage('');
+
+        try {
+            // Save settings first
+            await api.patch('/auth/profile', {
+                phoneNumber: phoneNumber || null,
+                timezone,
+                defaultReminderDays,
+                defaultReminderTime,
+            });
+
+            // Then trigger test call
+            const response = await api.post('/call-reminders/test-call');
+            setTestMessage(response.data.message || '📞 Test call initiated! Check your phone!');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to trigger test call');
+        } finally {
+            setIsTesting(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
             <motion.div
@@ -74,13 +105,9 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                 onClick={(e) => e.stopPropagation()}
                 className="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
             >
-                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-gray-900">Call Reminder Settings</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                         <X className="w-5 h-5 text-gray-500" />
                     </button>
                 </div>
@@ -91,7 +118,12 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                     </div>
                 )}
 
-                {/* Info Banner */}
+                {testMessage && (
+                    <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+                        {testMessage}
+                    </div>
+                )}
+
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
                         📞 Configure your default settings for phone call reminders. These will be used for all new subscriptions.
@@ -99,7 +131,6 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                 </div>
 
                 <div className="space-y-5">
-                    {/* Phone Number */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                             <Phone className="w-4 h-4" />
@@ -117,7 +148,6 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                         </p>
                     </div>
 
-                    {/* Timezone */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                             <Globe className="w-4 h-4" />
@@ -129,17 +159,11 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                             {COMMON_TIMEZONES.map((tz) => (
-                                <option key={tz.value} value={tz.value}>
-                                    {tz.label}
-                                </option>
+                                <option key={tz.value} value={tz.value}>{tz.label}</option>
                             ))}
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">
-                            Calls will be scheduled in your local time
-                        </p>
                     </div>
 
-                    {/* Default Reminder Days */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                             <Calendar className="w-4 h-4" />
@@ -159,7 +183,6 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                         </select>
                     </div>
 
-                    {/* Default Call Time */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                             <Clock className="w-4 h-4" />
@@ -171,13 +194,24 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                             onChange={(e) => setDefaultReminderTime(e.target.value)}
                             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                            Time when you'd like to receive reminder calls
+                    </div>
+
+                    {/* Test Call Button */}
+                    <div className="border-t border-gray-200 pt-4">
+                        <button
+                            onClick={handleTestCall}
+                            disabled={isTesting || !phoneNumber}
+                            className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            <PhoneCall className="w-5 h-5" />
+                            {isTesting ? 'Calling...' : '📞 Test Call Now'}
+                        </button>
+                        <p className="text-xs text-center text-gray-500 mt-2">
+                            Receive a test call to verify your phone number works
                         </p>
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-3 mt-6">
                     <button
                         onClick={onClose}

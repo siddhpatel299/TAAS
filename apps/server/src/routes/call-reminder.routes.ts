@@ -52,4 +52,45 @@ router.post('/webhook/twilio-status', asyncHandler(async (req: any, res: Respons
     }
 }));
 
+// Test call - triggers an immediate test call to verify the system works
+router.post('/test-call', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { prisma } = await import('../lib/prisma');
+
+    // Get user's phone number
+    const user = await prisma.user.findUnique({
+        where: { id: req.user!.id },
+        select: { phoneNumber: true, firstName: true },
+    });
+
+    if (!user?.phoneNumber) {
+        return res.status(400).json({
+            success: false,
+            error: 'Please configure your phone number in Settings first',
+        });
+    }
+
+    try {
+        // Make a test call
+        const callSid = await twilioService.makeCall(
+            user.phoneNumber,
+            'Test Subscription', // subscription name
+            '$9.99', // fake amount
+            'tomorrow', // fake date
+            `${process.env.TWILIO_WEBHOOK_URL || ''}`
+        );
+
+        res.json({
+            success: true,
+            message: 'Test call initiated! You should receive a call shortly.',
+            data: { callSid },
+        });
+    } catch (error: any) {
+        console.error('Test call error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to initiate test call',
+        });
+    }
+}));
+
 export default router;
