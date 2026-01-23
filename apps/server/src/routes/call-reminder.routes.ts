@@ -101,4 +101,51 @@ router.post('/test-call', authMiddleware, asyncHandler(async (req: AuthRequest, 
     }
 }));
 
+// Test SMS - triggers an immediate test SMS to verify the system works
+router.post('/test-sms', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { prisma } = await import('../lib/prisma');
+
+    // Get user's phone number
+    const user = await prisma.user.findUnique({
+        where: { id: req.user!.id },
+        select: { phoneNumber: true, firstName: true },
+    });
+
+    if (!user?.phoneNumber) {
+        return res.status(400).json({
+            success: false,
+            error: 'Please configure your phone number in Settings first',
+        });
+    }
+
+    try {
+        // Generate a test SMS message
+        const testMessage = twilioService.generateSMSMessage(
+            'Test Subscription',
+            9.99,
+            'USD',
+            1 // tomorrow
+        );
+
+        // Send a test SMS
+        const result = await twilioService.sendSMS(user.phoneNumber, testMessage);
+
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to send SMS');
+        }
+
+        res.json({
+            success: true,
+            message: 'Test SMS sent! Check your phone.',
+            data: { messageSid: result.messageSid },
+        });
+    } catch (error: any) {
+        console.error('Test SMS error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to send test SMS',
+        });
+    }
+}));
+
 export default router;

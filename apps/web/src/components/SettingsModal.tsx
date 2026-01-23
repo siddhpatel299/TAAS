@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Phone, Globe, Clock, Calendar, PhoneCall } from 'lucide-react';
+import { X, Phone, Globe, Clock, Calendar, PhoneCall, MessageSquare } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface SettingsModalProps {
@@ -37,6 +37,7 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
     const [defaultReminderTime, setDefaultReminderTime] = useState(currentSettings.defaultReminderTime || '10:00');
     const [isSaving, setIsSaving] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
+    const [isTestingSMS, setIsTestingSMS] = useState(false);
     const [error, setError] = useState('');
     const [testMessage, setTestMessage] = useState('');
 
@@ -94,6 +95,35 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
             setError(err.response?.data?.error || 'Failed to trigger test call');
         } finally {
             setIsTesting(false);
+        }
+    };
+
+    const handleTestSMS = async () => {
+        if (!phoneNumber) {
+            setError('Please enter a phone number first');
+            return;
+        }
+
+        setIsTestingSMS(true);
+        setError('');
+        setTestMessage('');
+
+        try {
+            // Save settings first
+            await api.patch('/auth/profile', {
+                phoneNumber: phoneNumber || null,
+                timezone,
+                defaultReminderDays,
+                defaultReminderTime,
+            });
+
+            // Then trigger test SMS
+            const response = await api.post('/call-reminders/test-sms');
+            setTestMessage(response.data.message || '💬 Test SMS sent! Check your phone!');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to send test SMS');
+        } finally {
+            setIsTestingSMS(false);
         }
     };
 
@@ -196,18 +226,29 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
                         />
                     </div>
 
-                    {/* Test Call Button */}
-                    <div className="border-t border-gray-200 pt-4">
-                        <button
-                            onClick={handleTestCall}
-                            disabled={isTesting || !phoneNumber}
-                            className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            <PhoneCall className="w-5 h-5" />
-                            {isTesting ? 'Calling...' : '📞 Test Call Now'}
-                        </button>
-                        <p className="text-xs text-center text-gray-500 mt-2">
-                            Receive a test call to verify your phone number works
+                    {/* Test Buttons */}
+                    <div className="border-t border-gray-200 pt-4 space-y-3">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Test Your Setup</p>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={handleTestCall}
+                                disabled={isTesting || !phoneNumber}
+                                className="px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                <PhoneCall className="w-4 h-4" />
+                                {isTesting ? '...' : '📞 Test Call'}
+                            </button>
+                            <button
+                                onClick={handleTestSMS}
+                                disabled={isTestingSMS || !phoneNumber}
+                                className="px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                {isTestingSMS ? '...' : '💬 Test SMS'}
+                            </button>
+                        </div>
+                        <p className="text-xs text-center text-gray-500">
+                            Test call or SMS to verify your phone number works
                         </p>
                     </div>
                 </div>

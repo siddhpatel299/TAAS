@@ -35,6 +35,52 @@ export const twilioService = {
     },
 
     /**
+     * Generate an SMS reminder message for a subscription
+     */
+    generateSMSMessage(subscriptionName: string, amount: number, currency: string, daysUntilRenewal: number): string {
+        const formattedAmount = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency || 'USD',
+        }).format(amount);
+
+        const dayText = daysUntilRenewal === 1 ? 'tomorrow' : `in ${daysUntilRenewal} days`;
+
+        return `📅 Subscription Reminder\n\n${subscriptionName} will renew ${dayText} for ${formattedAmount}.\n\nLog in to your subscription tracker to cancel or manage this subscription before renewal.`;
+    },
+
+    /**
+     * Send an SMS message
+     */
+    async sendSMS(phoneNumber: string, message: string): Promise<{
+        success: boolean;
+        messageSid?: string;
+        error?: string;
+    }> {
+        try {
+            if (!this.isConfigured()) {
+                throw new Error('Twilio is not configured. Please set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in environment variables.');
+            }
+
+            const sms = await twilioClient.messages.create({
+                to: phoneNumber,
+                from: TWILIO_PHONE_NUMBER,
+                body: message,
+            });
+
+            return {
+                success: true,
+                messageSid: sms.sid,
+            };
+        } catch (error: any) {
+            console.error('Twilio SMS error:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to send SMS',
+            };
+        }
+    },
+
+    /**
      * Make an outbound call with a TTS message
      */
     async makeCall(phoneNumber: string, message: string): Promise<{
