@@ -50,7 +50,7 @@ export function SettingsModal({ onClose, currentSettings, onSave }: SettingsModa
         setError('');
 
         try {
-            await api.patch('/api/auth/profile', {
+            await api.patch('/auth/profile', {
                 phoneNumber: phoneNumber || null,
                 timezone,
                 defaultReminderDays,
