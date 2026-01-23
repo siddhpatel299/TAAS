@@ -27,6 +27,7 @@ import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { FlowPage } from '@/pages/flow/FlowPage';
 import { InsightPage } from '@/pages/InsightPage';
 import { ATSSearchPage } from '@/pages/ATSSearchPage';
+import { SubscriptionDashboardPage } from '@/pages/SubscriptionDashboardPage';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePluginsStore } from '@/stores/plugins.store';
 import { authApi } from '@/lib/api';
@@ -440,6 +441,7 @@ function AppContent() {
             <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
+            <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
