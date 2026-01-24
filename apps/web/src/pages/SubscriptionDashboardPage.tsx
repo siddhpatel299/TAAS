@@ -87,6 +87,7 @@ export function SubscriptionDashboardPage() {
     reminderEnabled: false,
     reminderDays: 3,
     reminderTime: '10:00',
+    reminderMethod: 'telegram',
     isTrial: false,
     trialEndDate: '',
   });
@@ -162,6 +163,7 @@ export function SubscriptionDashboardPage() {
         reminderEnabled: newSub.reminderEnabled,
         reminderDays: newSub.reminderDays,
         reminderTime: newSub.reminderTime,
+        reminderMethod: newSub.reminderMethod,
         isTrial: newSub.isTrial,
         trialEndDate: newSub.isTrial && newSub.trialEndDate ? newSub.trialEndDate : undefined,
       });
@@ -178,6 +180,7 @@ export function SubscriptionDashboardPage() {
         reminderEnabled: false,
         reminderDays: 3,
         reminderTime: '10:00',
+        reminderMethod: 'telegram',
         isTrial: false,
         trialEndDate: '',
       });
@@ -716,8 +719,8 @@ export function SubscriptionDashboardPage() {
                 <div className="border-t border-gray-200 pt-4 mt-2">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <label className="text-sm font-medium text-gray-900">📞 Phone Call Reminders</label>
-                      <p className="text-xs text-gray-500 mt-0.5">Get a call before renewal to avoid unwanted charges</p>
+                      <label className="text-sm font-medium text-gray-900">🔔 Reminders</label>
+                      <p className="text-xs text-gray-500 mt-0.5">Get notified before renewal</p>
                     </div>
                     <button
                       type="button"
@@ -733,30 +736,82 @@ export function SubscriptionDashboardPage() {
                   </div>
 
                   {newSub.reminderEnabled && (
-                    <div className="grid grid-cols-2 gap-3 mt-3 p-3 bg-purple-50 rounded-lg">
+                    <div className="mt-3 p-3 bg-purple-50 rounded-lg space-y-3">
+                      {/* Reminder Method */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Days Before</label>
-                        <select
-                          value={newSub.reminderDays}
-                          onChange={(e) => setNewSub({ ...newSub, reminderDays: parseInt(e.target.value) })}
-                          className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        >
-                          <option value="0">Same day</option>
-                          <option value="1">1 day before</option>
-                          <option value="2">2 days before</option>
-                          <option value="3">3 days before</option>
-                          <option value="5">5 days before</option>
-                          <option value="7">7 days before</option>
-                        </select>
+                        <label className="block text-xs font-medium text-gray-700 mb-2">Notification Method</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setNewSub({ ...newSub, reminderMethod: 'telegram' })}
+                            className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${newSub.reminderMethod === 'telegram'
+                                ? 'border-sky-500 bg-sky-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                          >
+                            <span className="text-xs bg-green-500 text-white px-1.5 rounded-full">FREE</span>
+                            <svg className="w-5 h-5 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z" />
+                            </svg>
+                            <span className="text-xs font-medium">Telegram</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setNewSub({ ...newSub, reminderMethod: 'sms' })}
+                            className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${newSub.reminderMethod === 'sms'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                          >
+                            <span className="text-xs text-gray-400">Paid</span>
+                            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                            <span className="text-xs font-medium">SMS</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setNewSub({ ...newSub, reminderMethod: 'call' })}
+                            className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${newSub.reminderMethod === 'call'
+                                ? 'border-green-500 bg-green-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                          >
+                            <span className="text-xs text-gray-400">Paid</span>
+                            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span className="text-xs font-medium">Call</span>
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Call Time</label>
-                        <input
-                          type="time"
-                          value={newSub.reminderTime}
-                          onChange={(e) => setNewSub({ ...newSub, reminderTime: e.target.value })}
-                          className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
+
+                      {/* Days Before & Time */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Days Before</label>
+                          <select
+                            value={newSub.reminderDays}
+                            onChange={(e) => setNewSub({ ...newSub, reminderDays: parseInt(e.target.value) })}
+                            className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="0">Same day</option>
+                            <option value="1">1 day before</option>
+                            <option value="2">2 days before</option>
+                            <option value="3">3 days before</option>
+                            <option value="5">5 days before</option>
+                            <option value="7">7 days before</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Reminder Time</label>
+                          <input
+                            type="time"
+                            value={newSub.reminderTime}
+                            onChange={(e) => setNewSub({ ...newSub, reminderTime: e.target.value })}
+                            className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
