@@ -67,6 +67,20 @@ const CATEGORY_COLORS: Record<string, string> = {
   other: '#6B7280',
 };
 
+// Helper to get local datetime string for datetime-local input
+const getLocalDateTimeString = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  const localDate = new Date(now.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().slice(0, 16);
+};
+
+// Helper to get local date string for date input
+const getLocalDateString = () => {
+  const now = new Date();
+  return now.toLocaleDateString('en-CA'); // Returns YYYY-MM-DD format
+};
+
 export function SubscriptionDashboardPage() {
   const [dashboard, setDashboard] = useState<SubscriptionDashboard | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -80,7 +94,7 @@ export function SubscriptionDashboardPage() {
     amount: '',
     billingCycle: 'monthly',
     category: '',
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: getLocalDateString(),
     website: '',
     color: '#8B5CF6',
     notes: '',
@@ -177,7 +191,7 @@ export function SubscriptionDashboardPage() {
         amount: '',
         billingCycle: 'monthly',
         category: '',
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: getLocalDateString(),
         website: '',
         color: '#8B5CF6',
         notes: '',
@@ -710,7 +724,7 @@ export function SubscriptionDashboardPage() {
                         value={newSub.trialEndDate}
                         onChange={(e) => setNewSub({ ...newSub, trialEndDate: e.target.value })}
                         className="w-full px-3 py-2 text-sm border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
-                        min={new Date().toISOString().split('T')[0]}
+                        min={getLocalDateString()}
                       />
                       <div className="mt-2 text-xs text-orange-700 bg-orange-100 p-2 rounded">
                         <p className="font-medium">📅 Reminder Schedule:</p>
@@ -800,8 +814,8 @@ export function SubscriptionDashboardPage() {
                             type="button"
                             onClick={() => setNewSub({ ...newSub, reminderType: 'relative' })}
                             className={`p-2 rounded-lg border-2 text-center transition-all ${newSub.reminderType === 'relative'
-                                ? 'border-purple-500 bg-purple-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:border-gray-300'
                               }`}
                           >
                             <span className="text-xs font-medium">📅 Days Before</span>
@@ -810,8 +824,8 @@ export function SubscriptionDashboardPage() {
                             type="button"
                             onClick={() => setNewSub({ ...newSub, reminderType: 'specific' })}
                             className={`p-2 rounded-lg border-2 text-center transition-all ${newSub.reminderType === 'specific'
-                                ? 'border-purple-500 bg-purple-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:border-gray-300'
                               }`}
                           >
                             <span className="text-xs font-medium">🎯 Specific Date</span>
@@ -855,7 +869,7 @@ export function SubscriptionDashboardPage() {
                             value={newSub.specificReminderDate}
                             onChange={(e) => setNewSub({ ...newSub, specificReminderDate: e.target.value })}
                             className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            min={new Date().toISOString().slice(0, 16)}
+                            min={getLocalDateTimeString()}
                           />
                           <p className="text-xs text-gray-500 mt-1">Set an exact date and time for the reminder</p>
                         </div>
