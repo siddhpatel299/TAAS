@@ -386,6 +386,8 @@ export const subscriptionApi = {
     reminderEnabled?: boolean;
     reminderTime?: string;
     reminderMethod?: string;
+    reminderType?: string;
+    specificReminderDate?: string;
     website?: string;
     notes?: string;
     color?: string;

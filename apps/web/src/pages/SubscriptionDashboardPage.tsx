@@ -88,6 +88,8 @@ export function SubscriptionDashboardPage() {
     reminderDays: 3,
     reminderTime: '10:00',
     reminderMethod: 'telegram',
+    reminderType: 'relative', // 'relative' or 'specific'
+    specificReminderDate: '',
     isTrial: false,
     trialEndDate: '',
   });
@@ -164,6 +166,8 @@ export function SubscriptionDashboardPage() {
         reminderDays: newSub.reminderDays,
         reminderTime: newSub.reminderTime,
         reminderMethod: newSub.reminderMethod,
+        reminderType: newSub.reminderType,
+        specificReminderDate: newSub.reminderType === 'specific' && newSub.specificReminderDate ? newSub.specificReminderDate : undefined,
         isTrial: newSub.isTrial,
         trialEndDate: newSub.isTrial && newSub.trialEndDate ? newSub.trialEndDate : undefined,
       });
@@ -181,6 +185,8 @@ export function SubscriptionDashboardPage() {
         reminderDays: 3,
         reminderTime: '10:00',
         reminderMethod: 'telegram',
+        reminderType: 'relative',
+        specificReminderDate: '',
         isTrial: false,
         trialEndDate: '',
       });
@@ -745,8 +751,8 @@ export function SubscriptionDashboardPage() {
                             type="button"
                             onClick={() => setNewSub({ ...newSub, reminderMethod: 'telegram' })}
                             className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${newSub.reminderMethod === 'telegram'
-                                ? 'border-sky-500 bg-sky-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-sky-500 bg-sky-50'
+                              : 'border-gray-200 hover:border-gray-300'
                               }`}
                           >
                             <span className="text-xs bg-green-500 text-white px-1.5 rounded-full">FREE</span>
@@ -759,8 +765,8 @@ export function SubscriptionDashboardPage() {
                             type="button"
                             onClick={() => setNewSub({ ...newSub, reminderMethod: 'sms' })}
                             className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${newSub.reminderMethod === 'sms'
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
                               }`}
                           >
                             <span className="text-xs text-gray-400">Paid</span>
@@ -773,8 +779,8 @@ export function SubscriptionDashboardPage() {
                             type="button"
                             onClick={() => setNewSub({ ...newSub, reminderMethod: 'call' })}
                             className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${newSub.reminderMethod === 'call'
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200 hover:border-gray-300'
                               }`}
                           >
                             <span className="text-xs text-gray-400">Paid</span>
@@ -786,33 +792,74 @@ export function SubscriptionDashboardPage() {
                         </div>
                       </div>
 
-                      {/* Days Before & Time */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Days Before</label>
-                          <select
-                            value={newSub.reminderDays}
-                            onChange={(e) => setNewSub({ ...newSub, reminderDays: parseInt(e.target.value) })}
-                            className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      {/* Reminder Type Toggle */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-2">When to Remind</label>
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          <button
+                            type="button"
+                            onClick={() => setNewSub({ ...newSub, reminderType: 'relative' })}
+                            className={`p-2 rounded-lg border-2 text-center transition-all ${newSub.reminderType === 'relative'
+                                ? 'border-purple-500 bg-purple-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                              }`}
                           >
-                            <option value="0">Same day</option>
-                            <option value="1">1 day before</option>
-                            <option value="2">2 days before</option>
-                            <option value="3">3 days before</option>
-                            <option value="5">5 days before</option>
-                            <option value="7">7 days before</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Reminder Time</label>
-                          <input
-                            type="time"
-                            value={newSub.reminderTime}
-                            onChange={(e) => setNewSub({ ...newSub, reminderTime: e.target.value })}
-                            className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
+                            <span className="text-xs font-medium">📅 Days Before</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setNewSub({ ...newSub, reminderType: 'specific' })}
+                            className={`p-2 rounded-lg border-2 text-center transition-all ${newSub.reminderType === 'specific'
+                                ? 'border-purple-500 bg-purple-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                          >
+                            <span className="text-xs font-medium">🎯 Specific Date</span>
+                          </button>
                         </div>
                       </div>
+
+                      {/* Conditional: Relative (Days Before) or Specific Date */}
+                      {newSub.reminderType === 'relative' ? (
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Days Before</label>
+                            <select
+                              value={newSub.reminderDays}
+                              onChange={(e) => setNewSub({ ...newSub, reminderDays: parseInt(e.target.value) })}
+                              className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                              <option value="0">Same day</option>
+                              <option value="1">1 day before</option>
+                              <option value="2">2 days before</option>
+                              <option value="3">3 days before</option>
+                              <option value="5">5 days before</option>
+                              <option value="7">7 days before</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Time</label>
+                            <input
+                              type="time"
+                              value={newSub.reminderTime}
+                              onChange={(e) => setNewSub({ ...newSub, reminderTime: e.target.value })}
+                              className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Remind Me On</label>
+                          <input
+                            type="datetime-local"
+                            value={newSub.specificReminderDate}
+                            onChange={(e) => setNewSub({ ...newSub, specificReminderDate: e.target.value })}
+                            className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            min={new Date().toISOString().slice(0, 16)}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Set an exact date and time for the reminder</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -835,25 +882,28 @@ export function SubscriptionDashboardPage() {
               </div>
             </motion.div>
           </div>
-        )}
+        )
+        }
 
         {/* Settings Modal */}
-        {showSettings && (
-          <SettingsModal
-            onClose={() => setShowSettings(false)}
-            currentSettings={{
-              phoneNumber: userProfile?.phoneNumber,
-              timezone: userProfile?.timezone,
-              defaultReminderDays: userProfile?.defaultReminderDays,
-              defaultReminderTime: userProfile?.defaultReminderTime,
-            }}
-            onSave={async () => {
-              const res = await authApi.getMe();
-              setUserProfile(res.data.data);
-            }}
-          />
-        )}
-      </main>
-    </div>
+        {
+          showSettings && (
+            <SettingsModal
+              onClose={() => setShowSettings(false)}
+              currentSettings={{
+                phoneNumber: userProfile?.phoneNumber,
+                timezone: userProfile?.timezone,
+                defaultReminderDays: userProfile?.defaultReminderDays,
+                defaultReminderTime: userProfile?.defaultReminderTime,
+              }}
+              onSave={async () => {
+                const res = await authApi.getMe();
+                setUserProfile(res.data.data);
+              }}
+            />
+          )
+        }
+      </main >
+    </div >
   );
 }

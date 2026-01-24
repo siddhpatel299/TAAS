@@ -794,6 +794,8 @@ model Subscription {
   reminderEnabled Boolean   @default(false) // Enable phone call reminders
   reminderTime    String? // Time of day to call (HH:MM format, e.g., "10:00")
   reminderMethod  String    @default("telegram") // telegram, sms, call
+  reminderType    String    @default("relative") // relative (days before) or specific (exact date)
+  specificReminderDate DateTime? // For specific date/time reminders
   isActive        Boolean   @default(true)
   autoRenew       Boolean   @default(true)
   isTrial         Boolean   @default(false)    // Mark as free trial subscription
