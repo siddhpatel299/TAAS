@@ -107,4 +107,4 @@ router.get('/tags', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 });
 
-export const crmRouter = router;
+export const crmRouter: Router = router;
