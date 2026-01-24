@@ -23,7 +23,7 @@ model User {
   sessionData  String? @db.Text // Encrypted Telegram session
 
   // Default reminder preferences
-  defaultReminderDays Int?    @default(3)
+  defaultReminderDays Int? @default(3)
   defaultReminderTime String? @default("10:00")
 
   // Client-side encryption - key derivation data
@@ -776,35 +776,35 @@ model PasswordSecurityEvent {
 // =====================================
 
 model Subscription {
-  id                   String    @id @default(cuid())
-  userId               String
-  name                 String
-  description          String?
-  amount               Float
-  currency             String    @default("USD")
-  billingCycle         String    @default("monthly") // monthly, yearly, weekly, quarterly
-  category             String?
-  color                String?
-  icon                 String?
-  status               String    @default("active") // active, paused, cancelled
-  startDate            DateTime  @default(now())
-  endDate              DateTime?
-  nextBillingDate      DateTime?
-  reminderDays         Int       @default(3)
-  reminderEnabled      Boolean   @default(false) // Enable phone call reminders
-  reminderTime         String? // Time of day to call (HH:MM format, e.g., "10:00")
-  reminderMethod       String    @default("telegram") // telegram, sms, call
-  reminderType         String    @default("relative") // relative (days before) or specific (exact date)
+  id              String    @id @default(cuid())
+  userId          String
+  name            String
+  description     String?
+  amount          Float
+  currency        String    @default("USD")
+  billingCycle    String    @default("monthly") // monthly, yearly, weekly, quarterly
+  category        String?
+  color           String?
+  icon            String?
+  status          String    @default("active") // active, paused, cancelled
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
+  nextBillingDate DateTime?
+  reminderDays    Int       @default(3)
+  reminderEnabled Boolean   @default(false) // Enable phone call reminders
+  reminderTime    String? // Time of day to call (HH:MM format, e.g., "10:00")
+  reminderMethod  String    @default("telegram") // telegram, sms, call
+  reminderType    String    @default("relative") // relative (days before) or specific (exact date)
   specificReminderDate DateTime? // For specific date/time reminders
-  isActive             Boolean   @default(true)
-  autoRenew            Boolean   @default(true)
-  isTrial              Boolean   @default(false) // Mark as free trial subscription
-  trialEndDate         DateTime? // When trial ends (separate from nextBillingDate)
-  trialReminderSent    Boolean   @default(false) // Track if trial reminder was sent
-  website              String?
-  notes                String?   @db.Text
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  isActive        Boolean   @default(true)
+  autoRenew       Boolean   @default(true)
+  isTrial         Boolean   @default(false)    // Mark as free trial subscription
+  trialEndDate    DateTime?                    // When trial ends (separate from nextBillingDate)
+  trialReminderSent Boolean @default(false)   // Track if trial reminder was sent
+  website         String?
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   payments      SubscriptionPayment[]
   callReminders CallReminder[]

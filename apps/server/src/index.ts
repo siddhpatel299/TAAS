@@ -99,8 +99,24 @@ app.use('/api/share', apiLimiter, shareRoutes);
 app.use('/api/sync', apiLimiter, syncRoutes);
 app.use('/api/telegram', apiLimiter, telegramRoutes);
 app.use('/api/plugins', apiLimiter, pluginsRoutes);
+import { crmRouter } from './routes/crm.routes';
+
+// ... existing imports ...
+
+// API Routes with appropriate rate limits
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/files', apiLimiter, filesRoutes);
+app.use('/api/folders', apiLimiter, foldersRoutes);
+app.use('/api/share/public', publicLimiter); // Public share routes - less strict
+app.use('/api/share', apiLimiter, shareRoutes);
+app.use('/api/sync', apiLimiter, syncRoutes);
+app.use('/api/telegram', apiLimiter, telegramRoutes);
+app.use('/api/plugins', apiLimiter, pluginsRoutes);
 app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
+app.use('/api/crm', apiLimiter, crmRouter); // Register CRM routes
 app.use('/api/todo', apiLimiter, todoRoutes);
+app.use('/api/notes', apiLimiter, notesRoutes);
+// ... existing routes ...
 app.use('/api/notes', apiLimiter, notesRoutes);
 app.use('/api/nexus', apiLimiter, nexusRouter);
 app.use('/api/flow', apiLimiter, flowRoutes);
