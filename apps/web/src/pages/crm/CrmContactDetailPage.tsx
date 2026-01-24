@@ -6,12 +6,8 @@ import {
     Phone,
     Linkedin,
     Twitter,
-    Briefcase,
-    MapPin,
-    Calendar,
     Star,
     Edit2,
-    MoreHorizontal,
     Plus,
     MessageSquare,
     Clock,
@@ -176,14 +172,7 @@ export function CrmContactDetailPage() {
                                             <a href={`tel:${contact.phone}`} className="text-gray-900 hover:text-blue-600">{contact.phone}</a>
                                         </div>
                                     )}
-                                    {contact.location && (
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
-                                                <MapPin className="w-4 h-4" />
-                                            </div>
-                                            <span className="text-gray-900">{contact.location}</span>
-                                        </div>
-                                    )}
+
                                     {contact.website && (
                                         <div className="flex items-center gap-3 text-sm">
                                             <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">

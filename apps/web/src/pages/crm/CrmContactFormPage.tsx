@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Upload } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { CrmLayout } from '@/components/crm/CrmLayout';
 import { crmApi, CRM_STATUS_OPTIONS, PIPELINE_STAGES } from '@/lib/crm-api';
-import { cn } from '@/lib/utils';
 
 export function CrmContactFormPage() {
     const navigate = useNavigate();
@@ -71,9 +70,9 @@ export function CrmContactFormPage() {
                 await crmApi.updateContact(id!, {
                     ...formData,
                     userId: '', // handled by backend
-                });
+                } as any);
             } else {
-                await crmApi.createContact(formData);
+                await crmApi.createContact(formData as any);
             }
             navigate('/plugins/crm');
         } catch (error) {

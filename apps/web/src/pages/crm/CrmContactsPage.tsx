@@ -3,23 +3,16 @@ import { Link } from 'react-router-dom';
 import {
     Plus,
     Search,
-    Filter,
-    MoreHorizontal,
     Mail,
     Phone,
     Star,
-    Trash2,
-    Calendar,
     Briefcase,
-    MapPin,
     Linkedin,
-    Twitter,
-    ExternalLink,
-    Tag
+    Users
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { CrmLayout } from '@/components/crm/CrmLayout';
-import { crmApi, CrmContact, CRM_STATUS_OPTIONS, PIPELINE_STAGES } from '@/lib/crm-api';
+import { crmApi, CrmContact, CRM_STATUS_OPTIONS } from '@/lib/crm-api';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -30,12 +23,7 @@ export function CrmContactsPage() {
     const debouncedSearch = useDebounce(search, 500);
     const [statusFilter, setStatusFilter] = useState<string>('');
 
-    // Stats (mocked for now, could be fetched from API)
-    const stats = {
-        total: contacts.length,
-        customers: contacts.filter(c => c.status === 'customer').length,
-        leads: contacts.filter(c => c.status === 'lead').length,
-    };
+
 
     useEffect(() => {
         fetchContacts();

@@ -1250,3 +1250,89 @@ model WorkflowRun {
   @@map("workflow_runs")
   @@schema("public")
 }
+
+// =====================================
+// CONTACTS CRM PLUGIN
+// =====================================
+
+model CrmContact {
+  id            String    @id @default(cuid())
+  userId        String
+  firstName     String
+  lastName      String?
+  email         String?
+  phone         String?
+  company       String?
+  position      String?
+  status        String    @default("lead") // lead, prospect, customer, archived
+  pipelineStage String?   @default("discovery")
+  website       String?
+  linkedinUrl   String?
+  twitterHandle String?
+  notes         String?   @db.Text
+  isFavorite    Boolean   @default(false)
+  lastContactedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  interactions CrmInteraction[]
+  tags         CrmTagsOnContacts[]
+
+  @@index([userId])
+  @@index([email])
+  @@index([company])
+  @@index([status])
+  @@map("crm_contacts")
+  @@schema("public")
+}
+
+model CrmInteraction {
+  id        String   @id @default(cuid())
+  contactId String
+  userId    String
+  type      String   // call, email, meeting, note
+  summary   String
+  details   String?  @db.Text
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contact CrmContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([userId])
+  @@index([date])
+  @@map("crm_interactions")
+  @@schema("public")
+}
+
+model CrmTag {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contacts CrmTagsOnContacts[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("crm_tags")
+  @@schema("public")
+}
+
+model CrmTagsOnContacts {
+  contactId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  contact CrmContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag     CrmTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+  @@index([contactId])
+  @@index([tagId])
+  @@map("crm_tags_on_contacts")
+  @@schema("public")
+}
