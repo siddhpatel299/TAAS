@@ -148,4 +148,43 @@ router.post('/test-sms', authMiddleware, asyncHandler(async (req: AuthRequest, r
     }
 }));
 
+// Test Telegram - triggers an immediate test Telegram message
+router.post('/test-telegram', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { prisma } = await import('../lib/prisma');
+    const { telegramNotificationService } = await import('../services/telegram-notification.service');
+
+    // Get user's Telegram ID
+    const user = await prisma.user.findUnique({
+        where: { id: req.user!.id },
+        select: { telegramId: true, firstName: true },
+    });
+
+    if (!user?.telegramId) {
+        return res.status(400).json({
+            success: false,
+            error: 'No Telegram account linked. Please log in with Telegram first.',
+        });
+    }
+
+    try {
+        const result = await telegramNotificationService.sendTestNotification(user.telegramId);
+
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to send Telegram message');
+        }
+
+        res.json({
+            success: true,
+            message: '✅ Test Telegram message sent! Check your Telegram app.',
+            data: { messageId: result.messageId },
+        });
+    } catch (error: any) {
+        console.error('Test Telegram error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to send test Telegram message',
+        });
+    }
+}));
+
 export default router;
