@@ -79,7 +79,7 @@ export function CrmContactsPage() {
                             <p className="text-sm text-gray-500">Manage your professional relationships</p>
                         </div>
                         <Link
-                            to="/plugins/crm/contacts/new"
+                            to="/plugins/contacts/new"
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                         >
                             <Plus className="w-4 h-4" />
@@ -146,7 +146,7 @@ export function CrmContactsPage() {
                                 Start building your network by adding your first contact manually.
                             </p>
                             <Link
-                                to="/plugins/crm/contacts/new"
+                                to="/plugins/contacts/new"
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 <Plus className="w-4 h-4" />
@@ -158,7 +158,7 @@ export function CrmContactsPage() {
                             {contacts.map((contact) => (
                                 <Link
                                     key={contact.id}
-                                    to={`/plugins/crm/contacts/${contact.id}`}
+                                    to={`/plugins/contacts/${contact.id}`}
                                     className="group bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition-all relative"
                                 >
                                     {/* Card Header */}

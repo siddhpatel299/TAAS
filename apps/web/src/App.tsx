@@ -487,9 +487,9 @@ function AppContent() {
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
-            <Route path="/plugins/crm" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
-            <Route path="/plugins/crm/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
-            <Route path="/plugins/crm/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
+            <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -528,9 +528,9 @@ function AppContent() {
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
-            <Route path="/plugins/crm" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
-            <Route path="/plugins/crm/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
-            <Route path="/plugins/crm/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
+            <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
+            <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />

@@ -56,7 +56,7 @@ export function CrmContactFormPage() {
             });
         } catch (error) {
             console.error('Failed to load contact:', error);
-            navigate('/plugins/crm');
+            navigate('/plugins/contacts');
         } finally {
             setIsLoading(false);
         }
@@ -74,7 +74,7 @@ export function CrmContactFormPage() {
             } else {
                 await crmApi.createContact(formData as any);
             }
-            navigate('/plugins/crm');
+            navigate('/plugins/contacts');
         } catch (error) {
             console.error('Failed to save contact:', error);
         } finally {
