@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { twilioService } from './twilio.service';
+import { telegramNotificationService } from './telegram-notification.service';
 
 // Configuration from environment
 const MAX_RETRY_ATTEMPTS = parseInt(process.env.CALL_REMINDER_MAX_ATTEMPTS || '3');
@@ -25,22 +26,35 @@ export const callReminderService = {
                 return null;
             }
 
-            // Get user's phone number
+            // Get user's contact info (phone for SMS/call, telegramId for Telegram)
             const user = await prisma.user.findUnique({
                 where: { id: userId },
-                select: { phoneNumber: true },
+                select: { phoneNumber: true, telegramId: true },
             });
 
-            if (!user?.phoneNumber) {
-                throw new Error('User phone number not found. Please add a phone number to your profile to enable call reminders.');
+            const reminderMethod = subscription.reminderMethod || 'telegram';
+
+            // Validate contact info based on method
+            if (reminderMethod === 'telegram' && !user?.telegramId) {
+                throw new Error('Telegram ID not found. Please log in with Telegram to enable Telegram reminders.');
+            }
+            if ((reminderMethod === 'sms' || reminderMethod === 'call') && !user?.phoneNumber) {
+                throw new Error('Phone number not found. Please add a phone number in Settings to enable SMS/Call reminders.');
             }
 
-            // Calculate scheduled time
-            const scheduledFor = this.calculateScheduledTime(
-                subscription.nextBillingDate,
-                subscription.reminderDays,
-                subscription.reminderTime
-            );
+            // Calculate scheduled time - either from specific date or relative days
+            let scheduledFor: Date;
+            const reminderType = subscription.reminderType || 'relative';
+
+            if (reminderType === 'specific' && subscription.specificReminderDate) {
+                scheduledFor = new Date(subscription.specificReminderDate);
+            } else {
+                scheduledFor = this.calculateScheduledTime(
+                    subscription.nextBillingDate,
+                    subscription.reminderDays,
+                    subscription.reminderTime
+                );
+            }
 
             // Generate reminder message
             const daysUntilRenewal = this.getDaysUntilRenewal(subscription.nextBillingDate);
@@ -51,15 +65,20 @@ export const callReminderService = {
                 daysUntilRenewal
             );
 
-            // Create call reminder record
+            // Determine contact info based on method
+            const contactInfo = reminderMethod === 'telegram'
+                ? user?.telegramId || ''
+                : user?.phoneNumber || '';
+
+            // Create call reminder record (we're reusing the model, but will handle method in execution)
             const reminder = await prisma.callReminder.create({
                 data: {
                     userId,
                     subscriptionId,
-                    phoneNumber: user.phoneNumber,
+                    phoneNumber: contactInfo, // Store telegramId or phoneNumber here
                     scheduledFor,
                     message,
-                    maxAttempts: MAX_RETRY_ATTEMPTS,
+                    maxAttempts: reminderMethod === 'telegram' ? 3 : MAX_RETRY_ATTEMPTS,
                 },
             });
 
@@ -190,27 +209,64 @@ export const callReminderService = {
                 },
             });
 
-            // Make the call
-            const callResult = await twilioService.makeCall(
-                reminder.phoneNumber,
-                reminder.message || ''
-            );
+            // Get reminder method from subscription
+            const reminderMethod = reminder.subscription?.reminderMethod || 'telegram';
 
-            if (callResult.success && callResult.callSid) {
-                // Update with call SID
+            // Execute based on method
+            let result: { success: boolean; error?: string; callSid?: string; messageSid?: string; messageId?: number };
+
+            if (reminderMethod === 'telegram') {
+                // Send via Telegram (using phoneNumber field which stores telegramId for Telegram)
+                const telegramId = reminder.phoneNumber;
+                const telegramResult = await telegramNotificationService.sendMessage(
+                    telegramId,
+                    reminder.message || ''
+                );
+                result = {
+                    success: telegramResult.success,
+                    error: telegramResult.error,
+                    messageId: telegramResult.messageId,
+                };
+            } else if (reminderMethod === 'sms') {
+                // Send via SMS
+                const smsResult = await twilioService.sendSMS(
+                    reminder.phoneNumber,
+                    reminder.message || ''
+                );
+                result = {
+                    success: smsResult.success,
+                    error: smsResult.error,
+                    messageSid: smsResult.messageSid,
+                };
+            } else {
+                // Make phone call
+                const callResult = await twilioService.makeCall(
+                    reminder.phoneNumber,
+                    reminder.message || ''
+                );
+                result = {
+                    success: callResult.success,
+                    error: callResult.error,
+                    callSid: callResult.callSid,
+                };
+            }
+
+            if (result.success) {
+                // Update with success
                 await prisma.callReminder.update({
                     where: { id: reminderId },
                     data: {
-                        callSid: callResult.callSid,
-                        status: 'calling',
+                        callSid: result.callSid || result.messageSid || String(result.messageId) || null,
+                        status: reminderMethod === 'telegram' ? 'completed' : 'calling', // Telegram is instant
+                        callAnswered: reminderMethod === 'telegram', // Mark as answered for Telegram
                     },
                 });
 
                 return { success: true };
             } else {
-                // Call failed - schedule retry
-                await this.scheduleNextRetry(reminderId, callResult.error);
-                return { success: false, error: callResult.error };
+                // Failed - schedule retry
+                await this.scheduleNextRetry(reminderId, result.error);
+                return { success: false, error: result.error };
             }
         } catch (error: any) {
             console.error('Error executing reminder:', error);
