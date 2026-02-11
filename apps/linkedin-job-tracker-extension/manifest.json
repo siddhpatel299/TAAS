@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "TAAS LinkedIn Job Saver",
+  "description": "Save LinkedIn jobs directly into your TAAS Job Application Tracker.",
+  "version": "0.1.0",
+  "permissions": ["storage", "tabs", "scripting"],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://linkedin.com/*",
+    "https://*.vercel.app/*",
+    "https://*.onrender.com/*",
+    "https://*.railway.app/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "TAAS Job Tracker",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/jobs/*",
+        "https://linkedin.com/jobs/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

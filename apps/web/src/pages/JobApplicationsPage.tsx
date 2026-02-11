@@ -25,6 +25,7 @@ import { CompanyContactsDialog } from '@/components/CompanyContactsDialog';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { JOB_STATUSES, JOB_PRIORITIES, JobApplication } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
+import { JobApplicationTimelineRow } from '@/components/job-tracker/JobApplicationTimelineRow';
 
 // Status Badge Component
 function StatusBadge({ status }: { status: string }) {
@@ -38,7 +39,7 @@ function StatusBadge({ status }: { status: string }) {
     emerald: 'bg-emerald-100 text-emerald-700',
     slate: 'bg-slate-100 text-slate-700',
   };
-  
+
   return (
     <span className={cn(
       'px-2.5 py-1 rounded-full text-xs font-medium',
@@ -49,137 +50,18 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-// Priority Badge Component
-function PriorityBadge({ priority }: { priority: string }) {
-  const colors: Record<string, string> = {
-    low: 'text-gray-500',
-    medium: 'text-yellow-600',
-    high: 'text-red-600',
-  };
-  
-  return (
-    <span className={cn('text-xs font-medium', colors[priority] || 'text-gray-500')}>
-      {priority.charAt(0).toUpperCase() + priority.slice(1)}
-    </span>
-  );
-}
 
-// Table View Component
-function TableView({ 
-  applications, 
-  onEdit, 
-  onDelete,
-  onFindContacts,
-}: { 
-  applications: JobApplication[]; 
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-  onFindContacts: (job: JobApplication) => void;
-}) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Title</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Company</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Location</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Status</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Priority</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Applied Date</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500">Salary</th>
-              <th className="text-right px-6 py-4 text-sm font-medium text-gray-500">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {applications.map((job, idx) => (
-              <motion.tr
-                key={job.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.03 }}
-                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-6 py-4">
-                  <Link
-                    to={`/plugins/job-tracker/applications/${job.id}`}
-                    className="font-medium text-gray-900 hover:text-sky-600 transition-colors"
-                  >
-                    {job.jobTitle}
-                  </Link>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center">
-                      <span className="text-sm font-medium text-sky-700">
-                        {job.company.charAt(0)}
-                      </span>
-                    </div>
-                    <span className="text-gray-700">{job.company}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-500">
-                  {job.location || '-'}
-                </td>
-                <td className="px-6 py-4">
-                  <StatusBadge status={job.status} />
-                </td>
-                <td className="px-6 py-4">
-                  <PriorityBadge priority={job.priority} />
-                </td>
-                <td className="px-6 py-4 text-gray-500 text-sm">
-                  {job.appliedDate 
-                    ? new Date(job.appliedDate).toLocaleDateString()
-                    : '-'}
-                </td>
-                <td className="px-6 py-4 text-gray-500 text-sm">
-                  {job.salaryMin && job.salaryMax 
-                    ? `${job.salaryCurrency || '$'}${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()}`
-                    : 'Not specified'}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => onFindContacts(job)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Find Contacts"
-                    >
-                      <Users className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onEdit(job.id)}
-                      className="p-2 text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDelete(job.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
+
+
 
 // Card View Component
-function CardView({ 
-  applications, 
-  onEdit, 
+function CardView({
+  applications,
+  onEdit,
   onDelete,
   onFindContacts,
-}: { 
-  applications: JobApplication[]; 
+}: {
+  applications: JobApplication[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onFindContacts: (job: JobApplication) => void;
@@ -243,8 +125,8 @@ function CardView({
                   key={star}
                   className={cn(
                     'w-4 h-4',
-                    star <= job.rating! 
-                      ? 'text-yellow-400 fill-yellow-400' 
+                    star <= job.rating!
+                      ? 'text-yellow-400 fill-yellow-400'
                       : 'text-gray-200'
                   )}
                 />
@@ -293,16 +175,16 @@ function CardView({
 }
 
 // Kanban View Component
-function KanbanView({ 
-  applications, 
+function KanbanView({
+  applications,
   onEdit,
   onAddJob,
-}: { 
-  applications: JobApplication[]; 
+}: {
+  applications: JobApplication[];
   onEdit: (id: string) => void;
   onAddJob: () => void;
 }) {
-  const columns = JOB_STATUSES.filter(s => 
+  const columns = JOB_STATUSES.filter(s =>
     ['wishlist', 'applied', 'interview', 'offer', 'rejected'].includes(s.value)
   );
 
@@ -318,7 +200,7 @@ function KanbanView({
     <div className="flex gap-6 overflow-x-auto pb-6">
       {columns.map(column => {
         const columnJobs = applications.filter(j => j.status === column.value);
-        
+
         return (
           <div
             key={column.value}
@@ -364,7 +246,7 @@ function KanbanView({
                         )}
                       </div>
                     </div>
-                    
+
                     {job.appliedDate && (
                       <p className="text-xs text-gray-400 mt-3">
                         {new Date(job.appliedDate).toLocaleDateString()}
@@ -466,7 +348,7 @@ export function JobApplicationsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <ModernSidebar />
-      
+
       <main className="ml-20 p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -559,8 +441,8 @@ export function JobApplicationsPage() {
                 onClick={() => setViewMode('table')}
                 className={cn(
                   "p-2 rounded-lg transition-all",
-                  viewMode === 'table' 
-                    ? "bg-sky-100 text-sky-600" 
+                  viewMode === 'table'
+                    ? "bg-sky-100 text-sky-600"
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
@@ -570,8 +452,8 @@ export function JobApplicationsPage() {
                 onClick={() => setViewMode('cards')}
                 className={cn(
                   "p-2 rounded-lg transition-all",
-                  viewMode === 'cards' 
-                    ? "bg-sky-100 text-sky-600" 
+                  viewMode === 'cards'
+                    ? "bg-sky-100 text-sky-600"
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
@@ -581,8 +463,8 @@ export function JobApplicationsPage() {
                 onClick={() => setViewMode('kanban')}
                 className={cn(
                   "p-2 rounded-lg transition-all",
-                  viewMode === 'kanban' 
-                    ? "bg-sky-100 text-sky-600" 
+                  viewMode === 'kanban'
+                    ? "bg-sky-100 text-sky-600"
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
@@ -627,24 +509,29 @@ export function JobApplicationsPage() {
         ) : (
           <>
             {viewMode === 'table' && (
-              <TableView 
-                applications={applications} 
-                onEdit={handleEdit}
-                onDelete={(id) => setDeleteConfirm(id)}
-                onFindContacts={handleFindContacts}
-              />
+              <div className="space-y-4">
+                {applications.map((job) => (
+                  <JobApplicationTimelineRow
+                    key={job.id}
+                    application={job}
+                    onEdit={handleEdit}
+                    onDelete={(id) => setDeleteConfirm(id)}
+                    onFindContacts={handleFindContacts}
+                  />
+                ))}
+              </div>
             )}
             {viewMode === 'cards' && (
-              <CardView 
-                applications={applications} 
+              <CardView
+                applications={applications}
                 onEdit={handleEdit}
                 onDelete={(id) => setDeleteConfirm(id)}
                 onFindContacts={handleFindContacts}
               />
             )}
             {viewMode === 'kanban' && (
-              <KanbanView 
-                applications={applications} 
+              <KanbanView
+                applications={applications}
                 onEdit={handleEdit}
                 onAddJob={() => setShowAddDialog(true)}
               />

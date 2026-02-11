@@ -90,8 +90,12 @@ export const jobTrackerService = {
       },
     });
 
-    // Log activity
-    await this.logActivity(job.id, 'created', `Added application for ${input.jobTitle} at ${input.company}`);
+    // Do not fail creation if activity logging has an issue (e.g. missing table in older envs).
+    try {
+      await this.logActivity(job.id, 'created', `Added application for ${input.jobTitle} at ${input.company}`);
+    } catch (error) {
+      console.warn('[JobTracker] Failed to log creation activity:', error);
+    }
 
     return job;
   },

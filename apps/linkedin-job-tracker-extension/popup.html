@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TAAS Job Tracker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>TAAS Job Tracker</h1>
+    <p class="subtitle">Save LinkedIn jobs directly into your tracker.</p>
+
+    <section class="card">
+      <h2>Connection</h2>
+      <label>
+        API URL
+        <input id="apiUrl" type="url" placeholder="https://taas-col4.onrender.com/api" />
+      </label>
+      <label>
+        App URL
+        <input id="appUrl" type="url" placeholder="https://taas-ten.vercel.app" />
+      </label>
+      <button id="saveSettings" class="secondary">Save URLs</button>
+    </section>
+
+    <section id="loginSection" class="card">
+      <h2>Login</h2>
+      <label>
+        Email
+        <input id="email" type="email" autocomplete="username" placeholder="you@example.com" />
+      </label>
+      <label>
+        Password
+        <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" />
+      </label>
+      <button id="loginButton" class="primary">Log In</button>
+      <button id="importSessionButton" class="secondary mt8">Use Current TAAS Session</button>
+      <p class="hint">Use your TAAS email/password account. If you use the deployed app, do not use localhost API.</p>
+    </section>
+
+    <section id="sessionSection" class="card hidden">
+      <h2>Connected</h2>
+      <p id="userInfo"></p>
+      <div class="row">
+        <button id="openTracker" class="primary">Open Job Tracker</button>
+        <button id="logoutButton" class="secondary">Log Out</button>
+      </div>
+    </section>
+
+    <p id="statusMessage" class="status"></p>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
