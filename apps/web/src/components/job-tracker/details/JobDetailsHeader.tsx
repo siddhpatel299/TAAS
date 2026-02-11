@@ -160,7 +160,7 @@ export function JobDetailsHeader({
                 <div className="relative mt-8 px-4">
                     <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-100 -translate-y-1/2" />
                     <div className="relative z-10 flex justify-between">
-                        {STEPS.map((step, idx) => {
+                        {STEPS.map((step) => {
                             const status = getStepStatus(step.id);
                             const isActive = status === 'current';
                             const isCompleted = status === 'completed';

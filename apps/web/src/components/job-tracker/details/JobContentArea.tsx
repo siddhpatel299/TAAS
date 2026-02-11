@@ -6,14 +6,12 @@ import {
     AlignLeft,
     Trash2,
     Plus,
-    Calendar,
-    Download,
     X,
     Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { JobApplication, JobDocument, JobTask, DOCUMENT_TYPES } from '@/lib/plugins-api';
+import { JobApplication, JobTask, DOCUMENT_TYPES } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
 
 interface JobContentAreaProps {

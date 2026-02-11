@@ -5,7 +5,6 @@ import {
     Calendar,
     Clock,
     ExternalLink,
-    Globe,
     MapPin,
     Plus,
     UserPlus,
@@ -14,8 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { JobApplication, JobReferral, EMPLOYMENT_TYPES, JOB_STATUSES } from '@/lib/plugins-api';
-import { cn } from '@/lib/utils';
+import { JobApplication, EMPLOYMENT_TYPES, JOB_STATUSES } from '@/lib/plugins-api';
 
 interface JobInfoSidebarProps {
     application: JobApplication;
@@ -28,7 +26,6 @@ export function JobInfoSidebar({
     application,
     onUpdate,
     onAddReferral,
-    onDeleteReferral
 }: JobInfoSidebarProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState<Partial<JobApplication>>({});
