@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      width: 400px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 16px;
+      margin: 0;
+      background-color: #f8fafc;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h2 {
+      margin: 0 0 8px 0;
+      color: #0f172a;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      outline: 2px solid #0ea5e9;
+      border-color: #0ea5e9;
+    }
+
+    button {
+      background-color: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #0284c7;
+    }
+
+    button:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    .status {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status.success {
+      background-color: #dcfce7;
+      color: #166534;
+      display: block;
+    }
+
+    .status.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      display: block;
+    }
+
+    .settings-link {
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 8px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    #settings-panel {
+      display: none;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .logo {
+      width: 24px;
+      height: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" id="main-view">
+    <h2>
+      <span>🚀</span> TAAS Clipper
+    </h2>
+
+    <div id="status-msg" class="status"></div>
+
+    <div id="auth-warning"
+      style="display: none; background: #fff7ed; color: #9a3412; padding: 12px; border-radius: 6px; font-size: 13px;">
+      ⚠️ Authentication required. Please paste your Access Token in settings.
+    </div>
+
+    <div id="form-container">
+      <div>
+        <label>Job Title</label>
+        <input type="text" id="jobTitle" placeholder="Senior Product Designer">
+      </div>
+
+      <div>
+        <label>Company</label>
+        <input type="text" id="company" placeholder="Acme Inc.">
+      </div>
+
+      <div>
+        <label>Location</label>
+        <input type="text" id="location" placeholder="Remote / New York">
+      </div>
+
+      <div>
+        <label>Job URL</label>
+        <input type="text" id="url" readonly style="background-color: #f1f5f9; color: #64748b;">
+      </div>
+
+      <div>
+        <label>Job Description</label>
+        <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+          <button id="get-selection-btn"
+            style="padding: 4px 8px; font-size: 11px; background: #e0f2fe; color: #0284c7; width: auto;">Get Selected
+            Text</button>
+        </div>
+        <textarea id="description" rows="5" placeholder="Paste job description here..."
+          style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+
+      <button id="save-btn">Save to Job Tracker</button>
+    </div>
+
+    <div class="settings-link" id="toggle-settings">⚙️ Settings</div>
+  </div>
+
+  <div class="container" id="settings-panel">
+    <h3>Settings</h3>
+    <div>
+      <label>TAAS Access Token</label>
+      <input type="password" id="api-token" placeholder="Paste token here...">
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button id="save-token-btn" style="flex: 1;">Save Token</button>
+      <button id="cancel-settings-btn" style="background-color: #f1f5f9; color: #475569;">Back</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

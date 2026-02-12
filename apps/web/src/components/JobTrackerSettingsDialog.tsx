@@ -15,7 +15,10 @@ import {
   Sparkles,
   Link,
   Unlink,
+  Puzzle,
+  Copy,
 } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth.store';
 import { cn } from '@/lib/utils';
 import { jobTrackerApi, FullSettingsStatus } from '@/lib/plugins-api';
 
@@ -24,14 +27,14 @@ interface JobTrackerSettingsDialogProps {
   onClose: () => void;
 }
 
-type TabType = 'api-keys' | 'email' | 'resume';
+type TabType = 'api-keys' | 'email' | 'resume' | 'extension';
 
 export function JobTrackerSettingsDialog({
   isOpen,
   onClose,
 }: JobTrackerSettingsDialogProps) {
   const [activeTab, setActiveTab] = useState<TabType>('api-keys');
-  
+
   // API Keys
   const [serpApiKey, setSerpApiKey] = useState('');
   const [hunterApiKey, setHunterApiKey] = useState('');
@@ -39,17 +42,17 @@ export function JobTrackerSettingsDialog({
   const [showSerpKey, setShowSerpKey] = useState(false);
   const [showHunterKey, setShowHunterKey] = useState(false);
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
-  
+
   // Resume
   const [resumeText, setResumeText] = useState('');
-  
+
   // Loading/Saving
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isConnectingGmail, setIsConnectingGmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  
+
   // Full settings status
   const [settingsStatus, setSettingsStatus] = useState<FullSettingsStatus | null>(null);
 
@@ -85,16 +88,16 @@ export function JobTrackerSettingsDialog({
 
     try {
       const promises: Promise<any>[] = [];
-      
+
       // Save SERP and Hunter keys
       const keysToSave: { serpApiKey?: string; hunterApiKey?: string } = {};
       if (serpApiKey.trim()) keysToSave.serpApiKey = serpApiKey.trim();
       if (hunterApiKey.trim()) keysToSave.hunterApiKey = hunterApiKey.trim();
-      
+
       if (Object.keys(keysToSave).length > 0) {
         promises.push(jobTrackerApi.saveApiKeys(keysToSave));
       }
-      
+
       // Save OpenAI key separately
       if (openaiApiKey.trim()) {
         promises.push(jobTrackerApi.saveOpenaiKey(openaiApiKey.trim()));
@@ -107,14 +110,14 @@ export function JobTrackerSettingsDialog({
       }
 
       await Promise.all(promises);
-      
+
       // Clear inputs and reload status
       setSerpApiKey('');
       setHunterApiKey('');
       setOpenaiApiKey('');
       setSuccess('API keys saved successfully!');
       setTimeout(() => setSuccess(null), 3000);
-      
+
       await loadSettings();
     } catch (err: any) {
       const message = err.response?.data?.error || err.message || 'Failed to save settings';
@@ -149,13 +152,13 @@ export function JobTrackerSettingsDialog({
     try {
       const response = await jobTrackerApi.getGmailAuthUrl();
       const authUrl = response.data.data.authUrl;
-      
+
       // Open popup for OAuth
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
-      
+
       const popup = window.open(
         authUrl,
         'Gmail Authorization',
@@ -218,7 +221,19 @@ export function JobTrackerSettingsDialog({
     { id: 'api-keys' as TabType, label: 'API Keys', icon: Key },
     { id: 'email' as TabType, label: 'Email Setup', icon: Mail },
     { id: 'resume' as TabType, label: 'Resume', icon: FileText },
+    { id: 'extension' as TabType, label: 'Extension', icon: Puzzle },
   ];
+
+  const handleCopyToken = () => {
+    const token = useAuthStore.getState().token;
+    if (token) {
+      navigator.clipboard.writeText(token);
+      setSuccess('Access token copied to clipboard!');
+      setTimeout(() => setSuccess(null), 3000);
+    } else {
+      setError('No access token found. Please log in again.');
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -554,6 +569,65 @@ BS Computer Science, State University"
                   </div>
                 )}
 
+
+
+                {/* Extension Tab */}
+                {activeTab === 'extension' && (
+                  <div className="space-y-6">
+                    <div className="bg-sky-50 border border-sky-200 rounded-xl p-5">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-sky-100 shadow-sm flex-shrink-0">
+                          <Puzzle className="w-6 h-6 text-sky-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-900 text-lg">TAAS Browser Clipper</h3>
+                          <p className="text-gray-600 mt-1">
+                            Save jobs from LinkedIn, Indeed, and Glassdoor with a single click.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-col gap-3">
+                        <h4 className="font-medium text-gray-900 border-b border-sky-200 pb-2">Setup Instructions</h4>
+                        <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 bg-white/50 p-4 rounded-lg">
+                          <li>Install the TAAS Clipper extension in Chrome</li>
+                          <li>Click the puzzle icon to open the extension</li>
+                          <li>Go to <strong>Settings</strong></li>
+                          <li>Copy your Access Token below and paste it there</li>
+                        </ol>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Your Access Token
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Key className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="password"
+                          readOnly
+                          value="••••••••••••••••••••••••••••••••"
+                          className="w-full pl-10 pr-32 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
+                        />
+                        <button
+                          onClick={handleCopyToken}
+                          className="absolute inset-y-1 right-1 px-4 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
+                        >
+                          <Copy className="w-3 h-3" />
+                          Copy Token
+                        </button>
+                      </div>
+                      <p className="text-xs text-amber-600 mt-2 flex items-center gap-1.5">
+                        <AlertCircle className="w-3 h-3" />
+                        Treat this token like a password. Do not share it.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Error/Success Messages */}
                 {error && (
                   <div className="mt-6 flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700">
@@ -583,6 +657,6 @@ BS Computer Science, State University"
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence >
   );
 }
