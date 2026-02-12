@@ -39,6 +39,7 @@ export function JobContentArea({
     const [notes, setNotes] = useState(application.notes || '');
     const [jobDescription, setJobDescription] = useState(application.jobDescription || '');
     const [newTaskTitle, setNewTaskTitle] = useState('');
+    const [newTaskDate, setNewTaskDate] = useState('');
 
     const tabs = [
         { id: 'description', label: 'Job Description', icon: Briefcase, count: undefined },
@@ -61,9 +62,11 @@ export function JobContentArea({
         onAddTask({
             title: newTaskTitle,
             priority: 'medium',
-            status: 'pending'
+            status: 'pending',
+            dueDate: newTaskDate || undefined
         });
         setNewTaskTitle('');
+        setNewTaskDate('');
     };
 
     return (
@@ -139,6 +142,12 @@ export function JobContentArea({
                                     onChange={(e) => setNewTaskTitle(e.target.value)}
                                     placeholder="Add a new task..."
                                     className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                                />
+                                <input
+                                    type="date"
+                                    value={newTaskDate}
+                                    onChange={(e) => setNewTaskDate(e.target.value)}
+                                    className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                                 />
                                 <Button type="submit" disabled={!newTaskTitle.trim()}>
                                     <Plus className="w-4 h-4 mr-2" />

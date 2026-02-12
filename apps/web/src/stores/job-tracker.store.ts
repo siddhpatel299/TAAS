@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { 
-  jobTrackerApi, 
-  JobApplication, 
-  JobTask, 
-  JobReferral, 
+import {
+  jobTrackerApi,
+  JobApplication,
+  JobTask,
+  JobReferral,
   JobActivity,
-  DashboardStats 
+  DashboardStats
 } from '@/lib/plugins-api';
 
 interface JobTrackerState {
@@ -16,12 +16,12 @@ interface JobTrackerState {
   upcomingTasks: JobTask[];
   referrals: JobReferral[];
   recentActivity: JobActivity[];
-  
+
   // Pagination
   totalApplications: number;
   currentPage: number;
   hasMore: boolean;
-  
+
   // Filters
   filters: {
     status?: string;
@@ -33,43 +33,43 @@ interface JobTrackerState {
   sortBy: string;
   sortOrder: 'asc' | 'desc';
   viewMode: 'table' | 'cards' | 'kanban';
-  
+
   // UI State
   isLoading: boolean;
   error: string | null;
 
   // Actions - Dashboard
   fetchDashboard: () => Promise<void>;
-  
+
   // Actions - Applications
   fetchApplications: (page?: number) => Promise<void>;
   fetchApplication: (id: string) => Promise<void>;
   createApplication: (data: Partial<JobApplication>) => Promise<JobApplication>;
   updateApplication: (id: string, data: Partial<JobApplication>) => Promise<void>;
   deleteApplication: (id: string) => Promise<void>;
-  
+
   // Actions - Documents
   addDocument: (jobId: string, fileId: string, documentType: string, label?: string) => Promise<void>;
   removeDocument: (jobId: string, docId: string) => Promise<void>;
-  
+
   // Actions - Tasks
   fetchUpcomingTasks: () => Promise<void>;
   createTask: (jobId: string, data: Partial<JobTask>) => Promise<void>;
   updateTask: (taskId: string, data: Partial<JobTask>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
-  
+
   // Actions - Referrals
   fetchReferrals: (status?: string) => Promise<void>;
   createReferral: (data: Partial<JobReferral>) => Promise<void>;
   updateReferral: (id: string, data: Partial<JobReferral>) => Promise<void>;
   deleteReferral: (id: string) => Promise<void>;
-  
+
   // Actions - Activity
   fetchActivity: () => Promise<void>;
-  
+
   // Actions - Export
   exportCSV: () => Promise<void>;
-  
+
   // Actions - UI
   setFilters: (filters: Partial<JobTrackerState['filters']>) => void;
   setSortBy: (sortBy: string) => void;
@@ -86,16 +86,16 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
   upcomingTasks: [],
   referrals: [],
   recentActivity: [],
-  
+
   totalApplications: 0,
   currentPage: 1,
   hasMore: false,
-  
+
   filters: {},
   sortBy: 'createdAt',
   sortOrder: 'desc',
   viewMode: 'table',
-  
+
   isLoading: false,
   error: null,
 
@@ -104,7 +104,7 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await jobTrackerApi.getDashboard();
-      set({ 
+      set({
         dashboardStats: response.data.data,
         upcomingTasks: response.data.data.upcomingTasks,
         recentActivity: response.data.data.recentActivity,
@@ -128,7 +128,7 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
         page,
         limit: 50,
       });
-      set({ 
+      set({
         applications: response.data.data,
         totalApplications: response.data.meta.total,
         currentPage: response.data.meta.page,
@@ -157,7 +157,7 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
     try {
       const response = await jobTrackerApi.createApplication(data);
       const newApp = response.data.data;
-      set(state => ({ 
+      set(state => ({
         applications: [newApp, ...state.applications],
         totalApplications: state.totalApplications + 1,
         isLoading: false,
@@ -176,11 +176,11 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
       const response = await jobTrackerApi.updateApplication(id, data);
       const updated = response.data.data;
       set(state => ({
-        applications: state.applications.map(app => 
+        applications: state.applications.map(app =>
           app.id === id ? updated : app
         ),
-        selectedApplication: state.selectedApplication?.id === id 
-          ? updated 
+        selectedApplication: state.selectedApplication?.id === id
+          ? updated
           : state.selectedApplication,
         isLoading: false,
       }));
@@ -197,8 +197,8 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
       await jobTrackerApi.deleteApplication(id);
       set(state => ({
         applications: state.applications.filter(app => app.id !== id),
-        selectedApplication: state.selectedApplication?.id === id 
-          ? null 
+        selectedApplication: state.selectedApplication?.id === id
+          ? null
           : state.selectedApplication,
         totalApplications: state.totalApplications - 1,
         isLoading: false,
@@ -238,7 +238,7 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
   // Tasks
   fetchUpcomingTasks: async () => {
     try {
-      const response = await jobTrackerApi.getUpcomingTasks(10);
+      const response = await jobTrackerApi.getUpcomingTasks(100);
       set({ upcomingTasks: response.data.data });
     } catch (error: any) {
       console.error('Failed to fetch tasks:', error);
@@ -342,7 +342,7 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
     try {
       const { filters } = get();
       const response = await jobTrackerApi.exportCSV(filters as any);
-      
+
       // Create download link
       const blob = new Blob([response.data], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);

@@ -407,14 +407,16 @@ export const jobTrackerService = {
 
   async getUpcomingTasks(userId: string, limit = 10) {
     const now = new Date();
-    
+
     return prisma.jobTask.findMany({
       where: {
         jobApplication: { userId },
         status: 'pending',
-        dueDate: { not: null },
       },
-      orderBy: { dueDate: 'asc' },
+      orderBy: [
+        { dueDate: 'asc' },
+        { createdAt: 'desc' } // Tie-breaker for nulls or same dates
+      ],
       take: limit,
       include: {
         jobApplication: {
@@ -544,7 +546,7 @@ export const jobTrackerService = {
           },
         },
       }),
-      this.getUpcomingTasks(userId, 5),
+      this.getUpcomingTasks(userId, 100),
     ]);
 
     // Calculate funnel metrics
@@ -552,10 +554,10 @@ export const jobTrackerService = {
       applicationsByStatus.map(s => [s.status, s._count.status])
     );
 
-    const totalApplied = (statusCounts.applied || 0) + 
-      (statusCounts.interview || 0) + 
-      (statusCounts.offer || 0) + 
-      (statusCounts.accepted || 0) + 
+    const totalApplied = (statusCounts.applied || 0) +
+      (statusCounts.interview || 0) +
+      (statusCounts.offer || 0) +
+      (statusCounts.accepted || 0) +
       (statusCounts.rejected || 0);
 
     return {
@@ -563,11 +565,11 @@ export const jobTrackerService = {
       statusCounts,
       interviews: statusCounts.interview || 0,
       offers: statusCounts.offer || 0,
-      responseRate: totalApplied > 0 
-        ? Math.round(((statusCounts.interview || 0) + (statusCounts.offer || 0)) / totalApplied * 100) 
+      responseRate: totalApplied > 0
+        ? Math.round(((statusCounts.interview || 0) + (statusCounts.offer || 0)) / totalApplied * 100)
         : 0,
-      successRate: totalApplied > 0 
-        ? Math.round((statusCounts.offer || 0) / totalApplied * 100) 
+      successRate: totalApplied > 0
+        ? Math.round((statusCounts.offer || 0) / totalApplied * 100)
         : 0,
       recentActivity,
       upcomingTasks,
@@ -629,8 +631,8 @@ export const jobTrackerService = {
       job.jobTitle,
       job.location || '',
       job.employmentType || '',
-      job.salaryMin && job.salaryMax 
-        ? `${job.salaryCurrency}${job.salaryMin}-${job.salaryMax}` 
+      job.salaryMin && job.salaryMax
+        ? `${job.salaryCurrency}${job.salaryMin}-${job.salaryMax}`
         : '',
       job.status,
       job.priority,
