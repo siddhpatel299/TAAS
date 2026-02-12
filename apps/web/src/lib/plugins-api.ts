@@ -5,6 +5,7 @@ export interface JobApplication {
   id: string;
   userId: string;
   company: string;
+  companyLogo?: string;
   jobTitle: string;
   location?: string;
   employmentType?: string;
@@ -118,6 +119,7 @@ export interface DashboardStats {
 
 export interface ScrapedJobData {
   company: string;
+  companyLogo?: string;
   jobTitle: string;
   location?: string;
   employmentType?: string;

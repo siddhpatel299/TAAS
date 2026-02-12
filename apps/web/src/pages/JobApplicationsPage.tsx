@@ -26,6 +26,7 @@ import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { JOB_STATUSES, JOB_PRIORITIES, JobApplication } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
 import { JobApplicationTimelineRow } from '@/components/job-tracker/JobApplicationTimelineRow';
+import { CompanyLogo } from '@/components/job-tracker/CompanyLogo';
 
 // Status Badge Component
 function StatusBadge({ status }: { status: string }) {
@@ -77,11 +78,11 @@ function CardView({
           className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-purple-200 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center">
-              <span className="text-lg font-bold text-sky-700">
-                {job.company.charAt(0)}
-              </span>
-            </div>
+            <CompanyLogo
+              company={job.company}
+              companyLogo={job.companyLogo}
+              size="md"
+            />
             <StatusBadge status={job.status} />
           </div>
 
@@ -230,11 +231,11 @@ function KanbanView({
                     onClick={() => onEdit(job.id)}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-bold text-sky-700">
-                          {job.company.charAt(0)}
-                        </span>
-                      </div>
+                      <CompanyLogo
+                        company={job.company}
+                        companyLogo={job.companyLogo}
+                        size="sm"
+                      />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 truncate">{job.jobTitle}</h4>
                         <p className="text-sm text-gray-500 truncate">{job.company}</p>

@@ -16,6 +16,7 @@ type ScraperStep = 'input' | 'edit';
 
 interface EditableJobData {
   company: string;
+  companyLogo: string;
   jobTitle: string;
   location: string;
   employmentType: string;
@@ -37,10 +38,11 @@ export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Editable form data (used for both manual and scraped jobs)
   const [formData, setFormData] = useState<EditableJobData>({
     company: '',
+    companyLogo: '',
     jobTitle: '',
     location: '',
     employmentType: 'full_time',
@@ -67,6 +69,7 @@ export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) 
     setScraperStep('input');
     setFormData({
       company: '',
+      companyLogo: '',
       jobTitle: '',
       location: '',
       employmentType: 'full_time',
@@ -97,6 +100,7 @@ export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) 
         // Populate form with scraped data
         setFormData({
           company: data.company || '',
+          companyLogo: data.companyLogo || '',
           jobTitle: data.jobTitle || '',
           location: data.location || '',
           employmentType: data.employmentType || 'full_time',
@@ -128,10 +132,11 @@ export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) 
 
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       await createApplication({
         company: formData.company,
+        companyLogo: formData.companyLogo || undefined,
         jobTitle: formData.jobTitle,
         location: formData.location || undefined,
         employmentType: formData.employmentType,
@@ -190,8 +195,8 @@ export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) 
                 </button>
               )}
               <h2 className="text-xl font-semibold text-gray-900">
-                {scraperStep === 'edit' && activeTab === 'scraper' 
-                  ? 'Review & Edit Job Details' 
+                {scraperStep === 'edit' && activeTab === 'scraper'
+                  ? 'Review & Edit Job Details'
                   : 'Add New Job Application'}
               </h2>
             </div>

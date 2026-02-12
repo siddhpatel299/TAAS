@@ -12,6 +12,7 @@ function scrapeJobDetails() {
   const data = {
     title: "",
     company: "",
+    companyLogo: "",
     location: "",
     url: window.location.href
   };
@@ -27,6 +28,7 @@ function scrapeJobDetails() {
       if (job && job['@type'] === 'JobPosting') {
         if (!data.title && job.title) data.title = job.title;
         if (!data.company && job.hiringOrganization?.name) data.company = job.hiringOrganization.name;
+        if (!data.companyLogo && job.hiringOrganization?.logo) data.companyLogo = job.hiringOrganization.logo;
         if (!data.location) {
             data.location = job.jobLocation?.address?.addressLocality || 
                             (typeof job.jobLocation === 'string' ? job.jobLocation : '');

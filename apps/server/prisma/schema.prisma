@@ -267,6 +267,7 @@ model JobApplication {
   id             String    @id @default(cuid())
   userId         String
   company        String
+  companyLogo    String?  // Company logo URL (scraped from job posting)
   jobTitle       String
   location       String?
   employmentType String? // full-time, part-time, contract, internship, remote

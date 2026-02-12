@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { JobApplication } from '@/lib/plugins-api';
+import { CompanyLogo } from '@/components/job-tracker/CompanyLogo';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -93,9 +94,11 @@ export function JobApplicationTimelineRow({
         >
             <div className="flex items-start gap-6">
                 {/* Logo Section */}
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-500/20 shrink-0">
-                    {application.company.charAt(0).toUpperCase()}
-                </div>
+                <CompanyLogo
+                    company={application.company}
+                    companyLogo={application.companyLogo}
+                    size="lg"
+                />
 
                 {/* Main Content */}
                 <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-12 gap-6">
