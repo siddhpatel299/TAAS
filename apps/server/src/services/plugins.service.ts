@@ -319,6 +319,21 @@ export const AVAILABLE_PLUGINS = [
     ],
   },
   {
+    id: 'pdf-tools',
+    name: 'PDF Tools',
+    description: 'Merge, split, compress, and transform PDFs directly from your storage. Client-side tools run in your browser for privacy.',
+    icon: 'file-text',
+    category: 'productivity',
+    features: [
+      'Merge multiple PDFs (client-side)',
+      'Split PDF by pages (client-side)',
+      'Extract pages (client-side)',
+      'Add watermark (client-side)',
+      'Compress PDF (server-side)',
+      'Extract text / OCR (server-side)',
+    ],
+  },
+  {
     id: 'ats-search',
     name: 'ATS X-Ray Search',
     description: 'Find top talent and hidden jobs using advanced boolean search techniques across multiple platforms.',

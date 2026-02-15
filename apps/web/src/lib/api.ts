@@ -256,6 +256,45 @@ export const versionsApi = {
     api.post(`/files/${fileId}/versions/${version}/restore`),
 };
 
+// PDF Tools API (server-side: compress, extract text)
+export const pdfToolsApi = {
+  compress: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/pdf-tools/compress', formData, {
+      responseType: 'blob',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    });
+  },
+  extractText: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/pdf-tools/extract-text', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    });
+  },
+  officeToPdf: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/pdf-tools/office-to-pdf', formData, {
+      responseType: 'blob',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    });
+  },
+  pdfToPdfa: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/pdf-tools/pdf-to-pdfa', formData, {
+      responseType: 'blob',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    });
+  },
+};
+
 // File preview URL helper
 export const getPreviewUrl = (fileId: string) => {
   const token = localStorage.getItem('token');

@@ -22,6 +22,7 @@ import { OutreachPage } from '@/pages/OutreachPage';
 import { ContactFinderPage } from '@/pages/ContactFinderPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
+import { PdfToolsPage } from '@/pages/plugins/PdfToolsPage';
 
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { FlowPage } from '@/pages/flow/FlowPage';
@@ -450,6 +451,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -491,6 +493,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -532,6 +535,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -573,6 +577,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -614,6 +619,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -655,6 +661,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -696,6 +703,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -737,6 +745,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -778,6 +787,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -819,6 +829,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -860,6 +871,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -901,6 +913,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -940,6 +953,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -979,6 +993,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1018,6 +1033,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1059,6 +1075,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1098,6 +1115,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1137,6 +1155,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1176,6 +1195,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1217,6 +1237,7 @@ function AppContent() {
             <Route path="/plugins/contacts" element={<ProtectedRoute><CrmContactsPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/new" element={<ProtectedRoute><CrmContactFormPage /></ProtectedRoute>} />
             <Route path="/plugins/contacts/:id" element={<ProtectedRoute><CrmContactDetailPage /></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><PdfToolsPage /></ProtectedRoute>} />
             <Route path="/plugins/:pluginId" element={<ProtectedRoute><PluginComingSoonPage /></ProtectedRoute>} />
             <Route path="/share/:token" element={<SharePage />} />
             <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
@@ -1429,6 +1450,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <CrmContactDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plugins/pdf-tools"
+            element={
+              <ProtectedRoute>
+                <PdfToolsPage />
               </ProtectedRoute>
             }
           />

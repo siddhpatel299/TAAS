@@ -19,6 +19,7 @@ import flowRoutes from './routes/flow.routes';
 import { searchRoutes } from './routes/search.routes';
 import callReminderRoutes from './routes/call-reminder.routes';
 import subscriptionRoutes from './routes/subscription.routes';
+import pdfToolsRoutes from './routes/pdf-tools.routes';
 import { flowService } from './services/flow.service';
 import { callScheduler } from './jobs/call-scheduler';
 
@@ -128,6 +129,7 @@ app.use('/api/flow', apiLimiter, flowRoutes);
 app.use('/api/search', apiLimiter, searchRoutes);
 app.use('/api/subscriptions', apiLimiter, subscriptionRoutes);
 app.use('/api/call-reminders', apiLimiter, callReminderRoutes);
+app.use('/api/pdf-tools', apiLimiter, pdfToolsRoutes);
 
 // Error handling
 app.use(notFoundHandler);
