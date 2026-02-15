@@ -36,6 +36,7 @@ const upload = multer({
 router.get('/', authMiddleware, asyncHandler(async (req: AuthRequest, res: Response) => {
   const {
     folderId,
+    rootOnly,
     starred,
     trash,
     search,
@@ -47,7 +48,7 @@ router.get('/', authMiddleware, asyncHandler(async (req: AuthRequest, res: Respo
 
   const result = await storageService.getFiles({
     userId: req.user!.id,
-    folderId: folderId as string | undefined,
+    folderId: rootOnly === 'true' ? undefined : (folderId as string | undefined),
     isStarred: starred === 'true' ? true : undefined,
     isTrashed: trash === 'true',
     search: search as string | undefined,

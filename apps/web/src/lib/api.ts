@@ -65,6 +65,7 @@ export const authApi = {
 export const filesApi = {
   getFiles: (params?: {
     folderId?: string;
+    rootOnly?: boolean;
     starred?: boolean;
     trash?: boolean;
     search?: string;
