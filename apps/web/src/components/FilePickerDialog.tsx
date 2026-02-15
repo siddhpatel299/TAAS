@@ -7,10 +7,13 @@ import {
   Image,
   Video,
   File as FileIcon,
+  Folder,
+  FolderOpen,
+  ChevronRight,
   CheckCircle,
   Loader2,
 } from 'lucide-react';
-import { filesApi } from '@/lib/api';
+import { filesApi, foldersApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 interface TaasFile {
@@ -19,6 +22,13 @@ interface TaasFile {
   mimeType: string;
   size: number;
   createdAt: string;
+}
+
+interface TaasFolder {
+  id: string;
+  name: string;
+  parentId: string | null;
+  _count?: { files: number; children: number };
 }
 
 interface FilePickerDialogProps {
@@ -52,30 +62,60 @@ export function FilePickerDialog({
   filterMimeType,
 }: FilePickerDialogProps) {
   const [files, setFiles] = useState<TaasFile[]>([]);
+  const [folders, setFolders] = useState<TaasFolder[]>([]);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [breadcrumb, setBreadcrumb] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState<TaasFile | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      loadFiles();
+      setCurrentFolderId(null);
+      setBreadcrumb([]);
+      loadData(null);
     }
   }, [isOpen]);
 
-  const loadFiles = async () => {
+  useEffect(() => {
+    if (isOpen) {
+      loadData(currentFolderId);
+    }
+  }, [currentFolderId, isOpen]);
+
+  const loadData = async (folderId: string | null) => {
     setIsLoading(true);
     try {
-      const response = await filesApi.getFiles({ 
-        rootOnly: true,
-        sortBy: 'createdAt', 
-        sortOrder: 'desc',
-        limit: 100,
-      });
-      setFiles(response.data.data || []);
+      const [filesRes, foldersRes] = await Promise.all([
+        filesApi.getFiles({
+          ...(folderId ? { folderId } : { rootOnly: true }),
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+          limit: 100,
+        }),
+        foldersApi.getFolders(folderId ?? undefined),
+      ]);
+      setFiles(filesRes.data.data || []);
+      setFolders(foldersRes.data.data || []);
     } catch (error) {
-      console.error('Failed to load files:', error);
+      console.error('Failed to load files/folders:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleFolderClick = (folder: TaasFolder) => {
+    setBreadcrumb((prev) => [...prev, { id: folder.id, name: folder.name }]);
+    setCurrentFolderId(folder.id);
+  };
+
+  const handleBreadcrumbClick = (index: number) => {
+    if (index === -1) {
+      setCurrentFolderId(null);
+      setBreadcrumb([]);
+    } else {
+      setBreadcrumb((prev) => prev.slice(0, index + 1));
+      setCurrentFolderId(breadcrumb[index].id);
     }
   };
 
@@ -86,6 +126,10 @@ export function FilePickerDialog({
       file.mimeType.includes(filterMimeType);
     return matchesSearch && matchesMimeType;
   });
+
+  const filteredFolders = folders.filter(folder =>
+    !searchQuery || folder.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSelect = () => {
     if (selectedFile) {
@@ -124,6 +168,33 @@ export function FilePickerDialog({
             </button>
           </div>
 
+          {/* Breadcrumb */}
+          <div className="px-6 py-2 border-b border-gray-100">
+            <div className="flex items-center gap-1 flex-wrap">
+              <button
+                type="button"
+                onClick={() => handleBreadcrumbClick(-1)}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              >
+                <FolderOpen className="w-4 h-4" />
+                Root
+              </button>
+              {breadcrumb.map((item, i) => (
+                <div key={item.id} className="flex items-center gap-1">
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  <button
+                    type="button"
+                    onClick={() => handleBreadcrumbClick(i)}
+                    className="px-2 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 truncate max-w-[120px]"
+                    title={item.name}
+                  >
+                    {item.name}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Search */}
           <div className="px-6 py-4 border-b border-gray-100">
             <div className="relative">
@@ -138,20 +209,40 @@ export function FilePickerDialog({
             </div>
           </div>
 
-          {/* File List */}
+          {/* Folders & File List */}
           <div className="flex-1 overflow-y-auto p-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
               </div>
-            ) : filteredFiles.length === 0 ? (
+            ) : filteredFolders.length === 0 && filteredFiles.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <FileIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p className="font-medium">No files found</p>
-                <p className="text-sm">Upload files to TAAS to attach them here</p>
+                <p className="font-medium">No files or folders found</p>
+                <p className="text-sm">Upload files to TAAS or create folders</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2">
+                {filteredFolders.map((folder) => (
+                  <button
+                    key={folder.id}
+                    type="button"
+                    onClick={() => handleFolderClick(folder)}
+                    className="flex items-center gap-4 p-4 rounded-xl text-left transition-all bg-amber-50 border-2 border-transparent hover:bg-amber-100 hover:border-amber-200"
+                  >
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-100">
+                      <Folder className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{folder.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {folder._count?.files ?? 0} files
+                        {(folder._count?.children ?? 0) > 0 && ` • ${folder._count.children} folders`}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                  </button>
+                ))}
                 {filteredFiles.map((file) => {
                   const IconComponent = getFileIcon(file.mimeType);
                   const isSelected = selectedFile?.id === file.id;
@@ -159,6 +250,7 @@ export function FilePickerDialog({
                   return (
                     <button
                       key={file.id}
+                      type="button"
                       onClick={() => setSelectedFile(file)}
                       className={cn(
                         "flex items-center gap-4 p-4 rounded-xl text-left transition-all",
