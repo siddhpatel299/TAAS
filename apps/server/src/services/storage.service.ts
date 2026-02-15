@@ -195,9 +195,10 @@ export class StorageService {
           return { buffer, fileName: file.originalName, mimeType: file.mimeType };
         }
 
-        // For non-chunked files - try download by message ID (works for MTProto files!)
-        // This forwards the message to get a Bot API file_id
-        if (file.channelId && file.telegramMessageId) {
+        // For non-chunked files - Bot API getFile only supports files up to 20MB
+        // Skip Bot for large files and use MTProto directly
+        const BOT_GETFILE_LIMIT = 20 * 1024 * 1024; // 20MB
+        if (file.channelId && file.telegramMessageId && Number(file.size) <= BOT_GETFILE_LIMIT) {
           console.log(`[Storage] Bot download by message ID: ${file.originalName}`);
           const buffer = await botUploadService.downloadByMessageId(
             file.channelId,
