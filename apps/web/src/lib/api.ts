@@ -165,10 +165,11 @@ export const filesApi = {
     return api.post('/files/upload/complete', { uploadId });
   },
 
-  downloadFile: (id: string) =>
+  downloadFile: (id: string, config?: { signal?: AbortSignal }) =>
     api.get(`/files/${id}/download`, {
       responseType: 'blob',
       timeout: 600000, // 10 minutes for large files
+      ...config,
     }),
 
   renameFile: (id: string, name: string) =>

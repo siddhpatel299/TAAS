@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -138,6 +138,7 @@ export function MyFilesPage() {
     totalSize: number;
     downloaded: number;
   } | null>(null);
+  const downloadAbortRef = useRef<AbortController | null>(null);
 
   // Toggle file selection
   const toggleFileSelection = (fileId: string) => {
@@ -355,6 +356,11 @@ export function MyFilesPage() {
   };
 
   const handleDownload = async (file: StoredFile) => {
+    // Abort any previous download
+    downloadAbortRef.current?.abort();
+    downloadAbortRef.current = new AbortController();
+    const signal = downloadAbortRef.current.signal;
+
     try {
       const token = localStorage.getItem('token');
       const baseUrl = import.meta.env.VITE_API_URL || '/api';
@@ -385,7 +391,7 @@ export function MyFilesPage() {
           const writable = await handle.createWritable();
 
           console.log(`[Download] Streaming ${file.originalName} directly to disk...`);
-          const response = await fetch(downloadUrl);
+          const response = await fetch(downloadUrl, { signal });
 
           if (!response.ok) {
             throw new Error(`Download failed: ${response.status}`);
@@ -418,11 +424,13 @@ export function MyFilesPage() {
           await writable.close();
           console.log(`[Download] ✅ Complete: ${file.originalName}`);
           setDownloadProgress(null);
+          downloadAbortRef.current = null;
           return;
         } catch (err: any) {
           if (err.name === 'AbortError') {
-            console.log('[Download] User cancelled');
+            console.log('[Download] Cancelled');
             setDownloadProgress(null);
+            downloadAbortRef.current = null;
             return;
           }
           console.warn('[Download] File System Access failed, falling back:', err.message);
@@ -430,7 +438,7 @@ export function MyFilesPage() {
       }
 
       // Fallback for unsupported browsers
-      const response = await filesApi.downloadFile(file.id);
+      const response = await filesApi.downloadFile(file.id, { signal });
       const url = window.URL.createObjectURL(response.data);
       const a = document.createElement('a');
       a.href = url;
@@ -440,10 +448,21 @@ export function MyFilesPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       setDownloadProgress(null);
-    } catch (error) {
-      console.error('Download failed:', error);
+      downloadAbortRef.current = null;
+    } catch (error: any) {
+      if (error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        console.log('[Download] Cancelled');
+      } else {
+        console.error('Download failed:', error);
+      }
       setDownloadProgress(null);
+    } finally {
+      downloadAbortRef.current = null;
     }
+  };
+
+  const handleStopDownload = () => {
+    downloadAbortRef.current?.abort();
   };
 
   const handleStar = async (file: StoredFile) => {
@@ -1122,6 +1141,15 @@ export function MyFilesPage() {
               <span className="text-lg font-bold text-cyan-600">
                 {downloadProgress.progress}%
               </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 shrink-0"
+                onClick={handleStopDownload}
+                title="Stop download"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <motion.div
