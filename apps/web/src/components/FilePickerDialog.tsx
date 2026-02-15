@@ -70,39 +70,38 @@ export function FilePickerDialog({
   const [selectedFile, setSelectedFile] = useState<TaasFile | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setCurrentFolderId(null);
-      setBreadcrumb([]);
-      loadData(null);
-    }
+    if (!isOpen) return;
+    setCurrentFolderId(null);
+    setBreadcrumb([]);
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      loadData(currentFolderId);
-    }
-  }, [currentFolderId, isOpen]);
-
-  const loadData = async (folderId: string | null) => {
+    if (!isOpen) return;
+    let cancelled = false;
     setIsLoading(true);
-    try {
-      const [filesRes, foldersRes] = await Promise.all([
-        filesApi.getFiles({
-          ...(folderId ? { folderId } : { rootOnly: true }),
-          sortBy: 'createdAt',
-          sortOrder: 'desc',
-          limit: 100,
-        }),
-        foldersApi.getFolders(folderId ?? undefined),
-      ]);
-      setFiles(filesRes.data.data || []);
-      setFolders(foldersRes.data.data || []);
-    } catch (error) {
-      console.error('Failed to load files/folders:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const folderId = currentFolderId;
+    Promise.all([
+      filesApi.getFiles({
+        ...(folderId ? { folderId } : { rootOnly: true }),
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+        limit: 100,
+      }),
+      foldersApi.getFolders(folderId ?? undefined),
+    ])
+      .then(([filesRes, foldersRes]) => {
+        if (cancelled) return;
+        setFiles(filesRes.data.data || []);
+        setFolders(foldersRes.data.data || []);
+      })
+      .catch((error) => {
+        if (!cancelled) console.error('Failed to load files/folders:', error);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [isOpen, currentFolderId]);
 
   const handleFolderClick = (folder: TaasFolder) => {
     setBreadcrumb((prev) => [...prev, { id: folder.id, name: folder.name }]);
