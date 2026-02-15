@@ -426,6 +426,7 @@ function NoteEditor({ note }: NoteEditorProps) {
                 <style>{theme.editorCSS}</style>
                 <style>{theme.toolbarCSS}</style>
                 <TiptapEditor
+                    key={note.id}
                     content={note.contentJson || null}
                     onChange={handleEditorChange}
                     onEditorReady={setEditorInstance}
@@ -511,7 +512,7 @@ export function NotesPageLayout({ LayoutWrapper, PanelWrapper }: NotesPageLayout
     const handleCreateNote = async () => {
         try {
             const newNote = await createNote({
-                title: '',
+                title: 'Untitled Note',
                 content: '',
                 folderId: filters.folderId || undefined
             });
@@ -524,7 +525,7 @@ export function NotesPageLayout({ LayoutWrapper, PanelWrapper }: NotesPageLayout
     const handleFolderAction = (action: string, folder: NoteFolder) => {
         if (action === 'create_note') {
             createNote({
-                title: '',
+                title: 'Untitled Note',
                 content: '',
                 folderId: folder.id
             }).then(note => navigate(`${theme.routePrefix}/${note.id}`));

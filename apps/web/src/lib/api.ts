@@ -103,15 +103,34 @@ export const filesApi = {
       const start = partNumber * CHUNK_SIZE;
       const end = Math.min(start + CHUNK_SIZE, totalSize);
       const chunk = file.slice(start, end);
+      const partSize = end - start;
 
-      const formData = new FormData();
+      let formData = new FormData();
       formData.append('uploadId', uploadId);
       formData.append('partNumber', String(partNumber));
+      formData.append('partSize', String(partSize));
       formData.append('chunk', chunk, `chunk-${partNumber}`);
 
-      await api.post('/files/upload/part', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // Retry on failure (streaming has no server-side retry)
+      const maxRetries = 3;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          await api.post('/files/upload/part', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          break;
+        } catch (err: any) {
+          if (attempt === maxRetries) throw err;
+          const delay = Math.pow(2, attempt) * 1000;
+          await new Promise((r) => setTimeout(r, delay));
+          // Recreate formData for retry (consumed on first attempt)
+          formData = new FormData();
+          formData.append('uploadId', uploadId);
+          formData.append('partNumber', String(partNumber));
+          formData.append('partSize', String(partSize));
+          formData.append('chunk', file.slice(start, end), `chunk-${partNumber}`);
+        }
+      }
 
       completedParts++;
       if (onProgress) {

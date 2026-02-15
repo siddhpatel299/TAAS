@@ -22,7 +22,7 @@ import { OutreachPage } from '@/pages/OutreachPage';
 import { ContactFinderPage } from '@/pages/ContactFinderPage';
 import { TodoPage } from '@/pages/TodoPage';
 import { PluginComingSoonPage } from '@/pages/PluginComingSoonPage';
-import { NotesPage } from '@/pages/NotesPage';
+
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 import { FlowPage } from '@/pages/flow/FlowPage';
 import { InsightPage } from '@/pages/InsightPage';
@@ -34,6 +34,7 @@ import { authApi } from '@/lib/api';
 import { Send } from 'lucide-react';
 import { ChangelogPage } from '@/pages/ChangelogPage';
 import { UpdateNotification } from '@/components/UpdateNotification';
+import { UnifiedNotesPage } from '@/pages/UnifiedNotesPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,7 +125,7 @@ import { HUDOutreachPage } from '@/pages/hud/HUDOutreachPage';
 import { HUDContactFinderPage } from '@/pages/hud/HUDContactFinderPage';
 import { HUDTelegramPage } from '@/pages/hud/HUDTelegramPage';
 import { HUDJobApplicationFormPage } from '@/pages/hud/HUDJobApplicationFormPage';
-import { HUDNotesPage } from '@/pages/hud/HUDNotesPage';
+
 
 // Forest Theme imports
 import { ForestDashboardPage } from '@/pages/forest/ForestDashboardPage';
@@ -139,7 +140,7 @@ import { ForestJobApplicationFormPage } from '@/pages/forest/ForestJobApplicatio
 import { ForestOutreachPage } from '@/pages/forest/ForestOutreachPage';
 import { ForestContactFinderPage } from '@/pages/forest/ForestContactFinderPage';
 import { ForestTelegramPage } from '@/pages/forest/ForestTelegramPage';
-import { ForestNotesPage } from '@/pages/forest/ForestNotesPage';
+
 
 // Terminal Theme imports
 import { TerminalDashboardPage } from '@/pages/terminal/TerminalDashboardPage';
@@ -154,7 +155,7 @@ import { TerminalJobApplicationFormPage } from '@/pages/terminal/TerminalJobAppl
 import { TerminalOutreachPage } from '@/pages/terminal/TerminalOutreachPage';
 import { TerminalContactFinderPage } from '@/pages/terminal/TerminalContactFinderPage';
 import { TerminalTelegramPage } from '@/pages/terminal/TerminalTelegramPage';
-import { TerminalNotesPage } from '@/pages/terminal/TerminalNotesPage';
+
 
 // Origami Theme imports
 import { OrigamiDashboardPage } from '@/pages/origami/OrigamiDashboardPage';
@@ -169,7 +170,7 @@ import { OrigamiJobApplicationFormPage } from '@/pages/origami/OrigamiJobApplica
 import { OrigamiOutreachPage } from '@/pages/origami/OrigamiOutreachPage';
 import { OrigamiContactFinderPage } from '@/pages/origami/OrigamiContactFinderPage';
 import { OrigamiTelegramPage } from '@/pages/origami/OrigamiTelegramPage';
-import { OrigamiNotesPage } from '@/pages/origami/OrigamiNotesPage';
+
 
 // Blueprint Theme imports
 import { BlueprintDashboardPage } from '@/pages/blueprint/BlueprintDashboardPage';
@@ -184,7 +185,7 @@ import { BlueprintJobApplicationFormPage } from '@/pages/blueprint/BlueprintJobA
 import { BlueprintOutreachPage } from '@/pages/blueprint/BlueprintOutreachPage';
 import { BlueprintContactFinderPage } from '@/pages/blueprint/BlueprintContactFinderPage';
 import { BlueprintTelegramPage } from '@/pages/blueprint/BlueprintTelegramPage';
-import { BlueprintNotesPage } from '@/pages/blueprint/BlueprintNotesPage';
+
 
 // Newsprint Theme imports
 import { NewsprintDashboardPage } from '@/pages/newsprint/NewsprintDashboardPage';
@@ -199,7 +200,7 @@ import { NewsprintJobApplicationFormPage } from '@/pages/newsprint/NewsprintJobA
 import { NewsprintOutreachPage } from '@/pages/newsprint/NewsprintOutreachPage';
 import { NewsprintContactFinderPage } from '@/pages/newsprint/NewsprintContactFinderPage';
 import { NewsprintTelegramPage } from '@/pages/newsprint/NewsprintTelegramPage';
-import { NewsprintNotesPage } from '@/pages/newsprint/NewsprintNotesPage';
+
 
 // Brutalist Theme imports
 import { BrutalistDashboardPage } from '@/pages/brutalist/BrutalistDashboardPage';
@@ -214,7 +215,7 @@ import { BrutalistJobApplicationFormPage } from '@/pages/brutalist/BrutalistJobA
 import { BrutalistOutreachPage } from '@/pages/brutalist/BrutalistOutreachPage';
 import { BrutalistContactFinderPage } from '@/pages/brutalist/BrutalistContactFinderPage';
 import { BrutalistTelegramPage } from '@/pages/brutalist/BrutalistTelegramPage';
-import { BrutalistNotesPage } from '@/pages/brutalist/BrutalistNotesPage';
+
 
 // CRT Theme imports
 import { CRTDashboardPage } from '@/pages/crt/CRTDashboardPage';
@@ -228,7 +229,7 @@ import { CRTJobApplicationsPage } from '@/pages/crt/CRTJobApplicationsPage';
 import { CRTJobApplicationFormPage } from '@/pages/crt/CRTJobApplicationFormPage';
 import { CRTOutreachPage } from '@/pages/crt/CRTOutreachPage';
 import { CRTTelegramPage } from '@/pages/crt/CRTTelegramPage';
-import { CRTNotesPage } from '@/pages/crt/CRTNotesPage';
+
 
 // Glass Theme imports
 import { GlassDashboardPage } from '@/pages/glass/GlassDashboardPage';
@@ -243,7 +244,7 @@ import { GlassJobApplicationFormPage } from '@/pages/glass/GlassJobApplicationFo
 import { GlassOutreachPage } from '@/pages/glass/GlassOutreachPage';
 import { GlassContactFinderPage } from '@/pages/glass/GlassContactFinderPage';
 import { GlassTelegramPage } from '@/pages/glass/GlassTelegramPage';
-import { GlassNotesPage } from '@/pages/glass/GlassNotesPage';
+
 
 // Art Deco Theme imports
 import { ArtDecoDashboardPage } from '@/pages/artdeco/ArtDecoDashboardPage';
@@ -258,7 +259,7 @@ import { ArtDecoJobApplicationFormPage } from '@/pages/artdeco/ArtDecoJobApplica
 import { ArtDecoOutreachPage } from '@/pages/artdeco/ArtDecoOutreachPage';
 import { ArtDecoContactFinderPage } from '@/pages/artdeco/ArtDecoContactFinderPage';
 import { ArtDecoTelegramPage } from '@/pages/artdeco/ArtDecoTelegramPage';
-import { ArtDecoNotesPage } from '@/pages/artdeco/ArtDecoNotesPage';
+
 
 // Canvas/Museumcore Theme imports
 import { CanvasDashboardPage } from '@/pages/canvas/CanvasDashboardPage';
@@ -273,7 +274,7 @@ import { CanvasJobApplicationFormPage } from '@/pages/canvas/CanvasJobApplicatio
 import { CanvasOutreachPage } from '@/pages/canvas/CanvasOutreachPage';
 import { CanvasContactFinderPage } from '@/pages/canvas/CanvasContactFinderPage';
 import { CanvasTelegramPage } from '@/pages/canvas/CanvasTelegramPage';
-import { CanvasNotesPage } from '@/pages/canvas/CanvasNotesPage';
+
 
 // Comic Book Theme imports
 import { ComicDashboardPage } from '@/pages/comic/ComicDashboardPage';
@@ -288,7 +289,7 @@ import { ComicJobApplicationFormPage } from '@/pages/comic/ComicJobApplicationFo
 import { ComicOutreachPage } from '@/pages/comic/ComicOutreachPage';
 import { ComicContactFinderPage } from '@/pages/comic/ComicContactFinderPage';
 import { ComicTelegramPage } from '@/pages/comic/ComicTelegramPage';
-import { ComicNotesPage } from '@/pages/comic/ComicNotesPage';
+
 
 // Archival Index Theme imports
 import { ArchiveDashboardPage } from '@/pages/archive/ArchiveDashboardPage';
@@ -303,7 +304,7 @@ import { ArchiveJobApplicationFormPage } from '@/pages/archive/ArchiveJobApplica
 import { ArchiveOutreachPage } from '@/pages/archive/ArchiveOutreachPage';
 import { ArchiveContactFinderPage } from '@/pages/archive/ArchiveContactFinderPage';
 import { ArchiveTelegramPage } from '@/pages/archive/ArchiveTelegramPage';
-import { ArchiveNotesPage } from '@/pages/archive/ArchiveNotesPage';
+
 
 // Steampunk Theme imports
 import { SteamDashboardPage } from '@/pages/steam/SteamDashboardPage';
@@ -318,7 +319,7 @@ import { SteamJobApplicationFormPage } from '@/pages/steam/SteamJobApplicationFo
 import { SteamOutreachPage } from '@/pages/steam/SteamOutreachPage';
 import { SteamContactFinderPage } from '@/pages/steam/SteamContactFinderPage';
 import { SteamTelegramPage } from '@/pages/steam/SteamTelegramPage';
-import { SteamNotesPage } from '@/pages/steam/SteamNotesPage';
+
 
 // Aurora Theme imports
 import { AuroraDashboardPage } from '@/pages/aurora/AuroraDashboardPage';
@@ -333,7 +334,7 @@ import { AuroraJobApplicationFormPage } from '@/pages/aurora/AuroraJobApplicatio
 import { AuroraOutreachPage } from '@/pages/aurora/AuroraOutreachPage';
 import { AuroraContactFinderPage } from '@/pages/aurora/AuroraContactFinderPage';
 import { AuroraTelegramPage } from '@/pages/aurora/AuroraTelegramPage';
-import { AuroraNotesPage } from '@/pages/aurora/AuroraNotesPage';
+
 
 // Minimalist Zen Theme imports
 import { ZenDashboardPage } from '@/pages/zen/ZenDashboardPage';
@@ -348,7 +349,7 @@ import { ZenJobApplicationFormPage } from '@/pages/zen/ZenJobApplicationFormPage
 import { ZenOutreachPage } from '@/pages/zen/ZenOutreachPage';
 import { ZenContactFinderPage } from '@/pages/zen/ZenContactFinderPage';
 import { ZenTelegramPage } from '@/pages/zen/ZenTelegramPage';
-import { ZenNotesPage } from '@/pages/zen/ZenNotesPage';
+
 
 // Skeuomorphism 2.0 (Tactile Tech) Theme imports
 import { SkeuDashboardPage } from '@/pages/skeu/SkeuDashboardPage';
@@ -363,7 +364,7 @@ import { SkeuJobApplicationFormPage } from '@/pages/skeu/SkeuJobApplicationFormP
 import { SkeuOutreachPage } from '@/pages/skeu/SkeuOutreachPage';
 import { SkeuContactFinderPage } from '@/pages/skeu/SkeuContactFinderPage';
 import { SkeuTelegramPage } from '@/pages/skeu/SkeuTelegramPage';
-import { SkeuNotesPage } from '@/pages/skeu/SkeuNotesPage';
+
 
 // Paper/Stationery Theme imports
 import { PaperDashboardPage } from '@/pages/paper/PaperDashboardPage';
@@ -378,7 +379,7 @@ import { PaperJobApplicationFormPage } from '@/pages/paper/PaperJobApplicationFo
 import { PaperOutreachPage } from '@/pages/paper/PaperOutreachPage';
 import { PaperContactFinderPage } from '@/pages/paper/PaperContactFinderPage';
 import { PaperTelegramPage } from '@/pages/paper/PaperTelegramPage';
-import { PaperNotesPage } from '@/pages/paper/PaperNotesPage';
+
 
 // Corporate Executive Theme imports
 import { ExecDashboardPage } from '@/pages/exec/ExecDashboardPage';
@@ -393,7 +394,7 @@ import { ExecJobApplicationFormPage } from '@/pages/exec/ExecJobApplicationFormP
 import { ExecOutreachPage } from '@/pages/exec/ExecOutreachPage';
 import { ExecContactFinderPage } from '@/pages/exec/ExecContactFinderPage';
 import { ExecTelegramPage } from '@/pages/exec/ExecTelegramPage';
-import { ExecNotesPage } from '@/pages/exec/ExecNotesPage';
+
 
 // Pixel Art Theme imports
 import { PixelDashboardPage } from '@/pages/pixel/PixelDashboardPage';
@@ -411,7 +412,7 @@ import { PixelTelegramPage } from '@/pages/pixel/PixelTelegramPage';
 import { CrmContactsPage } from '@/pages/crm/CrmContactsPage';
 import { CrmContactDetailPage } from '@/pages/crm/CrmContactDetailPage';
 import { CrmContactFormPage } from '@/pages/crm/CrmContactFormPage';
-import { PixelNotesPage } from '@/pages/pixel/PixelNotesPage';
+
 
 // ... (existing imports remain the same)
 
@@ -440,8 +441,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><NewsprintContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><NewsprintNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -482,8 +483,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BrutalistContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BrutalistNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -523,8 +524,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CRTNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -564,8 +565,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><GlassContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><GlassNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -605,8 +606,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArtDecoContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArtDecoNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -646,8 +647,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><CanvasContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><CanvasNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -687,8 +688,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ComicContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ComicNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -728,8 +729,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ArchiveContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ArchiveNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -769,8 +770,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><BlueprintContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><BlueprintNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -810,8 +811,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SteamContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SteamNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -851,8 +852,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><AuroraContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><AuroraNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -892,8 +893,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ZenContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ZenNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -931,8 +932,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><SkeuJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><SkeuOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><SkeuContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><SkeuNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><SkeuNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -970,8 +971,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><PaperJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><PaperOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PaperContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><PaperNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PaperNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1009,8 +1010,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ExecJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ExecOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ExecContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><ExecNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ExecNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1050,8 +1051,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><PixelContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><PixelNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1089,8 +1090,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><OrigamiJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OrigamiOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><OrigamiContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><OrigamiNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><OrigamiNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1128,8 +1129,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><ForestJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><ForestOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><ForestContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><ForestNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><ForestNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1167,8 +1168,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><TerminalJobApplicationFormPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><TerminalOutreachPage /></ProtectedRoute>} />
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><TerminalContactFinderPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><TerminalNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><TerminalNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1208,8 +1209,8 @@ function AppContent() {
             <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><HUDContactFinderPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus" element={<ProtectedRoute><NexusDashboardPage /></ProtectedRoute>} />
             <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><NexusProjectPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
-            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><HUDNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><UnifiedNotesPage /></ProtectedRoute>} />
             <Route path="/plugins/insight" element={<ProtectedRoute><InsightPage /></ProtectedRoute>} />
             <Route path="/plugins/ats-search" element={<ProtectedRoute><ATSSearchPage /></ProtectedRoute>} />
             <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><SubscriptionDashboardPage /></ProtectedRoute>} />
@@ -1351,7 +1352,7 @@ function AppContent() {
             path="/plugins/notes"
             element={
               <ProtectedRoute>
-                <NotesPage />
+                <UnifiedNotesPage />
               </ProtectedRoute>
             }
           />
@@ -1359,7 +1360,7 @@ function AppContent() {
             path="/plugins/notes/list"
             element={
               <ProtectedRoute>
-                <NotesPage />
+                <UnifiedNotesPage />
               </ProtectedRoute>
             }
           />
@@ -1367,7 +1368,7 @@ function AppContent() {
             path="/plugins/notes/:noteId"
             element={
               <ProtectedRoute>
-                <NotesPage />
+                <UnifiedNotesPage />
               </ProtectedRoute>
             }
           />
@@ -1381,7 +1382,7 @@ function AppContent() {
           />
           <Route
             path="/public/notes/:noteId"
-            element={<NotesPage />}
+            element={<UnifiedNotesPage />}
           />
           <Route
             path="/plugins/insight"

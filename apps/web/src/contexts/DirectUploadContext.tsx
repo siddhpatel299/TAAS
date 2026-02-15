@@ -106,17 +106,38 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
           const start = partNumber * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, totalSize);
           const chunk = file.slice(start, end);
+          const partSize = end - start;
 
-          const formData = new FormData();
+          let formData = new FormData();
           formData.append('uploadId', uploadId);
           formData.append('partNumber', String(partNumber));
+          formData.append('partSize', String(partSize));
           formData.append('chunk', chunk, `chunk-${partNumber}`);
 
           console.log(`[Upload] Uploading part ${partNumber + 1}/${totalParts}`);
 
-          await api.post('/files/upload/part', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          // Retry on failure (streaming has no server-side retry)
+          const maxRetries = 3;
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              await api.post('/files/upload/part', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+              });
+              break;
+            } catch (err: any) {
+              if (attempt === maxRetries) throw err;
+              const delay = Math.pow(2, attempt) * 1000;
+              console.log(`[Upload] Part ${partNumber + 1} failed, retrying in ${delay}ms...`);
+              await new Promise((r) => setTimeout(r, delay));
+              // Recreate formData for retry (consumed on first attempt)
+              const retryFormData = new FormData();
+              retryFormData.append('uploadId', uploadId);
+              retryFormData.append('partNumber', String(partNumber));
+              retryFormData.append('partSize', String(partSize));
+              retryFormData.append('chunk', file.slice(start, end), `chunk-${partNumber}`);
+              formData = retryFormData;
+            }
+          }
 
           completedParts++;
           updateUpload(item.id, {

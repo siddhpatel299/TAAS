@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Puzzle,
   Check,
-  Plus,
   Briefcase,
   DollarSign,
   FileText,
-  Sparkles,
-  ArrowRight,
   Shield,
   Bookmark,
   Target,
@@ -19,11 +16,18 @@ import {
   Code,
   Layers,
   Search,
+  Sparkles,
+  ArrowRight,
+  Zap,
+  ExternalLink,
+  Settings
 } from 'lucide-react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { usePluginsStore } from '@/stores/plugins.store';
+import type { Plugin } from '@/lib/plugins-api';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { PluginSettingsModal } from '@/components/plugins/PluginSettingsModal';
 
 // Icon mapping for plugins
 const pluginIcons: Record<string, React.ElementType> = {
@@ -41,14 +45,50 @@ const pluginIcons: Record<string, React.ElementType> = {
   'layers': Layers,
 };
 
-// Category colors
-const categoryColors: Record<string, { bg: string; text: string; gradient: string }> = {
-  'productivity': { bg: 'bg-blue-100', text: 'text-blue-700', gradient: 'from-blue-500 to-indigo-600' },
-  'finance': { bg: 'bg-green-100', text: 'text-green-700', gradient: 'from-green-500 to-emerald-600' },
-  'security': { bg: 'bg-red-100', text: 'text-red-700', gradient: 'from-red-500 to-rose-600' },
-  'lifestyle': { bg: 'bg-purple-100', text: 'text-purple-700', gradient: 'from-purple-500 to-fuchsia-600' },
-  'development': { bg: 'bg-orange-100', text: 'text-orange-700', gradient: 'from-orange-500 to-amber-600' },
-  'education': { bg: 'bg-cyan-100', text: 'text-cyan-700', gradient: 'from-cyan-500 to-teal-600' },
+// Enhanced Category colors with more vibrant gradients
+const categoryStyles: Record<string, { bg: string; text: string; border: string; gradient: string; iconBg: string }> = {
+  'productivity': {
+    bg: 'bg-blue-500/10',
+    text: 'text-blue-600',
+    border: 'border-blue-200/50',
+    gradient: 'from-blue-500 to-indigo-600',
+    iconBg: 'bg-blue-100'
+  },
+  'finance': {
+    bg: 'bg-emerald-500/10',
+    text: 'text-emerald-600',
+    border: 'border-emerald-200/50',
+    gradient: 'from-emerald-500 to-teal-600',
+    iconBg: 'bg-emerald-100'
+  },
+  'security': {
+    bg: 'bg-rose-500/10',
+    text: 'text-rose-600',
+    border: 'border-rose-200/50',
+    gradient: 'from-rose-500 to-red-600',
+    iconBg: 'bg-rose-100'
+  },
+  'lifestyle': {
+    bg: 'bg-violet-500/10',
+    text: 'text-violet-600',
+    border: 'border-violet-200/50',
+    gradient: 'from-violet-500 to-purple-600',
+    iconBg: 'bg-violet-100'
+  },
+  'development': {
+    bg: 'bg-amber-500/10',
+    text: 'text-amber-600',
+    border: 'border-amber-200/50',
+    gradient: 'from-amber-500 to-orange-600',
+    iconBg: 'bg-amber-100'
+  },
+  'education': {
+    bg: 'bg-cyan-500/10',
+    text: 'text-cyan-600',
+    border: 'border-cyan-200/50',
+    gradient: 'from-cyan-500 to-sky-600',
+    iconBg: 'bg-cyan-100'
+  },
 };
 
 const categories = [
@@ -76,6 +116,7 @@ export function PluginsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeSettingsPlugin, setActiveSettingsPlugin] = useState<Plugin | null>(null);
 
   useEffect(() => {
     fetchAvailablePlugins();
@@ -105,314 +146,325 @@ export function PluginsPage() {
     }
   };
 
-  const handleOpenPlugin = (pluginId: string) => {
-    // Navigate to the plugin's dedicated page
-    navigate(`/plugins/${pluginId}`);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-100/40 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-blue-100/40 rounded-full blur-3xl opacity-50 -translate-y-1/2 -translate-x-1/3" />
+      </div>
+
       <ModernSidebar />
 
-      <main className="ml-20 p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-              <Puzzle className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Plugins</h1>
-          </div>
-          <p className="text-gray-500 ml-13">
-            Extend TAAS with powerful productivity tools. All data stays in your Telegram storage.
-          </p>
-        </div>
-
-        {/* Error Alert */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center justify-between"
-          >
-            <span>{error}</span>
-            <button onClick={clearError} className="text-red-500 hover:text-red-700">
-              Dismiss
-            </button>
-          </motion.div>
-        )}
-
-        {/* Info Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-1">How Plugins Work</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Plugins add new features to TAAS without requiring external storage.
-                All files are stored in your Telegram account through TAAS's secure upload system.
-                Plugins only store references (IDs) to your files, never the files themselves.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Search and Filter */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search plugins..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex gap-2 flex-wrap">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium rounded-xl transition-all",
-                  selectedCategory === category.id
-                    ? "bg-purple-500 text-white"
-                    : "bg-white text-gray-600 border border-gray-200 hover:border-purple-300 hover:text-purple-600"
-                )}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Plugin Grid */}
-        {isLoading && availablePlugins.length === 0 ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPlugins.map((plugin) => {
-              const IconComponent = pluginIcons[plugin.icon] || Puzzle;
-              const isEnabled = plugin.enabled;
-              const isActionLoading = actionLoading === plugin.id;
-              const categoryStyle = categoryColors[plugin.category] || categoryColors['productivity'];
-
-              return (
-                <motion.div
-                  key={plugin.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -2, boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
-                  className={cn(
-                    "bg-white rounded-2xl border overflow-hidden transition-all",
-                    isEnabled ? "border-green-200 ring-2 ring-green-100" : "border-gray-200"
-                  )}
-                >
-                  {/* Plugin Header */}
-                  <div className="p-6 pb-4">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center",
-                        isEnabled
-                          ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                          : `bg-gradient-to-br ${categoryStyle.gradient}`
-                      )}>
-                        <IconComponent className="w-6 h-6 text-white" />
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "px-2 py-0.5 text-xs font-medium rounded-full capitalize",
-                          categoryStyle.bg, categoryStyle.text
-                        )}>
-                          {plugin.category}
-                        </span>
-                        {isEnabled && (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
-                            <Check className="w-3 h-3" />
-                            Enabled
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {plugin.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 leading-relaxed mb-4">
-                      {plugin.description}
-                    </p>
-
-                    {/* Features List */}
-                    <div className="space-y-2">
-                      {plugin.features.slice(0, 3).map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                          <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                      {plugin.features.length > 3 && (
-                        <p className="text-sm text-gray-400">
-                          +{plugin.features.length - 3} more features
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Plugin Actions */}
-                  <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center gap-3">
-                    {isEnabled ? (
-                      <>
-                        <button
-                          onClick={() => handleOpenPlugin(plugin.id)}
-                          className="flex-1 py-2.5 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2"
-                        >
-                          Open
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleTogglePlugin(plugin.id, true)}
-                          disabled={isActionLoading}
-                          className="py-2.5 px-4 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50"
-                        >
-                          {isActionLoading ? 'Disabling...' : 'Disable'}
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => handleTogglePlugin(plugin.id, false)}
-                        disabled={isActionLoading}
-                        className={cn(
-                          "w-full py-2.5 px-4 text-white text-sm font-medium rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50",
-                          `bg-gradient-to-r ${categoryStyle.gradient} hover:opacity-90`
-                        )}
-                      >
-                        {isActionLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Enabling...
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="w-4 h-4" />
-                            Enable Plugin
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-
-            {/* Subscription Tracker - Always visible */}
+      <main className="ml-20 relative z-10">
+        {/* Hero Section */}
+        <div className="pt-12 px-8 pb-8">
+          <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -2, boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
-              className="bg-white rounded-2xl border border-green-200 ring-2 ring-green-100 overflow-hidden transition-all"
+              className="mb-8"
             >
-              <div className="p-6 pb-4">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600">
-                    <DollarSign className="w-6 h-6 text-white" />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 text-xs font-medium rounded-full capitalize bg-green-100 text-green-700">
-                      finance
-                    </span>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
-                      <Check className="w-3 h-3" />
-                      Enabled
-                    </span>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Subscription Tracker
-                </h3>
-                <p className="text-sm text-gray-500 leading-relaxed mb-4">
-                  Track all your subscriptions with phone call reminders before renewals. Never get charged unexpectedly again.
-                </p>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>📞 Phone call reminders</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>Track all subscriptions</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>Cost analytics & insights</span>
-                  </div>
-                </div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold tracking-wide uppercase">
+                  App Store
+                </span>
               </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
+                Supercharge your <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+                  Productivity
+                </span>
+              </h1>
+              <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                Unlock powerful features with our curated collection of plugins.
+                Everything runs securely within your encrypted storage.
+              </p>
+            </motion.div>
 
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                <button
-                  onClick={() => navigate('/plugins/subscription-tracker')}
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2"
+            {/* Error Alert */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-6"
                 >
-                  Open
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                  <div className="p-4 bg-red-50/50 backdrop-blur-sm border border-red-200 rounded-xl text-red-700 flex items-center justify-between shadow-sm">
+                    <span className="flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      {error}
+                    </span>
+                    <button onClick={clearError} className="text-sm font-medium hover:underline">
+                      Dismiss
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Controls Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="sticky top-4 z-50 mb-10"
+            >
+              <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg shadow-slate-200/50 rounded-2xl p-2 flex flex-col md:flex-row gap-2">
+                {/* Search */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search apps..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white/50 transition-colors"
+                  />
+                </div>
+
+                {/* Categories */}
+                <div className="flex gap-1 overflow-x-auto pb-1 md:pb-0 px-2 no-scrollbar">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={cn(
+                        "px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200",
+                        selectedCategory === category.id
+                          ? "bg-slate-900 text-white shadow-md"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      )}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             </motion.div>
 
+            {/* Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <AnimatePresence mode="popLayout">
+                {isLoading && availablePlugins.length === 0 ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-white/60 rounded-3xl h-80 animate-pulse" />
+                  ))
+                ) : (
+                  <>
+                    {/* Subscription Tracker - Special Card */}
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ y: -4 }}
+                      className="group relative bg-white/70 backdrop-blur-xl border border-white/50 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 ring-1 ring-slate-900/5 overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Suggest Plugin Card - only show when not filtering */}
-            {selectedCategory === 'all' && !searchQuery && (
+                      <div className="relative z-10 flex flex-col h-full">
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+                            <DollarSign className="w-7 h-7" />
+                          </div>
+                          <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-100">
+                            Featured
+                          </span>
+                        </div>
+
+                        <div className="mb-auto">
+                          <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                            Subscriptions
+                          </h3>
+                          <p className="text-slate-500 text-sm leading-relaxed">
+                            Track expenses and get phone call reminders before renewals.
+                          </p>
+                        </div>
+
+                        <div className="mt-6 pt-6 border-t border-slate-100">
+                          <button
+                            onClick={() => navigate('/plugins/subscription-tracker')}
+                            className="w-full py-3 px-4 bg-slate-900 text-white rounded-xl font-medium text-sm flex items-center justify-center gap-2 group-hover:bg-indigo-600 transition-colors shadow-lg shadow-slate-900/10"
+                          >
+                            Launch App
+                            <ExternalLink className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {filteredPlugins.map((plugin) => {
+                      const IconComponent = pluginIcons[plugin.icon] || Puzzle;
+                      const style = categoryStyles[plugin.category] || categoryStyles['productivity'];
+                      const isEnabled = plugin.enabled;
+                      const isActionLoading = actionLoading === plugin.id;
+
+                      return (
+                        <motion.div
+                          layout
+                          key={plugin.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          whileHover={{ y: -4 }}
+                          className={cn(
+                            "group relative bg-white/70 backdrop-blur-xl border rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full",
+                            isEnabled
+                              ? "border-green-200/50 ring-1 ring-green-500/10 hover:shadow-green-500/10"
+                              : "border-white/50 ring-1 ring-slate-900/5 hover:shadow-slate-500/10"
+                          )}
+                        >
+                          {/* Hover Gradient */}
+                          <div className={cn(
+                            "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none",
+                            style.bg
+                          )} />
+
+                          <div className="relative z-10 flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex justify-between items-start mb-6">
+                              <div className={cn(
+                                "w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-sm text-white",
+                                `bg-gradient-to-br ${style.gradient}`
+                              )}>
+                                <IconComponent className="w-7 h-7" />
+                              </div>
+
+                              {isEnabled && (
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100/80 text-green-700 text-xs font-medium border border-green-200/50">
+                                  <Check className="w-3 h-3" />
+                                  <span>Active</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Content */}
+                            <div className="mb-auto">
+                              <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight">
+                                {plugin.name}
+                              </h3>
+                              <p className="text-slate-500 text-sm leading-relaxed line-clamp-3">
+                                {plugin.description}
+                              </p>
+                            </div>
+
+                            {/* Features Preview */}
+                            <div className="mt-6 mb-6 space-y-2">
+                              {plugin.features.slice(0, 2).map((feature, i) => (
+                                <div key={i} className="flex items-center gap-2 text-xs text-slate-500">
+                                  <div className={cn("w-1 h-1 rounded-full", style.text.replace('text-', 'bg-'))} />
+                                  <span className="truncate">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="pt-5 border-t border-slate-100/80 flex gap-3">
+                              {isEnabled ? (
+                                <>
+                                  <button
+                                    onClick={() => navigate(`/plugins/${plugin.id}`)}
+                                    className="flex-1 py-2.5 px-4 bg-slate-900 text-white rounded-xl font-medium text-sm hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2"
+                                  >
+                                    Open
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setActiveSettingsPlugin(plugin)}
+                                    className="w-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-colors"
+                                    title="Settings"
+                                  >
+                                    <Settings className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleTogglePlugin(plugin.id, true)}
+                                    disabled={isActionLoading}
+                                    className="w-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors"
+                                    title="Disable Plugin"
+                                  >
+                                    <Zap className="w-4 h-4 fill-current" />
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => handleTogglePlugin(plugin.id, false)}
+                                  disabled={isActionLoading}
+                                  className={cn(
+                                    "w-full py-2.5 px-4 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200",
+                                    "bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                                    "group-hover:bg-slate-900 group-hover:text-white group-hover:border-transparent group-hover:shadow-lg"
+                                  )}
+                                >
+                                  {isActionLoading ? (
+                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                  ) : (
+                                    <>
+                                      <span>Enable Plugin</span>
+                                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                                    </>
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+
+                    {/* Suggestion Card */}
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="group relative border-2 border-dashed border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center text-center h-full min-h-[320px] hover:border-purple-300 hover:bg-purple-50/30 transition-all duration-300"
+                    >
+                      <div className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 group-hover:bg-white group-hover:shadow-sm">
+                        <Sparkles className="w-6 h-6 text-slate-400 group-hover:text-purple-500 transition-colors" />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-2">
+                        Have an idea?
+                      </h3>
+                      <p className="text-slate-500 text-sm mb-6 max-w-[200px]">
+                        We're always looking for new ways to improve your workflow.
+                      </p>
+                      <button className="px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:text-purple-600 hover:border-purple-200 transition-colors shadow-sm">
+                        Suggest a Plugin
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Empty State */}
+            {!isLoading && filteredPlugins.length === 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-center min-h-[300px]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-20"
               >
-                <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center mb-4">
-                  <Plus className="w-6 h-6 text-gray-400" />
+                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+                  <Search className="w-8 h-8 text-slate-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-400 mb-2">Suggest a Plugin</h3>
-                <p className="text-sm text-gray-400 mb-4">
-                  Have an idea for a new plugin? Let us know and we'll build it!
-                </p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">No plugins found</h3>
+                <p className="text-slate-500 mb-6">We couldn't find any plugins matching your criteria.</p>
+                <button
+                  onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                  className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-medium text-sm hover:bg-slate-800 transition-colors"
+                >
+                  Clear Filters
+                </button>
               </motion.div>
             )}
 
-            {/* No Results */}
-            {filteredPlugins.length === 0 && (
-              <div className="col-span-full py-16 text-center">
-                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">No plugins found</h3>
-                <p className="text-sm text-gray-500">
-                  Try adjusting your search or filter criteria
-                </p>
-                <button
-                  onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                  className="mt-4 px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-700"
-                >
-                  Clear filters
-                </button>
-              </div>
-            )}
+            <PluginSettingsModal
+              isOpen={!!activeSettingsPlugin}
+              onClose={() => setActiveSettingsPlugin(null)}
+              plugin={activeSettingsPlugin}
+            />
+
           </div>
-        )}
+        </div>
       </main>
     </div>
   );
