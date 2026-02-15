@@ -9,8 +9,16 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
+import https from 'https';
 import { config } from '../config';
 import crypto from 'crypto';
+
+// Custom HTTPS agent for Telegram API - connection pooling, avoid socket exhaustion
+const TELEGRAM_HTTPS_AGENT = new https.Agent({
+    keepAlive: true,
+    maxSockets: 6,
+    maxFreeSockets: 4,
+});
 
 // Bot API has 50MB limit - use 20MB chunks for more parallelism
 const BOT_UPLOAD_LIMIT = 50 * 1024 * 1024; // 50MB
@@ -181,7 +189,10 @@ export class BotUploadService {
         const getFileUrl = `https://api.telegram.org/bot${botToken}/getFile?file_id=${encodeURIComponent(fileId)}`;
 
         try {
-            const fileInfoResponse = await axios.get(getFileUrl, { timeout: 30000 }); // 30s for file info
+            const fileInfoResponse = await axios.get(getFileUrl, {
+                timeout: 30000,
+                httpsAgent: TELEGRAM_HTTPS_AGENT,
+            });
 
             if (!fileInfoResponse.data.ok) {
                 throw new Error(fileInfoResponse.data.description || 'Failed to get file info');
@@ -196,7 +207,8 @@ export class BotUploadService {
                 responseType: 'arraybuffer',
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity,
-                timeout: 120000, // 2 minutes for 20MB chunks
+                timeout: 120000,
+                httpsAgent: TELEGRAM_HTTPS_AGENT,
             });
 
             return Buffer.from(response.data);
@@ -275,7 +287,8 @@ export class BotUploadService {
                     headers: retryFormData.getHeaders(),
                     maxContentLength: Infinity,
                     maxBodyLength: Infinity,
-                    timeout: 120000, // 2 minutes for 20MB chunks
+                    timeout: 120000,
+                    httpsAgent: TELEGRAM_HTTPS_AGENT,
                     onUploadProgress: (progressEvent) => {
                         if (onProgress && progressEvent.total) {
                             const progress = (progressEvent.loaded / progressEvent.total) * 100;
@@ -362,7 +375,8 @@ export class BotUploadService {
                     headers: formData.getHeaders(),
                     maxContentLength: Infinity,
                     maxBodyLength: Infinity,
-                    timeout: 120000, // 2 minutes
+                    timeout: 120000,
+                    httpsAgent: TELEGRAM_HTTPS_AGENT,
                 });
 
                 if (!response.data.ok) {
@@ -437,7 +451,8 @@ export class BotUploadService {
                 headers: formData.getHeaders(),
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity,
-                timeout: 180000, // 3 minutes for streaming
+                timeout: 180000,
+                httpsAgent: TELEGRAM_HTTPS_AGENT,
             });
 
             if (!response.data.ok) {
@@ -534,7 +549,7 @@ export class BotUploadService {
                 chat_id: chatId,
                 from_chat_id: chatId,
                 message_id: messageId,
-            });
+            }, { httpsAgent: TELEGRAM_HTTPS_AGENT });
 
             if (!forwardResponse.data.ok) {
                 throw new Error(forwardResponse.data.description || 'Failed to forward message');
@@ -569,7 +584,7 @@ export class BotUploadService {
                 await axios.post(`https://api.telegram.org/bot${botToken}/deleteMessage`, {
                     chat_id: chatId,
                     message_id: forwardedMsgId,
-                });
+                }, { httpsAgent: TELEGRAM_HTTPS_AGENT });
             } catch {
                 // Ignore deletion errors
             }

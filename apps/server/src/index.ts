@@ -139,6 +139,12 @@ flowService.initScheduler().catch(err => console.error('Failed to init Flow Sche
 // Initialize Call Reminder Scheduler
 callScheduler.start();
 
+// Prevent crash on unhandled promise rejection (e.g. Telegram ETIMEDOUT during upload)
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Server] Unhandled rejection:', reason);
+  // Don't exit - let the request fail and client retry
+});
+
 // Start server
 const server = app.listen(config.port, () => {
   console.log(`

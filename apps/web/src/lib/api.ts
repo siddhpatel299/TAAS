@@ -82,7 +82,7 @@ export const filesApi = {
     onProgress?: (progress: number) => void
   ) => {
     const CHUNK_SIZE = 15 * 1024 * 1024; // 15MB - balanced speed vs granularity
-    const MAX_CONCURRENT = 4; // Use all 4 bots in parallel (streaming = low server memory)
+    const MAX_CONCURRENT = 2; // 2 = stable on Render, 4 can cause ETIMEDOUT to Telegram
     const totalSize = file.size;
     const totalParts = Math.ceil(totalSize / CHUNK_SIZE);
 

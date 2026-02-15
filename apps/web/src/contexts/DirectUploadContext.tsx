@@ -98,8 +98,8 @@ export function DirectUploadProvider({ children }: DirectUploadProviderProps) {
         const { uploadId } = initResponse.data.data;
         console.log(`[Upload] Got uploadId: ${uploadId}`);
 
-        // Step 2: Upload chunks in parallel (4 = use all bots, streaming = low server memory)
-        const MAX_CONCURRENT = 4;
+        // Step 2: Upload chunks in parallel (2 = stable on Render free tier, 4 can cause ETIMEDOUT)
+        const MAX_CONCURRENT = 2;
         let completedParts = 0;
 
         const uploadPart = async (partNumber: number): Promise<void> => {
