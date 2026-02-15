@@ -712,10 +712,10 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
 
   console.log(`[StreamDownload] Starting: ${file.originalName} (isChunked: ${file.isChunked}, chunks: ${file.chunks?.length || 0})`);
 
-  // If file has chunks, download in parallel batches (4 bots = ~4x faster)
+  // If file has chunks, download in parallel batches (2 = stable on Render 512MB, 4 causes OOM)
   if (file.isChunked && file.chunks && file.chunks.length > 0) {
     const sortedChunks = [...file.chunks].sort((a, b) => a.chunkIndex - b.chunkIndex);
-    const maxParallel = botUploadService.getBotCount() || 4;
+    const maxParallel = Math.min(botUploadService.getBotCount() || 2, 2);
 
     console.log(`[StreamDownload] Parallel download: ${sortedChunks.length} chunks, ${maxParallel} bots`);
 
