@@ -712,33 +712,31 @@ router.get('/:id/download', authMiddleware, asyncHandler(async (req: AuthRequest
 
   console.log(`[StreamDownload] Starting: ${file.originalName} (isChunked: ${file.isChunked}, chunks: ${file.chunks?.length || 0})`);
 
-  // If file has chunks, stream them one by one
+  // If file has chunks, download in parallel batches (4 bots = ~4x faster)
   if (file.isChunked && file.chunks && file.chunks.length > 0) {
-    // Sort chunks by index
     const sortedChunks = [...file.chunks].sort((a, b) => a.chunkIndex - b.chunkIndex);
+    const maxParallel = botUploadService.getBotCount() || 4;
 
-    console.log(`[StreamDownload] Chunk file IDs:`, sortedChunks.map(c => ({ index: c.chunkIndex, fileId: c.telegramFileId?.substring(0, 20) + '...' })));
+    console.log(`[StreamDownload] Parallel download: ${sortedChunks.length} chunks, ${maxParallel} bots`);
 
-    for (const chunk of sortedChunks) {
+    for (let batchStart = 0; batchStart < sortedChunks.length; batchStart += maxParallel) {
+      const batchEnd = Math.min(batchStart + maxParallel, sortedChunks.length);
+      const batchChunks = sortedChunks.slice(batchStart, batchEnd);
+
       try {
-        console.log(`[StreamDownload] Downloading chunk ${chunk.chunkIndex} with fileId: ${chunk.telegramFileId?.substring(0, 30)}...`);
-
-        // Download this chunk using bot (one at a time to save memory)
-        const chunkBuffer = await botUploadService.downloadSingleChunk(
-          chunk.telegramFileId,
-          chunk.chunkIndex
+        const batchPromises = batchChunks.map((chunk) =>
+          botUploadService.downloadSingleChunk(chunk.telegramFileId, chunk.chunkIndex)
+            .then((data) => ({ chunkIndex: chunk.chunkIndex, data }))
         );
+        const batchResults = await Promise.all(batchPromises);
 
-        // Write to response immediately
-        res.write(chunkBuffer);
-        console.log(`[StreamDownload] Chunk ${chunk.chunkIndex + 1}/${sortedChunks.length} sent (${chunkBuffer.length} bytes)`);
+        batchResults.sort((a, b) => a.chunkIndex - b.chunkIndex);
+        for (const { data } of batchResults) {
+          res.write(data);
+        }
+        console.log(`[StreamDownload] Batch ${Math.floor(batchStart / maxParallel) + 1}/${Math.ceil(sortedChunks.length / maxParallel)} sent`);
       } catch (error: any) {
-        console.error(`[StreamDownload] Chunk ${chunk.chunkIndex} FAILED:`, {
-          error: error.message,
-          fileId: chunk.telegramFileId,
-          response: error.response?.data,
-        });
-        // If we've already started sending data, we can't send error
+        console.error(`[StreamDownload] Batch FAILED:`, error.message);
         if (!res.headersSent) {
           throw error;
         }

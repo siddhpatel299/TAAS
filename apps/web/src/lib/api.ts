@@ -81,8 +81,8 @@ export const filesApi = {
     folderId?: string,
     onProgress?: (progress: number) => void
   ) => {
-    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB - reduced to stay under 512MB memory
-    const MAX_CONCURRENT = 2; // Limit to 2 to stay under 512MB memory
+    const CHUNK_SIZE = 15 * 1024 * 1024; // 15MB - balanced speed vs granularity
+    const MAX_CONCURRENT = 4; // Use all 4 bots in parallel (streaming = low server memory)
     const totalSize = file.size;
     const totalParts = Math.ceil(totalSize / CHUNK_SIZE);
 
