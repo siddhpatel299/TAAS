@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Briefcase, Plus, Search, Grid, List, Loader2, ExternalLink } from 'lucide-react';
 import { ForestLayout } from '@/layouts/ForestLayout';
 import { ForestCard, ForestPageHeader, ForestButton, ForestBadge, ForestEmpty } from '@/components/forest/ForestComponents';
+import { PaginationBar } from '@/components/job-tracker/PaginationBar';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { AddJobDialog } from '@/components/AddJobDialog';
 import { cn } from '@/lib/utils';
@@ -18,9 +19,8 @@ const statusColors: Record<string, 'default' | 'success' | 'warning' | 'danger' 
 };
 
 export function ForestJobApplicationsPage() {
-    const { applications, isLoading, fetchApplications } = useJobTrackerStore();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const { applications, totalApplications, currentPage, hasMore, isLoading, filters, fetchApplications, setFilters } = useJobTrackerStore();
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
@@ -28,13 +28,10 @@ export function ForestJobApplicationsPage() {
         fetchApplications();
     }, [fetchApplications]);
 
-    const filtered = applications.filter(app => {
-        const matchesSearch = !searchQuery ||
-            app.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            app.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    useEffect(() => {
+        const timer = setTimeout(() => setFilters({ search: searchQuery || undefined }), 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery, setFilters]);
 
     const statuses = ['all', 'wishlist', 'applied', 'interviewing', 'offer', 'rejected', 'withdrawn'];
 
@@ -42,7 +39,7 @@ export function ForestJobApplicationsPage() {
         <ForestLayout>
             <ForestPageHeader
                 title="Applications"
-                subtitle={`${applications.length} total applications`}
+                subtitle={`${totalApplications} total applications`}
                 icon={<Briefcase className="w-6 h-6" />}
                 actions={
                     <ForestButton variant="primary" onClick={() => setShowAddDialog(true)}>
@@ -67,10 +64,10 @@ export function ForestJobApplicationsPage() {
                     {statuses.map((status) => (
                         <button
                             key={status}
-                            onClick={() => setStatusFilter(status)}
+                            onClick={() => setFilters({ status: status === 'all' ? undefined : status })}
                             className={cn(
                                 "px-3 py-1.5 rounded-full text-sm font-medium transition-colors capitalize",
-                                statusFilter === status
+                                (filters.status || 'all') === status
                                     ? "bg-[var(--forest-gradient-primary)] text-white"
                                     : "bg-[rgba(74,124,89,0.1)] text-[var(--forest-moss)] hover:bg-[rgba(74,124,89,0.2)]"
                             )}
@@ -93,7 +90,7 @@ export function ForestJobApplicationsPage() {
                 <div className="flex items-center justify-center py-20">
                     <Loader2 className="w-8 h-8 text-[var(--forest-leaf)] animate-spin" />
                 </div>
-            ) : filtered.length === 0 ? (
+            ) : applications.length === 0 ? (
                 <ForestCard>
                     <ForestEmpty
                         icon={<Briefcase className="w-full h-full" />}
@@ -108,7 +105,7 @@ export function ForestJobApplicationsPage() {
                 </ForestCard>
             ) : (
                 <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}>
-                    {filtered.map((app, index) => (
+                    {applications.map((app, index) => (
                         <motion.div
                             key={app.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -150,7 +147,19 @@ export function ForestJobApplicationsPage() {
                 </div>
             )}
 
-            <AddJobDialog isOpen={showAddDialog} onClose={() => setShowAddDialog(false)} />
+            {applications.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-[var(--forest-wood)]/20">
+                    <PaginationBar
+                        currentPage={currentPage}
+                        totalItems={totalApplications}
+                        pageSize={50}
+                        hasMore={hasMore}
+                        onPageChange={(page) => fetchApplications(page)}
+                    />
+                </div>
+            )}
+
+            <AddJobDialog isOpen={showAddDialog} onClose={() => setShowAddDialog(false)} onSuccess={() => fetchApplications()} />
         </ForestLayout>
     );
 }

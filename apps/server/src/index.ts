@@ -17,6 +17,7 @@ import notesRoutes from './routes/notes.routes';
 import { nexusRouter } from './routes/nexus.routes';
 import flowRoutes from './routes/flow.routes';
 import { searchRoutes } from './routes/search.routes';
+import { crmRouter } from './routes/crm.routes';
 import callReminderRoutes from './routes/call-reminder.routes';
 import subscriptionRoutes from './routes/subscription.routes';
 import pdfToolsRoutes from './routes/pdf-tools.routes';
@@ -71,13 +72,13 @@ app.use(cors({
 // Rate limiting - different limits for different routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit auth requests (SMS codes are expensive)
+  max: 30, // Limit auth requests (relaxed for dev)
   message: { success: false, error: 'Too many requests, please try again later' },
 });
 
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 200, // 200 requests per minute for general API
+  max: 500, // 500 requests per minute for general API (notes auto-save)
   message: { success: false, error: 'Too many requests, please try again later' },
 });
 
@@ -105,24 +106,9 @@ app.use('/api/share', apiLimiter, shareRoutes);
 app.use('/api/sync', apiLimiter, syncRoutes);
 app.use('/api/telegram', apiLimiter, telegramRoutes);
 app.use('/api/plugins', apiLimiter, pluginsRoutes);
-import { crmRouter } from './routes/crm.routes';
-
-// ... existing imports ...
-
-// API Routes with appropriate rate limits
-app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/files', apiLimiter, filesRoutes);
-app.use('/api/folders', apiLimiter, foldersRoutes);
-app.use('/api/share/public', publicLimiter); // Public share routes - less strict
-app.use('/api/share', apiLimiter, shareRoutes);
-app.use('/api/sync', apiLimiter, syncRoutes);
-app.use('/api/telegram', apiLimiter, telegramRoutes);
-app.use('/api/plugins', apiLimiter, pluginsRoutes);
 app.use('/api/job-tracker', apiLimiter, jobTrackerRoutes);
 app.use('/api/crm', apiLimiter, crmRouter); // Register CRM routes
 app.use('/api/todo', apiLimiter, todoRoutes);
-app.use('/api/notes', apiLimiter, notesRoutes);
-// ... existing routes ...
 app.use('/api/notes', apiLimiter, notesRoutes);
 app.use('/api/nexus', apiLimiter, nexusRouter);
 app.use('/api/flow', apiLimiter, flowRoutes);

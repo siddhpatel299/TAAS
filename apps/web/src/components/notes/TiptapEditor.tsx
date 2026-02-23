@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
@@ -15,6 +15,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
+import { Node, mergeAttributes } from '@tiptap/core';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import {
     Bold,
@@ -47,6 +48,111 @@ import { AlertCircle, AlertTriangle, Lightbulb, ChevronRight as ChevronRightIcon
 const lowlight = createLowlight(common);
 
 // ====================
+// CUSTOM EXTENSIONS
+// ====================
+
+// Callout Node Extension
+const Callout = Node.create({
+    name: 'callout',
+    group: 'block',
+    content: 'block+',
+    defining: true,
+    draggable: true,
+    addAttributes() {
+        return {
+            type: {
+                default: 'info',
+                parseHTML: (element: HTMLElement) => element.getAttribute('data-callout-type') || 'info',
+                renderHTML: (attributes: Record<string, any>) => ({ 'data-callout-type': attributes.type }),
+            },
+        };
+    },
+    parseHTML() {
+        return [{ tag: 'div[data-callout]' }];
+    },
+    renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+        return ['div', mergeAttributes(HTMLAttributes, { 'data-callout': '', class: `callout callout-${HTMLAttributes['data-callout-type'] || 'info'}` }), 0];
+    },
+});
+
+// Toggle NodeView React Component
+function ToggleNodeView({ node, updateAttributes }: any) {
+    const [isOpen, setIsOpen] = useState(node.attrs.open !== false);
+
+    return (
+        <NodeViewWrapper className="toggle-wrapper">
+            <div className="toggle-header" contentEditable={false}>
+                <button
+                    className={`toggle-arrow-btn ${isOpen ? 'open' : ''}`}
+                    onClick={() => {
+                        const next = !isOpen;
+                        setIsOpen(next);
+                        updateAttributes({ open: next });
+                    }}
+                    type="button"
+                >
+                    ▶
+                </button>
+                <span
+                    contentEditable
+                    suppressContentEditableWarning
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    onBlur={(e: React.FocusEvent<HTMLSpanElement>) =>
+                        updateAttributes({ summary: e.currentTarget.textContent || 'Toggle section' })
+                    }
+                    className="toggle-summary-text"
+                >
+                    {node.attrs.summary}
+                </span>
+            </div>
+            {isOpen && (
+                <div className="toggle-body">
+                    <NodeViewContent />
+                </div>
+            )}
+        </NodeViewWrapper>
+    );
+}
+
+// Details/Toggle Node Extension
+const DetailsBlock = Node.create({
+    name: 'detailsBlock',
+    group: 'block',
+    content: 'block+',
+    defining: true,
+    draggable: true,
+    addAttributes() {
+        return {
+            summary: {
+                default: 'Toggle section',
+                parseHTML: (element: HTMLElement) => element.querySelector('summary')?.textContent || 'Toggle section',
+                renderHTML: () => ({}),
+            },
+            open: {
+                default: true,
+                parseHTML: (element: HTMLElement) => element.hasAttribute('open'),
+                renderHTML: (attributes: Record<string, any>) => attributes.open ? { open: 'open' } : {},
+            },
+        };
+    },
+    parseHTML() {
+        return [{ tag: 'details' }];
+    },
+    renderHTML({ HTMLAttributes, node }: { HTMLAttributes: Record<string, any>, node: any }) {
+        const { summary, ...rest } = HTMLAttributes;
+        return [
+            'details',
+            mergeAttributes(rest, { class: 'toggle-block' }),
+            ['summary', { class: 'toggle-summary' }, node.attrs.summary || 'Toggle section'],
+            ['div', { class: 'toggle-content' }, 0],
+        ];
+    },
+    addNodeView() {
+        return ReactNodeViewRenderer(ToggleNodeView);
+    },
+});
+
+// ====================
 // SLASH COMMAND ITEMS
 // ====================
 
@@ -65,21 +171,21 @@ const slashCommands: CommandItem[] = [
         description: 'Large section heading',
         icon: Heading1,
         category: 'basic',
-        command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+        command: (editor) => (editor.chain().focus() as any).toggleHeading({ level: 1 }).run(),
     },
     {
         title: 'Heading 2',
         description: 'Medium section heading',
         icon: Heading2,
         category: 'basic',
-        command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+        command: (editor) => (editor.chain().focus() as any).toggleHeading({ level: 2 }).run(),
     },
     {
         title: 'Heading 3',
         description: 'Small section heading',
         icon: Heading3,
         category: 'basic',
-        command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+        command: (editor) => (editor.chain().focus() as any).toggleHeading({ level: 3 }).run(),
     },
     // Lists
     {
@@ -87,21 +193,21 @@ const slashCommands: CommandItem[] = [
         description: 'Create a simple bullet list',
         icon: List,
         category: 'lists',
-        command: (editor) => editor.chain().focus().toggleBulletList().run(),
+        command: (editor) => (editor.chain().focus() as any).toggleBulletList().run(),
     },
     {
         title: 'Numbered List',
         description: 'Create a numbered list',
         icon: ListOrdered,
         category: 'lists',
-        command: (editor) => editor.chain().focus().toggleOrderedList().run(),
+        command: (editor) => (editor.chain().focus() as any).toggleOrderedList().run(),
     },
     {
         title: 'Task List',
         description: 'Track tasks with checkboxes',
         icon: CheckSquare,
         category: 'lists',
-        command: (editor) => editor.chain().focus().toggleTaskList().run(),
+        command: (editor) => (editor.chain().focus() as any).toggleTaskList().run(),
     },
     // Blocks
     {
@@ -109,14 +215,14 @@ const slashCommands: CommandItem[] = [
         description: 'Capture a quote',
         icon: Quote,
         category: 'blocks',
-        command: (editor) => editor.chain().focus().toggleBlockquote().run(),
+        command: (editor) => (editor.chain().focus() as any).toggleBlockquote().run(),
     },
     {
         title: 'Code Block',
         description: 'Display a code snippet',
         icon: Code2,
         category: 'blocks',
-        command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+        command: (editor) => (editor.chain().focus() as any).toggleCodeBlock().run(),
     },
     {
         title: 'Info Callout',
@@ -124,9 +230,10 @@ const slashCommands: CommandItem[] = [
         icon: AlertCircle,
         category: 'blocks',
         command: (editor) => {
-            editor.chain().focus().insertContent({
-                type: 'blockquote',
-                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'ℹ️ Info: Type your message here...' }] }]
+            (editor.chain().focus() as any).insertContent({
+                type: 'callout',
+                attrs: { type: 'info' },
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Type your info message here...' }] }]
             }).run();
         },
     },
@@ -136,9 +243,10 @@ const slashCommands: CommandItem[] = [
         icon: AlertTriangle,
         category: 'blocks',
         command: (editor) => {
-            editor.chain().focus().insertContent({
-                type: 'blockquote',
-                content: [{ type: 'paragraph', content: [{ type: 'text', text: '⚠️ Warning: Type your message here...' }] }]
+            (editor.chain().focus() as any).insertContent({
+                type: 'callout',
+                attrs: { type: 'warning' },
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Type your warning message here...' }] }]
             }).run();
         },
     },
@@ -148,9 +256,10 @@ const slashCommands: CommandItem[] = [
         icon: Lightbulb,
         category: 'blocks',
         command: (editor) => {
-            editor.chain().focus().insertContent({
-                type: 'blockquote',
-                content: [{ type: 'paragraph', content: [{ type: 'text', text: '💡 Tip: Type your message here...' }] }]
+            (editor.chain().focus() as any).insertContent({
+                type: 'callout',
+                attrs: { type: 'tip' },
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Type your tip message here...' }] }]
             }).run();
         },
     },
@@ -160,9 +269,10 @@ const slashCommands: CommandItem[] = [
         icon: ChevronRightIcon,
         category: 'blocks',
         command: (editor) => {
-            editor.chain().focus().insertContent({
-                type: 'paragraph',
-                content: [{ type: 'text', text: '▶ Toggle: Click to expand/collapse content below...' }]
+            (editor.chain().focus() as any).insertContent({
+                type: 'detailsBlock',
+                attrs: { summary: 'Click to expand', open: true },
+                content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hidden content goes here...' }] }]
             }).run();
         },
     },
@@ -171,14 +281,14 @@ const slashCommands: CommandItem[] = [
         description: 'Visually divide blocks',
         icon: Minus,
         category: 'blocks',
-        command: (editor) => editor.chain().focus().setHorizontalRule().run(),
+        command: (editor) => (editor.chain().focus() as any).setHorizontalRule().run(),
     },
     {
         title: 'Table',
         description: 'Add a table',
         icon: TableIcon,
         category: 'blocks',
-        command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+        command: (editor) => (editor.chain().focus() as any).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
     },
     // Media
     {
@@ -194,7 +304,7 @@ const slashCommands: CommandItem[] = [
                 // Fallback to prompt if callback not available
                 const noteTitle = window.prompt('Enter note title to link:');
                 if (noteTitle) {
-                    _editor.chain().focus().insertContent({
+                    (_editor.chain().focus() as any).insertContent({
                         type: 'text',
                         marks: [{ type: 'link', attrs: { href: `#note:${noteTitle}` } }],
                         text: noteTitle,
@@ -214,7 +324,7 @@ const slashCommands: CommandItem[] = [
                 // Extract video ID and create embed
                 const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
                 if (videoId) {
-                    editor.chain().focus().insertContent({
+                    (editor.chain().focus() as any).insertContent({
                         type: 'paragraph',
                         content: [{ type: 'text', text: `[YouTube: ${url}]` }]
                     }).run();
@@ -389,48 +499,126 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
 
     if (!editor) return null;
 
+    const isTableActive = editor.isActive('table');
+
+    if (isTableActive) {
+        return (
+            <div className="flex items-center gap-0.5 px-1.5 py-1 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-2xl border border-gray-700 max-w-[90vw] overflow-x-auto">
+                <button
+                    onClick={() => (editor.chain().focus() as any).addColumnBefore().run()}
+                    className="p-1.5 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    title="Add Column Before"
+                >
+                    <IconWrapper icon={AlignLeft} className="w-4 h-4 rotate-90" />
+                </button>
+                <button
+                    onClick={() => (editor.chain().focus() as any).addColumnAfter().run()}
+                    className="p-1.5 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    title="Add Column After"
+                >
+                    <IconWrapper icon={AlignRight} className="w-4 h-4 rotate-90" />
+                </button>
+                <button
+                    onClick={() => (editor.chain().focus() as any).deleteColumn().run()}
+                    className="p-1.5 rounded text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+                    title="Delete Column"
+                >
+                    <IconWrapper icon={Trash2} className="w-4 h-4 rotate-90" />
+                </button>
+
+                <div className="w-px h-5 bg-gray-600 mx-1" />
+
+                <button
+                    onClick={() => (editor.chain().focus() as any).addRowBefore().run()}
+                    className="p-1.5 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    title="Add Row Before"
+                >
+                    <IconWrapper icon={AlignLeft} className="w-4 h-4" />
+                </button>
+                <button
+                    onClick={() => (editor.chain().focus() as any).addRowAfter().run()}
+                    className="p-1.5 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    title="Add Row After"
+                >
+                    <IconWrapper icon={AlignRight} className="w-4 h-4" />
+                </button>
+                <button
+                    onClick={() => (editor.chain().focus() as any).deleteRow().run()}
+                    className="p-1.5 rounded text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+                    title="Delete Row"
+                >
+                    <IconWrapper icon={Trash2} className="w-4 h-4" />
+                </button>
+
+                <div className="w-px h-5 bg-gray-600 mx-1" />
+
+                <button
+                    onClick={() => (editor.chain().focus() as any).mergeCells().run()}
+                    className="p-1.5 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    title="Merge Cells"
+                >
+                    <span className="text-xs font-bold">M</span>
+                </button>
+                <button
+                    onClick={() => (editor.chain().focus() as any).splitCell().run()}
+                    className="p-1.5 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    title="Split Cell"
+                >
+                    <span className="text-xs font-bold">S</span>
+                </button>
+                <button
+                    onClick={() => (editor.chain().focus() as any).deleteTable().run()}
+                    className="p-1.5 rounded text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors ml-1"
+                    title="Delete Table"
+                >
+                    <IconWrapper icon={Trash2} className="w-4 h-4" />
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="flex items-center gap-0.5 px-1.5 py-1 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-2xl border border-gray-700">
             {/* Basic formatting */}
             <button
-                onClick={() => editor.chain().focus().toggleBold().run()}
+                onClick={() => (editor.chain().focus() as any).toggleBold().run()}
                 className={cn(
                     'p-1.5 rounded transition-colors',
                     editor.isActive('bold') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 )}
                 title="Bold"
             >
-                <Bold className="w-4 h-4" />
+                <IconWrapper icon={Bold} className="w-4 h-4" />
             </button>
             <button
-                onClick={() => editor.chain().focus().toggleItalic().run()}
+                onClick={() => (editor.chain().focus() as any).toggleItalic().run()}
                 className={cn(
                     'p-1.5 rounded transition-colors',
                     editor.isActive('italic') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 )}
                 title="Italic"
             >
-                <Italic className="w-4 h-4" />
+                <IconWrapper icon={Italic} className="w-4 h-4" />
             </button>
             <button
-                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                onClick={() => (editor.chain().focus() as any).toggleUnderline().run()}
                 className={cn(
                     'p-1.5 rounded transition-colors',
                     editor.isActive('underline') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 )}
                 title="Underline"
             >
-                <UnderlineIcon className="w-4 h-4" />
+                <IconWrapper icon={UnderlineIcon} className="w-4 h-4" />
             </button>
             <button
-                onClick={() => editor.chain().focus().toggleStrike().run()}
+                onClick={() => (editor.chain().focus() as any).toggleStrike().run()}
                 className={cn(
                     'p-1.5 rounded transition-colors',
                     editor.isActive('strike') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 )}
                 title="Strikethrough"
             >
-                <Strikethrough className="w-4 h-4" />
+                <IconWrapper icon={Strikethrough} className="w-4 h-4" />
             </button>
 
             <div className="w-px h-5 bg-gray-600 mx-1" />
@@ -440,7 +628,7 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
                 onClick={() => {
                     const url = window.prompt('Enter URL:');
                     if (url) {
-                        editor.chain().focus().setLink({ href: url }).run();
+                        (editor.chain().focus() as any).setLink({ href: url }).run();
                     }
                 }}
                 className={cn(
@@ -449,19 +637,19 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
                 )}
                 title="Add Link"
             >
-                <LinkIcon className="w-4 h-4" />
+                <IconWrapper icon={LinkIcon} className="w-4 h-4" />
             </button>
 
             {/* Inline Code */}
             <button
-                onClick={() => editor.chain().focus().toggleCode().run()}
+                onClick={() => (editor.chain().focus() as any).toggleCode().run()}
                 className={cn(
                     'p-1.5 rounded transition-colors',
                     editor.isActive('code') ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 )}
                 title="Inline Code"
             >
-                <Code className="w-4 h-4" />
+                <IconWrapper icon={Code} className="w-4 h-4" />
             </button>
 
             <div className="w-px h-5 bg-gray-600 mx-1" />
@@ -476,7 +664,7 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
                     )}
                     title="Highlight"
                 >
-                    <Highlighter className="w-4 h-4" />
+                    <IconWrapper icon={Highlighter} className="w-4 h-4" />
                 </button>
                 {showColorPicker && (
                     <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-200 flex gap-1 z-50">
@@ -484,7 +672,7 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
                             <button
                                 key={color.value}
                                 onClick={() => {
-                                    editor.chain().focus().toggleHighlight({ color: color.value }).run();
+                                    (editor.chain().focus() as any).toggleHighlight({ color: color.value }).run();
                                     setShowColorPicker(false);
                                 }}
                                 className="w-6 h-6 rounded border-2 border-transparent hover:border-gray-400 transition-all"
@@ -494,13 +682,13 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
                         ))}
                         <button
                             onClick={() => {
-                                editor.chain().focus().unsetHighlight().run();
+                                (editor.chain().focus() as any).unsetHighlight().run();
                                 setShowColorPicker(false);
                             }}
                             className="w-6 h-6 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center"
                             title="Remove"
                         >
-                            <Minus className="w-3 h-3 text-gray-400" />
+                            <IconWrapper icon={Minus} className="w-3 h-3 text-gray-400" />
                         </button>
                     </div>
                 )}
@@ -508,6 +696,9 @@ function BubbleMenuToolbar({ editor }: { editor: any }) {
         </div>
     );
 }
+
+// Helper to avoid type errors with Lucide icons
+const IconWrapper = ({ icon: Icon, className }: { icon: any, className?: string }) => <Icon className={className} />;
 
 // ====================
 // MAIN EDITOR COMPONENT
@@ -535,7 +726,7 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
                 heading: {
                     levels: [1, 2, 3, 4, 5, 6],
                 },
-            }),
+            }) as any,
             Placeholder.configure({
                 placeholder,
                 emptyEditorClass: 'is-editor-empty',
@@ -583,6 +774,8 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
                 multicolor: true,
             }),
             Typography,
+            Callout,
+            DetailsBlock,
             CodeBlockLowlight.configure({
                 lowlight,
                 HTMLAttributes: {
@@ -707,42 +900,42 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
             <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-2 py-1 flex items-center gap-1 flex-wrap">
                 {/* Text Formatting */}
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleBold().run()}
                     isActive={editor.isActive('bold')}
                     title="Bold"
                 >
                     <Bold className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleItalic().run()}
                     isActive={editor.isActive('italic')}
                     title="Italic"
                 >
                     <Italic className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleUnderline().run()}
                     isActive={editor.isActive('underline')}
                     title="Underline"
                 >
                     <UnderlineIcon className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleStrike().run()}
                     isActive={editor.isActive('strike')}
                     title="Strikethrough"
                 >
                     <Strikethrough className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleCode().run()}
                     isActive={editor.isActive('code')}
                     title="Inline Code"
                 >
                     <Code className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleHighlight().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleHighlight().run()}
                     isActive={editor.isActive('highlight')}
                     title="Highlight"
                 >
@@ -753,21 +946,21 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
 
                 {/* Headings */}
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 1 }).run()}
                     isActive={editor.isActive('heading', { level: 1 })}
                     title="Heading 1"
                 >
                     <Heading1 className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 2 }).run()}
                     isActive={editor.isActive('heading', { level: 2 })}
                     title="Heading 2"
                 >
                     <Heading2 className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 3 }).run()}
                     isActive={editor.isActive('heading', { level: 3 })}
                     title="Heading 3"
                 >
@@ -778,21 +971,21 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
 
                 {/* Lists */}
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleBulletList().run()}
                     isActive={editor.isActive('bulletList')}
                     title="Bullet List"
                 >
                     <List className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleOrderedList().run()}
                     isActive={editor.isActive('orderedList')}
                     title="Numbered List"
                 >
                     <ListOrdered className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleTaskList().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleTaskList().run()}
                     isActive={editor.isActive('taskList')}
                     title="Task List"
                 >
@@ -803,21 +996,21 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
 
                 {/* Alignment */}
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    onClick={() => (editor.chain().focus() as any).setTextAlign('left').run()}
                     isActive={editor.isActive({ textAlign: 'left' })}
                     title="Align Left"
                 >
                     <AlignLeft className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    onClick={() => (editor.chain().focus() as any).setTextAlign('center').run()}
                     isActive={editor.isActive({ textAlign: 'center' })}
                     title="Align Center"
                 >
                     <AlignCenter className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    onClick={() => (editor.chain().focus() as any).setTextAlign('right').run()}
                     isActive={editor.isActive({ textAlign: 'right' })}
                     title="Align Right"
                 >
@@ -828,46 +1021,74 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
 
                 {/* Blocks */}
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleBlockquote().run()}
                     isActive={editor.isActive('blockquote')}
                     title="Quote"
                 >
                     <Quote className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                    onClick={() => (editor.chain().focus() as any).toggleCodeBlock().run()}
                     isActive={editor.isActive('codeBlock')}
                     title="Code Block"
                 >
                     <Code2 className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                    onClick={() => (editor.chain().focus() as any).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
                     title="Insert Table"
                 >
                     <TableIcon className="w-4 h-4" />
                 </ToolbarButton>
+
+                {/* Table Controls - shown when cursor is inside a table */}
+                {editor.isActive('table') && (
+                    <>
+                        <ToolbarButton
+                            onClick={() => (editor.chain().focus() as any).addColumnAfter().run()}
+                            title="Add Column"
+                        >
+                            <span className="text-xs font-bold text-emerald-600">+C</span>
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => (editor.chain().focus() as any).addRowAfter().run()}
+                            title="Add Row"
+                        >
+                            <span className="text-xs font-bold text-emerald-600">+R</span>
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => (editor.chain().focus() as any).deleteColumn().run()}
+                            title="Delete Column"
+                        >
+                            <span className="text-xs font-bold text-red-500">-C</span>
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => (editor.chain().focus() as any).deleteRow().run()}
+                            title="Delete Row"
+                        >
+                            <span className="text-xs font-bold text-red-500">-R</span>
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => (editor.chain().focus() as any).deleteTable().run()}
+                            title="Delete Table"
+                        >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                        </ToolbarButton>
+                    </>
+                )}
+
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                    onClick={() => (editor.chain().focus() as any).setHorizontalRule().run()}
                     title="Divider"
                 >
                     <Minus className="w-4 h-4" />
                 </ToolbarButton>
 
-                {/* Delete current block (table or code block) */}
-                {editor.isActive('table') && (
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().deleteTable().run()}
-                        title="Delete Table"
-                    >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                    </ToolbarButton>
-                )}
                 {editor.isActive('codeBlock') && (
                     <ToolbarButton
                         onClick={() => {
                             // Get current selection and delete the node
-                            editor.chain().focus().clearNodes().run();
+                            (editor.chain().focus() as any).clearNodes().run();
                         }}
                         title="Remove Code Block"
                     >
@@ -879,14 +1100,14 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
 
                 {/* Undo/Redo */}
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().undo().run()}
+                    onClick={() => (editor.chain().focus() as any).undo().run()}
                     disabled={!editor.can().undo()}
                     title="Undo"
                 >
                     <Undo className="w-4 h-4" />
                 </ToolbarButton>
                 <ToolbarButton
-                    onClick={() => editor.chain().focus().redo().run()}
+                    onClick={() => (editor.chain().focus() as any).redo().run()}
                     disabled={!editor.can().redo()}
                     title="Redo"
                 >
@@ -941,7 +1162,8 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
           height: 0;
           pointer-events: none;
         }
-        /* Heading Styles - Bold and properly sized */
+
+        /* Heading Styles */
         .tiptap-editor .ProseMirror h1 {
           font-size: 2rem;
           font-weight: 700;
@@ -974,6 +1196,36 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
           margin-bottom: 0.5rem;
           color: #4b5563;
         }
+
+        /* ===== LIST STYLES ===== */
+        .tiptap-editor .ProseMirror ul:not([data-type="taskList"]) {
+          list-style-type: disc !important;
+          padding-left: 1.5em !important;
+          margin: 0.5rem 0 1rem 0;
+        }
+        .tiptap-editor .ProseMirror ol {
+          list-style-type: decimal !important;
+          padding-left: 1.5em !important;
+          margin: 0.5rem 0 1rem 0;
+        }
+        .tiptap-editor .ProseMirror ul:not([data-type="taskList"]) li,
+        .tiptap-editor .ProseMirror ol li {
+          margin-bottom: 0.25rem;
+          display: list-item !important;
+        }
+        .tiptap-editor .ProseMirror ul:not([data-type="taskList"]) li p,
+        .tiptap-editor .ProseMirror ol li p {
+          margin: 0;
+        }
+        /* Nested lists */
+        .tiptap-editor .ProseMirror ul:not([data-type="taskList"]) ul {
+          list-style-type: circle !important;
+        }
+        .tiptap-editor .ProseMirror ul:not([data-type="taskList"]) ul ul {
+          list-style-type: square !important;
+        }
+
+        /* Task lists */
         .tiptap-editor .ProseMirror ul[data-type="taskList"] {
           list-style: none;
           padding: 0;
@@ -990,28 +1242,112 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
         .tiptap-editor .ProseMirror ul[data-type="taskList"] li > div {
           flex: 1;
         }
+
+        /* ===== BLOCKQUOTE ===== */
         .tiptap-editor .ProseMirror blockquote {
           border-left: 3px solid #e5e7eb;
           padding-left: 1rem;
           color: #6b7280;
           font-style: italic;
         }
+
+        /* ===== HORIZONTAL RULE ===== */
         .tiptap-editor .ProseMirror hr {
           border: none;
           border-top: 2px solid #e5e7eb;
           margin: 1.5rem 0;
         }
+
+        /* ===== CODE BLOCKS ===== */
+        .tiptap-editor .ProseMirror pre {
+          background: #1e293b !important;
+          color: #e2e8f0 !important;
+          font-family: 'JetBrains Mono', 'Fira Code', monospace;
+          font-size: 0.875rem;
+          padding: 1rem 1.25rem;
+          border-radius: 0.5rem;
+          overflow-x: auto;
+          margin: 1rem 0;
+          border: 1px solid #334155;
+        }
+        .tiptap-editor .ProseMirror pre code {
+          color: inherit !important;
+          background: none !important;
+          padding: 0 !important;
+          font-size: inherit;
+          border-radius: 0;
+          border: none;
+        }
+        /* Inline code */
+        .tiptap-editor .ProseMirror :not(pre) > code {
+          background-color: #f1f5f9;
+          color: #e11d48;
+          font-size: 0.85em;
+          padding: 0.15em 0.4em;
+          border-radius: 0.25rem;
+          font-family: 'JetBrains Mono', 'Fira Code', monospace;
+          border: 1px solid #e2e8f0;
+        }
+
+        /* ===== TABLE STYLES ===== */
         .tiptap-editor .ProseMirror table {
           border-collapse: collapse;
+          table-layout: fixed;
           width: 100%;
           margin: 1rem 0;
+          overflow: hidden;
         }
+        .tiptap-editor .ProseMirror table td,
+        .tiptap-editor .ProseMirror table th {
+          min-width: 1em;
+          border: 1px solid #d1d5db;
+          padding: 0.5rem 0.75rem;
+          vertical-align: top;
+          box-sizing: border-box;
+          position: relative;
+        }
+        .tiptap-editor .ProseMirror table th {
+          background-color: #f3f4f6;
+          font-weight: 600;
+          text-align: left;
+          color: #374151;
+        }
+        .tiptap-editor .ProseMirror table td {
+          background-color: #ffffff;
+        }
+        .tiptap-editor .ProseMirror table .selectedCell:after {
+          z-index: 2;
+          position: absolute;
+          content: "";
+          left: 0; right: 0; top: 0; bottom: 0;
+          background: rgba(99, 102, 241, 0.15);
+          pointer-events: none;
+        }
+        .tiptap-editor .ProseMirror table .column-resize-handle {
+          position: absolute;
+          right: -2px;
+          top: 0;
+          bottom: -2px;
+          width: 4px;
+          background-color: #6366f1;
+          pointer-events: none;
+        }
+        .tiptap-editor .ProseMirror .tableWrapper {
+          overflow-x: auto;
+          margin: 1rem 0;
+        }
+        .tiptap-editor.resize-cursor {
+          cursor: col-resize;
+        }
+
+        /* ===== IMAGE ===== */
         .tiptap-editor .ProseMirror img {
           max-width: 100%;
           height: auto;
           border-radius: 0.5rem;
         }
-        /* Internal note links */
+
+        /* ===== INTERNAL NOTE LINKS ===== */
         .tiptap-editor .ProseMirror a[href^="#note:"] {
           color: #0ea5e9;
           text-decoration: none;
@@ -1025,47 +1361,55 @@ export function TiptapEditor({ content, onChange, onEditorReady, onOpenPageLink,
           text-decoration: underline;
         }
         
-        /* Block Handles - Notion-style */
-        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak) {
-          position: relative;
-          padding-left: 1.5rem;
-          margin-left: -1.5rem;
+        /* ===== TOGGLE / DETAILS STYLES ===== */
+        .tiptap-editor .ProseMirror .toggle-wrapper {
+          margin: 0.5rem 0;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          overflow: hidden;
         }
-        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak)::before {
-          content: '⋮⋮';
-          position: absolute;
-          left: 0;
-          top: 0.25rem;
-          opacity: 0;
+        .tiptap-editor .ProseMirror .toggle-header {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.5rem 0.75rem;
+          background: #f9fafb;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .tiptap-editor .ProseMirror .toggle-arrow-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 0.7rem;
           color: #9ca3af;
-          font-size: 12px;
-          letter-spacing: -2px;
-          cursor: grab;
-          user-select: none;
-          transition: opacity 0.15s ease;
-          padding: 2px 4px;
-          border-radius: 3px;
-        }
-        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak):hover::before {
-          opacity: 1;
-        }
-        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak):hover {
-          background-color: rgba(0, 0, 0, 0.02);
+          padding: 4px 6px;
           border-radius: 4px;
+          transition: transform 0.2s, color 0.15s, background 0.15s;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
-        .tiptap-editor .ProseMirror > *:not(div.ProseMirror-trailingBreak)::before:hover {
-          background-color: #f3f4f6;
+        .tiptap-editor .ProseMirror .toggle-arrow-btn.open {
+          transform: rotate(90deg);
         }
-        /* Hide handles on headings line height */
-        .tiptap-editor .ProseMirror > h1::before {
-          top: 0.5rem;
+        .tiptap-editor .ProseMirror .toggle-arrow-btn:hover {
+          color: #374151;
+          background: #e5e7eb;
         }
-        .tiptap-editor .ProseMirror > h2::before {
-          top: 0.4rem;
+        .tiptap-editor .ProseMirror .toggle-summary-text {
+          font-weight: 600;
+          color: #374151;
+          outline: none;
+          cursor: text;
+          flex: 1;
         }
-        .tiptap-editor .ProseMirror > h3::before {
-          top: 0.35rem;
+        .tiptap-editor .ProseMirror .toggle-body {
+          padding: 0.75rem 1rem;
         }
+        .tiptap-editor .ProseMirror .toggle-body p {
+          margin: 0;
+        }
+
       `}</style>
         </div>
     );

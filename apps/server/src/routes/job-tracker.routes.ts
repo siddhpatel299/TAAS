@@ -25,11 +25,70 @@ router.use(authMiddleware, requireJobTrackerPlugin);
 // ==================== Dashboard ====================
 
 router.get('/dashboard', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const stats = await jobTrackerService.getDashboardStats(req.user!.id);
+  const timezone = (req.query.timezone as string) || undefined;
+  const stats = await jobTrackerService.getDashboardStats(req.user!.id, timezone);
 
   res.json({
     success: true,
     data: stats,
+  });
+}));
+
+// ==================== Preferences (daily goal, timezone) ====================
+
+const VALID_TIMEZONES = [
+  'Local',
+  'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+  'America/Phoenix', 'America/Anchorage', 'America/Toronto', 'America/Vancouver',
+  'Pacific/Honolulu', 'UTC',
+  'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Amsterdam', 'Europe/Moscow',
+  'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Asia/Singapore', 'Asia/Dubai',
+  'Australia/Sydney', 'Australia/Melbourne',
+];
+
+router.get('/preferences', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+
+  res.json({
+    success: true,
+    data: {
+      dailyGoal: (settings?.dailyGoal as number) ?? 10,
+      timezone: (settings?.timezone as string) ?? null,
+    },
+  });
+}));
+
+router.patch('/preferences', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { dailyGoal, timezone } = req.body;
+
+  const currentSettings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker') || {};
+
+  if (dailyGoal !== undefined) {
+    const goal = parseInt(String(dailyGoal), 10);
+    if (isNaN(goal) || goal < 1 || goal > 100) {
+      throw new ApiError('Daily goal must be between 1 and 100', 400);
+    }
+    currentSettings.dailyGoal = goal;
+  }
+
+  if (timezone !== undefined) {
+    if (timezone === null || timezone === '') {
+      currentSettings.timezone = null;
+    } else if (VALID_TIMEZONES.includes(timezone)) {
+      currentSettings.timezone = timezone;
+    } else {
+      throw new ApiError('Invalid timezone', 400);
+    }
+  }
+
+  await pluginsService.updatePluginSettings(req.user!.id, 'job-tracker', currentSettings);
+
+  res.json({
+    success: true,
+    data: {
+      dailyGoal: currentSettings.dailyGoal ?? 10,
+      timezone: currentSettings.timezone ?? null,
+    },
   });
 }));
 

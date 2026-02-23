@@ -5,12 +5,14 @@ import {
   JobTask,
   JobReferral,
   JobActivity,
-  DashboardStats
+  DashboardStats,
+  JobTrackerPreferences
 } from '@/lib/plugins-api';
 
 interface JobTrackerState {
   // Data
   applications: JobApplication[];
+  preferences: JobTrackerPreferences | null;
   selectedApplication: JobApplication | null;
   dashboardStats: DashboardStats | null;
   upcomingTasks: JobTask[];
@@ -39,7 +41,10 @@ interface JobTrackerState {
   error: string | null;
 
   // Actions - Dashboard
-  fetchDashboard: () => Promise<void>;
+  fetchDashboard: (timezone?: string) => Promise<void>;
+  refreshDashboard: () => Promise<void>;
+  fetchPreferences: () => Promise<void>;
+  setPreferences: (prefs: JobTrackerPreferences | null) => void;
 
   // Actions - Applications
   fetchApplications: (page?: number) => Promise<void>;
@@ -83,6 +88,7 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
   applications: [],
   selectedApplication: null,
   dashboardStats: null,
+  preferences: null,
   upcomingTasks: [],
   referrals: [],
   recentActivity: [],
@@ -99,11 +105,17 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
   isLoading: false,
   error: null,
 
-  // Dashboard
-  fetchDashboard: async () => {
+  // Dashboard - cancels previous in-flight request so older response doesn't overwrite newer
+  fetchDashboard: async (timezone?: string) => {
+    const prev = (get() as any)._dashboardAbort;
+    if (prev) prev.abort();
+    const ctrl = new AbortController();
+    (get() as any)._dashboardAbort = ctrl;
     set({ isLoading: true, error: null });
     try {
-      const response = await jobTrackerApi.getDashboard();
+      const response = await jobTrackerApi.getDashboard(timezone, ctrl.signal);
+      if (ctrl.signal.aborted) return;
+      (get() as any)._dashboardAbort = null;
       set({
         dashboardStats: response.data.data,
         upcomingTasks: response.data.data.upcomingTasks,
@@ -111,9 +123,20 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
         isLoading: false,
       });
     } catch (error: any) {
+      if (error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
+      (get() as any)._dashboardAbort = null;
       const errorMsg = error.response?.data?.error || error.message;
       set({ error: errorMsg, isLoading: false });
     }
+  },
+
+  refreshDashboard: async () => {
+    const { preferences } = get();
+    const tz = preferences?.timezone;
+    const resolvedTz = tz === 'Local' ? (() => {
+      try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return undefined; }
+    })() : (tz || undefined);
+    await get().fetchDashboard(resolvedTz);
   },
 
   // Applications
@@ -141,6 +164,17 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
     }
   },
 
+  fetchPreferences: async () => {
+    try {
+      const r = await jobTrackerApi.getPreferences();
+      set({ preferences: r.data.data });
+    } catch (e) {
+      console.error('Failed to fetch preferences:', e);
+    }
+  },
+
+  setPreferences: (prefs) => set({ preferences: prefs }),
+
   fetchApplication: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
@@ -160,8 +194,12 @@ export const useJobTrackerStore = create<JobTrackerState>((set, get) => ({
       set(state => ({
         applications: [newApp, ...state.applications],
         totalApplications: state.totalApplications + 1,
+        dashboardStats: state.dashboardStats
+          ? { ...state.dashboardStats, applicationsToday: (state.dashboardStats.applicationsToday ?? 0) + 1 }
+          : state.dashboardStats,
         isLoading: false,
       }));
+      await get().refreshDashboard();
       return newApp;
     } catch (error: any) {
       const errorMsg = error.response?.data?.error || error.message;

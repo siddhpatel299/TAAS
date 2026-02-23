@@ -523,10 +523,22 @@ export const jobTrackerService = {
 
   // ==================== Analytics & Dashboard ====================
 
-  async getDashboardStats(userId: string) {
+  async getDashboardStats(userId: string, timezone = 'America/New_York') {
+    const validTz = new Set([
+      'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+      'America/Phoenix', 'America/Anchorage', 'America/Toronto', 'America/Vancouver',
+      'Pacific/Honolulu', 'UTC',
+      'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Amsterdam', 'Europe/Moscow',
+      'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Asia/Singapore', 'Asia/Dubai',
+      'Australia/Sydney', 'Australia/Melbourne', 'America/Sao_Paulo', 'Africa/Cairo',
+    ]);
+    const tz = timezone && typeof timezone === 'string' && timezone.length > 0 && timezone !== 'Local'
+      ? (validTz.has(timezone) ? timezone : 'America/New_York')
+      : 'America/New_York';
     const [
       totalApplications,
       applicationsByStatus,
+      applicationsToday,
       recentActivity,
       upcomingTasks,
     ] = await Promise.all([
@@ -536,6 +548,11 @@ export const jobTrackerService = {
         where: { userId },
         _count: { status: true },
       }),
+      prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*)::bigint as count FROM jt_applications
+        WHERE "userId" = ${userId}
+        AND DATE(("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${tz}) = (NOW() AT TIME ZONE ${tz})::date
+      `,
       prisma.jobActivity.findMany({
         where: { jobApplication: { userId } },
         orderBy: { createdAt: 'desc' },
@@ -560,8 +577,11 @@ export const jobTrackerService = {
       (statusCounts.accepted || 0) +
       (statusCounts.rejected || 0);
 
+    const todayCount = Number(applicationsToday[0]?.count ?? 0);
+
     return {
       totalApplications,
+      applicationsToday: todayCount,
       statusCounts,
       interviews: statusCounts.interview || 0,
       offers: statusCounts.offer || 0,

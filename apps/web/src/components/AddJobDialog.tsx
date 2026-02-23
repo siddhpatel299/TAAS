@@ -151,7 +151,7 @@ export function AddJobDialog({ isOpen, onClose, onSuccess }: AddJobDialogProps) 
         sourceUrl: formData.jobUrl || undefined,
         appliedDate: new Date(), // Auto-fill apply date
       });
-      onSuccess?.();
+      await onSuccess?.();
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to save job application');

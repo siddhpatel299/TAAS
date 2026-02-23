@@ -21,6 +21,7 @@ import { useJobTrackerStore } from '@/stores/job-tracker.store';
 import { JobApplication, JOB_STATUSES } from '@/lib/plugins-api';
 import { AddJobDialog } from '@/components/AddJobDialog';
 import { CompanyContactsDialog } from '@/components/CompanyContactsDialog';
+import { PaginationBar } from '@/components/job-tracker/PaginationBar';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -34,10 +35,9 @@ const statusColors: Record<string, { bg: string; border: string; text: string; g
 
 export function HUDJobApplicationsPage() {
     const navigate = useNavigate();
-    const { applications, isLoading, fetchApplications, deleteApplication } = useJobTrackerStore();
+    const { applications, totalApplications, currentPage, hasMore, isLoading, filters, fetchApplications, deleteApplication, setFilters } = useJobTrackerStore();
     const [viewMode, setViewMode] = useState<'grid' | 'kanban'>('grid');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [showAddDialog, setShowAddDialog] = useState(false);
     const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null);
     const [showContactsDialog, setShowContactsDialog] = useState(false);
@@ -46,18 +46,18 @@ export function HUDJobApplicationsPage() {
         fetchApplications();
     }, [fetchApplications]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => setFilters({ search: searchQuery || undefined }), 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery, setFilters]);
+
     const handleDelete = async (id: string) => {
         if (confirm('Delete this application?')) {
             await deleteApplication(id);
         }
     };
 
-    const filteredApps = applications.filter(app => {
-        const matchesSearch = app.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            app.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    const displayApps = applications;
 
     return (
         <HUDLayout>
@@ -80,7 +80,7 @@ export function HUDJobApplicationsPage() {
                                 APPLICATIONS
                             </h1>
                             <p className="text-cyan-600/70 mt-1 font-mono">
-                                {applications.length} tracked applications
+                                {totalApplications} tracked applications
                             </p>
                         </div>
                     </div>
@@ -123,8 +123,8 @@ export function HUDJobApplicationsPage() {
                         <div className="flex items-center gap-2">
                             <Filter className="w-4 h-4 text-cyan-600" />
                             <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
+                                value={filters.status || 'all'}
+                                onChange={(e) => setFilters({ status: e.target.value === 'all' ? undefined : e.target.value })}
                                 className="hud-input px-3 py-2"
                             >
                                 <option value="all">All Status</option>
@@ -175,7 +175,7 @@ export function HUDJobApplicationsPage() {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                     <AnimatePresence>
-                        {filteredApps.map((app, index) => {
+                        {displayApps.map((app, index) => {
                             const colors = statusColors[app.status] || statusColors.wishlist;
                             return (
                                 <motion.div
@@ -268,7 +268,7 @@ export function HUDJobApplicationsPage() {
                     className="flex gap-4 overflow-x-auto pb-4"
                 >
                     {JOB_STATUSES.map((status) => {
-                        const statusApps = filteredApps.filter(a => a.status === status.value);
+                        const statusApps = displayApps.filter(a => a.status === status.value);
                         const colors = statusColors[status.value] || statusColors.wishlist;
                         return (
                             <div key={status.value} className="flex-shrink-0 w-72">
@@ -303,7 +303,7 @@ export function HUDJobApplicationsPage() {
                 </motion.div>
             )}
 
-            {filteredApps.length === 0 && !isLoading && (
+            {displayApps.length === 0 && !isLoading && (
                 <HUDPanel className="p-8 text-center">
                     <Briefcase className="w-12 h-12 mx-auto mb-4 text-cyan-600" />
                     <p className="text-cyan-400 mb-2">No applications found</p>
@@ -312,6 +312,19 @@ export function HUDJobApplicationsPage() {
                         <Plus className="w-4 h-4 mr-2" /> Add Application
                     </HUDButton>
                 </HUDPanel>
+            )}
+
+            {displayApps.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-cyan-500/20">
+                    <PaginationBar
+                        currentPage={currentPage}
+                        totalItems={totalApplications}
+                        pageSize={50}
+                        hasMore={hasMore}
+                        onPageChange={(page) => fetchApplications(page)}
+                        className="text-cyan-600 [&_button]:text-cyan-400 [&_button:hover]:bg-cyan-500/10 [&_button:hover]:text-cyan-300"
+                    />
+                </div>
             )}
 
             {/* Add Dialog */}

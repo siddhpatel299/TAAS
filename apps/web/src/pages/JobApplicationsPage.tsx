@@ -27,6 +27,8 @@ import { JOB_STATUSES, JOB_PRIORITIES, JobApplication } from '@/lib/plugins-api'
 import { cn } from '@/lib/utils';
 import { JobApplicationTimelineRow } from '@/components/job-tracker/JobApplicationTimelineRow';
 import { CompanyLogo } from '@/components/job-tracker/CompanyLogo';
+import { PaginationBar } from '@/components/job-tracker/PaginationBar';
+import { PipelineStatsCard } from '@/components/job-tracker/PipelineStatsCard';
 
 // Status Badge Component
 function StatusBadge({ status }: { status: string }) {
@@ -287,11 +289,14 @@ export function JobApplicationsPage() {
   const {
     applications,
     totalApplications,
+    currentPage,
+    hasMore,
     isLoading,
     error,
     filters,
     viewMode,
     fetchApplications,
+    refreshDashboard,
     deleteApplication,
     setFilters,
     setViewMode,
@@ -380,12 +385,7 @@ export function JobApplicationsPage() {
         </div>
 
         {/* Pipeline Stats */}
-        <div className="mb-6 bg-white rounded-2xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Your Job Pipeline</h2>
-            <span className="text-sm text-gray-500">{totalApplications} opportunities tracked</span>
-          </div>
-        </div>
+        <PipelineStatsCard />
 
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-6 gap-4">
@@ -537,6 +537,17 @@ export function JobApplicationsPage() {
                 onAddJob={() => setShowAddDialog(true)}
               />
             )}
+            {applications.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <PaginationBar
+                  currentPage={currentPage}
+                  totalItems={totalApplications}
+                  pageSize={50}
+                  hasMore={hasMore}
+                  onPageChange={(page) => fetchApplications(page)}
+                />
+              </div>
+            )}
           </>
         )}
 
@@ -584,7 +595,10 @@ export function JobApplicationsPage() {
         <AddJobDialog
           isOpen={showAddDialog}
           onClose={() => setShowAddDialog(false)}
-          onSuccess={() => fetchApplications()}
+          onSuccess={async () => {
+            await fetchApplications();
+            await refreshDashboard();
+          }}
         />
 
         {/* Company Contacts Dialog */}

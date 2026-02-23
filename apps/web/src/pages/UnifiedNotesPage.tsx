@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { useNotesStore } from '@/stores/notes.store';
@@ -34,56 +34,110 @@ export function UnifiedNotesPage() {
     const [content, setContent] = useState<any>(null);
     const [, setIsEditing] = useState(false);
 
+    // === CRITICAL: Use a ref for the current note ID ===
+    // This prevents stale closures from saving content to the wrong note.
+    // When switchin notes, React updates selectedNote before the old editor
+    // finishes its final onUpdate, causing the old content to save to the new note's ID.
+    const currentNoteIdRef = useRef<string | null>(null);
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isInitializingRef = useRef(false);
+
+    // Cancel any pending save — called before switching notes
+    const cancelPendingSave = useCallback(() => {
+        if (saveTimerRef.current) {
+            clearTimeout(saveTimerRef.current);
+            saveTimerRef.current = null;
+        }
+        // Also clear any legacy timers
+        if ((window as any).noteSaveTimer) {
+            clearTimeout((window as any).noteSaveTimer);
+            (window as any).noteSaveTimer = null;
+        }
+    }, []);
+
     // Sync selectedNote to local state when it changes
     useEffect(() => {
+        // FIRST: cancel any pending save from the PREVIOUS note
+        cancelPendingSave();
+
         if (selectedNote) {
+            // Mark as initializing so we skip the onUpdate triggered by setContent
+            isInitializingRef.current = true;
+
+            // Update the ref BEFORE setting content
+            currentNoteIdRef.current = selectedNote.id;
+
             setTitle(selectedNote.title);
-            setContent(selectedNote.content);
+            // Use contentJson (Tiptap JSON) to preserve formatting.
+            // Fall back to contentHtml, then plain text content.
+            const editorContent = selectedNote.contentJson
+                || selectedNote.contentHtml
+                || selectedNote.content
+                || null;
+            setContent(editorContent);
             setIsEditing(true);
+
+            // Allow onUpdate after a brief delay (after editor initializes)
+            setTimeout(() => {
+                isInitializingRef.current = false;
+            }, 100);
         } else {
+            currentNoteIdRef.current = null;
             setTitle('');
             setContent(null);
             setIsEditing(false);
         }
-    }, [selectedNote?.id]); // Only re-sync when switching notes, not on every store update
+    }, [selectedNote?.id, cancelPendingSave]); // Only re-sync when switching notes
 
-
-
-    // Debounced save function
+    // Debounced save function — uses the noteId passed in, NOT selectedNote from closure
     const debouncedSave = useCallback(
-        (id: string, data: { title?: string; contentJson?: any; contentHtml?: string; content?: string }) => {
+        (noteId: string, data: { title?: string; contentJson?: any; contentHtml?: string; content?: string }) => {
             // Clear any existing timer
-            if ((window as any).noteSaveTimer) {
-                clearTimeout((window as any).noteSaveTimer);
-            }
+            cancelPendingSave();
 
             // Set new timer
-            (window as any).noteSaveTimer = setTimeout(() => {
-                updateNote(id, data);
+            saveTimerRef.current = setTimeout(() => {
+                // Double-check: only save if we're still on the same note
+                if (currentNoteIdRef.current === noteId) {
+                    updateNote(noteId, data);
+                }
             }, 1000); // 1 second debounce
         },
-        [updateNote]
+        [updateNote, cancelPendingSave]
     );
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newTitle = e.target.value;
         setTitle(newTitle);
-        if (selectedNote) {
-            debouncedSave(selectedNote.id, { title: newTitle });
+        const noteId = currentNoteIdRef.current;
+        if (noteId) {
+            debouncedSave(noteId, { title: newTitle });
         }
     };
 
-    const handleEditorChange = (json: any, html: string, text: string) => {
-        // Only save if we have actual content change and a selected note
-        if (selectedNote) {
-            // We'll trust Tiptap's onUpdate to be correct, but we could add deep comparison here if needed
-            debouncedSave(selectedNote.id, {
+    const handleEditorChange = useCallback((json: any, html: string, text: string) => {
+        // Skip saves during editor initialization (setContent triggers onUpdate)
+        if (isInitializingRef.current) {
+            return;
+        }
+
+        // Use the ref for the current note ID — never stale
+        const noteId = currentNoteIdRef.current;
+        if (noteId) {
+            debouncedSave(noteId, {
                 contentJson: json,
                 contentHtml: html,
                 content: text
             });
         }
-    };
+    }, [debouncedSave]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            cancelPendingSave();
+        };
+    }, [cancelPendingSave]);
 
     return (
         <div className="h-screen bg-[#F8FAFC] flex overflow-hidden">

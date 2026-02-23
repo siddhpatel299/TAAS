@@ -108,6 +108,7 @@ export interface JobActivity {
 
 export interface DashboardStats {
   totalApplications: number;
+  applicationsToday?: number;
   statusCounts: Record<string, number>;
   interviews: number;
   offers: number;
@@ -115,6 +116,11 @@ export interface DashboardStats {
   successRate: number;
   recentActivity: JobActivity[];
   upcomingTasks: JobTask[];
+}
+
+export interface JobTrackerPreferences {
+  dailyGoal: number;
+  timezone: string | null;
 }
 
 export interface ScrapedJobData {
@@ -277,8 +283,17 @@ export interface OutreachStats {
 // Job Tracker API
 export const jobTrackerApi = {
   // Dashboard
-  getDashboard: () =>
-    api.get<{ success: boolean; data: DashboardStats }>('/job-tracker/dashboard'),
+  getDashboard: (timezone?: string, signal?: AbortSignal) => {
+    const params: Record<string, string> = { _t: String(Date.now()) };
+    if (timezone) params.timezone = timezone;
+    return api.get<{ success: boolean; data: DashboardStats }>('/job-tracker/dashboard', { params, signal });
+  },
+
+  // Preferences (daily goal, timezone)
+  getPreferences: () =>
+    api.get<{ success: boolean; data: JobTrackerPreferences }>('/job-tracker/preferences'),
+  updatePreferences: (data: { dailyGoal?: number; timezone?: string | null }) =>
+    api.patch<{ success: boolean; data: JobTrackerPreferences }>('/job-tracker/preferences', data),
 
   // Scrape job from URL
   scrapeJob: (url: string) =>
