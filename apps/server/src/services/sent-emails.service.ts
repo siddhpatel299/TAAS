@@ -24,6 +24,7 @@ export interface CreateSentEmailInput {
   gmailMessageId?: string;
   gmailThreadId?: string;
   followUpDate?: Date;
+  notes?: string;
 }
 
 export interface UpdateSentEmailInput {

@@ -15,6 +15,7 @@ import {
   Mail,
   Paperclip,
   Wand2,
+  FileEdit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { jobTrackerApi, ContactForEmail, EmailTemplate } from '@/lib/plugins-api';
@@ -73,12 +74,14 @@ export function EmailComposerDialog({
   
   // Sending state
   const [isSending, setIsSending] = useState(false);
+  const [isDrafting, setIsDrafting] = useState(false);
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testSentTo, setTestSentTo] = useState<string | null>(null);
   const [sendResults, setSendResults] = useState<{
     total: number;
     successful: number;
     failed: number;
+    mode: 'sent' | 'draft';
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   
@@ -341,9 +344,8 @@ export function EmailComposerDialog({
       });
 
       const data = response.data.data;
-      setSendResults(data.summary);
+      setSendResults({ ...data.summary, mode: 'sent' });
 
-      // If all sent successfully, close after delay
       if (data.summary.failed === 0) {
         setTimeout(() => {
           onClose();
@@ -354,6 +356,47 @@ export function EmailComposerDialog({
       setError(message);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const draftEmails = async () => {
+    if (!settingsStatus.gmailConnected) {
+      setError('Gmail not connected. Please connect your Gmail account in Job Tracker settings.');
+      return;
+    }
+
+    if (!subject.trim() || !body.trim()) {
+      setError('Subject and body are required');
+      return;
+    }
+
+    setIsDrafting(true);
+    setError(null);
+    setSendResults(null);
+
+    try {
+      const response = await jobTrackerApi.draftEmails({
+        contacts,
+        subject,
+        body,
+        senderName: senderName || 'Job Seeker',
+        attachments,
+        jobApplicationId,
+      });
+
+      const data = response.data.data;
+      setSendResults({ ...data.summary, mode: 'draft' });
+
+      if (data.summary.failed === 0) {
+        setTimeout(() => {
+          onClose();
+        }, 3000);
+      }
+    } catch (err: any) {
+      const message = err.response?.data?.error || err.message || 'Failed to create drafts';
+      setError(message);
+    } finally {
+      setIsDrafting(false);
     }
   };
 
@@ -420,10 +463,23 @@ export function EmailComposerDialog({
 
             {/* Success Message */}
             {sendResults && sendResults.failed === 0 && (
-              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                <div className="flex items-center gap-2 text-emerald-700">
+              <div className={cn(
+                'mb-6 p-4 border rounded-xl',
+                sendResults.mode === 'draft'
+                  ? 'bg-blue-50 border-blue-200'
+                  : 'bg-emerald-50 border-emerald-200'
+              )}>
+                <div className={cn(
+                  'flex items-center gap-2',
+                  sendResults.mode === 'draft' ? 'text-blue-700' : 'text-emerald-700'
+                )}>
                   <Check className="w-5 h-5" />
-                  <span className="font-medium">All {sendResults.successful} emails sent successfully!</span>
+                  <span className="font-medium">
+                    {sendResults.mode === 'draft'
+                      ? `${sendResults.successful} draft${sendResults.successful !== 1 ? 's' : ''} created! Open Gmail to review and send.`
+                      : `All ${sendResults.successful} emails sent successfully!`
+                    }
+                  </span>
                 </div>
               </div>
             )}
@@ -434,7 +490,7 @@ export function EmailComposerDialog({
                 <div className="flex items-center gap-2 text-amber-700">
                   <AlertCircle className="w-5 h-5" />
                   <span>
-                    {sendResults.successful} sent, {sendResults.failed} failed out of {sendResults.total} emails.
+                    {sendResults.successful} {sendResults.mode === 'draft' ? 'drafted' : 'sent'}, {sendResults.failed} failed out of {sendResults.total} emails.
                   </span>
                 </div>
               </div>
@@ -768,10 +824,10 @@ export function EmailComposerDialog({
               </button>
               <button
                 onClick={sendTestEmail}
-                disabled={isSendingTest || isSending || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
+                disabled={isSendingTest || isSending || isDrafting || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all border',
-                  isSendingTest || isSending || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
+                  isSendingTest || isSending || isDrafting || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
                     ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed'
                     : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'
                 )}
@@ -789,11 +845,33 @@ export function EmailComposerDialog({
                 )}
               </button>
               <button
+                onClick={draftEmails}
+                disabled={isDrafting || isSending || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
+                className={cn(
+                  'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all border',
+                  isDrafting || isSending || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
+                    ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-amber-600 border-amber-300 hover:bg-amber-50 hover:border-amber-400'
+                )}
+              >
+                {isDrafting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating Drafts...
+                  </>
+                ) : (
+                  <>
+                    <FileEdit className="w-4 h-4" />
+                    Save as Draft{contacts.length !== 1 ? 's' : ''}
+                  </>
+                )}
+              </button>
+              <button
                 onClick={sendEmails}
-                disabled={isSending || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
+                disabled={isSending || isDrafting || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()}
                 className={cn(
                   'flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all',
-                  isSending || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
+                  isSending || isDrafting || isSendingTest || !settingsStatus.gmailConnected || !subject.trim() || !body.trim()
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/25'
                 )}
@@ -806,7 +884,7 @@ export function EmailComposerDialog({
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Send to {contacts.length} Contact{contacts.length !== 1 ? 's' : ''}
+                    Send Now
                   </>
                 )}
               </button>

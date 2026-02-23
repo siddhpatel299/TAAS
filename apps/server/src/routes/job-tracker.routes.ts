@@ -770,6 +770,101 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
   });
 }));
 
+// Create Gmail drafts for contacts (user can review and send from Gmail)
+router.post('/email/draft', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const {
+    contacts,
+    subject,
+    body,
+    attachments = [],
+    senderName,
+    jobApplicationId,
+  } = req.body;
+
+  if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
+    throw new ApiError('At least one contact is required', 400);
+  }
+
+  if (!subject || !body) {
+    throw new ApiError('Subject and body are required', 400);
+  }
+
+  const settings = await pluginsService.getPluginSettings(req.user!.id, 'job-tracker');
+  const gmailTokens = settings?.gmailTokens as { accessToken: string; refreshToken: string } | undefined;
+
+  if (!gmailTokens) {
+    throw new ApiError('Gmail not connected. Please connect your Gmail account in settings.', 400);
+  }
+
+  const emailService = new EmailOutreachService(gmailTokens);
+
+  const results = await emailService.createBulkDrafts(
+    contacts,
+    { subject, body },
+    senderName || 'Job Seeker',
+    attachments
+  );
+
+  const successful = results.filter(r => r.success).length;
+  const failed = results.filter(r => !r.success).length;
+
+  // Save draft records to database for tracking
+  const savedEmails = [];
+  for (const result of results) {
+    if (result.success) {
+      const contact = contacts.find((c: any) => c.email === result.email);
+      if (contact) {
+        const personalizedSubject = subject
+          .replace(/{firstName}/gi, contact.firstName)
+          .replace(/{lastName}/gi, contact.lastName)
+          .replace(/{name}/gi, contact.name)
+          .replace(/{position}/gi, contact.position)
+          .replace(/{company}/gi, contact.company);
+
+        const personalizedBody = body
+          .replace(/{firstName}/gi, contact.firstName)
+          .replace(/{lastName}/gi, contact.lastName)
+          .replace(/{name}/gi, contact.name)
+          .replace(/{position}/gi, contact.position)
+          .replace(/{company}/gi, contact.company)
+          .replace(/{senderName}/gi, senderName || 'Job Seeker');
+
+        try {
+          const savedEmail = await sentEmailsService.create({
+            userId: req.user!.id,
+            jobApplicationId: jobApplicationId || undefined,
+            recipientName: contact.name,
+            recipientEmail: contact.email,
+            recipientPosition: contact.position,
+            company: contact.company,
+            subject: personalizedSubject,
+            body: personalizedBody,
+            gmailMessageId: result.messageId,
+            notes: 'Saved as draft in Gmail',
+          });
+          savedEmails.push(savedEmail);
+        } catch (saveError) {
+          console.error('Failed to save draft email record:', saveError);
+        }
+      }
+    }
+  }
+
+  res.json({
+    success: true,
+    data: {
+      results,
+      savedEmails,
+      summary: {
+        total: results.length,
+        successful,
+        failed,
+        tracked: savedEmails.length,
+      },
+    },
+  });
+}));
+
 // Send test email to yourself
 router.post('/email/test', asyncHandler(async (req: AuthRequest, res: Response) => {
   const {

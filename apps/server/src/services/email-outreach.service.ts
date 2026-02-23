@@ -372,54 +372,8 @@ Return JSON format:
 
       const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-      // Build email content
-      let emailContent: string;
+      const emailContent = this.buildRawEmail(to, subject, body, attachments);
 
-      if (attachments.length > 0) {
-        // Multipart email with attachments
-        const boundary = 'boundary_' + Math.random().toString(36).substring(2);
-        const emailParts = [
-          `To: ${to}`,
-          `Subject: ${subject}`,
-          'MIME-Version: 1.0',
-          `Content-Type: multipart/mixed; boundary="${boundary}"`,
-          '',
-          `--${boundary}`,
-          'Content-Type: text/html; charset=utf-8',
-          'Content-Transfer-Encoding: 7bit',
-          '',
-          this.convertToHtml(body),
-          '',
-        ];
-
-        // Add attachments
-        for (const attachment of attachments) {
-          emailParts.push(
-            `--${boundary}`,
-            `Content-Type: ${attachment.mimeType}; name="${attachment.filename}"`,
-            `Content-Disposition: attachment; filename="${attachment.filename}"`,
-            'Content-Transfer-Encoding: base64',
-            '',
-            attachment.content, // Already base64 encoded
-            ''
-          );
-        }
-
-        emailParts.push(`--${boundary}--`);
-        emailContent = emailParts.join('\r\n');
-      } else {
-        // Simple HTML email
-        emailContent = [
-          `To: ${to}`,
-          `Subject: ${subject}`,
-          'MIME-Version: 1.0',
-          'Content-Type: text/html; charset=utf-8',
-          '',
-          this.convertToHtml(body),
-        ].join('\r\n');
-      }
-
-      // Encode for Gmail API
       const encodedMessage = Buffer.from(emailContent)
         .toString('base64')
         .replace(/\+/g, '-')
@@ -439,6 +393,165 @@ Return JSON format:
       console.error(`Failed to send email to ${to}:`, error.message);
       return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Create a draft in user's Gmail
+   */
+  async createDraft(
+    to: string,
+    subject: string,
+    body: string,
+    attachments: Array<{ filename: string; content: string; mimeType: string }> = []
+  ): Promise<{ success: boolean; draftId?: string; error?: string }> {
+    if (!this.gmailTokens) {
+      return { success: false, error: 'Gmail not connected' };
+    }
+
+    try {
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/google/callback`
+      );
+
+      oauth2Client.setCredentials({
+        access_token: this.gmailTokens.accessToken,
+        refresh_token: this.gmailTokens.refreshToken,
+      });
+
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      const emailContent = this.buildRawEmail(to, subject, body, attachments);
+
+      const encodedMessage = Buffer.from(emailContent)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      const result = await gmail.users.drafts.create({
+        userId: 'me',
+        requestBody: {
+          message: {
+            raw: encodedMessage,
+          },
+        },
+      });
+
+      console.log(`Draft created for ${to}, draftId: ${result.data.id}`);
+      return { success: true, draftId: result.data.id || undefined };
+    } catch (error: any) {
+      console.error(`Failed to create draft for ${to}:`, error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Create drafts in bulk for multiple contacts
+   */
+  async createBulkDrafts(
+    contacts: ContactForEmail[],
+    emailTemplate: { subject: string; body: string },
+    senderName: string,
+    attachments: Array<{ filename: string; content: string; mimeType: string }> = [],
+    delayMs: number = 500
+  ): Promise<EmailSendResult[]> {
+    const results: EmailSendResult[] = [];
+
+    for (const contact of contacts) {
+      if (!contact.email) {
+        results.push({
+          success: false,
+          email: '',
+          name: contact.name,
+          error: 'No email address',
+        });
+        continue;
+      }
+
+      const personalized = this.applyTemplateVariables(emailTemplate, {
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        name: contact.name,
+        position: contact.position,
+        company: contact.company,
+        senderName: senderName,
+        jobTitle: '',
+      });
+
+      const result = await this.createDraft(
+        contact.email,
+        personalized.subject,
+        personalized.body,
+        attachments
+      );
+
+      results.push({
+        success: result.success,
+        email: contact.email,
+        name: contact.name,
+        error: result.error,
+        messageId: result.draftId,
+      });
+
+      if (contacts.indexOf(contact) < contacts.length - 1) {
+        await this.delay(delayMs);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Build raw RFC 2822 email content
+   */
+  private buildRawEmail(
+    to: string,
+    subject: string,
+    body: string,
+    attachments: Array<{ filename: string; content: string; mimeType: string }> = []
+  ): string {
+    if (attachments.length > 0) {
+      const boundary = 'boundary_' + Math.random().toString(36).substring(2);
+      const emailParts = [
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        'MIME-Version: 1.0',
+        `Content-Type: multipart/mixed; boundary="${boundary}"`,
+        '',
+        `--${boundary}`,
+        'Content-Type: text/html; charset=utf-8',
+        'Content-Transfer-Encoding: 7bit',
+        '',
+        this.convertToHtml(body),
+        '',
+      ];
+
+      for (const attachment of attachments) {
+        emailParts.push(
+          `--${boundary}`,
+          `Content-Type: ${attachment.mimeType}; name="${attachment.filename}"`,
+          `Content-Disposition: attachment; filename="${attachment.filename}"`,
+          'Content-Transfer-Encoding: base64',
+          '',
+          attachment.content,
+          ''
+        );
+      }
+
+      emailParts.push(`--${boundary}--`);
+      return emailParts.join('\r\n');
+    }
+
+    return [
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      'MIME-Version: 1.0',
+      'Content-Type: text/html; charset=utf-8',
+      '',
+      this.convertToHtml(body),
+    ].join('\r\n');
   }
 
   /**
@@ -554,6 +667,7 @@ Return JSON format:
 
     const scopes = [
       'https://www.googleapis.com/auth/gmail.send',
+      'https://www.googleapis.com/auth/gmail.compose',
       'https://www.googleapis.com/auth/userinfo.email',
     ];
 

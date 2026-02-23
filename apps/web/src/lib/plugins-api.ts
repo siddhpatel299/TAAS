@@ -371,6 +371,16 @@ export const jobTrackerApi = {
   }) =>
     api.post<{ success: boolean; data: { results: EmailSendResult[]; savedEmails: SentEmail[]; summary: { total: number; successful: number; failed: number; tracked: number } } }>('/job-tracker/email/send', data),
 
+  draftEmails: (data: {
+    contacts: ContactForEmail[];
+    subject: string;
+    body: string;
+    senderName: string;
+    attachments?: Array<{ filename: string; content: string; mimeType: string }>;
+    jobApplicationId?: string;
+  }) =>
+    api.post<{ success: boolean; data: { results: EmailSendResult[]; savedEmails: SentEmail[]; summary: { total: number; successful: number; failed: number; tracked: number } } }>('/job-tracker/email/draft', data),
+
   sendTestEmail: (data: {
     subject: string;
     body: string;
