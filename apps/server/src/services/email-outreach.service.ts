@@ -40,6 +40,7 @@ interface EmailSendResult {
   name: string;
   error?: string;
   messageId?: string;
+  threadId?: string;
 }
 
 interface GenerateEmailOptions {
@@ -353,7 +354,7 @@ Return JSON format:
     subject: string,
     body: string,
     attachments: Array<{ filename: string; content: string; mimeType: string }> = []
-  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  ): Promise<{ success: boolean; messageId?: string; threadId?: string; error?: string }> {
     if (!this.gmailTokens) {
       return { success: false, error: 'Gmail not connected' };
     }
@@ -387,8 +388,8 @@ Return JSON format:
         },
       });
 
-      console.log(`Email sent to ${to}, messageId: ${result.data.id}`);
-      return { success: true, messageId: result.data.id || undefined };
+      console.log(`Email sent to ${to}, messageId: ${result.data.id}, threadId: ${result.data.threadId}`);
+      return { success: true, messageId: result.data.id || undefined, threadId: result.data.threadId || undefined };
     } catch (error: any) {
       console.error(`Failed to send email to ${to}:`, error.message);
       return { success: false, error: error.message };
@@ -403,7 +404,7 @@ Return JSON format:
     subject: string,
     body: string,
     attachments: Array<{ filename: string; content: string; mimeType: string }> = []
-  ): Promise<{ success: boolean; draftId?: string; error?: string }> {
+  ): Promise<{ success: boolean; draftId?: string; threadId?: string; error?: string }> {
     if (!this.gmailTokens) {
       return { success: false, error: 'Gmail not connected' };
     }
@@ -439,8 +440,9 @@ Return JSON format:
         },
       });
 
-      console.log(`Draft created for ${to}, draftId: ${result.data.id}`);
-      return { success: true, draftId: result.data.id || undefined };
+      const threadId = result.data.message?.threadId;
+      console.log(`Draft created for ${to}, draftId: ${result.data.id}, threadId: ${threadId}`);
+      return { success: true, draftId: result.data.id || undefined, threadId: threadId || undefined };
     } catch (error: any) {
       console.error(`Failed to create draft for ${to}:`, error.message);
       return { success: false, error: error.message };
@@ -493,6 +495,7 @@ Return JSON format:
         name: contact.name,
         error: result.error,
         messageId: result.draftId,
+        threadId: result.threadId,
       });
 
       if (contacts.indexOf(contact) < contacts.length - 1) {
@@ -501,6 +504,48 @@ Return JSON format:
     }
 
     return results;
+  }
+
+  /**
+   * Get thread details (for reply checking)
+   */
+  async getThread(threadId: string): Promise<{ messages: Array<{ id: string; from: string }>; error?: string } | null> {
+    if (!this.gmailTokens) return null;
+
+    try {
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/google/callback`
+      );
+
+      oauth2Client.setCredentials({
+        access_token: this.gmailTokens.accessToken,
+        refresh_token: this.gmailTokens.refreshToken,
+      });
+
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      const thread = await gmail.users.threads.get({
+        userId: 'me',
+        id: threadId,
+        format: 'metadata',
+        metadataHeaders: ['From'],
+      });
+
+      const messages = (thread.data.messages || []).map(msg => {
+        const fromHeader = msg.payload?.headers?.find(h => h.name?.toLowerCase() === 'from');
+        return {
+          id: msg.id || '',
+          from: fromHeader?.value || '',
+        };
+      });
+
+      return { messages };
+    } catch (error: any) {
+      console.error(`Failed to get thread ${threadId}:`, error.message);
+      return { messages: [], error: error.message };
+    }
   }
 
   /**
@@ -601,6 +646,7 @@ Return JSON format:
         name: contact.name,
         error: result.error,
         messageId: result.messageId,
+        threadId: result.threadId,
       });
 
       // Delay between emails to avoid rate limiting
@@ -668,6 +714,7 @@ Return JSON format:
     const scopes = [
       'https://www.googleapis.com/auth/gmail.send',
       'https://www.googleapis.com/auth/gmail.compose',
+      'https://www.googleapis.com/auth/gmail.readonly',
       'https://www.googleapis.com/auth/userinfo.email',
     ];
 

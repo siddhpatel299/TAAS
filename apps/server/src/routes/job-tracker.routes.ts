@@ -745,11 +745,11 @@ router.post('/email/send', asyncHandler(async (req: AuthRequest, res: Response) 
             subject: personalizedSubject,
             body: personalizedBody,
             gmailMessageId: result.messageId,
+            gmailThreadId: result.threadId,
           });
           savedEmails.push(savedEmail);
         } catch (saveError) {
           console.error('Failed to save sent email record:', saveError);
-          // Don't fail the request, email was sent successfully
         }
       }
     }
@@ -840,6 +840,7 @@ router.post('/email/draft', asyncHandler(async (req: AuthRequest, res: Response)
             subject: personalizedSubject,
             body: personalizedBody,
             gmailMessageId: result.messageId,
+            gmailThreadId: result.threadId,
             notes: 'Saved as draft in Gmail',
           });
           savedEmails.push(savedEmail);

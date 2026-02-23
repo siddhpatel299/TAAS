@@ -21,8 +21,10 @@ import { crmRouter } from './routes/crm.routes';
 import callReminderRoutes from './routes/call-reminder.routes';
 import subscriptionRoutes from './routes/subscription.routes';
 import pdfToolsRoutes from './routes/pdf-tools.routes';
+import notificationRoutes from './routes/notification.routes';
 import { flowService } from './services/flow.service';
 import { callScheduler } from './jobs/call-scheduler';
+import { checkAllUsersForReplies } from './services/email-reply-checker.service';
 
 const app: Application = express();
 
@@ -116,6 +118,7 @@ app.use('/api/search', apiLimiter, searchRoutes);
 app.use('/api/subscriptions', apiLimiter, subscriptionRoutes);
 app.use('/api/call-reminders', apiLimiter, callReminderRoutes);
 app.use('/api/pdf-tools', apiLimiter, pdfToolsRoutes);
+app.use('/api/notifications', apiLimiter, notificationRoutes);
 
 // Error handling
 app.use(notFoundHandler);
@@ -126,6 +129,15 @@ flowService.initScheduler().catch(err => console.error('Failed to init Flow Sche
 
 // Initialize Call Reminder Scheduler
 callScheduler.start();
+
+// Email reply checker -- poll every 5 minutes
+const REPLY_CHECK_INTERVAL = 5 * 60 * 1000;
+setTimeout(() => {
+  checkAllUsersForReplies().catch(err => console.error('[ReplyChecker] Initial run error:', err));
+  setInterval(() => {
+    checkAllUsersForReplies().catch(err => console.error('[ReplyChecker] Error:', err));
+  }, REPLY_CHECK_INTERVAL);
+}, 10_000); // start 10s after boot to let DB connections settle
 
 // Prevent crash on unhandled promise rejection (e.g. Telegram ETIMEDOUT during upload)
 process.on('unhandledRejection', (reason, promise) => {

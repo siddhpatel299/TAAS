@@ -695,6 +695,33 @@ export const passwordVaultApi = {
 };
 
 // Job Status Options
+// Notification types
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
+// Notifications API
+export const notificationsApi = {
+  getNotifications: (params?: { unreadOnly?: boolean; limit?: number; offset?: number }) =>
+    api.get<{ success: boolean; data: AppNotification[]; meta: { total: number } }>('/notifications', { params }),
+
+  getUnreadCount: () =>
+    api.get<{ success: boolean; data: { count: number } }>('/notifications/unread-count'),
+
+  markAsRead: (id: string) =>
+    api.patch<{ success: boolean; data: AppNotification }>(`/notifications/${id}/read`),
+
+  markAllRead: () =>
+    api.post<{ success: boolean; data: { marked: boolean } }>('/notifications/mark-all-read'),
+};
+
 export const JOB_STATUSES = [
   { value: 'wishlist', label: 'Wishlist', color: 'gray' },
   { value: 'applied', label: 'Applied', color: 'blue' },

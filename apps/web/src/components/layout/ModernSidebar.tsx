@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { AccountSettingsDialog } from '@/components/AccountSettingsDialog';
+import { NotificationBell } from '@/components/NotificationBell';
 
 interface ModernSidebarProps {
   collapsed?: boolean;
@@ -172,6 +173,9 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
 
       {/* Bottom Navigation - Settings */}
       <div className="flex flex-col items-center gap-2 pb-2 mt-auto flex-shrink-0">
+        {/* Notifications */}
+        <NotificationBell />
+
         {/* War Zone Toggle */}
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
