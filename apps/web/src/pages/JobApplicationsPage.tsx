@@ -19,6 +19,8 @@ import {
   ArrowLeft,
   Users,
 } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable, HUDStatBlock, HUDBadge } from '@/components/hud';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { AddJobDialog } from '@/components/AddJobDialog';
 import { CompanyContactsDialog } from '@/components/CompanyContactsDialog';
@@ -29,6 +31,8 @@ import { JobApplicationTimelineRow } from '@/components/job-tracker/JobApplicati
 import { CompanyLogo } from '@/components/job-tracker/CompanyLogo';
 import { PaginationBar } from '@/components/job-tracker/PaginationBar';
 import { PipelineStatsCard } from '@/components/job-tracker/PipelineStatsCard';
+import { HUDDailyGoal } from '@/components/job-tracker/HUDDailyGoal';
+import { HUDPaginationBar } from '@/components/job-tracker/HUDPaginationBar';
 
 // Status Badge Component
 function StatusBadge({ status }: { status: string }) {
@@ -350,6 +354,176 @@ export function JobApplicationsPage() {
       console.error('Export failed:', err);
     }
   };
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="APPLICATIONS"
+          backHref="/plugins/job-tracker"
+          backLabel="DASHBOARD"
+          searchPlaceholder="Search applications..."
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          actions={
+            <button
+              type="button"
+              onClick={() => setShowAddDialog(true)}
+              className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+            >
+              ADD APPLICATION
+            </button>
+          }
+        >
+          <div className="space-y-6">
+            {/* Stats row: Total + Daily goal + Status filters */}
+            <div className="flex flex-wrap items-center gap-4">
+              <HUDCard accent className="flex-1 min-w-[120px]">
+                <div className="p-4">
+                  <HUDStatBlock label="TOTAL" value={totalApplications ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDDailyGoal />
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[9px] font-bold tracking-wider" style={{ color: 'rgba(0,255,255,0.6)' }}>STATUS</span>
+                <button
+                  type="button"
+                  onClick={() => setFilters({ status: undefined })}
+                  className={cn(!filters.status && 'ring-1 ring-cyan-500/60')}
+                >
+                  <HUDBadge variant={!filters.status ? 'primary' : 'default'}>ALL</HUDBadge>
+                </button>
+                {JOB_STATUSES.filter(s => ['wishlist', 'applied', 'interview', 'offer', 'rejected'].includes(s.value)).map((s) => (
+                  <button
+                    key={s.value}
+                    type="button"
+                    onClick={() => setFilters({ status: filters.status === s.value ? undefined : s.value })}
+                  >
+                    <HUDBadge variant={filters.status === s.value ? 'primary' : 'default'}>{s.label}</HUDBadge>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <HUDCard accent>
+              <div className="p-4">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  APPLICATIONS
+                </h3>
+                {isLoading ? (
+                  <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+                ) : (
+                  <>
+                    <HUDDataTable
+                      columns={[
+                        {
+                          key: 'job',
+                          header: 'JOB',
+                          render: (j) => (
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(j.id)}
+                              className="hover:underline text-left"
+                            >
+                              {j.jobTitle} @ {j.company}
+                            </button>
+                          ),
+                        },
+                        { key: 'status', header: 'STATUS', render: (j) => (JOB_STATUSES.find(s => s.value === j.status)?.label || j.status) },
+                        { key: 'location', header: 'LOCATION', render: (j) => j.location || '-' },
+                        { key: 'applied', header: 'APPLIED', render: (j) => j.appliedDate ? new Date(j.appliedDate).toLocaleDateString() : '-' },
+                        {
+                          key: 'actions',
+                          header: '',
+                          render: (j) => (
+                            <div className="flex items-center gap-1">
+                              <button type="button" onClick={() => handleFindContacts(j)} className="p-1.5 rounded hover:bg-cyan-500/20" title="Contacts">
+                                <Users className="w-3.5 h-3.5" style={{ color: '#22d3ee' }} />
+                              </button>
+                              <button type="button" onClick={() => handleEdit(j.id)} className="p-1.5 rounded hover:bg-cyan-500/20" title="Edit">
+                                <Edit className="w-3.5 h-3.5" style={{ color: '#22d3ee' }} />
+                              </button>
+                              <button type="button" onClick={() => setDeleteConfirm(j.id)} className="p-1.5 rounded hover:bg-red-500/20" title="Delete">
+                                <Trash2 className="w-3.5 h-3.5" style={{ color: '#ef4444' }} />
+                              </button>
+                            </div>
+                          ),
+                        },
+                      ]}
+                      data={applications}
+                      keyExtractor={(j) => j.id}
+                      emptyMessage="NO APPLICATIONS"
+                    />
+                    {(totalApplications > 0 || applications.length > 0) && (
+                      <div className="mt-4 pt-4 border-t" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                        <HUDPaginationBar
+                          currentPage={currentPage}
+                          totalItems={totalApplications}
+                          pageSize={50}
+                          hasMore={hasMore}
+                          onPageChange={(page) => fetchApplications(page)}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+        <AddJobDialog isOpen={showAddDialog} onClose={() => setShowAddDialog(false)} onSuccess={() => { setShowAddDialog(false); fetchApplications(); }} />
+        <CompanyContactsDialog
+          isOpen={contactsDialog.isOpen}
+          jobId={contactsDialog.job?.id ?? ''}
+          company={contactsDialog.job?.company ?? ''}
+          jobTitle={contactsDialog.job?.jobTitle}
+          onClose={() => setContactsDialog({ isOpen: false, job: null })}
+        />
+        {/* HUD-styled delete confirmation */}
+        {deleteConfirm && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.7)' }}
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <div
+              className="max-w-md w-full p-6 rounded-xl border"
+              style={{
+                background: 'linear-gradient(180deg, rgba(10,24,38,0.98) 0%, rgba(6,13,22,0.98) 100%)',
+                borderColor: 'rgba(0,255,255,0.3)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-sm font-bold tracking-wider uppercase mb-2" style={{ color: '#a5f3fc' }}>DELETE APPLICATION?</h3>
+              <p className="text-xs mb-6" style={{ color: 'rgba(0,255,255,0.7)' }}>
+                This will permanently delete this job application and all associated tasks, documents, and referrals.
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirm(null)}
+                  className="px-4 py-2 text-xs font-bold rounded-lg border transition-colors hover:border-cyan-500/50"
+                  style={{ borderColor: 'rgba(0,255,255,0.25)', color: '#67e8f9' }}
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(deleteConfirm)}
+                  className="px-4 py-2 text-xs font-bold rounded-lg border transition-colors"
+                  style={{ borderColor: 'rgba(239,68,68,0.5)', color: '#ef4444', background: 'rgba(239,68,68,0.1)' }}
+                >
+                  DELETE
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">

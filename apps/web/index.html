@@ -8,6 +8,16 @@
     <title>TAAS - Telegram As A Storage</title>
   </head>
   <body>
+    <script>
+      // Set initial background before React mounts to prevent white flash
+      try {
+        var v = localStorage.getItem('app_version');
+        if (v === 'os') {
+          document.body.style.background = '#050a0f';
+          document.body.style.color = '#fff';
+        }
+      } catch(e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

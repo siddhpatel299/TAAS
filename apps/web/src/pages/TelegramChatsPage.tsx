@@ -21,6 +21,8 @@ import {
   Play,
   Search,
 } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable } from '@/components/hud';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -347,6 +349,293 @@ export function TelegramChatsPage() {
 
   // Get selected chat object
   const selectedChat = chats.find((c) => c.id === selectedChatId);
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title={selectedChat ? selectedChat.title.toUpperCase() : 'TELEGRAM'}
+          searchPlaceholder={selectedChatId ? 'Search files...' : 'Search chats...'}
+          searchValue={selectedChatId ? fileSearchQuery : chatSearchQuery}
+          onSearchChange={(v) => selectedChatId ? setFileSearchQuery(v) : setChatSearchQuery(v)}
+          actions={
+            <>
+              {selectedChatId && (
+                <button
+                  type="button"
+                  onClick={handleBackToChats}
+                  className="hud-btn px-2 py-1.5 text-xs"
+                  title="Back"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 inline" />
+                </button>
+              )}
+              {!selectedChatId && (
+                <button
+                  type="button"
+                  onClick={loadChats}
+                  disabled={chatsLoading}
+                  className="hud-btn px-2 py-1.5 text-xs"
+                  title="Refresh"
+                >
+                  <RefreshCw className={cn('w-3.5 h-3.5 inline', chatsLoading && 'animate-spin')} />
+                </button>
+              )}
+            </>
+          }
+        >
+          <div className="space-y-4">
+            {!selectedChatId ? (
+              <HUDCard accent>
+                <div className="p-4">
+                  <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                    CHATS
+                  </h3>
+                  {chatsLoading && chats.length === 0 ? (
+                    <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+                  ) : chatsError ? (
+                    <div className="py-8 text-center">
+                      <AlertCircle className="w-10 h-10 mx-auto mb-2" style={{ color: '#ef4444' }} />
+                      <p className="text-xs" style={{ color: '#ef4444' }}>{chatsError}</p>
+                    </div>
+                  ) : filteredChats.length === 0 ? (
+                    <div className="py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                      <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                      <p className="text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>NO CHATS</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {filteredChats.map((chat) => {
+                        const Icon = chatTypeIcons[chat.type];
+                        return (
+                          <HUDCard key={chat.id} onClick={() => handleSelectChat(chat.id)}>
+                            <div className="p-3 flex items-center gap-3">
+                              <div className="w-10 h-10 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(0,255,255,0.15)' }}>
+                                <Icon className="w-5 h-5" style={{ color: '#22d3ee' }} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium truncate" style={{ color: '#67e8f9' }}>{chat.title}</p>
+                                {chat.lastMessage && (
+                                  <p className="text-[10px] truncate opacity-70" style={{ color: 'rgba(0,255,255,0.7)' }}>{chat.lastMessage}</p>
+                                )}
+                              </div>
+                              <ChevronRight className="w-4 h-4 shrink-0 opacity-50" style={{ color: '#22d3ee' }} />
+                            </div>
+                          </HUDCard>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </HUDCard>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {FILE_TYPE_TABS.map((tab) => {
+                    const count = tab.value === 'all' ? fileCounts.total : fileCounts[tab.value];
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.value}
+                        onClick={() => handleFilterChange(tab.value)}
+                        className={cn(
+                          'hud-badge px-2 py-1 text-xs flex items-center gap-1',
+                          fileTypeFilter === tab.value && 'ring-1 ring-cyan-400'
+                        )}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {tab.label}
+                        {count > 0 && <span className="opacity-80">({count})</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <HUDCard accent>
+                  <div className="p-4">
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                      FILES
+                    </h3>
+                    {messagesLoading && filteredMessages.length === 0 ? (
+                      <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+                    ) : messagesError ? (
+                      <div className="py-8 text-center">
+                        <p className="text-xs" style={{ color: '#ef4444' }}>{messagesError}</p>
+                      </div>
+                    ) : filteredMessages.length === 0 ? (
+                      <div className="py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                        <FileIcon className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                        <p className="text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>NO FILES</p>
+                      </div>
+                    ) : (
+                      <HUDDataTable
+                        columns={[
+                          {
+                            key: 'name',
+                            header: 'FILE',
+                            render: (m) => {
+                              const info = getFileInfo(m);
+                              const Icon = getMediaIcon(m);
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => handlePreviewClick(m)}
+                                  className="flex items-center gap-2 hover:underline text-left"
+                                >
+                                  <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: '#22d3ee' }} />
+                                  {info?.name || 'Unknown'}
+                                </button>
+                              );
+                            },
+                          },
+                          { key: 'size', header: 'SIZE', render: (m) => formatFileSize(getFileInfo(m)?.size || 0) },
+                          {
+                            key: 'import',
+                            header: '',
+                            render: (m) => (
+                              <button
+                                type="button"
+                                onClick={() => handleImportClick(m)}
+                                disabled={!!importingFile}
+                                className="hud-btn px-2 py-1 text-xs"
+                              >
+                                IMPORT
+                              </button>
+                            ),
+                          },
+                        ]}
+                        data={filteredMessages}
+                        keyExtractor={(m) => String(m.id)}
+                        emptyMessage="NO FILES"
+                      />
+                    )}
+                  </div>
+                </HUDCard>
+              </>
+            )}
+          </div>
+        </HUDAppLayout>
+        <AnimatePresence>
+          {importingFile && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-4 right-4 z-50 p-4 rounded flex items-center gap-3 text-xs"
+              style={{ backgroundColor: 'var(--hud-bg-secondary)', border: '1px solid rgba(0,255,255,0.3)' }}
+            >
+              {importingFile.status === 'importing' && (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#22d3ee' }} />
+                  <span style={{ color: '#67e8f9' }}>Importing {importingFile.fileName}...</span>
+                </>
+              )}
+              {importingFile.status === 'success' && (
+                <>
+                  <Check className="w-4 h-4" style={{ color: '#22c55e' }} />
+                  <span style={{ color: '#67e8f9' }}>Imported {importingFile.fileName}</span>
+                </>
+              )}
+              {importingFile.status === 'error' && (
+                <>
+                  <X className="w-4 h-4" style={{ color: '#ef4444' }} />
+                  <span style={{ color: '#ef4444' }}>{importingFile.error}</span>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
+          <DialogContent className="sm:max-w-md bg-[var(--hud-bg-secondary)] border-cyan-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400">Import to TAAS</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              {selectedMessage && (
+                <div className="mb-4 p-3 rounded text-xs" style={{ backgroundColor: 'rgba(0,255,255,0.05)', color: '#67e8f9' }}>
+                  <p className="font-medium">{getFileInfo(selectedMessage)?.name}</p>
+                  <p className="opacity-70">{formatFileSize(getFileInfo(selectedMessage)?.size || 0)}</p>
+                </div>
+              )}
+              <p className="text-xs mb-3" style={{ color: 'rgba(0,255,255,0.8)' }}>Select destination folder (optional):</p>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                <button
+                  onClick={() => setSelectedFolderId(undefined)}
+                  className={cn(
+                    'w-full flex items-center gap-3 p-3 rounded text-left text-xs',
+                    !selectedFolderId ? 'ring-1 ring-cyan-400' : 'hover:bg-cyan-500/10'
+                  )}
+                  style={{ color: '#67e8f9' }}
+                >
+                  <FolderOpen className="w-4 h-4" />
+                  Root (My Files)
+                </button>
+                {folders.map((folder) => (
+                  <button
+                    key={folder.id}
+                    onClick={() => setSelectedFolderId(folder.id)}
+                    className={cn(
+                      'w-full flex items-center gap-3 p-3 rounded text-left text-xs',
+                      selectedFolderId === folder.id ? 'ring-1 ring-cyan-400' : 'hover:bg-cyan-500/10'
+                    )}
+                    style={{ color: '#67e8f9' }}
+                  >
+                    <FolderOpen className="w-4 h-4" />
+                    {folder.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowFolderDialog(false)} className="border-cyan-500/30 text-cyan-400">
+                Cancel
+              </Button>
+              <Button onClick={handleImportConfirm} className="bg-cyan-500/20 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/30">
+                <Download className="w-4 h-4 mr-2" />
+                Import
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+          <DialogContent className="sm:max-w-3xl bg-[var(--hud-bg-secondary)] border-cyan-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400 flex items-center gap-2">
+                {previewMessage?.hasVideo ? <Video className="w-5 h-5" /> : <Music className="w-5 h-5" />}
+                {previewMessage && getFileInfo(previewMessage)?.name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              {previewMessage && selectedChatId && (
+                <MediaPreview
+                  chatId={selectedChatId}
+                  messageId={previewMessage.id}
+                  isVideo={previewMessage.hasVideo}
+                  isAudio={previewMessage.hasAudio}
+                />
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowPreviewDialog(false)} className="border-cyan-500/30 text-cyan-400">
+                Close
+              </Button>
+              {previewMessage && (
+                <Button
+                  onClick={() => { setShowPreviewDialog(false); handleImportClick(previewMessage); }}
+                  className="bg-cyan-500/20 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/30"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Import
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">

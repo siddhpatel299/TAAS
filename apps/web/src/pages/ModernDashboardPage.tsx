@@ -32,11 +32,23 @@ import {
 } from '@/components/ui/dialog';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { useAuthStore } from '@/stores/auth.store';
+import { useOSStore } from '@/stores/os.store';
 import { filesApi, foldersApi } from '@/lib/api';
+import { formatFileSize } from '@/lib/utils';
+import { HUDAppLayout, HUDCard, HUDStatBlock, HUDDataTable } from '@/components/hud';
+
+const categoryLabels: Record<string, string> = {
+  video: 'VIDEO',
+  document: 'DOCUMENT',
+  photo: 'PHOTO',
+  other: 'OTHER',
+};
 
 export function ModernDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
 
   const {
     files,
@@ -231,6 +243,174 @@ export function ModernDashboardPage() {
   };
 
   const userName = user?.firstName || user?.username || 'User';
+
+  // HUD mode layout
+  if (isHUD) {
+    return (
+      <div
+        className="h-full min-h-0 flex flex-col"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
+        <HUDAppLayout
+          title="DASHBOARD"
+          searchPlaceholder="Search files..."
+          searchValue={localSearch}
+          onSearchChange={setLocalSearch}
+          onSearchSubmit={() => localSearch.trim() && navigate(`/files?search=${encodeURIComponent(localSearch)}`)}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowUploader(true)}
+                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+              >
+                UPLOAD FILES
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/files')}
+                className="hud-btn px-3 py-1.5 text-xs"
+              >
+                MANAGE FILES
+              </button>
+            </>
+          }
+        >
+          <div className="space-y-6">
+            {/* Quick actions - already in header */}
+            {/* Categories */}
+            <div>
+              <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                CATEGORIES
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {categories.map((cat) => (
+                  <HUDCard key={cat.type} accent onClick={() => handleCategoryClick(cat.type)}>
+                    <div className="p-4">
+                      <HUDStatBlock label={categoryLabels[cat.type] || cat.type} value={`${cat.itemCount} ITEMS`} />
+                      <HUDStatBlock label="SIZE" value={formatFileSize(cat.size)} className="mt-2" />
+                    </div>
+                  </HUDCard>
+                ))}
+              </div>
+            </div>
+
+            {/* Storage + Recent */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Storage */}
+              <HUDCard className="lg:col-span-1">
+                <div className="p-4">
+                  <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                    STORAGE
+                  </h3>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-24 h-24 shrink-0">
+                      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,255,255,0.15)" strokeWidth="10" />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke="#22d3ee"
+                          strokeWidth="10"
+                          strokeDasharray={`${Math.min(251, (storageUsed / 1e10) * 251)} 251`}
+                        />
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono" style={{ color: '#22d3ee' }}>
+                        ∞
+                      </span>
+                    </div>
+                    <div>
+                      <HUDStatBlock label="TOTAL USED" value={formatFileSize(storageUsed)} />
+                      <p className="text-[9px] mt-1" style={{ color: 'rgba(0,255,255,0.5)' }}>Unlimited / Telegram</p>
+                    </div>
+                  </div>
+                </div>
+              </HUDCard>
+
+              {/* Recent activity */}
+              <HUDCard className="lg:col-span-2">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                      RECENT ACTIVITY
+                    </h3>
+                    <button type="button" onClick={() => navigate('/files')} className="text-[9px] hover:underline" style={{ color: 'rgba(0,255,255,0.7)' }}>
+                      VIEW ALL
+                    </button>
+                  </div>
+                  <HUDDataTable
+                    columns={[
+                      { key: 'name', header: 'FILE', render: (a) => a.fileName },
+                      { key: 'time', header: 'TIME', render: (a) => a.timestamp.toLocaleDateString() },
+                    ]}
+                    data={activities}
+                    keyExtractor={(a) => a.id}
+                    emptyMessage="NO ACTIVITY"
+                  />
+                </div>
+              </HUDCard>
+            </div>
+
+            {/* Recent files */}
+            <HUDCard accent>
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                    RECENT FILES
+                  </h3>
+                  <button type="button" onClick={() => navigate('/files')} className="text-[9px] hover:underline" style={{ color: 'rgba(0,255,255,0.7)' }}>
+                    SEE ALL
+                  </button>
+                </div>
+                <HUDDataTable
+                  columns={[
+                    { key: 'name', header: 'NAME', render: (f) => f.originalName },
+                    { key: 'size', header: 'SIZE', render: (f) => formatFileSize(f.size) },
+                    { key: 'shared', header: 'SHARED BY', render: () => 'Me' },
+                    { key: 'date', header: 'DATE', render: (f) => new Date(f.createdAt).toLocaleDateString() },
+                  ]}
+                  data={files}
+                  keyExtractor={(f) => f.id}
+                  emptyMessage="NO FILES"
+                />
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+
+        <Dialog open={showUploader} onOpenChange={setShowUploader}>
+          <DialogContent className="sm:max-w-xl bg-[var(--hud-bg-secondary)] border-cyan-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400">Upload Files</DialogTitle>
+            </DialogHeader>
+            <FileUploader onUpload={handleUpload} />
+          </DialogContent>
+        </Dialog>
+        {previewFile && <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />}
+        {shareFile && <ShareDialog open={!!shareFile} file={shareFile} onClose={() => setShareFile(null)} />}
+        <UploadQueue />
+        <AnimatePresence>
+          {isDragging && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-cyan-500/20 backdrop-blur-sm flex items-center justify-center"
+            >
+              <motion.p className="text-xl font-bold tracking-widest" style={{ color: '#22d3ee' }}>
+                DROP TO UPLOAD
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div

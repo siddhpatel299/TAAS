@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Briefcase,
@@ -22,6 +22,8 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow, format, isPast, isToday } from 'date-fns';
 import { AddJobDialog } from '@/components/AddJobDialog';
 import { JobTrackerSettingsDialog } from '@/components/JobTrackerSettingsDialog';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDStatBlock, HUDDataTable, HUDBadge } from '@/components/hud';
 
 
 // Funnel Chart Component
@@ -70,6 +72,7 @@ function ApplicationFunnel({ statusCounts }: { statusCounts: Record<string, numb
 }
 
 export function JobTrackerDashboardPage() {
+  const navigate = useNavigate();
   const {
     dashboardStats,
     upcomingTasks,
@@ -78,6 +81,8 @@ export function JobTrackerDashboardPage() {
     error,
     fetchDashboard,
   } = useJobTrackerStore();
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
@@ -117,6 +122,151 @@ export function JobTrackerDashboardPage() {
             Return to Plugins
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  const statusCounts = stats?.statusCounts || {};
+
+  // HUD mode layout
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="JOB TRACKER"
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowSettingsDialog(true)}
+                className="hud-btn px-2 py-1.5 text-xs"
+                title="Settings"
+              >
+                <Settings className="w-3.5 h-3.5 inline" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddDialog(true)}
+                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+              >
+                ADD APPLICATION
+              </button>
+            </>
+          }
+        >
+          <div className="space-y-6">
+            {/* Stats row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <HUDCard accent>
+                <div className="p-4">
+                  <HUDStatBlock label="TOTAL" value={stats?.totalApplications ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDCard>
+                <div className="p-4">
+                  <HUDStatBlock label="APPLIED" value={statusCounts.applied ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDCard>
+                <div className="p-4">
+                  <HUDStatBlock label="INTERVIEWING" value={statusCounts.interview ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDCard>
+                <div className="p-4">
+                  <HUDStatBlock label="OFFERS" value={stats?.offers ?? 0} />
+                </div>
+              </HUDCard>
+            </div>
+
+            {/* Quick links + Recent + Tasks */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Quick actions */}
+              <HUDCard>
+                <div className="p-4">
+                  <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                    QUICK ACTIONS
+                  </h3>
+                  <div className="space-y-2">
+                    <button type="button" onClick={() => navigate('/plugins/job-tracker/applications')} className="block w-full text-left px-3 py-2 hover:bg-cyan-500/10 text-xs" style={{ color: '#67e8f9' }}>
+                      VIEW ALL APPLICATIONS
+                    </button>
+                    <button type="button" onClick={() => navigate('/plugins/job-tracker/contacts')} className="block w-full text-left px-3 py-2 hover:bg-cyan-500/10 text-xs" style={{ color: '#67e8f9' }}>
+                      CONTACTS
+                    </button>
+                    <button type="button" onClick={() => navigate('/plugins/job-tracker/outreach')} className="block w-full text-left px-3 py-2 hover:bg-cyan-500/10 text-xs" style={{ color: '#67e8f9' }}>
+                      OUTREACH
+                    </button>
+                  </div>
+                </div>
+              </HUDCard>
+
+              {/* Recent activity */}
+              <HUDCard accent className="lg:col-span-2">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                      RECENT ACTIVITY
+                    </h3>
+                    <button type="button" onClick={() => navigate('/plugins/job-tracker/applications')} className="text-[9px] hover:underline" style={{ color: 'rgba(0,255,255,0.7)' }}>
+                      VIEW ALL
+                    </button>
+                  </div>
+                  <HUDDataTable
+                    columns={[
+                      { key: 'desc', header: 'ACTION', render: (a) => a.description },
+                      { key: 'company', header: 'COMPANY', render: (a) => a.jobApplication?.company ?? '—' },
+                      { key: 'time', header: 'TIME', render: (a) => formatDistanceToNow(new Date(a.createdAt), { addSuffix: true }) },
+                    ]}
+                    data={recentActivity?.slice(0, 8) ?? []}
+                    keyExtractor={(a) => a.id}
+                    emptyMessage="NO ACTIVITY"
+                  />
+                </div>
+              </HUDCard>
+            </div>
+
+            {/* Active tasks */}
+            <HUDCard>
+              <div className="p-4">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  ACTIVE TASKS
+                </h3>
+                {!upcomingTasks?.length ? (
+                  <p className="text-xs py-4" style={{ color: 'rgba(0,255,255,0.5)' }}>NO UPCOMING TASKS</p>
+                ) : (
+                  <div className="space-y-2">
+                    {upcomingTasks.slice(0, 5).map((task) => {
+                      const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+                      const isOverdue = dueDate && isPast(dueDate) && !isToday(dueDate);
+                      return (
+                        <button
+                          key={task.id}
+                          type="button"
+                          onClick={() => navigate(`/plugins/job-tracker/applications/${task.jobApplicationId}`)}
+                          className="w-full text-left px-3 py-2 flex items-center justify-between hover:bg-cyan-500/10 border-b last:border-b-0"
+                          style={{ borderColor: 'rgba(0,255,255,0.1)' }}
+                        >
+                          <span className="text-xs truncate flex-1" style={{ color: isOverdue ? '#ef4444' : '#67e8f9' }}>
+                            {task.title}
+                          </span>
+                          {dueDate && (
+                            <HUDBadge variant={isOverdue ? 'danger' : 'default'} className="text-[9px] px-1.5 py-0">
+                              {format(dueDate, 'MMM d')}
+                            </HUDBadge>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+
+        <AddJobDialog isOpen={showAddDialog} onClose={() => setShowAddDialog(false)} onSuccess={handleJobAdded} />
+        <JobTrackerSettingsDialog isOpen={showSettingsDialog} onClose={() => setShowSettingsDialog(false)} />
       </div>
     );
   }

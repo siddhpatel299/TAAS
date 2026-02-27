@@ -3,6 +3,8 @@ import { useFlowStore, Workflow } from '@/stores/flow.store';
 import { FlowEditorWithProvider } from '@/components/flow/FlowEditor';
 import { Plus, Zap, Play, Pause, Trash2, Edit2, Save, Clock, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard } from '@/components/hud';
 
 export function FlowPage() {
     const {
@@ -187,7 +189,99 @@ export function FlowPage() {
         );
     }
 
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
     // Workflow List View
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout title="AUTOMATIONS">
+                    <div className="space-y-6">
+                        <HUDCard accent>
+                            <div className="p-4">
+                                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                                    CREATE WORKFLOW
+                                </h3>
+                                <div className="flex gap-3">
+                                    <input
+                                        type="text"
+                                        value={newWorkflowName}
+                                        onChange={(e) => setNewWorkflowName(e.target.value)}
+                                        placeholder="Workflow name..."
+                                        onKeyDown={(e) => e.key === 'Enter' && handleCreateWorkflow()}
+                                        className="flex-1 px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200 placeholder-cyan-500/50"
+                                    />
+                                    <button
+                                        onClick={handleCreateWorkflow}
+                                        disabled={isCreating || !newWorkflowName.trim()}
+                                        className="hud-btn hud-btn-primary px-4 py-2 text-xs"
+                                    >
+                                        {isCreating ? 'Creating...' : 'Create'}
+                                    </button>
+                                </div>
+                            </div>
+                        </HUDCard>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {isLoading && workflows.length === 0 ? (
+                                <div className="col-span-full py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                                    LOADING...
+                                </div>
+                            ) : workflows.length === 0 ? (
+                                <div className="col-span-full py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                                    <Zap className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                                    <p className="text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>NO WORKFLOWS</p>
+                                </div>
+                            ) : (
+                                workflows.map((workflow) => (
+                                    <HUDCard key={workflow.id}>
+                                        <div className="p-4">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={cn('p-1.5 rounded', workflow.isActive ? 'bg-emerald-500/20' : 'bg-cyan-500/10')}>
+                                                        <Zap className="w-4 h-4" style={{ color: workflow.isActive ? '#22c55e' : '#22d3ee' }} />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-bold" style={{ color: '#67e8f9' }}>{workflow.name}</h4>
+                                                        <span className="text-[10px]" style={{ color: workflow.isActive ? '#22c55e' : 'rgba(0,255,255,0.5)' }}>
+                                                            {workflow.isActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 pt-3 border-t" style={{ borderColor: 'rgba(0,255,255,0.15)' }}>
+                                                <button
+                                                    onClick={() => handleOpenWorkflow(workflow)}
+                                                    className="hud-btn px-2 py-1 text-xs flex-1"
+                                                >
+                                                    <Edit2 className="w-3 h-3 inline mr-1" />
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleToggleActive(workflow)}
+                                                    className={cn('hud-btn px-2 py-1 text-xs', workflow.isActive ? 'text-red-400' : '')}
+                                                >
+                                                    {workflow.isActive ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteWorkflow(workflow.id)}
+                                                    className="p-1 hover:bg-red-500/20"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </HUDCard>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
             <div className="max-w-6xl mx-auto">

@@ -28,6 +28,8 @@ import {
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { cn } from '@/lib/utils';
 import { Settings } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable, HUDStatBlock } from '@/components/hud';
 import { SettingsModal } from '@/components/SettingsModal';
 import { authApi } from '@/lib/api';
 import {
@@ -279,6 +281,219 @@ export function SubscriptionDashboardPage() {
       day: 'numeric',
     });
   };
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  // HUD mode layout
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="SUBSCRIPTION TRACKER"
+          searchPlaceholder="Search subscriptions..."
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowSettings(true)}
+                className="hud-btn px-2 py-1.5 text-xs"
+                title="Settings"
+              >
+                <Settings className="w-3.5 h-3.5 inline" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+              >
+                ADD SUBSCRIPTION
+              </button>
+            </>
+          }
+        >
+          <div className="space-y-6">
+            {isLoading ? (
+              <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                LOADING...
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <HUDCard accent>
+                    <div className="p-4">
+                      <HUDStatBlock label="MONTHLY" value={formatCurrency(dashboard?.monthlyTotal || 0)} />
+                    </div>
+                  </HUDCard>
+                  <HUDCard>
+                    <div className="p-4">
+                      <HUDStatBlock label="YEARLY" value={formatCurrency(dashboard?.yearlyTotal || 0)} />
+                    </div>
+                  </HUDCard>
+                  <HUDCard>
+                    <div className="p-4">
+                      <HUDStatBlock label="ACTIVE" value={dashboard?.activeSubscriptions ?? 0} />
+                    </div>
+                  </HUDCard>
+                  <HUDCard>
+                    <div className="p-4">
+                      <HUDStatBlock label="UPCOMING" value={dashboard?.upcomingRenewals?.length ?? 0} />
+                    </div>
+                  </HUDCard>
+                </div>
+                {categoryBreakdown.length > 0 && (
+                  <HUDCard>
+                    <div className="p-4">
+                      <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                        BY CATEGORY
+                      </h3>
+                      <div className="space-y-2">
+                        {categoryBreakdown.slice(0, 5).map((cat) => (
+                          <div key={cat.category} className="flex items-center justify-between text-xs">
+                            <span style={{ color: '#67e8f9' }} className="capitalize">{cat.category}</span>
+                            <span style={{ color: 'rgba(0,255,255,0.8)' }}>{formatCurrency(cat.amount)}/mo</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </HUDCard>
+                )}
+                <HUDCard accent>
+                  <div className="p-4">
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                      SUBSCRIPTIONS
+                    </h3>
+                    <HUDDataTable
+                      columns={[
+                        { key: 'name', header: 'NAME', render: (s) => s.name },
+                        { key: 'amount', header: 'AMOUNT', render: (s) => formatCurrency(s.amount) },
+                        { key: 'cycle', header: 'CYCLE', render: (s) => s.billingCycle },
+                        { key: 'status', header: 'STATUS', render: (s) => s.status },
+                        {
+                          key: 'actions',
+                          header: '',
+                          render: (s) => (
+                            <div className="flex items-center gap-1">
+                              {s.website && (
+                                <a href={s.website} target="_blank" rel="noopener noreferrer" className="p-1 hover:bg-cyan-500/20" title="Website">
+                                  <ExternalLink className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                                </a>
+                              )}
+                              {s.status === 'paused' && (
+                                <button type="button" onClick={() => handleResume(s.id)} className="p-1 hover:bg-cyan-500/20" title="Resume">
+                                  <Play className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                                </button>
+                              )}
+                              {s.status === 'active' && (
+                                <button type="button" onClick={() => handlePause(s.id)} className="p-1 hover:bg-cyan-500/20" title="Pause">
+                                  <Pause className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                                </button>
+                              )}
+                              <button type="button" onClick={() => handleDelete(s.id)} className="p-1 hover:bg-red-500/20" title="Delete">
+                                <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                              </button>
+                            </div>
+                          ),
+                        },
+                      ]}
+                      data={filteredSubscriptions}
+                      keyExtractor={(s) => s.id}
+                      emptyMessage="NO SUBSCRIPTIONS"
+                    />
+                  </div>
+                </HUDCard>
+              </>
+            )}
+          </div>
+        </HUDAppLayout>
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-[var(--hud-bg-secondary)] rounded-lg border border-cyan-500/30 p-6 w-full max-w-md mx-4"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-cyan-400">Add Subscription</h2>
+                <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-cyan-500/10 rounded text-cyan-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-cyan-300 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    value={newSub.name}
+                    onChange={(e) => setNewSub({ ...newSub, name: e.target.value })}
+                    placeholder="e.g., Netflix"
+                    className="w-full px-3 py-2 bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200 placeholder-cyan-500/50"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-cyan-300 mb-1">Amount *</label>
+                    <input
+                      type="number"
+                      value={newSub.amount}
+                      onChange={(e) => setNewSub({ ...newSub, amount: e.target.value })}
+                      placeholder="9.99"
+                      className="w-full px-3 py-2 bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-cyan-300 mb-1">Cycle</label>
+                    <select
+                      value={newSub.billingCycle}
+                      onChange={(e) => setNewSub({ ...newSub, billingCycle: e.target.value })}
+                      className="w-full px-3 py-2 bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200"
+                    >
+                      {BILLING_CYCLES.map((c) => (
+                        <option key={c.value} value={c.value}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="flex-1 px-4 py-2 border border-cyan-500/30 text-cyan-400 rounded hover:bg-cyan-500/10"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateSubscription}
+                    className="flex-1 px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 text-cyan-400 rounded hover:bg-cyan-500/30"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+        {showSettings && (
+          <SettingsModal
+            onClose={() => setShowSettings(false)}
+            currentSettings={{
+              phoneNumber: userProfile?.phoneNumber,
+              timezone: userProfile?.timezone,
+              defaultReminderDays: userProfile?.defaultReminderDays,
+              defaultReminderTime: userProfile?.defaultReminderTime,
+            }}
+            onSave={async () => {
+              const res = await authApi.getMe();
+              setUserProfile(res.data.data);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

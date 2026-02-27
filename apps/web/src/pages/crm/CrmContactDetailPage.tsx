@@ -17,6 +17,8 @@ import { format } from 'date-fns';
 import { CrmLayout } from '@/components/crm/CrmLayout';
 import { crmApi, CrmContact, CrmInteraction, INTERACTION_TYPES } from '@/lib/crm-api';
 import { cn } from '@/lib/utils';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard } from '@/components/hud';
 
 export function CrmContactDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -92,6 +94,72 @@ export function CrmContactDetailPage() {
     const getInitials = (firstName: string, lastName?: string) => {
         return (firstName[0] + (lastName?.[0] || '')).toUpperCase();
     };
+
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout
+                    title={`${contact.firstName} ${contact.lastName}`.toUpperCase()}
+                    actions={
+                        <>
+                            <button type="button" onClick={() => navigate(-1)} className="hud-btn px-2 py-1.5 text-xs">
+                                <ArrowLeft className="w-3.5 h-3.5 inline" />
+                            </button>
+                            <button type="button" onClick={() => navigate(`/plugins/contacts/${id}/edit`)} className="hud-btn hud-btn-primary px-3 py-1.5 text-xs">
+                                <Edit2 className="w-3.5 h-3.5 inline mr-1" />
+                                EDIT
+                            </button>
+                        </>
+                    }
+                >
+                    <div className="space-y-4">
+                        <HUDCard accent>
+                            <div className="p-4">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold" style={{ backgroundColor: 'rgba(0,255,255,0.2)', color: '#67e8f9' }}>
+                                        {getInitials(contact.firstName, contact.lastName)}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold" style={{ color: '#67e8f9' }}>{contact.firstName} {contact.lastName}</h3>
+                                        <p className="text-xs opacity-70" style={{ color: 'rgba(0,255,255,0.8)' }}>{contact.position || contact.company || 'No details'}</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-xs" style={{ color: 'rgba(0,255,255,0.8)' }}>
+                                    {contact.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{contact.email}</span>}
+                                    {contact.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{contact.phone}</span>}
+                                    {contact.company && <span className="flex items-center gap-1"><Globe className="w-3 h-3" />{contact.company}</span>}
+                                </div>
+                            </div>
+                        </HUDCard>
+                        <HUDCard>
+                            <div className="p-4">
+                                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>INTERACTIONS</h3>
+                                {interactions.length === 0 ? (
+                                    <p className="text-xs py-4" style={{ color: 'rgba(0,255,255,0.5)' }}>NO INTERACTIONS</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {interactions.slice(0, 10).map((i) => (
+                                            <div key={i.id} className="text-xs py-2 border-b last:border-0" style={{ borderColor: 'rgba(0,255,255,0.15)', color: '#67e8f9' }}>
+                                                <span className="font-bold">{INTERACTION_TYPES.find(t => t.value === i.type)?.label || i.type}</span> - {format(new Date(i.date), 'MMM d, yyyy')}
+                                                {i.summary && <p className="opacity-80 mt-1">{i.summary}</p>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <button type="button" onClick={() => setShowInteractionForm(true)} className="hud-btn hud-btn-primary mt-3 px-3 py-1.5 text-xs">
+                                    <Plus className="w-3 h-3 inline mr-1" />
+                                    ADD INTERACTION
+                                </button>
+                            </div>
+                        </HUDCard>
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <CrmLayout>

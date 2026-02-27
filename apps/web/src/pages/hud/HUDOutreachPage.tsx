@@ -18,6 +18,7 @@ import {
 import { HUDLayout } from '@/layouts/HUDLayout';
 import { HUDPanel, HUDButton, HUDBadge } from '@/components/hud/HUDComponents';
 import { jobTrackerApi, SentEmail, OutreachStats, FollowUpStats } from '@/lib/plugins-api';
+import { EmailRepliesSection } from '@/components/job-tracker/EmailRepliesSection';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -173,6 +174,8 @@ export function HUDOutreachPage() {
                 />
             </motion.div>
 
+            {/* Email Replies - dedicated section */}
+            <EmailRepliesSection variant="hud" limit={5} className="mb-6" />
             {/* Stats */}
             {stats && (
                 <motion.div

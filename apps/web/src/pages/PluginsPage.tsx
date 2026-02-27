@@ -22,6 +22,8 @@ import {
   ExternalLink,
   Settings
 } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard } from '@/components/hud';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { usePluginsStore } from '@/stores/plugins.store';
 import type { Plugin } from '@/lib/plugins-api';
@@ -145,6 +147,81 @@ export function PluginsPage() {
       setActionLoading(null);
     }
   };
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="PLUGINS"
+          searchPlaceholder="Search apps..."
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+        >
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 flex-wrap">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={cn('hud-badge px-2 py-1 text-xs', selectedCategory === cat.id && 'ring-1 ring-cyan-400')}
+                >
+                  {cat.name.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {isLoading && filteredPlugins.length === 0 ? (
+                <div className="col-span-full py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+              ) : (
+                filteredPlugins.map((plugin) => {
+                  const Icon = pluginIcons[plugin.icon as string] || Puzzle;
+                  const isEnabled = !!plugin.enabled;
+                  return (
+                    <HUDCard key={plugin.id}>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="w-10 h-10 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(0,255,255,0.15)' }}>
+                            <Icon className="w-5 h-5" style={{ color: '#22d3ee' }} />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePlugin(plugin.id, isEnabled)}
+                            disabled={actionLoading === plugin.id}
+                            className={cn('hud-badge px-2 py-1 text-xs', isEnabled && 'ring-1 ring-cyan-400')}
+                          >
+                            {isEnabled ? 'ON' : 'OFF'}
+                          </button>
+                        </div>
+                        <h4 className="text-sm font-bold mb-1" style={{ color: '#67e8f9' }}>{plugin.name}</h4>
+                        <p className="text-[10px] line-clamp-2 mb-3 opacity-70" style={{ color: 'rgba(0,255,255,0.8)' }}>{plugin.description}</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/plugins/${plugin.id}`)}
+                          className="hud-btn hud-btn-primary w-full px-3 py-1.5 text-xs"
+                        >
+                          OPEN
+                        </button>
+                      </div>
+                    </HUDCard>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </HUDAppLayout>
+        {activeSettingsPlugin && (
+          <PluginSettingsModal
+            isOpen={!!activeSettingsPlugin}
+            plugin={activeSettingsPlugin}
+            onClose={() => setActiveSettingsPlugin(null)}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">

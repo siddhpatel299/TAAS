@@ -25,6 +25,8 @@ import {
   Users,
   Briefcase,
 } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable, HUDStatBlock } from '@/components/hud';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { usePasswordVaultStore } from '@/stores/password-vault.store';
 import { cn } from '@/lib/utils';
@@ -356,6 +358,122 @@ export function PasswordVaultDashboardPage() {
     
     return matchesSearch && matchesCategory && matchesFavorite;
   });
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="VAULT"
+          searchPlaceholder="Search passwords..."
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowPasswordGenerator(true)}
+                className="hud-btn px-2 py-1.5 text-xs"
+                title="Generator"
+              >
+                <Key className="w-3.5 h-3.5 inline" />
+              </button>
+              <button
+                type="button"
+                onClick={handleAddPassword}
+                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+              >
+                NEW PASSWORD
+              </button>
+            </>
+          }
+        >
+          <div className="space-y-6">
+            {dashboardStats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <HUDCard accent>
+                  <div className="p-4">
+                    <HUDStatBlock label="TOTAL" value={dashboardStats.totalPasswords} />
+                  </div>
+                </HUDCard>
+                <HUDCard>
+                  <div className="p-4">
+                    <HUDStatBlock label="CATEGORIES" value={dashboardStats.totalCategories} />
+                  </div>
+                </HUDCard>
+                <HUDCard>
+                  <div className="p-4">
+                    <HUDStatBlock label="FAVORITES" value={dashboardStats.favoriteCount} />
+                  </div>
+                </HUDCard>
+                <HUDCard>
+                  <div className="p-4">
+                    <HUDStatBlock label="WEAK" value={dashboardStats.weakCount} />
+                  </div>
+                </HUDCard>
+              </div>
+            )}
+            <HUDCard accent>
+              <div className="p-4">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  PASSWORDS
+                </h3>
+                {isLoading ? (
+                  <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+                ) : (
+                  <HUDDataTable
+                    columns={[
+                      {
+                        key: 'name',
+                        header: 'NAME',
+                        render: (p) => (
+                          <button
+                            type="button"
+                            onClick={() => handleView(p.id)}
+                            className="hover:underline text-left flex items-center gap-2"
+                          >
+                            {p.isFavorite && <Star className="w-3 h-3 fill-current shrink-0" style={{ color: '#fbbf24' }} />}
+                            {p.name}
+                          </button>
+                        ),
+                      },
+                      { key: 'username', header: 'USERNAME', render: (p) => p.username || '-' },
+                      { key: 'category', header: 'CATEGORY', render: (p) => p.category || '-' },
+                      {
+                        key: 'actions',
+                        header: '',
+                        render: (p) => (
+                          <div className="flex items-center gap-1">
+                            <button type="button" onClick={() => handleCopy(p.id)} className="p-1 hover:bg-cyan-500/20" title="Copy">
+                              <Copy className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                            </button>
+                            <button type="button" onClick={() => handleEdit(p.id)} className="p-1 hover:bg-cyan-500/20" title="Edit">
+                              <Edit className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                            </button>
+                            <button type="button" onClick={() => setDeleteConfirm(p.id)} className="p-1 hover:bg-red-500/20" title="Delete">
+                              <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                            </button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={filteredPasswords}
+                    keyExtractor={(p) => p.id}
+                    emptyMessage="NO PASSWORDS"
+                  />
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+        <AddPasswordDialogSimple isOpen={showAddDialog} onClose={() => setShowAddDialog(false)} />
+        <MasterKeyDialog isOpen={showMasterKeyDialog} onClose={() => setShowMasterKeyDialog(false)} />
+        <PasswordGeneratorDialog isOpen={showPasswordGenerator} onClose={() => setShowPasswordGenerator(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">

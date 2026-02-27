@@ -8,13 +8,15 @@ const router: Router = Router();
 router.use(authMiddleware);
 
 router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { unreadOnly, limit, offset } = req.query;
+  const { unreadOnly, limit, offset, type, excludeType } = req.query;
 
   const result = await notificationsService.getForUser({
     userId: req.user!.id,
     unreadOnly: unreadOnly === 'true',
     limit: limit ? parseInt(limit as string, 10) : 20,
     offset: offset ? parseInt(offset as string, 10) : 0,
+    type: type as string | undefined,
+    excludeType: excludeType as string | undefined,
   });
 
   res.json({
@@ -25,7 +27,11 @@ router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
 }));
 
 router.get('/unread-count', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const count = await notificationsService.getUnreadCount(req.user!.id);
+  const { excludeType } = req.query;
+  const count = await notificationsService.getUnreadCount(
+    req.user!.id,
+    excludeType as string | undefined
+  );
   res.json({ success: true, data: { count } });
 }));
 

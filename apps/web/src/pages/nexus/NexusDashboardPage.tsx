@@ -5,6 +5,8 @@ import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { NexusSidebar } from '@/components/nexus/NexusSidebar';
 import { useNexusStore } from '@/stores/nexus.store';
 import { Link, useNavigate } from 'react-router-dom';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard } from '@/components/hud';
 
 export function NexusDashboardPage() {
     const navigate = useNavigate();
@@ -35,6 +37,74 @@ export function NexusDashboardPage() {
             setIsCreating(false);
         }
     };
+
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout title="NEXUS">
+                    <div className="space-y-6">
+                        <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                            PROJECTS
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <HUDCard accent>
+                                <form onSubmit={handleCreateProject} className="p-4 flex flex-col items-center justify-center min-h-[140px]">
+                                    <Plus className="w-8 h-8 mb-3 opacity-60" style={{ color: '#22d3ee' }} />
+                                    <input
+                                        type="text"
+                                        placeholder="Project Name..."
+                                        value={newProjectName}
+                                        onChange={(e) => setNewProjectName(e.target.value)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="w-full max-w-[180px] px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200 placeholder-cyan-500/50"
+                                    />
+                                    {newProjectName && (
+                                        <button
+                                            type="submit"
+                                            disabled={isCreating}
+                                            className="mt-2 hud-btn hud-btn-primary px-4 py-1.5 text-xs"
+                                        >
+                                            {isCreating ? 'Creating...' : 'Create'}
+                                        </button>
+                                    )}
+                                </form>
+                            </HUDCard>
+                            {projects.map((project) => (
+                                <Link key={project.id} to={`/plugins/nexus/projects/${project.id}`}>
+                                    <HUDCard>
+                                        <div className="p-4">
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div className="w-8 h-8 rounded flex items-center justify-center text-xs font-bold" style={{ backgroundColor: project.color || '#6366f1', color: '#fff' }}>
+                                                    {project.key}
+                                                </div>
+                                                <span className="text-[10px] px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(0,255,255,0.1)', color: '#67e8f9' }}>
+                                                    {project.status}
+                                                </span>
+                                            </div>
+                                            <h4 className="text-sm font-bold mb-1" style={{ color: '#67e8f9' }}>{project.name}</h4>
+                                            <p className="text-[10px] line-clamp-2 mb-3 opacity-70" style={{ color: 'rgba(0,255,255,0.8)' }}>
+                                                {project.description || 'No description'}
+                                            </p>
+                                            <div className="flex items-center justify-between text-[10px]" style={{ color: 'rgba(0,255,255,0.6)' }}>
+                                                <span className="flex items-center gap-1">
+                                                    <CheckCircle2 className="w-3 h-3" />
+                                                    {project._count?.tasks || 0} Tasks
+                                                </span>
+                                                <ArrowRight className="w-3 h-3" />
+                                            </div>
+                                        </div>
+                                    </HUDCard>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 flex">

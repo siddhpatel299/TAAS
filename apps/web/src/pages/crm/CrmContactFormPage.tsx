@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
 import { CrmLayout } from '@/components/crm/CrmLayout';
 import { crmApi, CRM_STATUS_OPTIONS, PIPELINE_STAGES } from '@/lib/crm-api';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard } from '@/components/hud';
 
 export function CrmContactFormPage() {
     const navigate = useNavigate();
@@ -101,6 +103,75 @@ export function CrmContactFormPage() {
             tags: prev.tags.filter(tag => tag !== tagToRemove)
         }));
     };
+
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout
+                    title={isEditMode ? 'EDIT CONTACT' : 'NEW CONTACT'}
+                    actions={
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => navigate(-1)}
+                                className="hud-btn px-2 py-1.5 text-xs"
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5 inline" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={isLoading}
+                                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+                            >
+                                {isLoading ? 'SAVING...' : 'SAVE'}
+                            </button>
+                        </>
+                    }
+                >
+                    <HUDCard accent>
+                        <form className="p-6 space-y-6" onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>FIRST NAME *</label>
+                                    <input required type="text" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>LAST NAME</label>
+                                    <input type="text" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>EMAIL</label>
+                                    <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>PHONE</label>
+                                    <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>COMPANY</label>
+                                    <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>POSITION</label>
+                                    <input type="text" value={formData.position} onChange={(e) => setFormData({ ...formData, position: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-[10px] font-bold tracking-wider mb-1" style={{ color: 'rgba(0,255,255,0.9)' }}>STATUS</label>
+                                    <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200">
+                                        {CRM_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </HUDCard>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <CrmLayout>

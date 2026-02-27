@@ -5,6 +5,8 @@ import { useNotesStore } from '@/stores/notes.store';
 import { NoteSidebar } from '@/components/notes/NoteSidebar';
 import { NoteListPanel } from '@/components/notes/NoteListPanel';
 import { TiptapEditor } from '@/components/notes/TiptapEditor';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout } from '@/components/hud';
 
 export function UnifiedNotesPage() {
     const { noteId } = useParams();
@@ -138,6 +140,62 @@ export function UnifiedNotesPage() {
             cancelPendingSave();
         };
     }, [cancelPendingSave]);
+
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col font-mono" style={{ fontFamily: 'var(--hud-font-tech)' }}>
+                <HUDAppLayout title="NOTES">
+                    <div className="h-full min-h-[400px] flex -m-4 overflow-hidden">
+                        <div className="w-56 flex-shrink-0 border-r overflow-y-auto" style={{ borderColor: 'rgba(0,255,255,0.2)', backgroundColor: 'var(--hud-bg-secondary)' }}>
+                            <NoteSidebar />
+                        </div>
+                        <div className="w-64 flex-shrink-0 border-r overflow-y-auto" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                            <NoteListPanel />
+                        </div>
+                        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[var(--hud-bg-secondary)]">
+                            {selectedNote ? (
+                                <div className="h-full flex flex-col">
+                                    <div className="px-6 pt-6 pb-4 shrink-0">
+                                        <input
+                                            type="text"
+                                            value={title}
+                                            onChange={handleTitleChange}
+                                            placeholder="Untitled Note"
+                                            className="w-full text-xl font-bold bg-transparent border-none focus:ring-0 focus:outline-none p-0 placeholder:opacity-50"
+                                            style={{ color: '#67e8f9' }}
+                                        />
+                                        <div className="flex items-center gap-4 mt-2 text-xs" style={{ color: 'rgba(0,255,255,0.6)' }}>
+                                            <span>{new Date(selectedNote.updatedAt).toLocaleDateString()}</span>
+                                            <span>•</span>
+                                            <span>{selectedNote.folder?.name || 'No Folder'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto px-6 pb-8">
+                                        <TiptapEditor
+                                            key={selectedNote.id}
+                                            content={content}
+                                            onChange={handleEditorChange}
+                                            placeholder="Start writing..."
+                                            editable={true}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="h-full flex flex-col items-center justify-center" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                                    <span className="text-4xl mb-4">✨</span>
+                                    <p className="text-sm font-medium">Select a note to start writing</p>
+                                    <p className="text-xs mt-2 opacity-80">or create a new one from the sidebar</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <div className="h-screen bg-[#F8FAFC] flex overflow-hidden">

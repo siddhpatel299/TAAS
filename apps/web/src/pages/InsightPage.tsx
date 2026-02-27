@@ -2,16 +2,31 @@ import { useEffect } from 'react';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
 import { VisualBuilder } from '@/components/insight/VisualBuilder';
 import { useJobTrackerStore } from '@/stores/job-tracker.store';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout } from '@/components/hud';
 import { Activity } from 'lucide-react';
 
 export function InsightPage() {
     const { fetchDashboard } = useJobTrackerStore();
-    // We can add other store fetches here (Finance, etc) when ready
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
 
     useEffect(() => {
         // Pre-fetch data for widgets
         fetchDashboard().catch(console.error);
     }, []);
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout title="ANALYTICS">
+                    <div className="h-full min-h-[400px]">
+                        <VisualBuilder />
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 font-sans text-slate-900">

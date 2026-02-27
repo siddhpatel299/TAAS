@@ -8,6 +8,9 @@ import { JobsSearchTab } from '@/components/ats-search/JobsSearchTab';
 import { CompanySearchTab } from '@/components/ats-search/CompanySearchTab';
 import { SearchResults } from '@/components/ats-search/SearchResults';
 import { searchApi, SearchResult } from '@/lib/search-api';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard } from '@/components/hud';
+import { cn } from '@/lib/utils';
 
 export function ATSSearchPage() {
     const [results, setResults] = useState<SearchResult[]>([]);
@@ -34,6 +37,51 @@ export function ATSSearchPage() {
             setIsLoading(false);
         }
     };
+
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout title="ATS SEARCH">
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            {['people', 'jobs', 'company'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={cn('hud-badge px-3 py-1.5 text-xs', activeTab === tab && 'ring-1 ring-cyan-400')}
+                                >
+                                    {tab === 'people' ? 'PEOPLE' : tab === 'jobs' ? 'JOBS' : 'COMPANY'}
+                                </button>
+                            ))}
+                        </div>
+                        <HUDCard accent>
+                            <div className="p-4">
+                                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                                    {activeTab === 'people' ? 'PEOPLE SEARCH' : activeTab === 'jobs' ? 'JOBS SEARCH' : 'COMPANY RESEARCH'}
+                                </h3>
+                                {activeTab === 'people' && <PeopleSearchTab onSearch={handleSearch} />}
+                                {activeTab === 'jobs' && <JobsSearchTab onSearch={handleSearch} />}
+                                {activeTab === 'company' && <CompanySearchTab onSearch={handleSearch} />}
+                            </div>
+                        </HUDCard>
+                        {(results.length > 0 || isLoading) && (
+                            <HUDCard>
+                                <div className="p-4">
+                                    <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                                        RESULTS
+                                    </h3>
+                                    <SearchResults results={results} isLoading={isLoading} />
+                                </div>
+                            </HUDCard>
+                        )}
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 flex">

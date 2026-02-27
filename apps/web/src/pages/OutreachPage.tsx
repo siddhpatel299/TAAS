@@ -19,9 +19,12 @@ import {
   Loader2,
   X,
 } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable, HUDStatBlock } from '@/components/hud';
 import { cn } from '@/lib/utils';
 import { jobTrackerApi, SentEmail, OutreachStats, FollowUpStats } from '@/lib/plugins-api';
 import { EmailPreviewModal } from '@/components/EmailPreviewModal';
+import { EmailRepliesSection } from '@/components/job-tracker/EmailRepliesSection';
 
 // Status configuration
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode; bgColor: string }> = {
@@ -198,6 +201,103 @@ export function OutreachPage() {
     return followUp.toDateString() === today.toDateString();
   };
 
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="OUTREACH"
+          searchPlaceholder="Search emails..."
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+        >
+          <div className="space-y-6">
+            <EmailRepliesSection variant="hud" limit={5} className="mb-4" />
+            {stats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <HUDCard accent>
+                  <div className="p-4">
+                    <HUDStatBlock label="SENT" value={stats.totalSent} />
+                  </div>
+                </HUDCard>
+                <HUDCard>
+                  <div className="p-4">
+                    <HUDStatBlock label="REPLIED" value={stats.totalReplied} />
+                  </div>
+                </HUDCard>
+                <HUDCard>
+                  <div className="p-4">
+                    <HUDStatBlock label="MEETINGS" value={stats.totalMeetings} />
+                  </div>
+                </HUDCard>
+                <HUDCard>
+                  <div className="p-4">
+                    <HUDStatBlock label="NO RESPONSE" value={stats.totalNoResponse} />
+                  </div>
+                </HUDCard>
+              </div>
+            )}
+            <HUDCard accent>
+              <div className="p-4">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  SENT EMAILS
+                </h3>
+                {isLoading ? (
+                  <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+                ) : (
+                  <HUDDataTable
+                    columns={[
+                      {
+                        key: 'to',
+                        header: 'TO',
+                        render: (e) => (
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedEmail(e); setShowPreviewModal(true); }}
+                            className="hover:underline text-left"
+                          >
+                            {e.recipientName || e.recipientEmail}
+                          </button>
+                        ),
+                      },
+                      { key: 'subject', header: 'SUBJECT', render: (e) => <span className="truncate max-w-[180px] block">{e.subject}</span> },
+                      { key: 'status', header: 'STATUS', render: (e) => STATUS_CONFIG[e.status]?.label || e.status },
+                      { key: 'sent', header: 'SENT', render: (e) => formatDate(e.sentAt) },
+                      {
+                        key: 'actions',
+                        header: '',
+                        render: (e) => (
+                          <div className="flex items-center gap-1">
+                            <button type="button" onClick={() => { setSelectedEmail(e); setShowPreviewModal(true); }} className="p-1 hover:bg-cyan-500/20" title="View">
+                              <Eye className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                            </button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={emails}
+                    keyExtractor={(e) => e.id}
+                    emptyMessage="NO EMAILS"
+                  />
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+        {showPreviewModal && selectedEmail && (
+          <EmailPreviewModal
+            email={selectedEmail}
+            onClose={() => { setShowPreviewModal(false); setSelectedEmail(null); }}
+            onStatusUpdate={(status) => handleStatusUpdate(selectedEmail.id, status)}
+            onScheduleFollowUp={() => handleScheduleFollowUp(selectedEmail.id)}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -234,6 +334,8 @@ export function OutreachPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Email Replies - dedicated section */}
+        <EmailRepliesSection variant="default" limit={5} className="mb-8" />
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

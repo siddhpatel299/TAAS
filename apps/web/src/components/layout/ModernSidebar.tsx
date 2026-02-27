@@ -54,10 +54,13 @@ export function ModernSidebar({ collapsed: _collapsed = false }: ModernSidebarPr
   const location = useLocation();
   const { logout } = useAuthStore();
   const { enabledPlugins } = usePluginsStore();
-  const { toggleVersion } = useVersion();
+  const { version, toggleVersion } = useVersion();
 
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // In OS mode, the taskbar/start menu replaces the sidebar entirely
+  if (version === 'os') return null;
 
   // Get enabled plugin items for sidebar
   const enabledPluginItems = enabledPlugins

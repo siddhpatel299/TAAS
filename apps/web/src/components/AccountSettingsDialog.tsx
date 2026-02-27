@@ -55,6 +55,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: AccountSettingsDia
         { id: 'paper', name: 'Paper', description: 'Stationery', color: 'bg-amber-100' },
         { id: 'exec', name: 'Executive', description: 'Luxury', color: 'bg-gradient-to-b from-amber-700 to-amber-900' },
         { id: 'pixel', name: 'Pixel', description: '8-bit Retro', color: 'bg-indigo-900' },
+        { id: 'os', name: 'TAAS OS', description: 'Desktop OS experience', color: 'bg-gradient-to-r from-blue-600 to-violet-600' },
     ] as const;
 
     const handleAddEmail = async () => {

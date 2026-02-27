@@ -51,8 +51,10 @@ import { ShareDialog } from '@/components/ShareDialog';
 import { DirectUploadQueue } from '@/components/DirectUploadQueue';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { useAuthStore } from '@/stores/auth.store';
+import { useOSStore } from '@/stores/os.store';
 import { useDirectUpload } from '@/contexts/DirectUploadContext';
 import { filesApi, foldersApi, bulkApi } from '@/lib/api';
+import { HUDAppLayout, HUDCard, HUDDataTable } from '@/components/hud';
 
 interface FolderType {
   id: string;
@@ -101,6 +103,8 @@ function formatDate(dateString: string): string {
 export function MyFilesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuthStore();
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
 
   const {
     files,
@@ -507,6 +511,198 @@ export function MyFilesPage() {
   }, []);
 
   const userName = user?.firstName || user?.username || 'User';
+
+  // HUD mode layout
+  if (isHUD) {
+    return (
+      <div
+        className="h-full min-h-0 flex flex-col"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
+        <HUDAppLayout
+          title="FILE MANAGER"
+          searchPlaceholder="Search files..."
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setShowNewFolder(true)}
+                className="hud-btn px-3 py-1.5 text-xs"
+              >
+                NEW FOLDER
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowUploader(true)}
+                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+              >
+                UPLOAD
+              </button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-1.5 text-xs font-mono" style={{ color: 'rgba(0,255,255,0.8)' }}>
+              {breadcrumb.map((item, index) => (
+                <span key={item.id || 'root'} className="flex items-center gap-1.5">
+                  {index > 0 && <span style={{ color: 'rgba(0,255,255,0.4)' }}>&gt;</span>}
+                  <button
+                    type="button"
+                    onClick={() => navigateToFolder(item.id, item.name)}
+                    className="hover:underline"
+                  >
+                    {index === 0 ? 'ROOT' : item.name.toUpperCase()}
+                  </button>
+                </span>
+              ))}
+            </nav>
+
+            {/* Filter */}
+            {filterType && (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] tracking-wider" style={{ color: 'rgba(0,255,255,0.6)' }}>
+                  FILTER:
+                </span>
+                <span className="hud-badge flex items-center gap-1">
+                  {filterType.toUpperCase()}
+                  <button
+                    type="button"
+                    onClick={() => { setFilterType(null); setSearchParams({}); }}
+                    className="hover:opacity-80"
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
+            )}
+
+            {/* Folders */}
+            {folders.length > 0 && !filterType && !debouncedSearch && (
+              <div>
+                <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-2" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  FOLDERS
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                  {folders.map((folder) => (
+                    <HUDCard key={folder.id} onClick={() => navigateToFolder(folder.id, folder.name)}>
+                      <div className="p-3 flex items-center gap-2">
+                        <Folder className="w-5 h-5 shrink-0" style={{ color: '#22d3ee' }} />
+                        <span className="text-xs truncate" style={{ color: '#67e8f9' }}>{folder.name}</span>
+                      </div>
+                    </HUDCard>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Files */}
+            <HUDCard accent>
+              <div className="p-4">
+                <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  {debouncedSearch ? 'SEARCH RESULTS' : filterType ? `${filterType.toUpperCase()} FILES` : 'FILES'}
+                </h2>
+                {files.length === 0 ? (
+                  <div className="py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                    <File className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                    <p className="text-xs tracking-widest mb-4" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                      NO FILES
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowUploader(true)}
+                      className="hud-btn hud-btn-primary px-4 py-2 text-xs"
+                    >
+                      UPLOAD FILES
+                    </button>
+                  </div>
+                ) : (
+                  <HUDDataTable
+                    columns={[
+                      { key: 'name', header: 'NAME', render: (f) => <button type="button" onClick={() => setPreviewFile(f)} className="hover:underline text-left truncate max-w-[200px] block">{f.originalName}</button> },
+                      { key: 'size', header: 'SIZE', render: (f) => formatFileSize(f.size) },
+                      { key: 'date', header: 'DATE', render: (f) => formatDate(f.createdAt) },
+                      {
+                        key: 'actions',
+                        header: '',
+                        render: (f) => (
+                          <div className="flex items-center gap-1">
+                            <button type="button" onClick={() => handleDownload(f)} className="p-1 hover:bg-cyan-500/20" title="Download"><Download className="w-3 h-3" style={{ color: '#22d3ee' }} /></button>
+                            <button type="button" onClick={() => setShareFile(f)} className="p-1 hover:bg-cyan-500/20" title="Share"><Share2 className="w-3 h-3" style={{ color: '#22d3ee' }} /></button>
+                            <button type="button" onClick={() => handleStar(f)} className="p-1 hover:bg-cyan-500/20" title="Star"><Star className={`w-3 h-3 ${f.isStarred ? 'fill-current' : ''}`} style={{ color: f.isStarred ? '#fbbf24' : '#22d3ee' }} /></button>
+                            <button type="button" onClick={() => handleDelete(f)} className="p-1 hover:bg-red-500/20" title="Delete"><Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} /></button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={files}
+                    keyExtractor={(f) => f.id}
+                    emptyMessage="NO FILES"
+                  />
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+
+        {/* Dialogs - reuse existing */}
+        <Dialog open={showNewFolder} onOpenChange={setShowNewFolder}>
+          <DialogContent className="sm:max-w-md bg-[var(--hud-bg-secondary)] border-cyan-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400">Create New Folder</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                placeholder="Folder name"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
+                className="rounded border-cyan-500/30 bg-cyan-500/5 text-cyan-200"
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowNewFolder(false)} className="border-cyan-500/30 text-cyan-400">
+                Cancel
+              </Button>
+              <Button onClick={handleCreateFolder} className="bg-cyan-500/20 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/30">
+                Create
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showUploader} onOpenChange={setShowUploader}>
+          <DialogContent className="sm:max-w-xl bg-[var(--hud-bg-secondary)] border-cyan-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400">Upload Files</DialogTitle>
+            </DialogHeader>
+            <FileUploader onUpload={(files) => { handleUpload(files); setShowUploader(false); }} />
+          </DialogContent>
+        </Dialog>
+        {previewFile && <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />}
+        {shareFile && <ShareDialog open={!!shareFile} file={shareFile} onClose={() => setShareFile(null)} />}
+        <DirectUploadQueue />
+        <AnimatePresence>
+          {isDragging && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-cyan-500/20 backdrop-blur-sm flex items-center justify-center"
+            >
+              <motion.p className="text-xl font-bold tracking-widest" style={{ color: '#22d3ee' }}>
+                DROP TO UPLOAD
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div

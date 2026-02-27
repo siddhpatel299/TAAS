@@ -20,6 +20,8 @@ import {
   List as ListIcon,
   Tag,
 } from 'lucide-react';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable, HUDStatBlock } from '@/components/hud';
 import {
   DndContext,
   closestCenter,
@@ -174,6 +176,159 @@ export function TodoPage() {
     { id: 'in_progress', label: 'In Progress' },
     { id: 'done', label: 'Done' },
   ];
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
+
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout title="TASKS">
+          <div className="space-y-6">
+            {error && (
+              <div className="flex items-center justify-between px-3 py-2 rounded" style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
+                <span className="text-xs" style={{ color: '#ef4444' }}>{error}</span>
+                <button onClick={clearError} className="text-xs font-bold" style={{ color: '#67e8f9' }}>DISMISS</button>
+              </div>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <HUDCard accent>
+                <div className="p-4">
+                  <HUDStatBlock label="TOTAL" value={stats?.total ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDCard>
+                <div className="p-4">
+                  <HUDStatBlock label="DONE" value={stats?.completed ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDCard>
+                <div className="p-4">
+                  <HUDStatBlock label="TODAY" value={stats?.today ?? 0} />
+                </div>
+              </HUDCard>
+              <HUDCard>
+                <div className="p-4">
+                  <HUDStatBlock label="OVERDUE" value={stats?.overdue ?? 0} />
+                </div>
+              </HUDCard>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: 'rgba(0,255,255,0.6)' }}>VIEW:</span>
+              <button
+                onClick={() => { setActiveSmartView(null); setSelectedList(null); }}
+                className={cn('hud-badge px-2 py-1 text-xs', !activeSmartView && !selectedListId && 'ring-1 ring-cyan-400')}
+              >
+                INBOX
+              </button>
+              <button
+                onClick={() => { setActiveSmartView('today'); setSelectedList(null); }}
+                className={cn('hud-badge px-2 py-1 text-xs', activeSmartView === 'today' && 'ring-1 ring-cyan-400')}
+              >
+                TODAY
+              </button>
+              <button
+                onClick={() => { setActiveSmartView('upcoming'); setSelectedList(null); }}
+                className={cn('hud-badge px-2 py-1 text-xs', activeSmartView === 'upcoming' && 'ring-1 ring-cyan-400')}
+              >
+                UPCOMING
+              </button>
+              <button
+                onClick={() => { setActiveSmartView('important'); setSelectedList(null); }}
+                className={cn('hud-badge px-2 py-1 text-xs', activeSmartView === 'important' && 'ring-1 ring-cyan-400')}
+              >
+                IMPORTANT
+              </button>
+              {lists.filter(l => l.id !== 'inbox').map((list) => (
+                <button
+                  key={list.id}
+                  onClick={() => { setSelectedList(list.id); setActiveSmartView(null); }}
+                  className={cn('hud-badge px-2 py-1 text-xs', selectedListId === list.id && 'ring-1 ring-cyan-400')}
+                >
+                  {list.name}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+                placeholder="Add task..."
+                className="flex-1 px-3 py-2 text-xs bg-cyan-500/5 border border-cyan-500/30 rounded text-cyan-200 placeholder-cyan-500/50"
+              />
+              <button onClick={handleAddTask} className="hud-btn hud-btn-primary px-3 py-1.5 text-xs">
+                ADD
+              </button>
+            </div>
+            <HUDCard accent>
+              <div className="p-4">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  TASKS
+                </h3>
+                {isLoading ? (
+                  <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>LOADING...</div>
+                ) : (
+                  <HUDDataTable
+                    columns={[
+                      {
+                        key: 'title',
+                        header: 'TASK',
+                        render: (t) => (
+                          <button
+                            type="button"
+                            onClick={() => updateStatus(t.id, t.status === 'done' ? 'todo' : 'done')}
+                            className="text-left flex items-center gap-2"
+                          >
+                            {t.status === 'done' ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: '#22c55e' }} />
+                            ) : (
+                              <CheckSquare className="w-3.5 h-3.5 shrink-0" style={{ color: '#67e8f9' }} />
+                            )}
+                            <span className={t.status === 'done' ? 'line-through opacity-70' : ''}>{t.title}</span>
+                          </button>
+                        ),
+                      },
+                      { key: 'status', header: 'STATUS', render: (t) => statusLabels[t.status] || t.status },
+                      { key: 'priority', header: 'PRIORITY', render: (t) => (t.priority || 'medium').toUpperCase() },
+                      { key: 'due', header: 'DUE', render: (t) => t.dueDate || '-' },
+                      {
+                        key: 'actions',
+                        header: '',
+                        render: (t) => (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => togglePinTask(t.id)}
+                              className="p-1 hover:bg-cyan-500/20"
+                              title="Pin"
+                            >
+                              <Pin className={cn('w-3 h-3', t.isPinned && 'fill-current')} style={{ color: t.isPinned ? '#fbbf24' : '#22d3ee' }} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteTask(t.id)}
+                              className="p-1 hover:bg-red-500/20"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                            </button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={filteredTasks}
+                    keyExtractor={(t) => t.id}
+                    emptyMessage="NO TASKS"
+                  />
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">

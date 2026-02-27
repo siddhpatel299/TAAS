@@ -31,7 +31,7 @@ export function NotificationBell() {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const res = await notificationsApi.getUnreadCount();
+      const res = await notificationsApi.getUnreadCount({ excludeType: 'email_reply' });
       setUnreadCount(res.data.data.count);
     } catch {
       // silent
@@ -58,7 +58,7 @@ export function NotificationBell() {
     setIsOpen(true);
     setLoading(true);
     try {
-      const res = await notificationsApi.getNotifications({ limit: 15 });
+      const res = await notificationsApi.getNotifications({ limit: 15, excludeType: 'email_reply' });
       setNotifications(res.data.data);
     } catch {
       // silent

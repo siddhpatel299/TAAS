@@ -1,9 +1,15 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { DirectUploadProvider } from '@/contexts/DirectUploadContext';
+import { OSShell } from '@/components/os/OSShell';
+import { LockScreen } from '@/components/os/LockScreen';
+import { OSRegisterScreen } from '@/components/os/OSRegisterScreen';
+import { HUDLockScreen } from '@/components/os/hud/HUDLockScreen';
+import { HUDRegisterScreen } from '@/components/os/hud/HUDRegisterScreen';
+import { useOSStore } from '@/stores/os.store';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { ModernDashboardPage } from '@/pages/ModernDashboardPage';
@@ -37,6 +43,8 @@ import { Send } from 'lucide-react';
 import { ChangelogPage } from '@/pages/ChangelogPage';
 import { UpdateNotification } from '@/components/UpdateNotification';
 import { UnifiedNotesPage } from '@/pages/UnifiedNotesPage';
+import { PasswordVaultDashboardPage } from '@/pages/PasswordVaultDashboardPage';
+import { WallpaperSettings } from '@/components/os/WallpaperSettings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,16 +55,102 @@ const queryClient = new QueryClient({
   },
 });
 
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[ErrorBoundary]', error, info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const isOS = localStorage.getItem('app_version') === 'os';
+      return (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: isOS ? '#050a0f' : '#fff',
+            color: isOS ? '#0ff' : '#111',
+            fontFamily: 'monospace',
+            padding: 32,
+          }}
+        >
+          <div style={{ maxWidth: 600, textAlign: 'center' }}>
+            <h1 style={{ fontSize: '1.5rem', marginBottom: 16, color: isOS ? '#f44' : '#c00' }}>
+              Something went wrong
+            </h1>
+            <pre
+              style={{
+                textAlign: 'left',
+                background: isOS ? 'rgba(0,255,255,0.05)' : '#f5f5f5',
+                padding: 16,
+                borderRadius: 8,
+                overflow: 'auto',
+                maxHeight: 300,
+                fontSize: '0.75rem',
+                border: `1px solid ${isOS ? 'rgba(0,255,255,0.2)' : '#ddd'}`,
+              }}
+            >
+              {this.state.error?.message}
+              {'\n\n'}
+              {this.state.error?.stack}
+            </pre>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                marginTop: 16,
+                padding: '8px 24px',
+                background: isOS ? 'rgba(0,255,255,0.15)' : '#111',
+                color: isOS ? '#0ff' : '#fff',
+                border: `1px solid ${isOS ? 'rgba(0,255,255,0.3)' : '#333'}`,
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontFamily: 'monospace',
+              }}
+            >
+              Reload
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading) {
+    const savedVersion = localStorage.getItem('app_version');
+    if (savedVersion === 'os') {
+      return (
+        <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#050a0f' }}>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-2 rounded-full animate-spin" style={{ borderColor: 'rgba(0,255,255,0.15)', borderTopColor: 'rgba(0,255,255,0.7)' }} />
+            <p style={{ color: 'rgba(0,255,255,0.5)', fontSize: '0.8rem', fontFamily: 'monospace', letterSpacing: '0.15em' }}>AUTHENTICATING...</p>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Subtle ambient lighting */}
         <div className="ambient-glow ambient-glow-1" />
         <div className="ambient-glow ambient-glow-2" />
-
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -115,6 +209,58 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
 }
 
 import { VersionProvider, useVersion } from '@/contexts/VersionContext';
+
+function OSLoginPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  const osStyle = useOSStore((s) => s.osStyle);
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (osStyle === 'hud') {
+    return (
+      <HUDLockScreen
+        onUnlock={() => navigate('/')}
+        onGoToRegister={() => navigate('/register')}
+      />
+    );
+  }
+
+  return (
+    <LockScreen
+      onUnlock={() => navigate('/')}
+      onGoToRegister={() => navigate('/register')}
+    />
+  );
+}
+
+function OSRegisterPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  const osStyle = useOSStore((s) => s.osStyle);
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (osStyle === 'hud') {
+    return (
+      <HUDRegisterScreen
+        onRegistered={() => navigate('/')}
+        onGoToLogin={() => navigate('/login')}
+      />
+    );
+  }
+
+  return (
+    <OSRegisterScreen
+      onRegistered={() => navigate('/')}
+      onGoToLogin={() => navigate('/login')}
+    />
+  );
+}
 import { HUDDashboardPage } from '@/pages/hud/HUDDashboardPage';
 import { HUDFilesPage } from '@/pages/hud/HUDFilesPage';
 import { HUDJobTrackerPage } from '@/pages/hud/HUDJobTrackerPage';
@@ -1270,6 +1416,53 @@ function AppContent() {
     );
   }
 
+  // TAAS OS Theme
+  if (version === 'os') {
+    return (
+      <AuthCheck>
+        <DirectUploadProvider>
+          <Routes>
+            <Route path="/login" element={<OSLoginPage />} />
+            <Route path="/register" element={<OSRegisterPage />} />
+            <Route path="/" element={<ProtectedRoute><OSShell><div /></OSShell></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><OSShell><ModernDashboardPage /></OSShell></ProtectedRoute>} />
+            <Route path="/files" element={<ProtectedRoute><OSShell><MyFilesPage /></OSShell></ProtectedRoute>} />
+            <Route path="/telegram" element={<ProtectedRoute><OSShell><TelegramChatsPage /></OSShell></ProtectedRoute>} />
+            <Route path="/starred" element={<ProtectedRoute><OSShell><StarredPage /></OSShell></ProtectedRoute>} />
+            <Route path="/trash" element={<ProtectedRoute><OSShell><TrashPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins" element={<ProtectedRoute><OSShell><PluginsPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/todo-lists" element={<ProtectedRoute><OSShell><TodoPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker" element={<ProtectedRoute><OSShell><JobTrackerDashboardPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications" element={<ProtectedRoute><OSShell><JobApplicationsPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/applications/:id" element={<ProtectedRoute><OSShell><JobApplicationFormPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/outreach" element={<ProtectedRoute><OSShell><OutreachPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/email-studio" element={<ProtectedRoute><OSShell><EmailStudioPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/job-tracker/contacts" element={<ProtectedRoute><OSShell><ContactFinderPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/nexus" element={<ProtectedRoute><OSShell><NexusDashboardPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/nexus/projects/:projectId" element={<ProtectedRoute><OSShell><NexusProjectPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/notes" element={<ProtectedRoute><OSShell><UnifiedNotesPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/notes/:noteId" element={<ProtectedRoute><OSShell><UnifiedNotesPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/flow" element={<ProtectedRoute><OSShell><FlowPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/insight" element={<ProtectedRoute><OSShell><InsightPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/ats-search" element={<ProtectedRoute><OSShell><ATSSearchPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/subscription-tracker" element={<ProtectedRoute><OSShell><SubscriptionDashboardPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/contacts" element={<ProtectedRoute><OSShell><CrmContactsPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/contacts/new" element={<ProtectedRoute><OSShell><CrmContactFormPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/contacts/:id" element={<ProtectedRoute><OSShell><CrmContactDetailPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/pdf-tools" element={<ProtectedRoute><OSShell><PdfToolsPage /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/password-vault" element={<ProtectedRoute><OSShell><PasswordVaultDashboardPage /></OSShell></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><OSShell><WallpaperSettings /></OSShell></ProtectedRoute>} />
+            <Route path="/plugins/:pluginId" element={<ProtectedRoute><OSShell><PluginComingSoonPage /></OSShell></ProtectedRoute>} />
+            <Route path="/share/:token" element={<SharePage />} />
+            <Route path="/auth/google/callback" element={<OAuthCallbackPage />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </DirectUploadProvider>
+      </AuthCheck>
+    );
+  }
+
   // Standard Theme (Default)
   return (
     <AuthCheck>
@@ -1511,15 +1704,17 @@ function AppContent() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <VersionProvider>
-          <BrowserRouter>
-            <UpdateNotification />
-            <AppContent />
-          </BrowserRouter>
-        </VersionProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <VersionProvider>
+            <BrowserRouter>
+              <UpdateNotification />
+              <AppContent />
+            </BrowserRouter>
+          </VersionProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

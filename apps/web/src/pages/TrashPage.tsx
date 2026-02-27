@@ -16,6 +16,8 @@ import { UploadQueue } from '@/components/UploadQueue';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { filesApi } from '@/lib/api';
 import { formatFileSize, formatDate } from '@/lib/utils';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable } from '@/components/hud';
 
 export function TrashPage() {
   const {
@@ -31,6 +33,9 @@ export function TrashPage() {
 
   const [localSearch, setLocalSearch] = useState('');
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
 
   // Debounced search
   useEffect(() => {
@@ -101,6 +106,125 @@ export function TrashPage() {
     if (mimeType.includes('zip') || mimeType.includes('rar')) return '📦';
     return '📁';
   };
+
+  // HUD mode layout
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="TRASH"
+          searchPlaceholder="Search trash..."
+          searchValue={localSearch}
+          onSearchChange={setLocalSearch}
+          actions={
+            files.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setShowEmptyConfirm(true)}
+                className="hud-btn px-3 py-1.5 text-xs"
+                style={{ color: '#ef4444' }}
+              >
+                EMPTY TRASH
+              </button>
+            ) : undefined
+          }
+        >
+          <div className="space-y-4">
+            {files.length > 0 && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded" style={{ backgroundColor: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <AlertTriangle className="w-4 h-4 shrink-0" style={{ color: '#f59e0b' }} />
+                <p className="text-xs" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  Items will be permanently deleted after 30 days. Restore before then.
+                </p>
+              </div>
+            )}
+            <HUDCard accent>
+              <div className="p-4">
+                <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  DELETED FILES
+                </h2>
+                {isLoading ? (
+                  <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                    LOADING...
+                  </div>
+                ) : files.length === 0 ? (
+                  <div className="py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                    <Trash2 className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                    <p className="text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                      TRASH IS EMPTY
+                    </p>
+                  </div>
+                ) : (
+                  <HUDDataTable
+                    columns={[
+                      {
+                        key: 'name',
+                        header: 'NAME',
+                        render: (f) => (
+                          <span className="flex items-center gap-2">
+                            <span className="text-sm">{getFileIcon(f.mimeType)}</span>
+                            <span className="truncate max-w-[180px]">{f.originalName}</span>
+                          </span>
+                        ),
+                      },
+                      { key: 'size', header: 'SIZE', render: (f) => formatFileSize(f.size) },
+                      { key: 'deleted', header: 'DELETED', render: (f) => formatDate(f.updatedAt) },
+                      {
+                        key: 'actions',
+                        header: '',
+                        render: (f) => (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleRestore(f)}
+                              className="p-1 hover:bg-cyan-500/20"
+                              title="Restore"
+                            >
+                              <RotateCcw className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(f)}
+                              className="p-1 hover:bg-red-500/20"
+                              title="Delete permanently"
+                            >
+                              <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                            </button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={files}
+                    keyExtractor={(f) => f.id}
+                    emptyMessage="NO FILES"
+                  />
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+        <UploadQueue />
+        <Dialog open={showEmptyConfirm} onOpenChange={setShowEmptyConfirm}>
+          <DialogContent className="bg-[var(--hud-bg-secondary)] border-cyan-500/30">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400">Empty Trash?</DialogTitle>
+              <DialogDescription className="text-cyan-200/80">
+                This will permanently delete all {files.length} items. This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEmptyConfirm(false)} className="border-cyan-500/30 text-cyan-400">
+                Cancel
+              </Button>
+              <Button onClick={handleEmptyTrash} className="bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30">
+                Empty Trash
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f0f5fa] flex">

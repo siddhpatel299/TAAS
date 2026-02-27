@@ -112,3 +112,592 @@
 [data-pdf-thumbnails-scroll]::-webkit-scrollbar-thumb:hover {
   background: rgb(100 116 139);
 }
+
+/* ========== TAAS OS Theme ========== */
+
+/* Structural — always in OS mode */
+.os-mode .ml-20,
+.os-mode .md\:ml-20 {
+  margin-left: 0 !important;
+}
+.os-mode .scrollbar-none::-webkit-scrollbar { display: none; }
+.os-mode .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Page container backgrounds — transparent so window gradient shows */
+.os-mode .os-window-content .min-h-screen {
+  background: transparent !important;
+}
+
+/* ================================================================
+   OS DARK MODE — Glassmorphism
+   All overrides scoped to .os-window-content to avoid leaking
+   into Desktop icons, Taskbar, or Start Menu.
+   The window body has a solid gradient, so semi-transparent cards
+   on top produce real glass depth.
+   ================================================================ */
+
+.os-dark {
+  --background: 220 20% 10%;
+  --foreground: 210 40% 96%;
+  --card: 220 20% 13%;
+  --card-foreground: 210 40% 96%;
+  --popover: 220 20% 12%;
+  --popover-foreground: 210 40% 96%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 20% 16%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 220 15% 18%;
+  --muted-foreground: 215 16% 57%;
+  --accent: 220 20% 18%;
+  --accent-foreground: 210 40% 96%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 15% 18%;
+  --input: 220 15% 16%;
+  --ring: 217 91% 60%;
+  --radius: 0.625rem;
+  color-scheme: dark;
+}
+
+/* -----------------------------------------------------------
+   BACKGROUNDS — Scoped to window content only
+   ----------------------------------------------------------- */
+.os-dark .os-window-content [class*="bg-white"] {
+  background-color: rgba(255,255,255,0.04) !important;
+}
+.os-dark .os-window-content [class*="bg-gray-50"],
+.os-dark .os-window-content [class*="bg-slate-50"],
+.os-dark .os-window-content [class*="bg-stone-50"],
+.os-dark .os-window-content [class*="bg-zinc-50"],
+.os-dark .os-window-content [class*="bg-neutral-50"] {
+  background-color: rgba(255,255,255,0.02) !important;
+}
+.os-dark .os-window-content [class*="bg-gray-100"],
+.os-dark .os-window-content [class*="bg-slate-100"],
+.os-dark .os-window-content [class*="bg-zinc-100"] {
+  background-color: rgba(255,255,255,0.04) !important;
+}
+.os-dark .os-window-content [class*="bg-gray-200"],
+.os-dark .os-window-content [class*="bg-slate-200"] {
+  background-color: rgba(255,255,255,0.07) !important;
+}
+.os-dark .os-window-content [class*="bg-gray-300"],
+.os-dark .os-window-content [class*="bg-slate-300"] {
+  background-color: rgba(255,255,255,0.10) !important;
+}
+
+/* Colored tinted glass */
+.os-dark .os-window-content [class*="bg-sky-50"],
+.os-dark .os-window-content [class*="bg-blue-50"],
+.os-dark .os-window-content [class*="bg-indigo-50"],
+.os-dark .os-window-content [class*="bg-sky-100"],
+.os-dark .os-window-content [class*="bg-blue-100"],
+.os-dark .os-window-content [class*="bg-indigo-100"] { background-color: rgba(59,130,246,0.08) !important; }
+.os-dark .os-window-content [class*="bg-red-50"],
+.os-dark .os-window-content [class*="bg-rose-50"],
+.os-dark .os-window-content [class*="bg-red-100"],
+.os-dark .os-window-content [class*="bg-rose-100"] { background-color: rgba(239,68,68,0.08) !important; }
+.os-dark .os-window-content [class*="bg-green-50"],
+.os-dark .os-window-content [class*="bg-emerald-50"],
+.os-dark .os-window-content [class*="bg-green-100"],
+.os-dark .os-window-content [class*="bg-emerald-100"] { background-color: rgba(34,197,94,0.08) !important; }
+.os-dark .os-window-content [class*="bg-amber-50"],
+.os-dark .os-window-content [class*="bg-yellow-50"],
+.os-dark .os-window-content [class*="bg-orange-50"],
+.os-dark .os-window-content [class*="bg-amber-100"],
+.os-dark .os-window-content [class*="bg-yellow-100"],
+.os-dark .os-window-content [class*="bg-orange-100"] { background-color: rgba(245,158,11,0.08) !important; }
+.os-dark .os-window-content [class*="bg-purple-50"],
+.os-dark .os-window-content [class*="bg-violet-50"],
+.os-dark .os-window-content [class*="bg-purple-100"],
+.os-dark .os-window-content [class*="bg-violet-100"] { background-color: rgba(139,92,246,0.08) !important; }
+.os-dark .os-window-content [class*="bg-cyan-50"],
+.os-dark .os-window-content [class*="bg-teal-50"],
+.os-dark .os-window-content [class*="bg-cyan-100"],
+.os-dark .os-window-content [class*="bg-teal-100"] { background-color: rgba(6,182,212,0.08) !important; }
+.os-dark .os-window-content [class*="bg-pink-50"],
+.os-dark .os-window-content [class*="bg-fuchsia-50"],
+.os-dark .os-window-content [class*="bg-pink-100"] { background-color: rgba(236,72,153,0.08) !important; }
+.os-dark .os-window-content [class*="bg-blue-200"],
+.os-dark .os-window-content [class*="bg-sky-200"] { background-color: rgba(59,130,246,0.12) !important; }
+
+/* -----------------------------------------------------------
+   TEXT — Scoped to window content
+   ----------------------------------------------------------- */
+.os-dark .os-window-content [class*="text-gray-9"],
+.os-dark .os-window-content [class*="text-slate-9"],
+.os-dark .os-window-content [class*="text-zinc-9"],
+.os-dark .os-window-content [class*="text-neutral-9"],
+.os-dark .os-window-content [class*="text-stone-9"] { color: rgba(255,255,255,0.92) !important; }
+.os-dark .os-window-content [class*="text-gray-8"],
+.os-dark .os-window-content [class*="text-slate-8"],
+.os-dark .os-window-content [class*="text-zinc-8"] { color: rgba(255,255,255,0.80) !important; }
+.os-dark .os-window-content [class*="text-gray-7"],
+.os-dark .os-window-content [class*="text-slate-7"],
+.os-dark .os-window-content [class*="text-zinc-7"] { color: rgba(255,255,255,0.65) !important; }
+.os-dark .os-window-content [class*="text-gray-6"],
+.os-dark .os-window-content [class*="text-slate-6"],
+.os-dark .os-window-content [class*="text-zinc-6"] { color: rgba(255,255,255,0.50) !important; }
+.os-dark .os-window-content [class*="text-gray-5"],
+.os-dark .os-window-content [class*="text-slate-5"],
+.os-dark .os-window-content [class*="text-zinc-5"] { color: rgba(255,255,255,0.40) !important; }
+.os-dark .os-window-content [class*="text-gray-4"],
+.os-dark .os-window-content [class*="text-slate-4"],
+.os-dark .os-window-content [class*="text-zinc-4"] { color: rgba(255,255,255,0.30) !important; }
+.os-dark .os-window-content [class*="text-black"] { color: rgba(255,255,255,0.92) !important; }
+
+/* -----------------------------------------------------------
+   BORDERS — Scoped to window content
+   ----------------------------------------------------------- */
+.os-dark .os-window-content [class*="border-gray-1"],
+.os-dark .os-window-content [class*="border-slate-1"],
+.os-dark .os-window-content [class*="border-zinc-1"] { border-color: rgba(255,255,255,0.06) !important; }
+.os-dark .os-window-content [class*="border-gray-2"],
+.os-dark .os-window-content [class*="border-slate-2"],
+.os-dark .os-window-content [class*="border-zinc-2"] { border-color: rgba(255,255,255,0.08) !important; }
+.os-dark .os-window-content [class*="border-gray-3"],
+.os-dark .os-window-content [class*="border-slate-3"],
+.os-dark .os-window-content [class*="border-zinc-3"] { border-color: rgba(255,255,255,0.10) !important; }
+.os-dark .os-window-content [class*="border-white"] { border-color: rgba(255,255,255,0.10) !important; }
+.os-dark .os-window-content [class*="border-red-1"] { border-color: rgba(239,68,68,0.15) !important; }
+.os-dark .os-window-content [class*="border-sky-1"],
+.os-dark .os-window-content [class*="border-sky-2"],
+.os-dark .os-window-content [class*="border-blue-1"],
+.os-dark .os-window-content [class*="border-blue-2"] { border-color: rgba(59,130,246,0.15) !important; }
+.os-dark .os-window-content [class*="divide-gray"] > :not([hidden]) ~ :not([hidden]) { border-color: rgba(255,255,255,0.06) !important; }
+
+/* -----------------------------------------------------------
+   SHADOWS — Scoped to window content only
+   ----------------------------------------------------------- */
+.os-dark .os-window-content [class*="shadow-sm"] { box-shadow: 0 1px 4px rgba(0,0,0,0.25) !important; }
+.os-dark .os-window-content [class*="shadow-md"] { box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important; }
+.os-dark .os-window-content [class*="shadow-lg"] { box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important; }
+.os-dark .os-window-content [class*="shadow-xl"] { box-shadow: 0 12px 40px rgba(0,0,0,0.30) !important; }
+.os-dark .os-window-content [class*="shadow-sky"],
+.os-dark .os-window-content [class*="shadow-blue"] { box-shadow: 0 4px 20px rgba(59,130,246,0.10) !important; }
+.os-dark .os-window-content [class*="ring-gray"],
+.os-dark .os-window-content [class*="ring-slate"] { --tw-ring-color: rgba(255,255,255,0.08) !important; }
+
+/* -----------------------------------------------------------
+   GRADIENTS — Transparent stops so window gradient shows
+   ----------------------------------------------------------- */
+.os-dark .os-window-content [class*="from-slate-50"],
+.os-dark .os-window-content [class*="from-gray-50"],
+.os-dark .os-window-content [class*="from-white"],
+.os-dark .os-window-content [class*="from-sky-50"],
+.os-dark .os-window-content [class*="from-blue-50"] { --tw-gradient-from: transparent !important; }
+.os-dark .os-window-content [class*="via-slate-50"],
+.os-dark .os-window-content [class*="via-gray-50"],
+.os-dark .os-window-content [class*="via-white"],
+.os-dark .os-window-content [class*="via-sky-50"] { --tw-gradient-via: transparent !important; }
+.os-dark .os-window-content [class*="to-slate-50"],
+.os-dark .os-window-content [class*="to-gray-50"],
+.os-dark .os-window-content [class*="to-white"],
+.os-dark .os-window-content [class*="to-blue-50"],
+.os-dark .os-window-content [class*="to-sky-50"] { --tw-gradient-to: transparent !important; }
+
+/* -----------------------------------------------------------
+   FORMS — Frosted glass inputs (scoped to window content)
+   ----------------------------------------------------------- */
+.os-dark .os-window-content input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.os-dark .os-window-content textarea,
+.os-dark .os-window-content select {
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.90) !important;
+  color-scheme: dark;
+}
+.os-dark .os-window-content input::placeholder,
+.os-dark .os-window-content textarea::placeholder {
+  color: rgba(255,255,255,0.25) !important;
+}
+.os-dark .os-window-content input:focus,
+.os-dark .os-window-content textarea:focus,
+.os-dark .os-window-content select:focus {
+  background-color: rgba(255,255,255,0.09) !important;
+  border-color: rgba(96,165,250,0.40) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.15) !important;
+}
+.os-dark .os-window-content input[type="checkbox"],
+.os-dark .os-window-content input[type="radio"] { accent-color: hsl(217 91% 60%); }
+
+/* -----------------------------------------------------------
+   TABLES — (scoped)
+   ----------------------------------------------------------- */
+.os-dark .os-window-content table { border-color: rgba(255,255,255,0.06) !important; }
+.os-dark .os-window-content th {
+  background-color: rgba(255,255,255,0.04) !important;
+  color: rgba(255,255,255,0.60) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+.os-dark .os-window-content td { border-color: rgba(255,255,255,0.04) !important; }
+.os-dark .os-window-content tr:hover td { background-color: rgba(255,255,255,0.04) !important; }
+
+/* -----------------------------------------------------------
+   CARDS — Glass panels (scoped to window content)
+   ----------------------------------------------------------- */
+.os-dark .os-window-content [class*="rounded"][class*="bg-white"][class*="shadow"],
+.os-dark .os-window-content [class*="rounded-lg"][class*="bg-white"],
+.os-dark .os-window-content [class*="rounded-xl"][class*="bg-white"],
+.os-dark .os-window-content [class*="rounded-2xl"][class*="bg-white"] {
+  background-color: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+}
+
+/* -----------------------------------------------------------
+   DIALOGS / MODALS — Full glassmorphism (global, not scoped)
+   ----------------------------------------------------------- */
+.os-dark [role="dialog"],
+.os-dark [data-radix-popper-content-wrapper] {
+  color-scheme: dark;
+}
+.os-dark [role="dialog"] [class*="bg-white"] {
+  background-color: rgba(15,23,42,0.90) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+.os-dark [role="dialog"] [class*="text-gray-9"],
+.os-dark [role="dialog"] [class*="text-slate-9"],
+.os-dark [role="dialog"] [class*="text-black"] { color: rgba(255,255,255,0.92) !important; }
+.os-dark [role="dialog"] [class*="text-gray-7"],
+.os-dark [role="dialog"] [class*="text-slate-7"] { color: rgba(255,255,255,0.65) !important; }
+.os-dark [role="dialog"] [class*="text-gray-5"],
+.os-dark [role="dialog"] [class*="text-slate-5"] { color: rgba(255,255,255,0.40) !important; }
+.os-dark [role="dialog"] [class*="border-gray"],
+.os-dark [role="dialog"] [class*="border-slate"] { border-color: rgba(255,255,255,0.08) !important; }
+.os-dark [role="dialog"] input:not([type="checkbox"]):not([type="radio"]),
+.os-dark [role="dialog"] textarea,
+.os-dark [role="dialog"] select {
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.90) !important;
+  color-scheme: dark;
+}
+.os-dark [role="dialog"] input::placeholder,
+.os-dark [role="dialog"] textarea::placeholder { color: rgba(255,255,255,0.25) !important; }
+
+/* Popover/dropdown menus */
+.os-dark [data-radix-popper-content-wrapper] [class*="bg-white"] {
+  background-color: rgba(15,23,42,0.92) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+.os-dark [data-radix-popper-content-wrapper] [class*="text-gray-9"],
+.os-dark [data-radix-popper-content-wrapper] [class*="text-slate-9"] { color: rgba(255,255,255,0.90) !important; }
+.os-dark [data-radix-popper-content-wrapper] [class*="text-gray-5"],
+.os-dark [data-radix-popper-content-wrapper] [class*="text-slate-5"] { color: rgba(255,255,255,0.40) !important; }
+
+/* ================================================================
+   OS LIGHT MODE — Frosted light glassmorphism
+   Window body has a soft warm gradient; cards are white frosted glass.
+   ================================================================ */
+
+/* Page backgrounds transparent so gradient shows */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="bg-gray-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="bg-slate-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="bg-zinc-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="bg-neutral-50"] {
+  background-color: transparent !important;
+}
+
+/* White surfaces → frosted white glass */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="bg-white"] {
+  background-color: rgba(255,255,255,0.55) !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+}
+
+/* Cards → prominent frosted glass */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="rounded"][class*="bg-white"][class*="shadow"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="rounded-lg"][class*="bg-white"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="rounded-xl"][class*="bg-white"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="rounded-2xl"][class*="bg-white"] {
+  background-color: rgba(255,255,255,0.60) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255,255,255,0.70) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.80) !important;
+}
+
+/* Light mode gradients → transparent */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="from-slate-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="from-gray-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="from-sky-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="from-blue-50"] { --tw-gradient-from: transparent !important; }
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="via-slate-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="via-sky-50"] { --tw-gradient-via: transparent !important; }
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="to-slate-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="to-sky-50"],
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="to-blue-50"] { --tw-gradient-to: transparent !important; }
+
+/* Light mode inputs — frosted */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content textarea,
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content select {
+  background-color: rgba(255,255,255,0.60) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content input:focus,
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content textarea:focus,
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content select:focus {
+  background-color: rgba(255,255,255,0.75) !important;
+  border-color: rgba(59,130,246,0.40) !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.10) !important;
+}
+
+/* Light mode tables */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content th {
+  background-color: rgba(255,255,255,0.50) !important;
+}
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content tr:hover td {
+  background-color: rgba(255,255,255,0.40) !important;
+}
+
+/* Light mode shadows — softer */
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="shadow-sm"] { box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important; }
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="shadow-md"] { box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important; }
+.os-mode:not(.os-dark):not(.os-hud) .os-window-content [class*="shadow-lg"] { box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; }
+
+/* Light mode dialogs */
+.os-mode:not(.os-dark):not(.os-hud) [role="dialog"] [class*="bg-white"] {
+  background-color: rgba(255,255,255,0.75) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255,255,255,0.60) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+}
+
+/* ================================================================
+   OS HUD MODE — High-specificity overrides
+   body.os-hud prefix ensures these beat all other rules.
+   Covers gradients, backgrounds, text, borders, forms, tables,
+   shadows, buttons, and dialogs.
+   ================================================================ */
+
+/* --- Page wrappers: transparent so HUDWindow gradient shows --- */
+body.os-hud .os-window-content .min-h-screen {
+  background: transparent !important;
+  background-image: none !important;
+}
+body.os-hud .os-window-content > div,
+body.os-hud .os-window-content > main,
+body.os-hud .os-window-content main {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* --- Kill Tailwind gradient stops --- */
+body.os-hud .os-window-content [class*="from-slate-50"],
+body.os-hud .os-window-content [class*="from-gray-50"],
+body.os-hud .os-window-content [class*="from-white"],
+body.os-hud .os-window-content [class*="from-sky-50"],
+body.os-hud .os-window-content [class*="from-blue-50"] { --tw-gradient-from: transparent !important; }
+body.os-hud .os-window-content [class*="via-slate-50"],
+body.os-hud .os-window-content [class*="via-gray-50"],
+body.os-hud .os-window-content [class*="via-white"],
+body.os-hud .os-window-content [class*="via-sky-50"] { --tw-gradient-via: transparent !important; }
+body.os-hud .os-window-content [class*="to-slate-50"],
+body.os-hud .os-window-content [class*="to-gray-50"],
+body.os-hud .os-window-content [class*="to-white"],
+body.os-hud .os-window-content [class*="to-blue-50"],
+body.os-hud .os-window-content [class*="to-sky-50"] { --tw-gradient-to: transparent !important; }
+
+/* --- Backgrounds: dark HUD panels --- */
+body.os-hud .os-window-content [class*="bg-white"] {
+  background: linear-gradient(180deg, rgba(10,24,38,0.85) 0%, rgba(6,13,22,0.95) 100%) !important;
+  border-color: rgba(0,255,255,0.25) !important;
+}
+body.os-hud .os-window-content [class*="bg-gray-50"],
+body.os-hud .os-window-content [class*="bg-slate-50"],
+body.os-hud .os-window-content [class*="bg-zinc-50"],
+body.os-hud .os-window-content [class*="bg-neutral-50"] {
+  background: rgba(10,24,38,0.60) !important;
+}
+body.os-hud .os-window-content [class*="bg-gray-100"],
+body.os-hud .os-window-content [class*="bg-slate-100"],
+body.os-hud .os-window-content [class*="bg-zinc-100"] {
+  background: rgba(10,24,38,0.70) !important;
+}
+body.os-hud .os-window-content [class*="bg-gray-200"],
+body.os-hud .os-window-content [class*="bg-slate-200"] {
+  background: rgba(10,24,38,0.80) !important;
+}
+
+/* Colored tint backgrounds */
+body.os-hud .os-window-content [class*="bg-sky-50"],
+body.os-hud .os-window-content [class*="bg-blue-50"],
+body.os-hud .os-window-content [class*="bg-indigo-50"],
+body.os-hud .os-window-content [class*="bg-sky-100"],
+body.os-hud .os-window-content [class*="bg-blue-100"] { background: rgba(0,255,255,0.08) !important; border: 1px solid rgba(0,255,255,0.25) !important; }
+body.os-hud .os-window-content [class*="bg-red-50"],
+body.os-hud .os-window-content [class*="bg-rose-50"],
+body.os-hud .os-window-content [class*="bg-red-100"] { background: rgba(239,35,60,0.08) !important; }
+body.os-hud .os-window-content [class*="bg-green-50"],
+body.os-hud .os-window-content [class*="bg-emerald-50"],
+body.os-hud .os-window-content [class*="bg-green-100"] { background: rgba(2,242,146,0.08) !important; }
+body.os-hud .os-window-content [class*="bg-amber-50"],
+body.os-hud .os-window-content [class*="bg-yellow-50"],
+body.os-hud .os-window-content [class*="bg-orange-50"],
+body.os-hud .os-window-content [class*="bg-amber-100"],
+body.os-hud .os-window-content [class*="bg-yellow-100"] { background: rgba(255,183,3,0.08) !important; }
+body.os-hud .os-window-content [class*="bg-purple-50"],
+body.os-hud .os-window-content [class*="bg-violet-50"],
+body.os-hud .os-window-content [class*="bg-purple-100"] { background: rgba(139,92,246,0.08) !important; }
+body.os-hud .os-window-content [class*="bg-cyan-50"],
+body.os-hud .os-window-content [class*="bg-teal-50"] { background: rgba(0,255,255,0.06) !important; }
+body.os-hud .os-window-content [class*="bg-pink-50"],
+body.os-hud .os-window-content [class*="bg-fuchsia-50"] { background: rgba(236,72,153,0.06) !important; }
+
+/* --- Text: cyan/teal palette --- */
+body.os-hud .os-window-content [class*="text-gray-9"],
+body.os-hud .os-window-content [class*="text-slate-9"],
+body.os-hud .os-window-content [class*="text-zinc-9"],
+body.os-hud .os-window-content [class*="text-black"] { color: #a5f3fc !important; }
+body.os-hud .os-window-content [class*="text-gray-8"],
+body.os-hud .os-window-content [class*="text-slate-8"] { color: #67e8f9 !important; }
+body.os-hud .os-window-content [class*="text-gray-7"],
+body.os-hud .os-window-content [class*="text-slate-7"] { color: #22d3ee !important; }
+body.os-hud .os-window-content [class*="text-gray-6"],
+body.os-hud .os-window-content [class*="text-slate-6"] { color: #06b6d4 !important; }
+body.os-hud .os-window-content [class*="text-gray-5"],
+body.os-hud .os-window-content [class*="text-slate-5"],
+body.os-hud .os-window-content [class*="text-gray-4"],
+body.os-hud .os-window-content [class*="text-slate-4"] { color: #0891b2 !important; }
+body.os-hud .os-window-content h1,
+body.os-hud .os-window-content h2,
+body.os-hud .os-window-content h3 {
+  color: #22d3ee !important;
+  text-shadow: 0 0 15px rgba(0,255,255,0.4) !important;
+}
+body.os-hud .os-window-content p { color: #67e8f9 !important; }
+
+/* --- Borders --- */
+body.os-hud .os-window-content [class*="border-gray-"],
+body.os-hud .os-window-content [class*="border-slate-"] { border-color: rgba(0,255,255,0.15) !important; }
+body.os-hud .os-window-content [class*="border-white"] { border-color: rgba(0,255,255,0.12) !important; }
+body.os-hud .os-window-content [class*="divide-gray-"] > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,255,255,0.12) !important; }
+
+/* --- Shadows: cyan glow --- */
+body.os-hud .os-window-content [class*="shadow-sm"],
+body.os-hud .os-window-content [class*="shadow-md"],
+body.os-hud .os-window-content [class*="shadow-lg"],
+body.os-hud .os-window-content [class*="shadow-xl"] {
+  box-shadow: 0 0 20px rgba(0,255,255,0.08), inset 0 1px 0 rgba(0,255,255,0.1) !important;
+}
+
+/* --- Cards: dark panel with cyan accent --- */
+body.os-hud .os-window-content [class*="rounded-2xl"][class*="bg-white"],
+body.os-hud .os-window-content [class*="rounded-xl"][class*="bg-white"] {
+  border-left: 3px solid rgba(0,255,255,0.6) !important;
+}
+
+/* --- Forms --- */
+body.os-hud .os-window-content input,
+body.os-hud .os-window-content textarea,
+body.os-hud .os-window-content select {
+  background: rgba(0,255,255,0.05) !important;
+  border: 1px solid rgba(0,255,255,0.3) !important;
+  color: #22d3ee !important;
+  color-scheme: dark;
+}
+body.os-hud .os-window-content input:focus,
+body.os-hud .os-window-content textarea:focus,
+body.os-hud .os-window-content select:focus {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 12px rgba(0,255,255,0.3) !important;
+  outline: none !important;
+}
+body.os-hud .os-window-content input::placeholder,
+body.os-hud .os-window-content textarea::placeholder { color: rgba(0,255,255,0.3) !important; }
+
+/* --- Tables --- */
+body.os-hud .os-window-content table { border-color: rgba(0,255,255,0.12) !important; }
+body.os-hud .os-window-content th {
+  background: rgba(0,255,255,0.06) !important;
+  color: #67e8f9 !important;
+  border-color: rgba(0,255,255,0.12) !important;
+}
+body.os-hud .os-window-content td { border-color: rgba(0,255,255,0.08) !important; }
+body.os-hud .os-window-content tr:hover td { background: rgba(0,255,255,0.04) !important; }
+
+/* --- Buttons --- */
+body.os-hud .os-window-content button[class*="bg-gray-900"],
+body.os-hud .os-window-content button[class*="bg-black"],
+body.os-hud .os-window-content [class*="bg-gray-900"][class*="text-white"] {
+  background: linear-gradient(135deg, rgba(0,212,255,0.3) 0%, rgba(0,255,255,0.1) 100%) !important;
+  border: 1px solid #00ffff !important;
+  color: #fff !important;
+  text-shadow: 0 0 8px rgba(0,255,255,0.8) !important;
+}
+body.os-hud .os-window-content button[class*="bg-white"],
+body.os-hud .os-window-content button[class*="bg-gray-"],
+body.os-hud .os-window-content button[class*="border-gray-"] {
+  background: rgba(10,19,28,0.8) !important;
+  border: 1px solid rgba(0,255,255,0.4) !important;
+  color: #22d3ee !important;
+}
+
+/* Colored text remapping */
+body.os-hud .os-window-content [class*="text-sky-600"],
+body.os-hud .os-window-content [class*="text-blue-600"] { color: #22d3ee !important; }
+body.os-hud .os-window-content [class*="text-emerald-600"],
+body.os-hud .os-window-content [class*="text-green-600"] { color: #34d399 !important; text-shadow: 0 0 8px rgba(52,211,153,0.4) !important; }
+body.os-hud .os-window-content [class*="text-red-600"],
+body.os-hud .os-window-content [class*="text-red-500"] { color: #f87171 !important; text-shadow: 0 0 8px rgba(248,113,113,0.4) !important; }
+
+/* Progress bars */
+body.os-hud .os-window-content [class*="bg-gradient-to-r"][class*="rounded-full"] {
+  background: linear-gradient(90deg, rgba(0,255,255,0.6), rgba(34,211,238,0.9)) !important;
+  box-shadow: 0 0 15px rgba(0,255,255,0.4) !important;
+}
+
+/* --- Links --- */
+body.os-hud .os-window-content a:not([class*="bg-"]) { color: #22d3ee !important; }
+body.os-hud .os-window-content a:hover { color: #00ffff !important; }
+
+/* --- Dialogs / Modals (global, not scoped to window) --- */
+body.os-hud [role="dialog"] [class*="bg-white"] {
+  background: linear-gradient(135deg, rgba(6,12,18,0.97) 0%, rgba(10,19,28,0.98) 100%) !important;
+  border: 1px solid rgba(0,255,255,0.4) !important;
+  box-shadow: 0 0 40px rgba(0,255,255,0.2) !important;
+  color: #22d3ee !important;
+  backdrop-filter: blur(16px) !important;
+}
+body.os-hud [role="dialog"] [class*="text-gray-9"],
+body.os-hud [role="dialog"] [class*="text-slate-9"],
+body.os-hud [role="dialog"] [class*="text-black"] { color: #a5f3fc !important; }
+body.os-hud [role="dialog"] [class*="text-gray-5"],
+body.os-hud [role="dialog"] [class*="text-slate-5"] { color: #0891b2 !important; }
+body.os-hud [role="dialog"] [class*="border-gray"],
+body.os-hud [role="dialog"] [class*="border-slate"] { border-color: rgba(0,255,255,0.15) !important; }
+body.os-hud [role="dialog"] input,
+body.os-hud [role="dialog"] textarea {
+  background: rgba(0,255,255,0.05) !important;
+  border: 1px solid rgba(0,255,255,0.3) !important;
+  color: #22d3ee !important;
+}
+body.os-hud [role="dialog"] h2,
+body.os-hud [role="dialog"] h3 {
+  color: #00ffff !important;
+  text-shadow: 0 0 15px rgba(0,255,255,0.4) !important;
+}
+
+/* --- Popovers/dropdowns --- */
+body.os-hud [data-radix-popper-content-wrapper] [class*="bg-white"] {
+  background: rgba(6,12,18,0.97) !important;
+  border: 1px solid rgba(0,255,255,0.3) !important;
+  color: #22d3ee !important;
+}
+
+/* --- Scrollbars inside HUD window --- */
+body.os-hud .os-window-content ::-webkit-scrollbar { width: 6px; height: 6px; }
+body.os-hud .os-window-content ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+body.os-hud .os-window-content ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.3); border-radius: 3px; }
+body.os-hud .os-window-content ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,255,0.6); }

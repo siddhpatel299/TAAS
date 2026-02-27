@@ -19,6 +19,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
+import { useOSStore } from '@/stores/os.store';
 import { cn } from '@/lib/utils';
 import { jobTrackerApi, FullSettingsStatus } from '@/lib/plugins-api';
 
@@ -235,56 +236,94 @@ export function JobTrackerSettingsDialog({
     }
   };
 
+  const hudStyles = {
+    modal: {
+      background: 'linear-gradient(180deg, rgba(10,24,38,0.98) 0%, rgba(6,13,22,0.98) 100%)',
+      border: '1px solid rgba(0,255,255,0.3)',
+      boxShadow: '0 0 40px rgba(0,255,255,0.1)',
+    },
+    header: {
+      background: 'linear-gradient(180deg, rgba(8,20,30,0.95) 0%, rgba(4,12,20,0.98) 100%)',
+      borderColor: 'rgba(0,255,255,0.3)',
+    },
+    tabActive: {
+      background: 'rgba(0,255,255,0.15)',
+      color: '#22d3ee',
+      borderColor: 'rgba(0,255,255,0.4)',
+    },
+    tabInactive: {
+      color: 'rgba(0,255,255,0.6)',
+    },
+    icon: '#22d3ee',
+    text: '#a5f3fc',
+    textMuted: 'rgba(0,255,255,0.7)',
+  };
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+          className={cn('rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col', !isHUD && 'bg-white')}
+          style={isHUD ? hudStyles.modal : undefined}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-sky-50 to-indigo-50">
+          <div
+            className={cn('px-6 py-5 border-b flex items-center justify-between', !isHUD && 'border-gray-200 bg-gradient-to-r from-sky-50 to-indigo-50')}
+            style={isHUD ? hudStyles.header : undefined}
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center">
-                <Settings2 className="w-5 h-5 text-white" />
+              <div
+                className={cn('w-10 h-10 rounded-xl flex items-center justify-center', !isHUD && 'bg-gradient-to-br from-sky-500 to-indigo-600')}
+                style={isHUD ? { background: 'rgba(0,255,255,0.15)', border: '1px solid rgba(0,255,255,0.3)' } : undefined}
+              >
+                <Settings2 className={cn('w-5 h-5', isHUD ? '' : 'text-white')} style={isHUD ? { color: hudStyles.icon } : undefined} />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Job Tracker Settings</h2>
-                <p className="text-sm text-gray-500">Configure APIs and email outreach</p>
+                <h2 className={cn('text-lg font-semibold', isHUD ? '' : 'text-gray-900')} style={isHUD ? { color: hudStyles.text } : undefined}>
+                  Job Tracker Settings
+                </h2>
+                <p className="text-sm" style={isHUD ? { color: hudStyles.textMuted } : { color: '#6b7280' }}>
+                  Configure APIs and email outreach
+                </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/80 rounded-xl transition-colors"
+              className={cn('p-2 rounded-xl transition-colors', isHUD ? 'hover:bg-cyan-500/15' : 'hover:bg-white/80')}
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5" style={isHUD ? { color: hudStyles.icon } : { color: '#6b7280' }} />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="px-6 py-3 border-b border-gray-100 bg-gray-50/50">
+          <div
+            className={cn('px-6 py-3 border-b', !isHUD && 'border-gray-100 bg-gray-50/50')}
+            style={isHUD ? { borderColor: 'rgba(0,255,255,0.2)', background: 'rgba(4,12,20,0.5)' } : undefined}
+          >
             <div className="flex gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border',
                     activeTab === tab.id
-                      ? 'bg-white text-sky-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                      ? !isHUD && 'bg-white text-sky-700 shadow-sm'
+                      : !isHUD && 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-white/50'
                   )}
+                  style={isHUD ? (activeTab === tab.id ? { ...hudStyles.tabActive, border: '1px solid rgba(0,255,255,0.4)' } : { ...hudStyles.tabInactive, border: '1px solid transparent' }) : undefined}
                 >
-                  <tab.icon className="w-4 h-4" />
+                  <tab.icon className="w-4 h-4" style={isHUD ? { color: hudStyles.icon } : undefined} />
                   {tab.label}
                 </button>
               ))}
@@ -292,7 +331,10 @@ export function JobTrackerSettingsDialog({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div
+            className={cn('flex-1 overflow-y-auto p-6', isHUD && 'font-mono')}
+            style={isHUD ? { background: 'rgba(4,12,20,0.5)' } : undefined}
+          >
             {isLoading ? (
               <div className="text-center py-8">
                 <Loader2 className="w-8 h-8 mx-auto text-sky-500 animate-spin" />
@@ -309,41 +351,42 @@ export function JobTrackerSettingsDialog({
                       <div className="grid grid-cols-3 gap-4">
                         <div className="flex items-center gap-2">
                           <span className={cn('w-2 h-2 rounded-full', settingsStatus?.hasSerpApiKey ? 'bg-green-500' : 'bg-gray-300')} />
-                          <span className="text-sm text-gray-600">SERP API</span>
+                          <span className="text-sm" style={isHUD ? { color: hudStyles.textMuted } : { color: '#4b5563' }}>SERP API</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={cn('w-2 h-2 rounded-full', settingsStatus?.hasHunterApiKey ? 'bg-green-500' : 'bg-gray-300')} />
-                          <span className="text-sm text-gray-600">Hunter API</span>
+                          <span className="text-sm" style={isHUD ? { color: hudStyles.textMuted } : { color: '#4b5563' }}>Hunter API</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={cn('w-2 h-2 rounded-full', settingsStatus?.hasOpenaiApiKey ? 'bg-green-500' : 'bg-gray-300')} />
-                          <span className="text-sm text-gray-600">OpenAI API</span>
+                          <span className="text-sm" style={isHUD ? { color: hudStyles.textMuted } : { color: '#4b5563' }}>OpenAI API</span>
                         </div>
                       </div>
                     </div>
 
                     {/* SERP API Key */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium mb-2" style={isHUD ? { color: hudStyles.text } : { color: '#374151' }}>
                         SERP API Key <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Key className="w-5 h-5 text-gray-400" />
+                          <Key className="w-5 h-5" style={isHUD ? { color: hudStyles.icon } : { color: '#9ca3af' }} />
                         </div>
                         <input
                           type={showSerpKey ? 'text' : 'password'}
                           value={serpApiKey}
                           onChange={(e) => setSerpApiKey(e.target.value)}
                           placeholder={settingsStatus?.hasSerpApiKey ? `Current: ${settingsStatus.serpApiKeyMasked}` : 'Enter your SERP API key'}
-                          className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                          className={cn('w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:outline-none', !isHUD && 'border-gray-200 focus:ring-sky-500 focus:border-transparent')}
+                          style={isHUD ? { borderColor: 'rgba(0,255,255,0.25)', background: 'rgba(4,12,20,0.8)', color: '#67e8f9' } : undefined}
                         />
                         <button
                           type="button"
                           onClick={() => setShowSerpKey(!showSerpKey)}
                           className="absolute inset-y-0 right-0 pr-3 flex items-center"
                         >
-                          {showSerpKey ? <EyeOff className="w-5 h-5 text-gray-400" /> : <Eye className="w-5 h-5 text-gray-400" />}
+                          {showSerpKey ? <EyeOff className="w-5 h-5" style={isHUD ? { color: hudStyles.icon } : { color: '#9ca3af' }} /> : <Eye className="w-5 h-5" style={isHUD ? { color: hudStyles.icon } : { color: '#9ca3af' }} />}
                         </button>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
@@ -647,10 +690,14 @@ BS Computer Science, State University"
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end">
+          <div
+            className={cn('px-6 py-4 border-t flex items-center justify-end', !isHUD && 'border-gray-200 bg-gray-50')}
+            style={isHUD ? { borderColor: 'rgba(0,255,255,0.2)', background: 'rgba(4,12,20,0.8)' } : undefined}
+          >
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              className={cn('px-4 py-2 rounded-xl transition-colors', isHUD ? 'hover:bg-cyan-500/15' : 'text-gray-600 hover:bg-gray-100')}
+              style={isHUD ? { color: '#22d3ee', border: '1px solid rgba(0,255,255,0.3)' } : undefined}
             >
               Close
             </button>

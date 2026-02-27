@@ -709,11 +709,17 @@ export interface AppNotification {
 
 // Notifications API
 export const notificationsApi = {
-  getNotifications: (params?: { unreadOnly?: boolean; limit?: number; offset?: number }) =>
+  getNotifications: (params?: { unreadOnly?: boolean; limit?: number; offset?: number; type?: string; excludeType?: string }) =>
     api.get<{ success: boolean; data: AppNotification[]; meta: { total: number } }>('/notifications', { params }),
 
-  getUnreadCount: () =>
-    api.get<{ success: boolean; data: { count: number } }>('/notifications/unread-count'),
+  getUnreadCount: (params?: { excludeType?: string }) =>
+    api.get<{ success: boolean; data: { count: number } }>('/notifications/unread-count', { params }),
+
+  /** Fetch only email_reply notifications for the dedicated Email Replies section */
+  getEmailReplies: (params?: { limit?: number; offset?: number }) =>
+    api.get<{ success: boolean; data: AppNotification[]; meta: { total: number } }>('/notifications', {
+      params: { type: 'email_reply', limit: params?.limit ?? 10, offset: params?.offset ?? 0 },
+    }),
 
   markAsRead: (id: string) =>
     api.patch<{ success: boolean; data: AppNotification }>(`/notifications/${id}/read`),

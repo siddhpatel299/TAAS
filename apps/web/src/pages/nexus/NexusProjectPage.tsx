@@ -10,6 +10,8 @@ import { NexusTaskModal } from '@/components/nexus/NexusTaskModal';
 import { useNexusStore } from '@/stores/nexus.store';
 import { Settings, Filter, Users, Plus, Layout, List, Calendar as CalendarIcon, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout } from '@/components/hud';
 
 export function NexusProjectPage() {
     const { projectId } = useParams<{ projectId: string }>();
@@ -21,10 +23,53 @@ export function NexusProjectPage() {
         }
     }, [projectId, setCurrentProject]);
 
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+
     if (!currentProject) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full" />
+            </div>
+        );
+    }
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout
+                    title={`${currentProject.key} - ${currentProject.name.toUpperCase()}`}
+                    actions={
+                        <>
+                            <div className="flex gap-1">
+                                {(['kanban', 'list', 'timeline', 'backlog'] as const).map((mode) => (
+                                    <button
+                                        key={mode}
+                                        onClick={() => setViewMode(mode)}
+                                        className={cn('hud-btn px-2 py-1 text-xs', viewMode === mode && 'ring-1 ring-cyan-400')}
+                                    >
+                                        {mode === 'kanban' ? 'BOARD' : mode.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => openCreateTask('todo')}
+                                className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+                            >
+                                <Plus className="w-3 h-3 inline mr-1" />
+                                NEW TASK
+                            </button>
+                        </>
+                    }
+                >
+                    <div className="h-full min-h-[400px] -m-4 overflow-hidden">
+                        {viewMode === 'kanban' && <NexusKanbanBoard tasks={tasks} />}
+                        {viewMode === 'list' && <NexusListView tasks={tasks} />}
+                        {viewMode === 'timeline' && <NexusTimelineView tasks={tasks} />}
+                        {viewMode === 'backlog' && <NexusBacklogView tasks={tasks} projectId={currentProject.id} />}
+                    </div>
+                </HUDAppLayout>
+                <NexusTaskModal />
             </div>
         );
     }

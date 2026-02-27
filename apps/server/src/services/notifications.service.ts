@@ -13,6 +13,10 @@ interface GetNotificationsOptions {
   unreadOnly?: boolean;
   limit?: number;
   offset?: number;
+  /** Exclude notifications of this type (e.g. 'email_reply' for general panel) */
+  excludeType?: string;
+  /** Only include notifications of this type (e.g. 'email_reply' for dedicated section) */
+  type?: string;
 }
 
 export const notificationsService = {
@@ -20,9 +24,11 @@ export const notificationsService = {
     return prisma.notification.create({ data: input });
   },
 
-  async getForUser({ userId, unreadOnly, limit = 20, offset = 0 }: GetNotificationsOptions) {
+  async getForUser({ userId, unreadOnly, limit = 20, offset = 0, excludeType, type }: GetNotificationsOptions) {
     const where: any = { userId };
     if (unreadOnly) where.read = false;
+    if (excludeType) where.type = { not: excludeType };
+    if (type) where.type = type;
 
     const [notifications, total] = await Promise.all([
       prisma.notification.findMany({
@@ -37,8 +43,10 @@ export const notificationsService = {
     return { notifications, total };
   },
 
-  async getUnreadCount(userId: string): Promise<number> {
-    return prisma.notification.count({ where: { userId, read: false } });
+  async getUnreadCount(userId: string, excludeType?: string): Promise<number> {
+    const where: any = { userId, read: false };
+    if (excludeType) where.type = { not: excludeType };
+    return prisma.notification.count({ where });
   },
 
   async markAsRead(id: string) {

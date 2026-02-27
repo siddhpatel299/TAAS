@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Star, Search } from 'lucide-react';
+import { Star, Search, Download, Share2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { ModernSidebar } from '@/components/layout/ModernSidebar';
@@ -9,6 +9,9 @@ import { ShareDialog } from '@/components/ShareDialog';
 import { UploadQueue } from '@/components/UploadQueue';
 import { useFilesStore, StoredFile } from '@/stores/files.store';
 import { filesApi } from '@/lib/api';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable } from '@/components/hud';
+import { formatFileSize, formatDate } from '@/lib/utils';
 
 export function StarredPage() {
   const {
@@ -25,6 +28,9 @@ export function StarredPage() {
   const [localSearch, setLocalSearch] = useState('');
   const [previewFile, setPreviewFile] = useState<StoredFile | null>(null);
   const [shareFile, setShareFile] = useState<StoredFile | null>(null);
+
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
 
   // Debounced search
   useEffect(() => {
@@ -88,6 +94,108 @@ export function StarredPage() {
       console.error('Delete failed:', error);
     }
   };
+
+  // HUD mode layout
+  if (isHUD) {
+    return (
+      <div className="h-full min-h-0 flex flex-col">
+        <HUDAppLayout
+          title="STARRED FILES"
+          searchPlaceholder="Search starred files..."
+          searchValue={localSearch}
+          onSearchChange={setLocalSearch}
+        >
+          <div className="space-y-4">
+            <HUDCard accent>
+              <div className="p-4">
+                <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                  FILES
+                </h2>
+                {isLoading ? (
+                  <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                    LOADING...
+                  </div>
+                ) : files.length === 0 ? (
+                  <div className="py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                    <Star className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                    <p className="text-xs tracking-widest mb-4" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                      NO STARRED FILES
+                    </p>
+                  </div>
+                ) : (
+                  <HUDDataTable
+                    columns={[
+                      {
+                        key: 'name',
+                        header: 'NAME',
+                        render: (f) => (
+                          <button
+                            type="button"
+                            onClick={() => setPreviewFile(f)}
+                            className="hover:underline text-left truncate max-w-[200px] block"
+                          >
+                            {f.originalName}
+                          </button>
+                        ),
+                      },
+                      { key: 'size', header: 'SIZE', render: (f) => formatFileSize(f.size) },
+                      { key: 'date', header: 'DATE', render: (f) => formatDate(f.createdAt) },
+                      {
+                        key: 'actions',
+                        header: '',
+                        render: (f) => (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleDownload(f)}
+                              className="p-1 hover:bg-cyan-500/20"
+                              title="Download"
+                            >
+                              <Download className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShareFile(f)}
+                              className="p-1 hover:bg-cyan-500/20"
+                              title="Share"
+                            >
+                              <Share2 className="w-3 h-3" style={{ color: '#22d3ee' }} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleStar(f)}
+                              className="p-1 hover:bg-cyan-500/20"
+                              title="Unstar"
+                            >
+                              <Star className="w-3 h-3 fill-current" style={{ color: '#fbbf24' }} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(f)}
+                              className="p-1 hover:bg-red-500/20"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
+                            </button>
+                          </div>
+                        ),
+                      },
+                    ]}
+                    data={files}
+                    keyExtractor={(f) => f.id}
+                    emptyMessage="NO FILES"
+                  />
+                )}
+              </div>
+            </HUDCard>
+          </div>
+        </HUDAppLayout>
+        {previewFile && <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />}
+        {shareFile && <ShareDialog open={!!shareFile} file={shareFile} onClose={() => setShareFile(null)} />}
+        <UploadQueue />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f0f5fa] flex">

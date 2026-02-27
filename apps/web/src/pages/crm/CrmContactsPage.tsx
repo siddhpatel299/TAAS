@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     Plus,
     Search,
@@ -15,6 +15,8 @@ import { CrmLayout } from '@/components/crm/CrmLayout';
 import { crmApi, CrmContact, CRM_STATUS_OPTIONS } from '@/lib/crm-api';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useOSStore } from '@/stores/os.store';
+import { HUDAppLayout, HUDCard, HUDDataTable } from '@/components/hud';
 
 export function CrmContactsPage() {
     const [contacts, setContacts] = useState<CrmContact[]>([]);
@@ -67,6 +69,116 @@ export function CrmContactsPage() {
     const getInitials = (firstName: string, lastName?: string) => {
         return (firstName[0] + (lastName?.[0] || '')).toUpperCase();
     };
+
+    const osStyle = useOSStore((s) => s.osStyle);
+    const isHUD = osStyle === 'hud';
+    const navigate = useNavigate();
+
+    if (isHUD) {
+        return (
+            <div className="h-full min-h-0 flex flex-col">
+                <HUDAppLayout
+                    title="CONTACTS"
+                    searchPlaceholder="Search by name, email, company..."
+                    searchValue={search}
+                    onSearchChange={(v) => setSearch(v)}
+                    actions={
+                        <button
+                            type="button"
+                            onClick={() => navigate('/plugins/contacts/new')}
+                            className="hud-btn hud-btn-primary px-3 py-1.5 text-xs"
+                        >
+                            ADD CONTACT
+                        </button>
+                    }
+                >
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: 'rgba(0,255,255,0.6)' }}>STATUS:</span>
+                            <button
+                                onClick={() => setStatusFilter('')}
+                                className={cn('hud-badge px-2 py-1 text-xs', !statusFilter && 'ring-1 ring-cyan-400')}
+                            >
+                                ALL
+                            </button>
+                            {CRM_STATUS_OPTIONS.map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    onClick={() => setStatusFilter(opt.value)}
+                                    className={cn('hud-badge px-2 py-1 text-xs', statusFilter === opt.value && 'ring-1 ring-cyan-400')}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                        <HUDCard accent>
+                            <div className="p-4">
+                                <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: 'rgba(0,255,255,0.9)' }}>
+                                    CONTACTS
+                                </h3>
+                                {isLoading ? (
+                                    <div className="py-12 text-center text-xs tracking-widest" style={{ color: 'rgba(0,255,255,0.5)' }}>
+                                        LOADING...
+                                    </div>
+                                ) : contacts.length === 0 ? (
+                                    <div className="py-12 text-center border border-dashed" style={{ borderColor: 'rgba(0,255,255,0.2)' }}>
+                                        <Users className="w-12 h-12 mx-auto mb-3 opacity-40" style={{ color: '#22d3ee' }} />
+                                        <p className="text-xs tracking-widest mb-4" style={{ color: 'rgba(0,255,255,0.5)' }}>NO CONTACTS</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/plugins/contacts/new')}
+                                            className="hud-btn hud-btn-primary px-4 py-2 text-xs"
+                                        >
+                                            ADD CONTACT
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <HUDDataTable
+                                        columns={[
+                                            {
+                                                key: 'name',
+                                                header: 'NAME',
+                                                render: (c) => (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigate(`/plugins/contacts/${c.id}`)}
+                                                        className="hover:underline text-left flex items-center gap-2"
+                                                    >
+                                                        <span className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center text-[10px] font-bold" style={{ color: '#67e8f9' }}>
+                                                            {getInitials(c.firstName, c.lastName)}
+                                                        </span>
+                                                        {c.firstName} {c.lastName}
+                                                    </button>
+                                                ),
+                                            },
+                                            { key: 'company', header: 'COMPANY', render: (c) => c.company || '-' },
+                                            { key: 'status', header: 'STATUS', render: (c) => c.status },
+                                            {
+                                                key: 'fav',
+                                                header: '',
+                                                render: (c) => (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => toggleFavorite(e, c)}
+                                                        className="p-1"
+                                                    >
+                                                        <Star className={cn('w-3 h-3', c.isFavorite && 'fill-current')} style={{ color: c.isFavorite ? '#fbbf24' : '#22d3ee' }} />
+                                                    </button>
+                                                ),
+                                            },
+                                        ]}
+                                        data={contacts}
+                                        keyExtractor={(c) => c.id}
+                                        emptyMessage="NO CONTACTS"
+                                    />
+                                )}
+                            </div>
+                        </HUDCard>
+                    </div>
+                </HUDAppLayout>
+            </div>
+        );
+    }
 
     return (
         <CrmLayout>

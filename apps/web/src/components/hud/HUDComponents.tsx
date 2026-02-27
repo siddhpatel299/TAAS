@@ -12,14 +12,15 @@ export function HUDPanel({ children, className, glow = false, hover = true, onCl
     return (
         <div
             className={cn(
-                glow ? "hud-panel-glow" : "hud-panel",
+                glow ? "hud-panel-glow" : "hud-panel-clipped",
                 hover && "hover:border-[var(--hud-border-bright)] hover:shadow-[var(--hud-glow-sm)]",
-                onClick && "cursor-pointer",
+                onClick && "cursor-pointer transition-all duration-300",
                 className
             )}
             onClick={onClick}
         >
             {children}
+            {!glow && <div className="corner-bottom-right" />}
         </div>
     );
 }
@@ -142,7 +143,7 @@ export function HUDButton({ variant = 'default', children, className, ...props }
 
 interface HUDBadgeProps {
     children: React.ReactNode;
-    variant?: 'default' | 'success' | 'warning' | 'danger';
+    variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
     className?: string;
 }
 
@@ -151,6 +152,7 @@ export function HUDBadge({ children, variant = 'default', className }: HUDBadgeP
         <span
             className={cn(
                 "hud-badge",
+                variant === 'primary' && "hud-badge-primary",
                 variant === 'success' && "hud-badge-success",
                 variant === 'warning' && "hud-badge-warning",
                 variant === 'danger' && "hud-badge-danger",

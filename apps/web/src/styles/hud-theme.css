@@ -1,64 +1,92 @@
 /* ============================================
-   HUD THEME - Sci-Fi Heads-Up Display Style
-   Cyan/Teal Neon Aesthetic
+   PREMIUM HUD THEME - Warzone/Sci-Fi Tactical
+   Deep Slate / Cyan / Neon Teal Aesthetic
    ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
 
 /* Color Tokens */
 :root {
-  --hud-bg-primary: #0a0e14;
-  --hud-bg-secondary: #0d1117;
-  --hud-bg-tertiary: #161b22;
-  
-  --hud-panel: rgba(0, 255, 255, 0.03);
-  --hud-panel-hover: rgba(0, 255, 255, 0.08);
-  --hud-panel-active: rgba(0, 255, 255, 0.12);
-  
-  --hud-border: rgba(0, 255, 255, 0.3);
+  --hud-bg-primary: #0a1118;
+  --hud-bg-secondary: #0e1721;
+  --hud-bg-tertiary: #14202b;
+
+  --hud-panel: rgba(10, 19, 28, 0.75);
+  --hud-panel-hover: rgba(16, 28, 40, 0.85);
+  --hud-panel-active: rgba(0, 255, 255, 0.08);
+
+  --hud-border: rgba(43, 110, 150, 0.4);
   --hud-border-bright: rgba(0, 255, 255, 0.6);
   --hud-border-glow: #00ffff;
-  
-  --hud-text-primary: #e0ffff;
-  --hud-text-secondary: rgba(224, 255, 255, 0.7);
-  --hud-text-tertiary: rgba(224, 255, 255, 0.5);
-  --hud-text-muted: rgba(224, 255, 255, 0.3);
-  
-  --hud-accent: #00d4ff;
+
+  --hud-text-primary: #e0f2fe;
+  --hud-text-secondary: rgba(224, 242, 254, 0.7);
+  --hud-text-tertiary: rgba(224, 242, 254, 0.4);
+  --hud-text-muted: rgba(224, 242, 254, 0.2);
+
+  --hud-accent: #219ebc;
   --hud-accent-bright: #00ffff;
-  --hud-accent-dim: rgba(0, 212, 255, 0.5);
-  
-  --hud-success: #00ff88;
-  --hud-warning: #ffaa00;
-  --hud-danger: #ff4757;
-  --hud-info: #00d4ff;
-  
-  --hud-glow-sm: 0 0 10px rgba(0, 255, 255, 0.3);
-  --hud-glow-md: 0 0 20px rgba(0, 255, 255, 0.4);
-  --hud-glow-lg: 0 0 30px rgba(0, 255, 255, 0.5);
+  --hud-accent-dim: rgba(0, 255, 255, 0.15);
+
+  --hud-success: #02f292;
+  --hud-warning: #ffb703;
+  --hud-danger: #ef233c;
+  --hud-info: #48cae4;
+
+  --hud-glow-sm: 0 0 8px rgba(0, 255, 255, 0.2);
+  --hud-glow-md: 0 0 15px rgba(0, 255, 255, 0.3);
+  --hud-glow-lg: 0 0 25px rgba(0, 255, 255, 0.4);
   --hud-glow-xl: 0 0 40px rgba(0, 255, 255, 0.6);
-  
-  --hud-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --hud-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --hud-font-tech: 'Rajdhani', sans-serif;
+  --hud-font-mono: 'JetBrains Mono', monospace;
 }
 
 /* ============================================
    BASE STYLES
    ============================================ */
 
+body.os-hud {
+  font-family: var(--hud-font-tech);
+}
+
 .hud-theme {
   background: var(--hud-bg-primary);
   color: var(--hud-text-primary);
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* Grid Background */
+/* Tactical Background Map & Grid */
 .hud-grid-bg {
-  background-image: 
-    linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
+  background-color: var(--hud-bg-primary);
+  background-image:
+    linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(0, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
   background-position: center center;
 }
 
-/* Scan Line Effect (subtle) */
+/* Crosshairs Background Decor */
+.hud-grid-bg::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at center, transparent 30%, var(--hud-bg-primary) 100%),
+    url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="rgba(0,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23dots)"/></svg>');
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scan Line Effect */
 .hud-scanlines::before {
   content: '';
   position: fixed;
@@ -66,16 +94,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.1) 2px,
-    rgba(0, 0, 0, 0.1) 4px
-  );
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.1));
+  background-size: 100% 4px;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.3;
+  opacity: 0.4;
 }
 
 /* ============================================
@@ -85,41 +112,99 @@
 .hud-panel {
   background: var(--hud-panel);
   border: 1px solid var(--hud-border);
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
   transition: var(--hud-transition);
+}
+
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Corner Accents for Panels */
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--hud-accent-bright);
+  border-left: 2px solid var(--hud-accent-bright);
+  box-shadow: -2px -2px 8px rgba(0, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hud-panel>.corner-bottom-right {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-bottom: 2px solid var(--hud-accent-bright);
+  border-right: 2px solid var(--hud-accent-bright);
+  box-shadow: 2px 2px 8px rgba(0, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .hud-panel:hover {
   background: var(--hud-panel-hover);
   border-color: var(--hud-border-bright);
-  box-shadow: var(--hud-glow-sm);
+  box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.05), var(--hud-glow-sm);
 }
 
 .hud-panel-glow {
   background: var(--hud-panel);
   border: 1px solid var(--hud-border-bright);
-  border-radius: 8px;
-  box-shadow: 
+  box-shadow:
     var(--hud-glow-md),
-    inset 0 0 20px rgba(0, 255, 255, 0.05);
+    inset 0 0 30px rgba(0, 255, 255, 0.1);
 }
 
-/* Clipped Corner Panel */
+/* Premium Angled Panel with Clip Path */
 .hud-panel-clipped {
-  background: var(--hud-panel);
-  border: 1px solid var(--hud-border);
-  clip-path: polygon(
-    0 10px,
-    10px 0,
-    calc(100% - 10px) 0,
-    100% 10px,
-    100% calc(100% - 10px),
-    calc(100% - 10px) 100%,
-    10px 100%,
-    0 calc(100% - 10px)
-  );
+  background: linear-gradient(135deg, rgba(10, 19, 28, 0.9) 0%, rgba(14, 23, 33, 0.9) 100%);
+  border: 1px solid var(--hud-accent-dim);
+  clip-path: polygon(15px 0,
+      100% 0,
+      100% calc(100% - 15px),
+      calc(100% - 15px) 100%,
+      0 100%,
+      0 15px);
   position: relative;
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+}
+
+.hud-panel-clipped::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 14px;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--hud-accent-bright), transparent);
+}
+
+.hud-panel-clipped::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 14px;
+  height: 2px;
+  background: linear-gradient(-90deg, var(--hud-accent-bright), transparent);
 }
 
 /* ============================================
@@ -127,13 +212,11 @@
    ============================================ */
 
 .hud-card {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 255, 255, 0.05) 0%,
-    rgba(0, 212, 255, 0.02) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(10, 24, 38, 0.6) 0%,
+      rgba(6, 13, 22, 0.8) 100%);
   border: 1px solid var(--hud-border);
-  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
   padding: 1.5rem;
   transition: var(--hud-transition);
   position: relative;
@@ -145,53 +228,35 @@
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
+  width: 100%;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--hud-accent),
-    transparent
-  );
-  opacity: 0;
+  background: linear-gradient(90deg,
+      transparent,
+      var(--hud-accent-bright),
+      transparent);
+  opacity: 0.2;
   transition: opacity 0.3s;
 }
 
 .hud-card:hover {
-  border-color: var(--hud-border-bright);
-  box-shadow: var(--hud-glow-md);
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.1);
   transform: translateY(-2px);
 }
 
 .hud-card:hover::before {
   opacity: 1;
+  box-shadow: 0 0 15px var(--hud-accent-bright);
 }
 
 /* Stat Card */
 .hud-stat-card {
-  background: var(--hud-panel);
+  background: var(--hud-bg-tertiary);
   border: 1px solid var(--hud-border);
-  border-radius: 16px;
+  border-left: 3px solid var(--hud-accent-bright);
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
-}
-
-.hud-stat-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--hud-accent),
-    transparent
-  );
-  border-radius: 3px 3px 0 0;
 }
 
 /* ============================================
@@ -199,42 +264,54 @@
    ============================================ */
 
 .hud-btn {
-  background: transparent;
-  border: 1px solid var(--hud-border);
-  color: var(--hud-accent);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
+  background: rgba(10, 19, 28, 0.8);
+  border: 1px solid var(--hud-accent-dim);
+  color: var(--hud-accent-bright);
+  padding: 0.6rem 1.5rem;
+  font-family: var(--hud-font-tech);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: var(--hud-transition);
   position: relative;
   overflow: hidden;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.hud-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.hud-btn:hover::before {
+  left: 100%;
 }
 
 .hud-btn:hover {
-  background: var(--hud-panel-hover);
-  border-color: var(--hud-border-bright);
-  box-shadow: var(--hud-glow-sm);
-  color: var(--hud-accent-bright);
+  background: rgba(0, 255, 255, 0.15);
+  border-color: var(--hud-accent-bright);
+  box-shadow: var(--hud-glow-md);
+  color: #fff;
 }
 
 .hud-btn-primary {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 212, 255, 0.2) 0%,
-    rgba(0, 255, 255, 0.1) 100%
-  );
-  border: 1px solid var(--hud-accent);
-  color: var(--hud-accent-bright);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 255, 255, 0.1) 100%);
+  border: 1px solid var(--hud-accent-bright);
+  color: #fff;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
 }
 
 .hud-btn-primary:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 212, 255, 0.3) 0%,
-    rgba(0, 255, 255, 0.2) 100%
-  );
-  box-shadow: var(--hud-glow-md);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.5) 0%, rgba(0, 255, 255, 0.3) 100%);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
 }
 
 .hud-btn-icon {
@@ -244,7 +321,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  clip-path: none;
+  border-radius: 4px;
 }
 
 /* ============================================
@@ -252,11 +330,12 @@
    ============================================ */
 
 .hud-input {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--hud-border);
-  border-radius: 8px;
+  font-family: var(--hud-font-mono);
+  font-size: 0.9rem;
   padding: 0.75rem 1rem;
-  color: var(--hud-text-primary);
+  color: var(--hud-accent-bright);
   transition: var(--hud-transition);
 }
 
@@ -266,36 +345,9 @@
 
 .hud-input:focus {
   outline: none;
-  border-color: var(--hud-accent);
-  box-shadow: var(--hud-glow-sm);
-}
-
-/* ============================================
-   PROGRESS RING
-   ============================================ */
-
-.hud-progress-ring {
-  position: relative;
-}
-
-.hud-progress-ring svg {
-  transform: rotate(-90deg);
-  filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.5));
-}
-
-.hud-progress-ring circle {
-  fill: none;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.5s ease;
-}
-
-.hud-progress-ring .progress-bg {
-  stroke: rgba(0, 255, 255, 0.1);
-}
-
-.hud-progress-ring .progress-fill {
-  stroke: var(--hud-accent);
-  filter: drop-shadow(0 0 6px var(--hud-accent));
+  border-color: var(--hud-accent-bright);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1), var(--hud-glow-sm);
+  background: rgba(0, 255, 255, 0.05);
 }
 
 /* ============================================
@@ -303,62 +355,51 @@
    ============================================ */
 
 .hud-sidebar {
-  background: linear-gradient(
-    180deg,
-    rgba(10, 14, 20, 0.95) 0%,
-    rgba(13, 17, 23, 0.98) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(5, 9, 14, 0.95) 0%,
+      rgba(10, 16, 24, 0.98) 100%);
   border-right: 1px solid var(--hud-border);
   backdrop-filter: blur(20px);
+  z-index: 50;
 }
 
 .hud-sidebar-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
+  gap: 1rem;
+  padding: 0.8rem 1.2rem;
   color: var(--hud-text-secondary);
-  border-radius: 8px;
+  font-family: var(--hud-font-tech);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   transition: var(--hud-transition);
   position: relative;
+  overflow: hidden;
 }
 
 .hud-sidebar-item:hover {
-  color: var(--hud-accent);
-  background: var(--hud-panel-hover);
+  color: var(--hud-accent-bright);
+  background: linear-gradient(90deg, rgba(0, 255, 255, 0.08), transparent);
 }
 
 .hud-sidebar-item.active {
   color: var(--hud-accent-bright);
-  background: var(--hud-panel-active);
-  border-left: 2px solid var(--hud-accent);
-  box-shadow: var(--hud-glow-sm);
+  background: linear-gradient(90deg, rgba(0, 255, 255, 0.15), transparent);
+  border-right: 2px solid var(--hud-accent-bright);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 .hud-sidebar-item.active::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
   width: 3px;
-  height: 60%;
-  background: var(--hud-accent);
-  border-radius: 0 3px 3px 0;
-  box-shadow: var(--hud-glow-sm);
-}
-
-/* ============================================
-   ICON STYLES
-   ============================================ */
-
-.hud-icon {
-  color: var(--hud-accent);
-  filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.3));
-}
-
-.hud-icon-glow {
-  filter: drop-shadow(0 0 8px var(--hud-accent));
+  height: 100%;
+  background: var(--hud-accent-bright);
+  box-shadow: var(--hud-glow-md);
 }
 
 /* ============================================
@@ -366,28 +407,30 @@
    ============================================ */
 
 .hud-text-glow {
-  text-shadow: 0 0 10px var(--hud-accent);
+  text-shadow: 0 0 10px var(--hud-accent-bright);
 }
 
 .hud-heading {
   color: var(--hud-text-primary);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.hud-label {
-  color: var(--hud-text-tertiary);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: var(--hud-font-tech);
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.hud-value {
+.hud-label {
   color: var(--hud-accent-bright);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.hud-value {
+  color: #fff;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--hud-font-mono);
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================
@@ -397,28 +440,40 @@
 .hud-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  background: var(--hud-panel);
+  padding: 0.2rem 0.6rem;
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--hud-border);
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--hud-accent);
+  font-family: var(--hud-font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--hud-accent-bright);
+  box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+}
+
+.hud-badge-primary {
+  border-color: var(--hud-accent-bright);
+  color: var(--hud-accent-bright);
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.2);
 }
 
 .hud-badge-success {
   border-color: var(--hud-success);
   color: var(--hud-success);
+  box-shadow: inset 0 0 5px rgba(2, 242, 146, 0.2);
 }
 
 .hud-badge-warning {
   border-color: var(--hud-warning);
   color: var(--hud-warning);
+  box-shadow: inset 0 0 5px rgba(255, 183, 3, 0.2);
 }
 
 .hud-badge-danger {
   border-color: var(--hud-danger);
   color: var(--hud-danger);
+  box-shadow: inset 0 0 5px rgba(239, 35, 60, 0.2);
 }
 
 /* ============================================
@@ -427,12 +482,11 @@
 
 .hud-divider {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--hud-border),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      var(--hud-border-bright),
+      transparent);
+  opacity: 0.5;
   margin: 1.5rem 0;
 }
 
@@ -441,29 +495,26 @@
    ============================================ */
 
 @keyframes hud-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
 }
 
 @keyframes hud-glow-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: var(--hud-glow-sm);
   }
+
   50% {
     box-shadow: var(--hud-glow-lg);
-  }
-}
-
-@keyframes hud-scan {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100%);
   }
 }
 
@@ -475,94 +526,151 @@
   animation: hud-glow-pulse 3s ease-in-out infinite;
 }
 
+@keyframes hud-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes hud-scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes hud-border-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes hud-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.9; }
+  97% { opacity: 1; }
+}
+
+@keyframes hud-data-stream {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes hud-glow-breathe {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,255,255,0.2), inset 0 0 8px rgba(0,255,255,0.05); }
+  50% { box-shadow: 0 0 20px rgba(0,255,255,0.4), inset 0 0 15px rgba(0,255,255,0.1); }
+}
+
+@keyframes earth-globe-rotate {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+.earth-globe-rotate {
+  animation: earth-globe-rotate 40s linear infinite;
+}
+
+/* HUD-style Earth: monochromatic cyan to match tactical display theme */
+.earth-globe-hud {
+  filter: saturate(0.25) brightness(0.88) contrast(1.05);
+}
+
+/* ============================================
+   HOLOGRAPHIC UTILITY CLASSES
+   ============================================ */
+
+.hud-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(0,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: hud-shimmer 3s ease-in-out infinite;
+}
+
+.hud-holographic {
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-holographic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,255,255,0.03) 0%, transparent 50%, rgba(0,255,255,0.03) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hud-glass {
+  background: rgba(5,15,25,0.7) !important;
+  backdrop-filter: blur(20px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
+  border: 1px solid rgba(0,255,255,0.2) !important;
+}
+
+.hud-data-line {
+  position: relative;
+}
+
+.hud-data-line::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,255,0.6), transparent);
+  animation: hud-border-flow 4s ease infinite;
+  background-size: 200% auto;
+}
+
+.hud-circuit-bg {
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(0,255,255,0.03) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(0,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.hud-flicker {
+  animation: hud-flicker 4s linear infinite;
+}
+
+.hud-breathe {
+  animation: hud-glow-breathe 4s ease-in-out infinite;
+}
+
 /* ============================================
    SCROLLBAR
    ============================================ */
 
-.hud-theme::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+body.os-hud ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.hud-theme::-webkit-scrollbar-track {
-  background: var(--hud-bg-secondary);
+body.os-hud ::-webkit-scrollbar-track {
+  background: var(--hud-bg-primary);
+  border-left: 1px solid var(--hud-border);
 }
 
-.hud-theme::-webkit-scrollbar-thumb {
-  background: var(--hud-border);
-  border-radius: 4px;
+body.os-hud ::-webkit-scrollbar-thumb {
+  background: var(--hud-accent-dim);
 }
 
-.hud-theme::-webkit-scrollbar-thumb:hover {
-  background: var(--hud-border-bright);
+body.os-hud ::-webkit-scrollbar-thumb:hover {
+  background: var(--hud-accent-bright);
 }
 
-/* ============================================
-   FILE CARD SPECIFIC
-   ============================================ */
-
-.hud-file-card {
-  background: var(--hud-panel);
-  border: 1px solid var(--hud-border);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: var(--hud-transition);
-  position: relative;
+/* Firefox scrollbar support */
+body.os-hud * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,255,255,0.3) rgba(0,0,0,0.3);
 }
 
-.hud-file-card:hover {
-  border-color: var(--hud-accent);
-  box-shadow: var(--hud-glow-md);
-}
-
-.hud-file-card .file-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(0, 255, 255, 0.1);
-  border: 1px solid var(--hud-border);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hud-file-card .file-icon svg {
-  color: var(--hud-accent);
-}
-
-/* ============================================
-   FOLDER CARD SPECIFIC
-   ============================================ */
-
-.hud-folder-card {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 212, 255, 0.08) 0%,
-    rgba(0, 255, 255, 0.03) 100%
-  );
-  border: 1px solid var(--hud-border);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: var(--hud-transition);
-}
-
-.hud-folder-card:hover {
-  border-color: var(--hud-accent);
-  box-shadow: var(--hud-glow-md);
-  transform: translateY(-2px);
-}
-
-/* ============================================
-   UTILITY CLASSES
-   ============================================ */
-
-.hud-border-glow {
-  border-color: var(--hud-accent) !important;
-  box-shadow: var(--hud-glow-md) !important;
-}
-
+/* Utilities */
 .hud-text-accent {
-  color: var(--hud-accent);
+  color: var(--hud-accent-bright);
 }
 
 .hud-text-success {
@@ -577,10 +685,437 @@
   color: var(--hud-danger);
 }
 
-.hud-bg-glow {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0, 255, 255, 0.1) 0%,
-    transparent 70%
-  );
+/* ============================================
+   APP THEMING INJECTION (PHASE 3 – NUCLEAR)
+   Forces ALL apps in `.os-hud-window` to fully
+   match the authentic HUD panel aesthetic:
+   dark bg, cyan borders, glow effects, tech font.
+   ============================================ */
+
+/* ---- BASE ---- */
+.os-hud-window {
+  color: var(--hud-text-primary) !important;
+  font-family: var(--hud-font-tech), 'JetBrains Mono', monospace !important;
+}
+
+/* ---- 1. NUKE ROOT LAYOUT WRAPPERS ---- */
+.os-hud-window>div,
+.os-hud-window>main,
+.os-hud-window main,
+.os-hud-window [class*="min-h-screen"],
+.os-hud-window [class*="min-h-[100vh]"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* ---- 2. CARDS & PANELS: replicate hud-card style ---- */
+.os-hud-window [class*="bg-white"],
+.os-hud-window [class*="bg-gray-50"],
+.os-hud-window [class*="bg-slate-50"],
+.os-hud-window [class*="bg-gray-100"],
+.os-hud-window [class*="bg-slate-100"],
+.os-hud-window [class*="bg-gray-200"],
+.os-hud-window [class*="bg-slate-200"],
+.os-hud-window [class*="bg-[#f0f5fa]"],
+.os-hud-window [class*="bg-[#ffffff]"] {
+  --tw-bg-opacity: 0 !important;
+  background: linear-gradient(180deg, rgba(10, 24, 38, 0.85) 0%, rgba(6, 13, 22, 0.95) 100%) !important;
+  border-color: rgba(0, 255, 255, 0.25) !important;
+  box-shadow: inset 0 1px 0 rgba(0, 255, 255, 0.1), 0 0 15px rgba(0, 255, 255, 0.05) !important;
+}
+
+/* Rounded cards get a subtle border-left glow accent like hud-stat-card */
+.os-hud-window [class*="rounded-2xl"][class*="bg-white"],
+.os-hud-window [class*="rounded-xl"][class*="bg-white"],
+.os-hud-window [class*="rounded-2xl"][class*="shadow-"] {
+  border-left: 3px solid rgba(0, 255, 255, 0.6) !important;
+}
+
+/* ---- 3. SIDEBAR / NAV / HEADER inside apps ---- */
+.os-hud-window aside,
+.os-hud-window header,
+.os-hud-window nav {
+  background: rgba(2, 6, 10, 0.9) !important;
+  background-image: none !important;
+  border-color: rgba(0, 255, 255, 0.2) !important;
+}
+
+.os-hud-window>div>aside,
+.os-hud-window [class*="ml-20"],
+.os-hud-window [class*="ml-64"] {
+  margin-left: 0 !important;
+}
+
+/* ---- 4. TYPOGRAPHY ---- */
+.os-hud-window [class*="text-gray-900"],
+.os-hud-window [class*="text-slate-900"],
+.os-hud-window [class*="text-black"] {
+  color: #a5f3fc !important;
+}
+
+.os-hud-window [class*="text-gray-800"],
+.os-hud-window [class*="text-slate-800"],
+.os-hud-window [class*="text-gray-700"],
+.os-hud-window [class*="text-slate-700"] {
+  color: #67e8f9 !important;
+}
+
+.os-hud-window [class*="text-gray-600"],
+.os-hud-window [class*="text-slate-600"] {
+  color: #22d3ee !important;
+}
+
+.os-hud-window [class*="text-gray-500"],
+.os-hud-window [class*="text-slate-500"],
+.os-hud-window [class*="text-gray-400"],
+.os-hud-window [class*="text-slate-400"],
+.os-hud-window [class*="text-gray-300"] {
+  color: #0891b2 !important;
+}
+
+/* Headings — glow + uppercase */
+.os-hud-window h1,
+.os-hud-window h2,
+.os-hud-window h3 {
+  color: #22d3ee !important;
+  font-family: var(--hud-font-tech) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.4) !important;
+}
+
+/* Paragraph / body text */
+.os-hud-window p {
+  color: #67e8f9 !important;
+}
+
+/* Links */
+.os-hud-window a:not([class*="bg-"]) {
+  color: #22d3ee !important;
+}
+
+.os-hud-window a:hover {
+  color: #00ffff !important;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5) !important;
+}
+
+/* ---- 5. ICON BACKGROUNDS ---- */
+.os-hud-window [class*="bg-sky-50"],
+.os-hud-window [class*="bg-blue-50"],
+.os-hud-window [class*="bg-violet-50"],
+.os-hud-window [class*="bg-purple-50"],
+.os-hud-window [class*="bg-emerald-50"],
+.os-hud-window [class*="bg-green-50"],
+.os-hud-window [class*="bg-orange-50"],
+.os-hud-window [class*="bg-amber-50"],
+.os-hud-window [class*="bg-red-50"],
+.os-hud-window [class*="bg-rose-50"],
+.os-hud-window [class*="bg-yellow-50"],
+.os-hud-window [class*="bg-teal-50"],
+.os-hud-window [class*="bg-indigo-50"],
+.os-hud-window [class*="bg-cyan-50"],
+.os-hud-window [class*="bg-pink-50"] {
+  background: rgba(0, 255, 255, 0.08) !important;
+  border: 1px solid rgba(0, 255, 255, 0.25) !important;
+}
+
+/* Also override icon text colors to cyan */
+.os-hud-window [class*="text-sky-600"],
+.os-hud-window [class*="text-blue-600"],
+.os-hud-window [class*="text-violet-600"],
+.os-hud-window [class*="text-purple-600"],
+.os-hud-window [class*="text-emerald-600"],
+.os-hud-window [class*="text-green-600"],
+.os-hud-window [class*="text-orange-600"],
+.os-hud-window [class*="text-orange-500"] {
+  color: #22d3ee !important;
+}
+
+/* ---- 6. BADGES / TAGS ---- */
+.os-hud-window [class*="bg-emerald-50"][class*="text-emerald-"],
+.os-hud-window [class*="rounded-full"][class*="bg-emerald-"],
+.os-hud-window [class*="rounded-full"][class*="bg-sky-"],
+.os-hud-window [class*="rounded-full"][class*="bg-blue-"],
+.os-hud-window [class*="rounded-full"][class*="bg-violet-"],
+.os-hud-window [class*="rounded-full"][class*="bg-amber-"],
+.os-hud-window [class*="rounded-full"][class*="bg-red-"] {
+  background: rgba(0, 255, 255, 0.15) !important;
+  color: #00ffff !important;
+  border: 1px solid rgba(0, 255, 255, 0.4) !important;
+}
+
+/* ---- 7. PROGRESS BARS ---- */
+.os-hud-window [class*="bg-gray-100"][class*="rounded-full"],
+.os-hud-window [class*="bg-gray-200"][class*="rounded-full"] {
+  background: rgba(0, 255, 255, 0.1) !important;
+  border: 1px solid rgba(0, 255, 255, 0.2) !important;
+}
+
+.os-hud-window [class*="bg-gradient-to-r"][class*="rounded-full"] {
+  background: linear-gradient(90deg, rgba(0, 255, 255, 0.6), rgba(34, 211, 238, 0.9)) !important;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4) !important;
+}
+
+/* ---- 8. BORDERS & DIVIDERS ---- */
+.os-hud-window [class*="border-gray-"],
+.os-hud-window [class*="border-slate-"],
+.os-hud-window [class*="border-red-100"],
+.os-hud-window [class*="border-orange-100"],
+.os-hud-window [class*="border-sky-200"],
+.os-hud-window [class*="border-emerald-200"],
+.os-hud-window [class*="border-violet-200"] {
+  border-color: rgba(0, 255, 255, 0.15) !important;
+}
+
+.os-hud-window [class*="divide-gray-"],
+.os-hud-window [class*="divide-slate-"] {
+  --tw-divide-color: rgba(0, 255, 255, 0.12) !important;
+}
+
+/* ---- 9. INPUTS & FORM ELEMENTS ---- */
+.os-hud-window input,
+.os-hud-window textarea,
+.os-hud-window select {
+  background: rgba(0, 255, 255, 0.05) !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  color: #22d3ee !important;
+  border-radius: 2px !important;
+}
+
+.os-hud-window input:focus,
+.os-hud-window textarea:focus,
+.os-hud-window select:focus {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.3) !important;
+  outline: none !important;
+}
+
+.os-hud-window input::placeholder,
+.os-hud-window textarea::placeholder {
+  color: rgba(0, 255, 255, 0.3) !important;
+}
+
+/* Checkbox & Radio accent */
+body.os-hud input[type="checkbox"],
+body.os-hud input[type="radio"] {
+  accent-color: #00ffff;
+}
+
+/* File inputs */
+body.os-hud input[type="file"]::file-selector-button {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  color: #22d3ee;
+  font-family: var(--hud-font-tech);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+body.os-hud input[type="file"]::file-selector-button:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+}
+
+/* Date/time pickers */
+body.os-hud input[type="date"],
+body.os-hud input[type="time"],
+body.os-hud input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+/* Range slider */
+body.os-hud input[type="range"] {
+  accent-color: #00ffff;
+}
+
+/* ---- 10. BUTTONS ---- */
+.os-hud-window button[class*="bg-white"],
+.os-hud-window button[class*="bg-gray-"],
+.os-hud-window button[class*="border-gray-"] {
+  background: rgba(10, 19, 28, 0.8) !important;
+  background-image: none !important;
+  border: 1px solid rgba(0, 255, 255, 0.4) !important;
+  color: #22d3ee !important;
+  border-radius: 2px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-family: var(--hud-font-tech) !important;
+}
+
+.os-hud-window button[class*="bg-white"]:hover,
+.os-hud-window button[class*="bg-gray-"]:hover {
+  background: rgba(0, 255, 255, 0.2) !important;
+  border-color: #00ffff !important;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4) !important;
+  color: #fff !important;
+}
+
+/* Primary / dark buttons */
+.os-hud-window button[class*="bg-gray-900"],
+.os-hud-window button[class*="bg-black"],
+.os-hud-window [class*="bg-gray-900"][class*="text-white"] {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 255, 255, 0.1) 100%) !important;
+  border: 1px solid #00ffff !important;
+  color: #fff !important;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.8) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  font-family: var(--hud-font-tech) !important;
+  border-radius: 2px !important;
+}
+
+.os-hud-window button[class*="bg-gray-900"]:hover,
+.os-hud-window button[class*="bg-black"]:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.5) 0%, rgba(0, 255, 255, 0.3) 100%) !important;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.5) !important;
+}
+
+/* Gradient buttons */
+.os-hud-window button[class*="bg-gradient-"] {
+  background: rgba(0, 255, 255, 0.15) !important;
+  border: 1px solid #00ffff !important;
+  color: #00ffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.os-hud-window button[class*="bg-gradient-"]:hover {
+  background: rgba(0, 255, 255, 0.3) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4) !important;
+}
+
+/* ---- 11. HOVER STATES ---- */
+.os-hud-window [class*="hover:bg-gray-50"]:hover,
+.os-hud-window [class*="hover:bg-slate-50"]:hover,
+.os-hud-window [class*="hover:bg-gray-100"]:hover {
+  background: rgba(0, 255, 255, 0.08) !important;
+}
+
+.os-hud-window [class*="hover:shadow-md"]:hover,
+.os-hud-window [class*="hover:shadow-lg"]:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15), inset 0 0 15px rgba(0, 255, 255, 0.05) !important;
+}
+
+.os-hud-window [class*="hover:border-sky-200"]:hover,
+.os-hud-window [class*="hover:border-emerald-200"]:hover,
+.os-hud-window [class*="hover:border-violet-200"]:hover {
+  border-color: rgba(0, 255, 255, 0.5) !important;
+}
+
+/* ---- 12. SHADOWS ---- */
+.os-hud-window [class*="shadow-sm"],
+.os-hud-window [class*="shadow-md"],
+.os-hud-window [class*="shadow-lg"],
+.os-hud-window [class*="shadow-xl"] {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.08), inset 0 1px 0 rgba(0, 255, 255, 0.1) !important;
+}
+
+/* ---- 13. SPECIFIC OVERDUE / STATUS COLORS ---- */
+.os-hud-window [class*="text-red-600"],
+.os-hud-window [class*="text-red-500"] {
+  color: #f87171 !important;
+  text-shadow: 0 0 8px rgba(248, 113, 113, 0.4) !important;
+}
+
+.os-hud-window [class*="text-emerald-600"],
+.os-hud-window [class*="text-green-600"],
+.os-hud-window [class*="text-emerald-500"] {
+  color: #34d399 !important;
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.4) !important;
+}
+
+/* ---- 14. RADIX MODALS & DIALOGS ---- */
+body.os-hud [data-radix-popper-content-wrapper],
+body.os-hud [role="dialog"] {
+  --tw-bg-opacity: 1 !important;
+}
+
+body.os-hud [role="dialog"]>div[class*="bg-white"],
+body.os-hud [role="dialog"]>div[class*="bg-gray"] {
+  background: linear-gradient(135deg, rgba(6, 12, 18, 0.97) 0%, rgba(10, 19, 28, 0.98) 100%) !important;
+  border: 1px solid rgba(0, 255, 255, 0.4) !important;
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.2) !important;
+  color: #22d3ee !important;
+  border-radius: 0 !important;
+  backdrop-filter: blur(16px) !important;
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+}
+
+body.os-hud [role="dialog"] h2,
+body.os-hud [role="dialog"] h3 {
+  color: #00ffff !important;
+  font-family: var(--hud-font-tech) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+}
+
+body.os-hud [role="dialog"] input,
+body.os-hud [role="dialog"] textarea {
+  background: rgba(0, 255, 255, 0.05) !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  color: #22d3ee !important;
+}
+
+body.os-hud [role="dialog"] button[class*="bg-white"] {
+  background: rgba(10, 19, 28, 0.8) !important;
+  border: 1px solid rgba(0, 255, 255, 0.4) !important;
+  color: #22d3ee !important;
+}
+
+/* Dialog overlay/backdrop */
+body.os-hud [data-state="open"][role="dialog"]::backdrop,
+body.os-hud .fixed.inset-0[class*="bg-black/"] {
+  backdrop-filter: blur(4px);
+}
+
+/* ---- 15. RADIX DROPDOWNS ---- */
+body.os-hud [data-radix-popper-content-wrapper] [class*="bg-white"] {
+  background: rgba(6, 12, 18, 0.97) !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  color: #22d3ee !important;
+}
+
+body.os-hud [data-radix-popper-content-wrapper] [class*="text-gray-900"],
+body.os-hud [data-radix-popper-content-wrapper] [class*="text-slate-900"] {
+  color: #a5f3fc !important;
+}
+
+body.os-hud [data-radix-popper-content-wrapper] [role="menuitem"]:hover {
+  background: rgba(0, 255, 255, 0.2) !important;
+  color: #00ffff !important;
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
+
+body.os-hud pre,
+body.os-hud code,
+body.os-hud kbd {
+  background: rgba(0, 10, 20, 0.8) !important;
+  color: #67e8f9 !important;
+  border: 1px solid rgba(0, 255, 255, 0.2) !important;
+  font-family: var(--hud-font-mono) !important;
+}
+
+body.os-hud kbd {
+  padding: 0.1em 0.4em;
+  font-size: 0.85em;
+  box-shadow: 0 1px 0 rgba(0,255,255,0.3);
+}
+
+/* ============================================
+   DISABLED STATES
+   ============================================ */
+
+body.os-hud [disabled],
+body.os-hud [aria-disabled="true"] {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
 }

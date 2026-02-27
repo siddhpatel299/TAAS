@@ -68,21 +68,24 @@ export function HUDSidebar({ collapsed = false, onToggle }: HUDSidebarProps) {
                 <Link to="/" className="flex items-center gap-3">
                     <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 border border-cyan-500/50 flex items-center justify-center shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+                        className="w-10 h-10 rounded-sm bg-gradient-to-br from-cyan-900/80 to-slate-900 border border-cyan-500/50 flex items-center justify-center shadow-[0_0_15px_rgba(0,255,255,0.3)] relative overflow-hidden"
                     >
-                        <Send className="w-5 h-5 text-cyan-400" />
+                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,255,255,0.4) 1px, transparent 1px)', backgroundSize: '4px 4px' }} />
+                        <Send className="w-5 h-5 text-cyan-400 relative z-10" />
                     </motion.div>
-                    {!collapsed && (
-                        <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="text-lg font-bold text-cyan-400 tracking-wider"
-                            style={{ textShadow: '0 0 10px rgba(0, 255, 255, 0.5)' }}
-                        >
-                            TAAS
-                        </motion.span>
-                    )}
-                </Link>
+                    {
+                        !collapsed && (
+                            <motion.span
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="text-lg font-bold text-cyan-400 tracking-wider"
+                                style={{ textShadow: '0 0 10px rgba(0, 255, 255, 0.5)' }}
+                            >
+                                TAAS
+                            </motion.span>
+                        )
+                    }
+                </Link >
 
                 {onToggle && (
                     <button
@@ -91,82 +94,93 @@ export function HUDSidebar({ collapsed = false, onToggle }: HUDSidebarProps) {
                     >
                         {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                     </button>
-                )}
-            </div>
+                )
+                }
+            </div >
 
             {/* Navigation */}
-            <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+            < nav className="flex-1 p-3 space-y-1 overflow-y-auto" >
                 {!collapsed && (
-                    <p className="px-3 py-2 text-xs font-medium text-cyan-600/60 uppercase tracking-wider">
-                        Navigation
-                    </p>
+                    <div className="px-3 py-2 mb-2 flex items-center gap-2">
+                        <div className="w-1 h-3 bg-cyan-500/70"></div>
+                        <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-[0.2em] opacity-80">
+                            System Navigation
+                        </p>
+                    </div>
                 )}
 
-                {mainNavItems.map((item) => {
-                    const isActive = location.pathname === item.path ||
-                        (item.path === '/' && location.pathname.startsWith('/?'));
+                {
+                    mainNavItems.map((item) => {
+                        const isActive = location.pathname === item.path ||
+                            (item.path === '/' && location.pathname.startsWith('/?'));
 
-                    return (
-                        <Link key={item.path} to={item.path}>
-                            <motion.div
-                                whileHover={{ x: 4 }}
-                                whileTap={{ scale: 0.98 }}
-                                className={cn(
-                                    "hud-sidebar-item",
-                                    isActive && "active",
-                                    collapsed && "justify-center px-0"
-                                )}
-                            >
-                                <item.icon className={cn(
-                                    "w-5 h-5 flex-shrink-0",
-                                    isActive ? "text-cyan-400" : "text-cyan-600/70"
-                                )} />
-                                {!collapsed && (
-                                    <span className="truncate">{item.label}</span>
-                                )}
-                            </motion.div>
-                        </Link>
-                    );
-                })}
+                        return (
+                            <Link key={item.path} to={item.path}>
+                                <motion.div
+                                    whileHover={{ x: 4 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className={cn(
+                                        "hud-sidebar-item",
+                                        isActive && "active",
+                                        collapsed && "justify-center px-0"
+                                    )}
+                                >
+                                    <item.icon className={cn(
+                                        "w-5 h-5 flex-shrink-0",
+                                        isActive ? "text-cyan-400" : "text-cyan-600/70"
+                                    )} />
+                                    {!collapsed && (
+                                        <span className="truncate">{item.label}</span>
+                                    )}
+                                </motion.div>
+                            </Link>
+                        );
+                    })
+                }
 
                 {/* Plugins Section */}
-                {enabledPluginItems.length > 0 && (
-                    <>
-                        <div className="hud-divider my-3" />
-                        {!collapsed && (
-                            <p className="px-3 py-2 text-xs font-medium text-cyan-600/60 uppercase tracking-wider">
-                                Plugins
-                            </p>
-                        )}
+                {
+                    enabledPluginItems.length > 0 && (
+                        <>
+                            <div className="hud-divider my-3" />
+                            {!collapsed && (
+                                <div className="px-3 py-2 mb-2 flex items-center gap-2">
+                                    <div className="w-1 h-3 bg-cyan-500/70"></div>
+                                    <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-[0.2em] opacity-80">
+                                        Active Modules
+                                    </p>
+                                </div>
+                            )}
 
-                        {enabledPluginItems.map((item) => {
-                            const isActive = location.pathname.startsWith(item.path);
-                            const Icon = item.icon;
+                            {enabledPluginItems.map((item) => {
+                                const isActive = location.pathname.startsWith(item.path);
+                                const Icon = item.icon;
 
-                            return (
-                                <Link key={item.path} to={item.path}>
-                                    <motion.div
-                                        whileHover={{ x: 4 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className={cn(
-                                            "hud-sidebar-item",
-                                            isActive && "active",
-                                            collapsed && "justify-center px-0"
-                                        )}
-                                    >
-                                        <Icon className={cn(
-                                            "w-5 h-5 flex-shrink-0",
-                                            isActive ? "text-cyan-400" : "text-cyan-600/70"
-                                        )} />
-                                        {!collapsed && (
-                                            <span className="truncate">{item.label}</span>
-                                        )}
-                                    </motion.div>
-                                </Link>
-                            );
-                        })}
-                    </>
-                )}
+                                return (
+                                    <Link key={item.path} to={item.path}>
+                                        <motion.div
+                                            whileHover={{ x: 4 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className={cn(
+                                                "hud-sidebar-item",
+                                                isActive && "active",
+                                                collapsed && "justify-center px-0"
+                                            )}
+                                        >
+                                            <Icon className={cn(
+                                                "w-5 h-5 flex-shrink-0",
+                                                isActive ? "text-cyan-400" : "text-cyan-600/70"
+                                            )} />
+                                            {!collapsed && (
+                                                <span className="truncate">{item.label}</span>
+                                            )}
+                                        </motion.div>
+                                    </Link>
+                                );
+                            })}
+                        </>
+                    )
+                }
 
                 {/* Plugins Store */}
                 <Link to="/plugins">
@@ -186,54 +200,57 @@ export function HUDSidebar({ collapsed = false, onToggle }: HUDSidebarProps) {
                         {!collapsed && <span>Plugins Store</span>}
                     </motion.div>
                 </Link>
-            </nav>
+            </nav >
 
             {/* Footer */}
-            <div className="p-3 border-t border-[var(--hud-border)] space-y-1">
+            < div className="p-3 border-t border-[var(--hud-border)] space-y-1" >
                 {/* Theme Toggle */}
-                <motion.button
+                < motion.button
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={cycleVersion}
-                    className={cn(
-                        "w-full hud-sidebar-item text-cyan-500",
-                        collapsed && "justify-center px-0"
-                    )}
+                    className={
+                        cn(
+                            "w-full hud-sidebar-item text-cyan-500",
+                            collapsed && "justify-center px-0"
+                        )}
                 >
                     <Zap className="w-5 h-5 flex-shrink-0" />
                     {!collapsed && <span>Switch Theme</span>}
-                </motion.button>
+                </motion.button >
 
                 {/* Settings */}
-                <motion.button
+                < motion.button
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSettingsOpen(true)}
-                    className={cn(
-                        "w-full hud-sidebar-item",
-                        collapsed && "justify-center px-0"
-                    )}
+                    className={
+                        cn(
+                            "w-full hud-sidebar-item",
+                            collapsed && "justify-center px-0"
+                        )}
                 >
                     <Settings className="w-5 h-5 flex-shrink-0 text-cyan-600/70" />
                     {!collapsed && <span>Settings</span>}
-                </motion.button>
+                </motion.button >
 
                 {/* Logout */}
-                <motion.button
+                < motion.button
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => logout()}
-                    className={cn(
-                        "w-full hud-sidebar-item hover:!text-red-400 hover:!bg-red-500/10",
-                        collapsed && "justify-center px-0"
-                    )}
+                    className={
+                        cn(
+                            "w-full hud-sidebar-item hover:!text-red-400 hover:!bg-red-500/10",
+                            collapsed && "justify-center px-0"
+                        )}
                 >
                     <LogOut className="w-5 h-5 flex-shrink-0 text-cyan-600/70" />
                     {!collapsed && <span>Logout</span>}
-                </motion.button>
-            </div>
+                </motion.button >
+            </div >
 
             <AccountSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-        </aside>
+        </aside >
     );
 }
