@@ -34,6 +34,8 @@ export function JobTrackerSettingsDialog({
   isOpen,
   onClose,
 }: JobTrackerSettingsDialogProps) {
+  const osStyle = useOSStore((s) => s.osStyle);
+  const isHUD = osStyle === 'hud';
   const [activeTab, setActiveTab] = useState<TabType>('api-keys');
 
   // API Keys
